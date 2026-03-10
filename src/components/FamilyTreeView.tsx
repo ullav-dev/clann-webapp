@@ -23,7 +23,7 @@ import { useRouter } from "next/navigation";
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type Orientation = "vertical" | "horizontal";
-type Role = "root" | "father" | "mother" | "child";
+type Role = "root" | "father" | "mother" | "child" | "spouse";
 
 type NodeData = {
   id: string;
@@ -41,6 +41,7 @@ const ROLE_STYLES: Record<Role, { border: string; bg: string; text: string; hand
   father: { border: "border-blue-400",    bg: "bg-blue-50",     text: "text-blue-800",    handle: "!bg-blue-400",    minimap: "#60a5fa" },
   mother: { border: "border-rose-400",    bg: "bg-rose-50",     text: "text-rose-800",    handle: "!bg-rose-400",    minimap: "#fb7185" },
   child:  { border: "border-amber-400",   bg: "bg-amber-50",    text: "text-amber-800",   handle: "!bg-amber-400",   minimap: "#fbbf24" },
+  spouse: { border: "border-violet-400",  bg: "bg-violet-50",   text: "text-violet-800",  handle: "!bg-violet-400",  minimap: "#a78bfa" },
 };
 
 // ── Custom person node ───────────────────────────────────────────────────────
@@ -53,19 +54,25 @@ function PersonNode({ data }: NodeProps) {
 
   const style = ROLE_STYLES[d.role];
 
-  // Handle positions depend on orientation:
-  //   vertical   → source exits Bottom, target enters Top    (ancestors above)
-  //   horizontal → source exits Left,   target enters Right  (ancestors to the right)
-  const sourcePos = d.orientation === "horizontal" ? Position.Left : Position.Bottom;
-  const targetPos = d.orientation === "horizontal" ? Position.Right : Position.Top;
+  // Main axis (ancestors ↔ children):
+  //   vertical   → source=Bottom (children below), target=Top (ancestors above)
+  //   horizontal → source=Left   (children left),  target=Right (ancestors right)
+  // Spouse axis (perpendicular):
+  //   vertical   → source=Right, target=Left
+  //   horizontal → source=Bottom, target=Top
+  const isH = d.orientation === "horizontal";
 
   return (
     <div
       onClick={() => router.push(`/persons/${rawId(d.id)}`)}
       className={`cursor-pointer rounded-xl border-2 shadow-md px-4 py-3 w-[148px] text-center select-none transition-shadow hover:shadow-lg ${style.border} ${style.bg}`}
     >
-      <Handle type="source" position={sourcePos} className={style.handle} />
-      <Handle type="target" position={targetPos} className={style.handle} />
+      {/* Main-axis handles */}
+      <Handle id="main-s" type="source" position={isH ? Position.Left   : Position.Bottom} className={style.handle} />
+      <Handle id="main-t" type="target" position={isH ? Position.Right  : Position.Top}    className={style.handle} />
+      {/* Spouse-axis handles (perpendicular) */}
+      <Handle id="sp-s" type="source" position={isH ? Position.Bottom : Position.Right} className={style.handle} />
+      <Handle id="sp-t" type="target" position={isH ? Position.Top    : Position.Left}  className={style.handle} />
 
       <div className="flex justify-center mb-2">
         {showImage ? (
@@ -137,6 +144,7 @@ function buildGraph(
   const fathers = node.father ?? [];
   const mothers = node.mother ?? [];
   const nodeChildren = node.children ?? [];
+  const nodeSpouses = node.spouse ?? [];
   const totalParents = fathers.length + mothers.length;
 
   // Layout ancestors: fathers first, then mothers
@@ -161,8 +169,8 @@ function buildGraph(
     const edgeColor = parentRole === "father" ? "#93c5fd" : "#fda4af"; // blue-300 / rose-300
     edges.push({
       id: `${p.id}->${node.id}`,
-      source: p.id,
-      target: node.id,
+      source: p.id,      sourceHandle: "main-s",
+      target: node.id,   targetHandle: "main-t",
       type: "smoothstep",
       markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
       style: { stroke: edgeColor, strokeWidth: 1.5 },
@@ -189,11 +197,38 @@ function buildGraph(
     const edgeColor = "#fcd34d"; // amber-300
     edges.push({
       id: `${node.id}->${child.id}`,
-      source: node.id,
-      target: child.id,
+      source: node.id,   sourceHandle: "main-s",
+      target: child.id,  targetHandle: "main-t",
       type: "smoothstep",
       markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
       style: { stroke: edgeColor, strokeWidth: 1.5 },
+    });
+  });
+
+  // Layout spouses perpendicular to the ancestor/child axis:
+  //   vertical   → spouses to the right, at the same Y level
+  //   horizontal → spouses below, at the same X level
+  nodeSpouses.forEach((sp, i) => {
+    let px: number;
+    let py: number;
+
+    if (orientation === "vertical") {
+      px = x + (i + 1) * X_GAP;
+      py = y;
+    } else {
+      px = x;
+      py = y + (i + 1) * Y_GAP;
+    }
+
+    buildGraph(sp, px, py, nodes, edges, orientation, "spouse", visited);
+
+    const edgeColor = "#c4b5fd"; // violet-300
+    edges.push({
+      id: `${node.id}~sp~${sp.id}`,
+      source: node.id,  sourceHandle: "sp-s",
+      target: sp.id,    targetHandle: "sp-t",
+      type: "straight",
+      style: { stroke: edgeColor, strokeWidth: 2, strokeDasharray: "5 3" },
     });
   });
 }
@@ -218,6 +253,10 @@ function Legend() {
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-3 h-3 rounded-sm border-2 border-amber-400 bg-amber-50" />
         Child
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-3 h-3 rounded-sm border-2 border-violet-400 bg-violet-50" />
+        Spouse
       </span>
     </div>
   );

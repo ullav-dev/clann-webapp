@@ -25,6 +25,7 @@ const REL_TYPE_MAP: Record<string, string> = {
   father: "has_father",
   mother: "has_mother",
   siblings: "has_sibling",
+  spouse: "has_spouse",
 };
 
 export default function PersonDetailPage() {
@@ -75,7 +76,7 @@ export default function PersonDetailPage() {
     }
   }
 
-  async function handleDeleteRel(group: "father" | "mother" | "siblings", related: Person) {
+  async function handleDeleteRel(group: "father" | "mother" | "siblings" | "spouse", related: Person) {
     if (!confirm(`Remove ${fullName(related)} as ${group}?`)) return;
     await deleteRelationship(id, REL_TYPE_MAP[group], related.id);
     load();
@@ -203,12 +204,12 @@ export default function PersonDetailPage() {
             </button>
           </div>
 
-          {["father", "mother", "siblings"].map((group) => {
+          {["father", "mother", "siblings", "spouse"].map((group) => {
             const people = rels[group as keyof RelationshipsResponse];
             return (
               <section key={group}>
                 <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3">
-                  {group === "father" ? "👨 Father" : group === "mother" ? "👩 Mother" : "👫 Siblings"}
+                  {group === "father" ? "👨 Father" : group === "mother" ? "👩 Mother" : group === "siblings" ? "👫 Siblings" : "💍 Spouse"}
                 </h2>
                 {people.length === 0 ? (
                   <p className="text-stone-400 text-sm italic">None recorded</p>
@@ -234,7 +235,7 @@ export default function PersonDetailPage() {
                           </div>
                         </Link>
                         <button
-                          onClick={() => handleDeleteRel(group as "father" | "mother" | "siblings", p)}
+                          onClick={() => handleDeleteRel(group as "father" | "mother" | "siblings" | "spouse", p)}
                           className="text-stone-300 hover:text-red-500 transition-colors text-lg ml-2 flex-shrink-0"
                           title="Remove relationship"
                         >

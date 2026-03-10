@@ -1,5 +1,5 @@
 export type Sex = "Male" | "Female";
-export type RelationshipType = "Father" | "Mother" | "Sibling";
+export type RelationshipType = "Father" | "Mother" | "Sibling" | "Spouse";
 export type SiblingType = "Brother" | "Sister";
 
 export interface Person {
@@ -41,6 +41,7 @@ export interface RelationshipsResponse {
   father: Person[];
   mother: Person[];
   siblings: Person[];
+  spouse: Person[];
 }
 
 export interface AddRelationshipRequest {
@@ -58,6 +59,7 @@ export interface FamilyTreeNode {
   father?: FamilyTreeNode[];
   mother?: FamilyTreeNode[];
   children?: FamilyTreeNode[];
+  spouse?: FamilyTreeNode[];
 }
 
 export interface ErrorResponse {

@@ -39,7 +39,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
       await addRelationship(personId, {
         type: relType,
         related_id: selectedId,
-        sibling_type: relType === "Sibling" ? siblingType : null,
+        sibling_type: relType === "Sibling" ? siblingType : undefined,
       });
 
       // When adding a sibling, propagate the root person's parents to the
@@ -98,7 +98,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
           <div>
             <label className="text-sm font-medium text-stone-700 block mb-2">Relationship Type</label>
             <div className="grid grid-cols-2 gap-2">
-              {(["Father", "Mother", "Sibling"] as RelationshipType[]).map((t) => (
+              {(["Father", "Mother", "Sibling", "Spouse"] as RelationshipType[]).map((t) => (
                 <button
                   key={t}
                   type="button"
@@ -109,7 +109,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
                       : "border-stone-300 text-stone-700 hover:border-emerald-400"
                   }`}
                 >
-                  {t === "Father" ? "👨 Father" : t === "Mother" ? "👩 Mother" : "👫 Sibling"}
+                  {t === "Father" ? "👨 Father" : t === "Mother" ? "👩 Mother" : t === "Sibling" ? "👫 Sibling" : "💍 Spouse"}
                 </button>
               ))}
             </div>
