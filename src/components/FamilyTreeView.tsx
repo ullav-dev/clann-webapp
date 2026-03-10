@@ -23,15 +23,24 @@ import { useRouter } from "next/navigation";
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type Orientation = "vertical" | "horizontal";
+type Role = "root" | "father" | "mother" | "child";
 
 type NodeData = {
   id: string;
   name: string;
   sex: string;
-  isRoot: boolean;
+  role: Role;
   dob?: string;
   imagePath?: string | null;
   orientation: Orientation;
+};
+
+// Per-role visual style
+const ROLE_STYLES: Record<Role, { border: string; bg: string; text: string; handle: string; minimap: string }> = {
+  root:   { border: "border-emerald-600", bg: "bg-emerald-50",  text: "text-emerald-800", handle: "!bg-emerald-500", minimap: "#059669" },
+  father: { border: "border-blue-400",    bg: "bg-blue-50",     text: "text-blue-800",    handle: "!bg-blue-400",    minimap: "#60a5fa" },
+  mother: { border: "border-rose-400",    bg: "bg-rose-50",     text: "text-rose-800",    handle: "!bg-rose-400",    minimap: "#fb7185" },
+  child:  { border: "border-amber-400",   bg: "bg-amber-50",    text: "text-amber-800",   handle: "!bg-amber-400",   minimap: "#fbbf24" },
 };
 
 // ── Custom person node ───────────────────────────────────────────────────────
@@ -42,6 +51,8 @@ function PersonNode({ data }: NodeProps) {
   const [imgError, setImgError] = useState(false);
   const showImage = !!d.imagePath && !imgError;
 
+  const style = ROLE_STYLES[d.role];
+
   // Handle positions depend on orientation:
   //   vertical   → source exits Bottom, target enters Top    (ancestors above)
   //   horizontal → source exits Left,   target enters Right  (ancestors to the right)
@@ -51,18 +62,16 @@ function PersonNode({ data }: NodeProps) {
   return (
     <div
       onClick={() => router.push(`/persons/${rawId(d.id)}`)}
-      className={`cursor-pointer rounded-xl border-2 shadow-md px-4 py-3 w-[148px] text-center select-none transition-shadow hover:shadow-lg ${
-        d.isRoot
-          ? "border-emerald-600 bg-emerald-50"
-          : "border-stone-300 bg-white hover:border-emerald-400"
-      }`}
+      className={`cursor-pointer rounded-xl border-2 shadow-md px-4 py-3 w-[148px] text-center select-none transition-shadow hover:shadow-lg ${style.border} ${style.bg}`}
     >
-      <Handle type="source" position={sourcePos} className="!bg-stone-400" />
-      <Handle type="target" position={targetPos} className="!bg-stone-400" />
+      <Handle type="source" position={sourcePos} className={style.handle} />
+      <Handle type="target" position={targetPos} className={style.handle} />
 
       <div className="flex justify-center mb-2">
         {showImage ? (
-          <div className="relative w-14 h-14 rounded-full overflow-hidden ring-2 ring-stone-200 bg-stone-100">
+          <div className={`relative w-14 h-14 rounded-full overflow-hidden ring-2 bg-stone-100 ${
+            d.role === "father" ? "ring-blue-200" : d.role === "mother" ? "ring-rose-200" : "ring-emerald-200"
+          }`}>
             <Image
               src={personImageUrl(d.id)}
               alt=""
@@ -78,7 +87,7 @@ function PersonNode({ data }: NodeProps) {
         )}
       </div>
 
-      <div className={`font-semibold text-sm leading-tight ${d.isRoot ? "text-emerald-800" : "text-stone-800"}`}>
+      <div className={`font-semibold text-sm leading-tight ${style.text}`}>
         {d.name}
       </div>
       {d.dob && <div className="text-xs text-stone-400 mt-1">b. {d.dob}</div>}
@@ -102,8 +111,8 @@ function buildGraph(
   nodes: Node[],
   edges: Edge[],
   orientation: Orientation,
+  role: Role,
   visited = new Set<string>(),
-  isRoot = false
 ) {
   if (visited.has(node.id)) return;
   visited.add(node.id);
@@ -118,43 +127,100 @@ function buildGraph(
       id: node.id,
       name: [node.first_name, node.family_name].join(" "),
       sex: node.sex ?? "Male",
-      isRoot,
+      role,
       dob: undefined,
       imagePath: node.image_path ?? null,
       orientation,
     } satisfies NodeData,
   });
 
-  const parents = [...(node.father ?? []), ...(node.mother ?? [])];
-  const total = parents.length;
+  const fathers = node.father ?? [];
+  const mothers = node.mother ?? [];
+  const nodeChildren = node.children ?? [];
+  const totalParents = fathers.length + mothers.length;
 
-  parents.forEach((parent, i) => {
+  // Layout ancestors: fathers first, then mothers
+  [...fathers.map(p => ({ p, parentRole: "father" as Role })),
+   ...mothers.map(p => ({ p, parentRole: "mother" as Role }))
+  ].forEach(({ p, parentRole }, i) => {
     let px: number;
     let py: number;
 
     if (orientation === "vertical") {
-      // Ancestors spread horizontally above the child
-      const startX = x - ((total - 1) * X_GAP) / 2;
+      const startX = x - ((totalParents - 1) * X_GAP) / 2;
       px = startX + i * X_GAP;
       py = y - Y_GAP;
     } else {
-      // Ancestors spread vertically to the right of the child
-      const startY = y - ((total - 1) * Y_GAP) / 2;
+      const startY = y - ((totalParents - 1) * Y_GAP) / 2;
       px = x + X_GAP;
       py = startY + i * Y_GAP;
     }
 
-    buildGraph(parent, px, py, nodes, edges, orientation, visited, false);
+    buildGraph(p, px, py, nodes, edges, orientation, parentRole, visited);
 
+    const edgeColor = parentRole === "father" ? "#93c5fd" : "#fda4af"; // blue-300 / rose-300
     edges.push({
-      id: `${parent.id}->${node.id}`,
-      source: parent.id,
+      id: `${p.id}->${node.id}`,
+      source: p.id,
       target: node.id,
       type: "smoothstep",
-      markerEnd: { type: MarkerType.ArrowClosed, color: "#a8a29e" },
-      style: { stroke: "#a8a29e", strokeWidth: 1.5 },
+      markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
+      style: { stroke: edgeColor, strokeWidth: 1.5 },
     });
   });
+
+  // Layout children below (vertical) or to the left (horizontal) of this node
+  nodeChildren.forEach((child, i) => {
+    let px: number;
+    let py: number;
+
+    if (orientation === "vertical") {
+      const startX = x - ((nodeChildren.length - 1) * X_GAP) / 2;
+      px = startX + i * X_GAP;
+      py = y + Y_GAP;
+    } else {
+      const startY = y - ((nodeChildren.length - 1) * Y_GAP) / 2;
+      px = x - X_GAP;
+      py = startY + i * Y_GAP;
+    }
+
+    buildGraph(child, px, py, nodes, edges, orientation, "child", visited);
+
+    const edgeColor = "#fcd34d"; // amber-300
+    edges.push({
+      id: `${node.id}->${child.id}`,
+      source: node.id,
+      target: child.id,
+      type: "smoothstep",
+      markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
+      style: { stroke: edgeColor, strokeWidth: 1.5 },
+    });
+  });
+}
+
+// ── Legend ───────────────────────────────────────────────────────────────────
+
+function Legend() {
+  return (
+    <div className="inline-flex items-center gap-4 text-xs text-stone-600">
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-3 h-3 rounded-sm border-2 border-emerald-600 bg-emerald-50" />
+        You
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-3 h-3 rounded-sm border-2 border-blue-400 bg-blue-50" />
+        Father
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-3 h-3 rounded-sm border-2 border-rose-400 bg-rose-50" />
+        Mother
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-3 h-3 rounded-sm border-2 border-amber-400 bg-amber-50" />
+        Child
+      </span>
+    </div>
+  );
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -171,13 +237,24 @@ export default function FamilyTreeView({ tree }: Props) {
   const { nodes, edges } = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
-    buildGraph(tree, 0, 0, nodes, edges, orientation, new Set(), true);
+    buildGraph(tree, 0, 0, nodes, edges, orientation, "root", new Set());
     return { nodes, edges };
   }, [tree, orientation]);
 
   const onNodeClick = useCallback(() => {
     // future: open edit panel
   }, []);
+
+  const exportJson = useCallback(() => {
+    const json = JSON.stringify(tree, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `family-tree-${tree.family_name ?? "export"}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [tree]);
 
   const exportJpeg = useCallback(async () => {
     if (!containerRef.current) return;
@@ -210,7 +287,6 @@ export default function FamilyTreeView({ tree }: Props) {
                 : "text-stone-600 hover:bg-stone-50"
             }`}
           >
-            {/* vertical arrow icon */}
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L11 6.414V16a1 1 0 11-2 0V6.414L7.707 7.707A1 1 0 016.293 6.293l3-3A1 1 0 0110 3z" clipRule="evenodd" />
             </svg>
@@ -218,14 +294,13 @@ export default function FamilyTreeView({ tree }: Props) {
           </button>
           <button
             onClick={() => setOrientation("horizontal")}
-            title="Ancestors to the left (left-to-right)"
+            title="Ancestors to the right (left-to-right)"
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm transition-colors border-l border-stone-300 ${
               orientation === "horizontal"
                 ? "bg-emerald-700 text-white"
                 : "text-stone-600 hover:bg-stone-50"
             }`}
           >
-            {/* horizontal arrow icon */}
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L12.586 8H4a1 1 0 110-2h8.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
@@ -233,7 +308,19 @@ export default function FamilyTreeView({ tree }: Props) {
           </button>
         </div>
 
-        {/* Export button */}
+        <Legend />
+
+        {/* Export buttons */}
+        <div className="inline-flex items-center gap-2">
+        <button
+          onClick={exportJson}
+          className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+          Export as JSON
+        </button>
         <button
           onClick={exportJpeg}
           disabled={exporting}
@@ -256,6 +343,7 @@ export default function FamilyTreeView({ tree }: Props) {
             </>
           )}
         </button>
+        </div>
       </div>
 
       <div ref={containerRef} className="w-full h-[560px] rounded-xl border border-stone-200 overflow-hidden shadow-inner bg-stone-50">
@@ -273,9 +361,7 @@ export default function FamilyTreeView({ tree }: Props) {
           <Background color="#d6d3d1" gap={24} size={1} />
           <Controls showInteractive={false} />
           <MiniMap
-            nodeColor={(n) =>
-              (n.data as NodeData).isRoot ? "#059669" : "#78716c"
-            }
+            nodeColor={(n) => ROLE_STYLES[(n.data as NodeData).role].minimap}
             maskColor="rgba(240,236,232,0.6)"
             pannable
             zoomable

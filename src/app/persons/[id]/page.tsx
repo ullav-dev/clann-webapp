@@ -186,7 +186,7 @@ export default function PersonDetailPage() {
         <div>
           <FamilyTreeView tree={tree} />
           <p className="text-xs text-stone-400 mt-2 text-center">
-            Click any person to view their profile. Ancestors flow upward.
+            Click any person to view their profile. Ancestors flow up · Children flow down.
           </p>
         </div>
       )}

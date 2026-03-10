@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { Person, RelationshipType, SiblingType } from "@/lib/types";
-import { listPersons, addRelationship } from "@/lib/api";
+import { listPersons, addRelationship, getRelationships } from "@/lib/api";
 import { fullName, personIcon } from "./PersonCard";
 
 interface Props {
@@ -41,6 +41,32 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
         related_id: selectedId,
         sibling_type: relType === "Sibling" ? siblingType : null,
       });
+
+      // When adding a sibling, propagate the root person's parents to the
+      // sibling if the sibling doesn't already have them.
+      if (relType === "Sibling") {
+        const [rootRels, siblingRels] = await Promise.all([
+          getRelationships(personId),
+          getRelationships(selectedId),
+        ]);
+
+        const inheritParent = async (
+          type: "Father" | "Mother",
+          rootParents: { id: string }[],
+          siblingParents: { id: string }[],
+        ) => {
+          const siblingParentIds = new Set(siblingParents.map((p) => p.id));
+          for (const parent of rootParents) {
+            if (!siblingParentIds.has(parent.id)) {
+              await addRelationship(selectedId, { type, related_id: parent.id });
+            }
+          }
+        };
+
+        await inheritParent("Father", rootRels.father, siblingRels.father);
+        await inheritParent("Mother", rootRels.mother, siblingRels.mother);
+      }
+
       onDone();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");

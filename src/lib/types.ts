@@ -57,6 +57,7 @@ export interface FamilyTreeNode {
   image_path?: string | null;
   father?: FamilyTreeNode[];
   mother?: FamilyTreeNode[];
+  children?: FamilyTreeNode[];
 }
 
 export interface ErrorResponse {
