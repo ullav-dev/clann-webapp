@@ -37,17 +37,30 @@ export interface UpdatePerson {
   place_of_death?: string | null;
 }
 
+/** A Person with spouse-relationship date attributes from the edge. */
+export interface SpouseInfo extends Person {
+  spouse_from?: string | null;
+  spouse_to?: string | null;
+}
+
 export interface RelationshipsResponse {
   father: Person[];
   mother: Person[];
   siblings: Person[];
-  spouse: Person[];
+  spouse: SpouseInfo[];
 }
 
 export interface AddRelationshipRequest {
   type: RelationshipType;
   related_id: string; // full record ID e.g. "person:01jd4a8xyz"
   sibling_type?: SiblingType | null;
+  spouse_from?: string | null;
+  spouse_to?: string | null;
+}
+
+export interface UpdateSpouseDatesRequest {
+  spouse_from?: string | null;
+  spouse_to?: string | null;
 }
 
 export interface FamilyTreeNode {

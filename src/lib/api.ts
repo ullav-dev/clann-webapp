@@ -4,6 +4,7 @@ import type {
   UpdatePerson,
   RelationshipsResponse,
   AddRelationshipRequest,
+  UpdateSpouseDatesRequest,
   FamilyTreeNode,
 } from "./types";
 
@@ -63,6 +64,17 @@ export const deleteRelationship = (
 ): Promise<void> =>
   request(`/api/persons/${rawId(id)}/relationships/${relType}/${relatedId}`, {
     method: "DELETE",
+  });
+
+// Spouse dates
+export const updateSpouseDates = (
+  id: string,
+  relatedId: string,
+  body: UpdateSpouseDatesRequest
+): Promise<void> =>
+  request(`/api/persons/${rawId(id)}/spouse-dates/${relatedId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
   });
 
 // Family tree

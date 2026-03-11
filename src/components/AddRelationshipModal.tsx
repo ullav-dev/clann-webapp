@@ -15,6 +15,8 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
   const [persons, setPersons] = useState<Person[]>([]);
   const [relType, setRelType] = useState<RelationshipType>("Father");
   const [siblingType, setSiblingType] = useState<SiblingType>("Brother");
+  const [spouseFrom, setSpouseFrom] = useState("");
+  const [spouseTo, setSpouseTo] = useState("");
   const [selectedId, setSelectedId] = useState("");
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +42,8 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
         type: relType,
         related_id: selectedId,
         sibling_type: relType === "Sibling" ? siblingType : undefined,
+        spouse_from: relType === "Spouse" && spouseFrom ? spouseFrom : undefined,
+        spouse_to: relType === "Spouse" && spouseTo ? spouseTo : undefined,
       });
 
       // When adding a sibling, propagate the root person's parents to the
@@ -134,6 +138,32 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
                     {t === "Brother" ? "👦 Brother" : "👧 Sister"}
                   </button>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Spouse dates */}
+          {relType === "Spouse" && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium text-stone-700 block mb-1">From (optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 1990"
+                  value={spouseFrom}
+                  onChange={(e) => setSpouseFrom(e.target.value)}
+                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-stone-700 block mb-1">To (optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. present"
+                  value={spouseTo}
+                  onChange={(e) => setSpouseTo(e.target.value)}
+                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                />
               </div>
             </div>
           )}

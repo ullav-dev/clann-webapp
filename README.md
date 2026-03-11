@@ -6,7 +6,7 @@ A responsive family tree management application built with Next.js, backed by [c
 
 - **Person management** — create, edit, delete people with name, sex, birth/death dates and places
 - **Photo upload** — JPEG/PNG photos (≤ 3 MB) shown on cards, detail pages, and in the family tree graph
-- **Relationships** — link people as Father, Mother, Sibling (Brother/Sister), or Spouse. Adding a sibling automatically inherits the root person's parents.
+- **Relationships** — link people as Father, Mother, Sibling (Brother/Sister), or Spouse. Adding a sibling automatically inherits the root person's parents. Spouse relationships carry optional **from** and **to** dates, editable inline in the Relationships tab.
 - **Interactive family tree graph** — powered by React Flow
   - 2-generation ancestor view plus direct children and spouses for the root person
   - Colour-coded by role: emerald (you) · blue (paternal) · rose (maternal) · amber (children) · violet (spouse)

@@ -10,9 +10,10 @@ import {
   getFamilyTree,
   deletePerson,
   deleteRelationship,
+  updateSpouseDates,
   rawId,
 } from "@/lib/api";
-import type { Person, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
+import type { Person, SpouseInfo, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
 import { fullName } from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
 import ImageUpload from "@/components/ImageUpload";
@@ -42,6 +43,10 @@ export default function PersonDetailPage() {
   const [showUpload, setShowUpload] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [tab, setTab] = useState<"tree" | "relationships">("tree");
+  const [editingSpouseId, setEditingSpouseId] = useState<string | null>(null);
+  const [spouseFromEdit, setSpouseFromEdit] = useState("");
+  const [spouseToEdit, setSpouseToEdit] = useState("");
+  const [savingSpouse, setSavingSpouse] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -64,6 +69,28 @@ export default function PersonDetailPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  function startEditSpouse(spouse: SpouseInfo) {
+    setEditingSpouseId(spouse.id);
+    setSpouseFromEdit(spouse.spouse_from ?? "");
+    setSpouseToEdit(spouse.spouse_to ?? "");
+  }
+
+  async function saveSpouseDates(spouseId: string) {
+    setSavingSpouse(true);
+    try {
+      await updateSpouseDates(id, spouseId, {
+        spouse_from: spouseFromEdit || null,
+        spouse_to: spouseToEdit || null,
+      });
+      setEditingSpouseId(null);
+      load();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSavingSpouse(false);
+    }
+  }
+
   async function handleDelete() {
     if (!confirm(`Delete ${person ? fullName(person) : "this person"}? This cannot be undone.`)) return;
     setDeleting(true);
@@ -76,7 +103,7 @@ export default function PersonDetailPage() {
     }
   }
 
-  async function handleDeleteRel(group: "father" | "mother" | "siblings" | "spouse", related: Person) {
+  async function handleDeleteRel(group: "father" | "mother" | "siblings" | "spouse", related: Person | SpouseInfo) {
     if (!confirm(`Remove ${fullName(related)} as ${group}?`)) return;
     await deleteRelationship(id, REL_TYPE_MAP[group], related.id);
     load();
@@ -204,12 +231,12 @@ export default function PersonDetailPage() {
             </button>
           </div>
 
-          {["father", "mother", "siblings", "spouse"].map((group) => {
-            const people = rels[group as keyof RelationshipsResponse];
+          {(["father", "mother", "siblings"] as const).map((group) => {
+            const people = rels[group];
             return (
               <section key={group}>
                 <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3">
-                  {group === "father" ? "👨 Father" : group === "mother" ? "👩 Mother" : group === "siblings" ? "👫 Siblings" : "💍 Spouse"}
+                  {group === "father" ? "👨 Father" : group === "mother" ? "👩 Mother" : "👫 Siblings"}
                 </h2>
                 {people.length === 0 ? (
                   <p className="text-stone-400 text-sm italic">None recorded</p>
@@ -235,7 +262,7 @@ export default function PersonDetailPage() {
                           </div>
                         </Link>
                         <button
-                          onClick={() => handleDeleteRel(group as "father" | "mother" | "siblings" | "spouse", p)}
+                          onClick={() => handleDeleteRel(group, p)}
                           className="text-stone-300 hover:text-red-500 transition-colors text-lg ml-2 flex-shrink-0"
                           title="Remove relationship"
                         >
@@ -248,6 +275,104 @@ export default function PersonDetailPage() {
               </section>
             );
           })}
+
+          {/* Spouse section — includes date display and inline date editing */}
+          <section>
+            <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3">💍 Spouse</h2>
+            {rels.spouse.length === 0 ? (
+              <p className="text-stone-400 text-sm italic">None recorded</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {rels.spouse.map((sp: SpouseInfo) => (
+                  <div
+                    key={sp.id}
+                    className="bg-white rounded-xl border border-stone-200 px-4 py-3 shadow-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/persons/${rawId(sp.id)}`}
+                        className="flex items-center gap-3 flex-1 min-w-0 group"
+                      >
+                        <PersonAvatar person={sp} size={36} />
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm text-stone-800 group-hover:text-emerald-700 truncate">
+                            {fullName(sp)}
+                          </p>
+                          {sp.date_of_birth && (
+                            <p className="text-xs text-stone-400">b. {sp.date_of_birth}</p>
+                          )}
+                        </div>
+                      </Link>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => editingSpouseId === sp.id ? setEditingSpouseId(null) : startEditSpouse(sp)}
+                          className="text-stone-400 hover:text-emerald-600 transition-colors text-xs px-1"
+                          title="Edit dates"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRel("spouse", sp)}
+                          className="text-stone-300 hover:text-red-500 transition-colors text-lg"
+                          title="Remove relationship"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                    {(sp.spouse_from || sp.spouse_to) && editingSpouseId !== sp.id && (
+                      <p className="text-xs text-violet-500 mt-1">
+                        {sp.spouse_from && `From ${sp.spouse_from}`}
+                        {sp.spouse_from && sp.spouse_to && " · "}
+                        {sp.spouse_to && `To ${sp.spouse_to}`}
+                      </p>
+                    )}
+                    {editingSpouseId === sp.id && (
+                      <div className="mt-3 space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-stone-500 block mb-0.5">From</label>
+                            <input
+                              type="text"
+                              value={spouseFromEdit}
+                              onChange={(e) => setSpouseFromEdit(e.target.value)}
+                              placeholder="e.g. 1990"
+                              className="w-full rounded border border-stone-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-stone-500 block mb-0.5">To</label>
+                            <input
+                              type="text"
+                              value={spouseToEdit}
+                              onChange={(e) => setSpouseToEdit(e.target.value)}
+                              placeholder="e.g. present"
+                              className="w-full rounded border border-stone-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => saveSpouseDates(sp.id)}
+                            disabled={savingSpouse}
+                            className="flex-1 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white rounded py-1 text-xs font-medium transition-colors"
+                          >
+                            {savingSpouse ? "Saving…" : "Save"}
+                          </button>
+                          <button
+                            onClick={() => setEditingSpouseId(null)}
+                            className="flex-1 border border-stone-300 rounded py-1 text-xs text-stone-600 hover:bg-stone-50 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       )}
 
