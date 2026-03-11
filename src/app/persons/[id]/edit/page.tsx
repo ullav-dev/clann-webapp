@@ -48,6 +48,9 @@ export default function EditPersonPage() {
             date_of_death: person.date_of_death ?? "",
             place_of_birth: person.place_of_birth ?? "",
             place_of_death: person.place_of_death ?? "",
+            nickname: person.nickname ?? "",
+            username: person.username ?? "",
+            email: person.email ?? "",
           }}
           onSubmit={handleSubmit}
           submitLabel="Save Changes"

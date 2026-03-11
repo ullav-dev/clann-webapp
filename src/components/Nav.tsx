@@ -1,10 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isLoading, logout } = useAuth();
+
+  function handleLogout() {
+    logout();
+    router.push("/");
+  }
+
+  const activeLink = (path: string) =>
+    `text-sm font-medium transition-colors ${
+      pathname.startsWith(path)
+        ? "text-emerald-700"
+        : "text-stone-600 hover:text-stone-900"
+    }`;
 
   return (
     <header className="bg-white border-b border-stone-200 shadow-sm">
@@ -14,23 +29,41 @@ export default function Nav() {
             <span className="text-2xl">🌳</span>
             <span className="font-bold text-xl text-stone-800 tracking-tight">Clann</span>
           </Link>
+
           <nav className="flex items-center gap-4">
-            <Link
-              href="/family"
-              className={`text-sm font-medium transition-colors ${
-                pathname.startsWith("/family") || pathname.startsWith("/persons")
-                  ? "text-emerald-700"
-                  : "text-stone-600 hover:text-stone-900"
-              }`}
-            >
-              My Family
-            </Link>
-            <Link
-              href="/persons/new"
-              className="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-            >
-              <span>+</span> Add Person
-            </Link>
+            {!isLoading && user ? (
+              <>
+                <Link href="/family" className={activeLink("/family")}>
+                  My Family
+                </Link>
+                <Link
+                  href="/persons/new"
+                  className="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                >
+                  <span>+</span> Add Person
+                </Link>
+                <div className="flex items-center gap-2 pl-2 border-l border-stone-200">
+                  <span className="text-sm text-stone-500 hidden sm:block">{user.username}</span>
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : !isLoading ? (
+              <Link
+                href="/login"
+                className={`text-sm font-medium px-4 py-2 rounded-lg border transition-colors ${
+                  pathname === "/login"
+                    ? "border-emerald-600 text-emerald-700 bg-emerald-50"
+                    : "border-stone-300 text-stone-700 hover:bg-stone-50"
+                }`}
+              >
+                Login
+              </Link>
+            ) : null}
           </nav>
         </div>
       </div>

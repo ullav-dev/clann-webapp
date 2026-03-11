@@ -1,17 +1,26 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import PersonForm from "@/components/PersonForm";
 import { createPerson } from "@/lib/api";
 import type { CreatePerson } from "@/lib/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function NewPersonPage() {
   const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !user) router.replace("/login");
+  }, [isLoading, user, router]);
 
   async function handleSubmit(values: CreatePerson) {
     const person = await createPerson(values);
     router.push(`/persons/${encodeURIComponent(person.id)}`);
   }
+
+  if (isLoading || !user) return null;
 
   return (
     <div className="max-w-2xl mx-auto">

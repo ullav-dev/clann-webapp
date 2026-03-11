@@ -1,23 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { listPersons } from "@/lib/api";
 import type { Person } from "@/lib/types";
 import PersonCard from "@/components/PersonCard";
+import { useAuth } from "@/contexts/AuthContext";
 
-export default function HomePage() {
+export default function FamilyPage() {
+  const { user, isLoading: authLoading } = useAuth();
+  const router = useRouter();
+
   const [persons, setPersons] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
+    if (!authLoading && !user) router.replace("/login");
+  }, [authLoading, user, router]);
+
+  useEffect(() => {
+    if (!user) return;
     listPersons()
       .then(setPersons)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
+
+  if (authLoading || !user) return null;
 
   const filtered = persons.filter((p) => {
     const q = search.toLowerCase();

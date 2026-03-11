@@ -12,6 +12,9 @@ type FormValues = {
   date_of_death: string;
   place_of_birth: string;
   place_of_death: string;
+  nickname: string;
+  username: string;
+  email: string;
 };
 
 interface Props {
@@ -30,6 +33,9 @@ const empty: FormValues = {
   date_of_death: "",
   place_of_birth: "",
   place_of_death: "",
+  nickname: "",
+  username: "",
+  email: "",
 };
 
 export default function PersonForm({ initial, onSubmit, submitLabel = "Save" }: Props) {
@@ -57,6 +63,9 @@ export default function PersonForm({ initial, onSubmit, submitLabel = "Save" }: 
         date_of_death: optional(values.date_of_death),
         place_of_birth: optional(values.place_of_birth),
         place_of_death: optional(values.place_of_death),
+        nickname: optional(values.nickname),
+        username: optional(values.username),
+        email: optional(values.email),
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -167,6 +176,42 @@ export default function PersonForm({ initial, onSubmit, submitLabel = "Save" }: 
               value={values.place_of_death}
               placeholder="e.g. Cork, Ireland"
               onChange={(e) => set("place_of_death", e.target.value)}
+              className={input}
+            />
+          </Field>
+        </div>
+      </fieldset>
+
+      <fieldset className="border border-stone-200 rounded-xl p-4 space-y-3">
+        <legend className="text-xs font-semibold text-stone-500 uppercase tracking-wide px-1">
+          Identity <span className="font-normal normal-case text-stone-400">(optional)</span>
+        </legend>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Field label="Nickname" htmlFor="nickname">
+            <input
+              id="nickname"
+              value={values.nickname}
+              placeholder="e.g. Johnny"
+              onChange={(e) => set("nickname", e.target.value)}
+              className={input}
+            />
+          </Field>
+          <Field label="Username" htmlFor="username">
+            <input
+              id="username"
+              value={values.username}
+              placeholder="e.g. jsmith"
+              onChange={(e) => set("username", e.target.value)}
+              className={input}
+            />
+          </Field>
+          <Field label="Email" htmlFor="email">
+            <input
+              id="email"
+              type="email"
+              value={values.email}
+              placeholder="e.g. john@example.com"
+              onChange={(e) => set("email", e.target.value)}
               className={input}
             />
           </Field>

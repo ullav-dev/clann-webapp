@@ -13,6 +13,9 @@ export interface Person {
   place_of_birth?: string | null;
   place_of_death?: string | null;
   image_path?: string | null;
+  nickname?: string | null;
+  username?: string | null;
+  email?: string | null;
 }
 
 export interface CreatePerson {
@@ -24,6 +27,9 @@ export interface CreatePerson {
   date_of_death?: string | null;
   place_of_birth?: string | null;
   place_of_death?: string | null;
+  nickname?: string | null;
+  username?: string | null;
+  email?: string | null;
 }
 
 export interface UpdatePerson {
@@ -35,6 +41,9 @@ export interface UpdatePerson {
   date_of_death?: string | null;
   place_of_birth?: string | null;
   place_of_death?: string | null;
+  nickname?: string | null;
+  username?: string | null;
+  email?: string | null;
 }
 
 /** A Person with spouse-relationship date attributes from the edge. */
