@@ -23,7 +23,7 @@ import { useRouter } from "next/navigation";
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type Orientation = "vertical" | "horizontal";
-type Role = "root" | "father" | "mother" | "child" | "spouse";
+type Role = "root" | "father" | "mother" | "child" | "spouse" | "sibling";
 
 type NodeData = {
   id: string;
@@ -37,11 +37,12 @@ type NodeData = {
 
 // Per-role visual style
 const ROLE_STYLES: Record<Role, { border: string; bg: string; text: string; handle: string; minimap: string }> = {
-  root:   { border: "border-emerald-600", bg: "bg-emerald-50",  text: "text-emerald-800", handle: "!bg-emerald-500", minimap: "#059669" },
-  father: { border: "border-blue-400",    bg: "bg-blue-50",     text: "text-blue-800",    handle: "!bg-blue-400",    minimap: "#60a5fa" },
-  mother: { border: "border-rose-400",    bg: "bg-rose-50",     text: "text-rose-800",    handle: "!bg-rose-400",    minimap: "#fb7185" },
-  child:  { border: "border-amber-400",   bg: "bg-amber-50",    text: "text-amber-800",   handle: "!bg-amber-400",   minimap: "#fbbf24" },
-  spouse: { border: "border-violet-400",  bg: "bg-violet-50",   text: "text-violet-800",  handle: "!bg-violet-400",  minimap: "#a78bfa" },
+  root:    { border: "border-emerald-600", bg: "bg-emerald-50",  text: "text-emerald-800", handle: "!bg-emerald-500", minimap: "#059669" },
+  father:  { border: "border-blue-400",    bg: "bg-blue-50",     text: "text-blue-800",    handle: "!bg-blue-400",    minimap: "#60a5fa" },
+  mother:  { border: "border-rose-400",    bg: "bg-rose-50",     text: "text-rose-800",    handle: "!bg-rose-400",    minimap: "#fb7185" },
+  child:   { border: "border-amber-400",   bg: "bg-amber-50",    text: "text-amber-800",   handle: "!bg-amber-400",   minimap: "#fbbf24" },
+  spouse:  { border: "border-violet-400",  bg: "bg-violet-50",   text: "text-violet-800",  handle: "!bg-violet-400",  minimap: "#a78bfa" },
+  sibling: { border: "border-teal-400",    bg: "bg-teal-50",     text: "text-teal-800",    handle: "!bg-teal-400",    minimap: "#2dd4bf" },
 };
 
 // ── Custom person node ───────────────────────────────────────────────────────
@@ -258,6 +259,10 @@ function Legend() {
         <span className="inline-block w-3 h-3 rounded-sm border-2 border-violet-400 bg-violet-50" />
         Spouse
       </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-3 h-3 rounded-sm border-2 border-teal-400 bg-teal-50" />
+        Sibling
+      </span>
     </div>
   );
 }
@@ -271,14 +276,55 @@ interface Props {
 export default function FamilyTreeView({ tree }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [orientation, setOrientation] = useState<Orientation>("vertical");
+  const [showSiblings, setShowSiblings] = useState(false);
   const [exporting, setExporting] = useState(false);
 
   const { nodes, edges } = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
-    buildGraph(tree, 0, 0, nodes, edges, orientation, "root", new Set());
+    const visited = new Set<string>();
+    buildGraph(tree, 0, 0, nodes, edges, orientation, "root", visited);
+
+    if (showSiblings) {
+      (tree.siblings ?? []).forEach((sib, i) => {
+        if (visited.has(sib.id)) return;
+        visited.add(sib.id);
+
+        // Siblings sit at the same level as root, to the left (vertical) or above (horizontal)
+        const px = orientation === "vertical" ? -(i + 1) * X_GAP : 0;
+        const py = orientation === "vertical" ? 0 : -(i + 1) * Y_GAP;
+
+        nodes.push({
+          id: sib.id,
+          type: "person",
+          position: { x: px, y: py },
+          width: 148,
+          height: 120,
+          data: {
+            id: sib.id,
+            name: [sib.first_name, sib.family_name].join(" "),
+            sex: sib.sex ?? "Male",
+            role: "sibling" as Role,
+            dob: undefined,
+            imagePath: sib.image_path ?? null,
+            orientation,
+          } satisfies NodeData,
+        });
+
+        const edgeColor = "#5eead4"; // teal-300
+        edges.push({
+          id: `${tree.id}~sib~${sib.id}`,
+          // sibling is to the left/above; connect via perpendicular handles
+          source: sib.id,  sourceHandle: "sp-s",
+          target: tree.id, targetHandle: "sp-t",
+          type: "straight",
+          style: { stroke: edgeColor, strokeWidth: 2, strokeDasharray: "4 3" },
+        });
+      });
+    }
+
     return { nodes, edges };
-  }, [tree, orientation]);
+  }, [tree, orientation, showSiblings]);
 
   const onNodeClick = useCallback(() => {
     // future: open edit panel
@@ -346,6 +392,19 @@ export default function FamilyTreeView({ tree }: Props) {
             Horizontal
           </button>
         </div>
+
+        {/* Siblings toggle */}
+        <button
+          onClick={() => setShowSiblings((v) => !v)}
+          title="Show or hide siblings of the root person"
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border shadow-sm transition-colors ${
+            showSiblings
+              ? "bg-teal-600 text-white border-teal-600"
+              : "bg-white text-stone-600 border-stone-300 hover:bg-stone-50"
+          }`}
+        >
+          👫 Siblings
+        </button>
 
         <Legend />
 

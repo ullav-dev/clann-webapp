@@ -82,6 +82,7 @@ export interface FamilyTreeNode {
   mother?: FamilyTreeNode[];
   children?: FamilyTreeNode[];
   spouse?: FamilyTreeNode[];
+  siblings?: FamilyTreeNode[];
 }
 
 export interface ErrorResponse {
