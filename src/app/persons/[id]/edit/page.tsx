@@ -51,6 +51,8 @@ export default function EditPersonPage() {
             nickname: person.nickname ?? "",
             username: person.username ?? "",
             email: person.email ?? "",
+            verified: person.verified ?? false,
+            biography: person.biography ?? "",
           }}
           onSubmit={handleSubmit}
           submitLabel="Save Changes"

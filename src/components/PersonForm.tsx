@@ -15,6 +15,8 @@ type FormValues = {
   nickname: string;
   username: string;
   email: string;
+  verified: boolean;
+  biography: string;
 };
 
 interface Props {
@@ -36,6 +38,8 @@ const empty: FormValues = {
   nickname: "",
   username: "",
   email: "",
+  verified: false,
+  biography: "",
 };
 
 export default function PersonForm({ initial, onSubmit, submitLabel = "Save" }: Props) {
@@ -45,6 +49,10 @@ export default function PersonForm({ initial, onSubmit, submitLabel = "Save" }: 
 
   function set(field: keyof FormValues, value: string) {
     setValues((v) => ({ ...v, [field]: value }));
+  }
+
+  function toggle(field: keyof FormValues) {
+    setValues((v) => ({ ...v, [field]: !v[field] }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -66,6 +74,8 @@ export default function PersonForm({ initial, onSubmit, submitLabel = "Save" }: 
         nickname: optional(values.nickname),
         username: optional(values.username),
         email: optional(values.email),
+        verified: values.verified,
+        biography: optional(values.biography),
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -215,6 +225,36 @@ export default function PersonForm({ initial, onSubmit, submitLabel = "Save" }: 
               className={input}
             />
           </Field>
+        </div>
+        <label className="flex items-center gap-2.5 cursor-pointer select-none w-fit">
+          <input
+            id="verified"
+            type="checkbox"
+            checked={values.verified}
+            onChange={() => toggle("verified")}
+            className="w-4 h-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+          />
+          <span className="text-sm text-stone-700">Identity verified</span>
+        </label>
+      </fieldset>
+
+      <fieldset className="border border-stone-200 rounded-xl p-4 space-y-3">
+        <legend className="text-xs font-semibold text-stone-500 uppercase tracking-wide px-1">
+          Biography <span className="font-normal normal-case text-stone-400">(optional)</span>
+        </legend>
+        <div className="flex flex-col gap-1">
+          <textarea
+            id="biography"
+            value={values.biography}
+            maxLength={1000}
+            rows={4}
+            placeholder="A short biography…"
+            onChange={(e) => set("biography", e.target.value)}
+            className={`${input} resize-y`}
+          />
+          <p className="text-xs text-stone-400 text-right">
+            {values.biography.length} / 1000
+          </p>
         </div>
       </fieldset>
 

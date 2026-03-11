@@ -16,6 +16,8 @@ export interface Person {
   nickname?: string | null;
   username?: string | null;
   email?: string | null;
+  verified?: boolean;
+  biography?: string | null;
 }
 
 export interface CreatePerson {
@@ -30,6 +32,8 @@ export interface CreatePerson {
   nickname?: string | null;
   username?: string | null;
   email?: string | null;
+  verified?: boolean;
+  biography?: string | null;
 }
 
 export interface UpdatePerson {
@@ -44,6 +48,8 @@ export interface UpdatePerson {
   nickname?: string | null;
   username?: string | null;
   email?: string | null;
+  verified?: boolean | null;
+  biography?: string | null;
 }
 
 /** A Person with spouse-relationship date attributes from the edge. */

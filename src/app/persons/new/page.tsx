@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import PersonForm from "@/components/PersonForm";
-import { createPerson } from "@/lib/api";
+import { createPerson, rawId } from "@/lib/api";
 import type { CreatePerson } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -17,7 +17,7 @@ export default function NewPersonPage() {
 
   async function handleSubmit(values: CreatePerson) {
     const person = await createPerson(values);
-    router.push(`/persons/${encodeURIComponent(person.id)}`);
+    router.push(`/persons/${rawId(person.id)}`);
   }
 
   if (isLoading || !user) return null;

@@ -4,7 +4,7 @@ A responsive family tree management application built with Next.js, backed by [c
 
 ## Features
 
-- **Person management** — create, edit, delete people with name, sex, birth/death dates and places
+- **Person management** — create, edit, delete people with name, sex, birth/death dates and places, optional biography (up to 1000 characters), and identity-verified flag
 - **Photo upload** — JPEG/PNG photos (≤ 3 MB) shown on cards, detail pages, and in the family tree graph
 - **Relationships** — link people as Father, Mother, Sibling (Brother/Sister), or Spouse. Adding a sibling automatically inherits the root person's parents. Spouse relationships carry optional **from** and **to** dates, editable inline in the Relationships tab.
 - **Interactive family tree graph** — powered by React Flow
