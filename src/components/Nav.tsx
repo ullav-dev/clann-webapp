@@ -16,14 +16,14 @@ export default function Nav() {
           </Link>
           <nav className="flex items-center gap-4">
             <Link
-              href="/"
+              href="/family"
               className={`text-sm font-medium transition-colors ${
-                pathname === "/"
+                pathname.startsWith("/family") || pathname.startsWith("/persons")
                   ? "text-emerald-700"
                   : "text-stone-600 hover:text-stone-900"
               }`}
             >
-              People
+              My Family
             </Link>
             <Link
               href="/persons/new"

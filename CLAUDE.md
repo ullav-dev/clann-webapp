@@ -34,7 +34,8 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 **Routes:**
 | Route | Description |
 |---|---|
-| `/` | List all persons with search |
+| `/` | Landing page (hero + feature cards) |
+| `/family` | List all persons with search ("My Family") |
 | `/persons/new` | Create person |
 | `/persons/[id]` | Person detail: family tree tab + relationships tab |
 | `/persons/[id]/edit` | Edit person |

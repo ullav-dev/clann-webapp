@@ -96,7 +96,7 @@ export default function PersonDetailPage() {
     setDeleting(true);
     try {
       await deletePerson(id);
-      router.push("/");
+      router.push("/family");
     } catch (e) {
       alert(e instanceof Error ? e.message : "Delete failed");
       setDeleting(false);
@@ -124,7 +124,7 @@ export default function PersonDetailPage() {
     return (
       <div className="text-center py-20">
         <p className="text-red-600 font-medium">{error ?? "Person not found"}</p>
-        <Link href="/" className="text-emerald-700 underline mt-4 inline-block">← Back</Link>
+        <Link href="/family" className="text-emerald-700 underline mt-4 inline-block">← Back</Link>
       </div>
     );
   }
