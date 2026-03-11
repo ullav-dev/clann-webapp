@@ -79,7 +79,23 @@ src/
     types.ts                  # TypeScript types (mirrors OpenAPI schema)
     api.ts                    # Typed fetch wrappers
     auth-api.ts               # Auth service fetch wrappers
+    persons.ts                # Pure sort/filter/pagination helpers (tested)
 ```
+
+## Testing
+
+Tests use [Vitest](https://vitest.dev/) and cover the pure utility functions.
+
+```bash
+npm test           # Run all tests
+npm run test:watch # Watch mode
+```
+
+| Test file | Coverage |
+|---|---|
+| `src/lib/persons.test.ts` | Sort, filter, and pagination helpers |
+| `src/lib/api.test.ts` | `rawId` helper |
+| `src/components/PersonCard.test.ts` | `fullName`, `personIcon` helpers |
 
 ## API
 

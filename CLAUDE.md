@@ -5,10 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # Start dev server on port 3001
-npm run build    # Production build
-npm run start    # Start production server on port 3001
-npm run lint     # Lint
+npm run dev        # Start dev server on port 3001
+npm run build      # Production build
+npm run start      # Start production server on port 3001
+npm run lint       # Lint
+npm test           # Run tests (vitest)
+npm run test:watch # Run tests in watch mode
 ```
 
 > `next` must be invoked via `node node_modules/next/dist/bin/next` (the `.bin/next` shim is broken with Node v25). The scripts in `package.json` already handle this.
@@ -24,6 +26,7 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 **Key files:**
 - `src/lib/types.ts` — all TypeScript types mirroring the OpenAPI schema
 - `src/lib/api.ts` — typed fetch wrappers for every backend endpoint
+- `src/lib/persons.ts` — pure utility functions (`sortPersons`, `filterPersons`, `totalPages`, `pageSlice`) extracted for testability
 - `src/components/FamilyTreeView.tsx` — React Flow graph; loaded via `dynamic(..., { ssr: false })`. Shows 2-generation ancestors, direct children, and spouses for the root person. Supports vertical/horizontal orientation toggle and JPEG/JSON export.
 - `src/components/PersonForm.tsx` — shared create/edit form
 - `src/components/AddRelationshipModal.tsx` — modal for linking Father / Mother / Sibling / Spouse. When adding a sibling, automatically inherits the root person's parents.
@@ -63,6 +66,16 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 - **Orientation:** vertical (ancestors up, children down, spouses right) or horizontal (ancestors right, children left, spouses below).
 - **Node `width: 148, height: 120`** must be set on each node object so the MiniMap can render them before DOM measurement.
 - `nodeTypes` is defined outside the component to avoid React Flow re-renders.
+
+## Tests
+
+**Framework:** Vitest (`vitest.config.ts`). Tests live alongside source files as `*.test.ts`.
+
+| Test file | What it covers |
+|---|---|
+| `src/lib/persons.test.ts` | `sortPersons` (asc/desc, null-last, immutability), `filterPersons`, `totalPages`, `pageSlice` |
+| `src/lib/api.test.ts` | `rawId` |
+| `src/components/PersonCard.test.ts` | `fullName`, `personIcon` |
 
 ## Relationship types
 

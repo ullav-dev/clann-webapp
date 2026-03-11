@@ -5,27 +5,14 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { listPersons, deletePerson, rawId } from "@/lib/api";
 import type { Person } from "@/lib/types";
+import { sortPersons, filterPersons, totalPages, pageSlice } from "@/lib/persons";
+import type { SortField, SortDir } from "@/lib/persons";
 import PersonCard from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
 import { fullName } from "@/components/PersonCard";
 import { useAuth } from "@/contexts/AuthContext";
 
 type ViewMode = "card" | "list";
-type SortField = "family_name" | "date_of_birth" | "place_of_birth";
-type SortDir = "asc" | "desc";
-
-function sortPersons(people: Person[], field: SortField, dir: SortDir): Person[] {
-  return [...people].sort((a, b) => {
-    const av = (a[field] ?? "") as string;
-    const bv = (b[field] ?? "") as string;
-    // Empty values always sort to the end
-    if (!av && bv) return 1;
-    if (av && !bv) return -1;
-    if (!av && !bv) return 0;
-    const cmp = av.localeCompare(bv);
-    return dir === "asc" ? cmp : -cmp;
-  });
-}
 
 // ── List view ─────────────────────────────────────────────────────────────────
 
@@ -187,19 +174,13 @@ export default function FamilyPage() {
   if (authLoading || !user) return null;
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    const matched = persons.filter(
-      (p) =>
-        p.first_name.toLowerCase().includes(q) ||
-        p.family_name.toLowerCase().includes(q) ||
-        (p.middle_name ?? "").toLowerCase().includes(q)
-    );
+    const matched = filterPersons(persons, search);
     return view === "list" ? sortPersons(matched, sortField, sortDir) : matched;
   }, [persons, search, view, sortField, sortDir]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const safePage = Math.min(page, totalPages);
-  const paged = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const numPages = totalPages(filtered.length, pageSize);
+  const safePage = Math.min(page, numPages);
+  const paged = pageSlice(filtered, safePage, pageSize);
 
   return (
     <div>
@@ -315,7 +296,7 @@ export default function FamilyPage() {
       )}
 
       {/* Pagination controls */}
-      {totalPages > 1 && (
+      {numPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-6">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -325,8 +306,8 @@ export default function FamilyPage() {
             ← Prev
           </button>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1)
-            .filter((n) => n === 1 || n === totalPages || Math.abs(n - safePage) <= 1)
+          {Array.from({ length: numPages }, (_, i) => i + 1)
+            .filter((n) => n === 1 || n === numPages || Math.abs(n - safePage) <= 1)
             .reduce<(number | "…")[]>((acc, n, idx, arr) => {
               if (idx > 0 && n - (arr[idx - 1] as number) > 1) acc.push("…");
               acc.push(n);
@@ -351,8 +332,8 @@ export default function FamilyPage() {
             )}
 
           <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={safePage === totalPages}
+            onClick={() => setPage((p) => Math.min(numPages, p + 1))}
+            disabled={safePage === numPages}
             className="px-3 py-1.5 rounded-lg border border-stone-300 bg-white text-sm text-stone-600 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Next →
