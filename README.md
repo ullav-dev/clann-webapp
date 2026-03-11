@@ -14,12 +14,14 @@ A responsive family tree management application built with Next.js, backed by [c
   - Pan, zoom, and minimap navigation
   - Click any node to navigate to that person's profile
 - **Export** — download the tree as a **JPEG image** or **JSON file**
-- **Search** — filter the person list by name (shown when there are more than 4 people)
+- **Family Members list** — card or list view with sort (family name, date of birth, place of birth), name search, and **pagination** (5–30 per page, default 10)
+- **Authentication** — login, registration, and password reset via ullav-user-management; family data is gated behind login
 
 ## Prerequisites
 
 - Node.js ≥ 18 (tested on v25; see note below)
 - [clann-server](https://github.com/colinmanning/clann-server) running on `http://localhost:3000`
+- [ullav-user-management](https://github.com/colinmanning/ullav-user-management) running on `http://localhost:8081` (auth service)
 
 ## Setup
 
@@ -48,13 +50,16 @@ Open [http://localhost:3001](http://localhost:3001).
 | Graph | React Flow (`@xyflow/react`) |
 | Image export | `html-to-image` |
 | Backend | clann-server (Rust · Axum · SurrealDB) |
+| Auth | ullav-user-management (Rust · Actix-web · PostgreSQL) |
 
 ## Project structure
 
 ```
 src/
   app/
-    page.tsx                  # Person list
+    page.tsx                  # Landing page
+    login/page.tsx            # Sign in / register / password reset
+    family/page.tsx           # Person list (card/list, sort, search, pagination)
     persons/
       new/page.tsx            # Create person
       [id]/
@@ -68,9 +73,12 @@ src/
     PersonAvatar.tsx          # Circular photo with fallback emoji
     ImageUpload.tsx           # Drag-and-drop uploader
     Nav.tsx                   # Top navigation bar
+  contexts/
+    AuthContext.tsx           # JWT auth state (localStorage)
   lib/
     types.ts                  # TypeScript types (mirrors OpenAPI schema)
     api.ts                    # Typed fetch wrappers
+    auth-api.ts               # Auth service fetch wrappers
 ```
 
 ## API

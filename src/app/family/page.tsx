@@ -159,6 +159,8 @@ export default function FamilyPage() {
   const [view, setView] = useState<ViewMode>("card");
   const [sortField, setSortField] = useState<SortField>("family_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (!authLoading && !user) router.replace("/login");
@@ -179,6 +181,7 @@ export default function FamilyPage() {
       setSortField(field);
       setSortDir("asc");
     }
+    setPage(1);
   }
 
   if (authLoading || !user) return null;
@@ -193,6 +196,10 @@ export default function FamilyPage() {
     );
     return view === "list" ? sortPersons(matched, sortField, sortDir) : matched;
   }, [persons, search, view, sortField, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, totalPages);
+  const paged = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   return (
     <div>
@@ -212,17 +219,31 @@ export default function FamilyPage() {
         </Link>
       </div>
 
-      {/* Toolbar: search + view toggle */}
+      {/* Toolbar: search + page size + view toggle */}
       <div className="flex items-center gap-3 mb-6">
         {persons.length > 4 && (
           <input
             type="search"
             placeholder="Search by name…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="flex-1 sm:flex-none sm:w-80 rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           />
         )}
+
+        {/* Page size selector */}
+        <div className="flex items-center gap-1.5 text-sm text-stone-600">
+          <span className="hidden sm:inline whitespace-nowrap">Per page</span>
+          <select
+            value={pageSize}
+            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+            className="rounded-lg border border-stone-300 bg-white px-2 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          >
+            {[5, 10, 15, 20, 25, 30].map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+        </div>
 
         {/* View toggle */}
         <div className="ml-auto inline-flex rounded-lg border border-stone-300 bg-white shadow-sm overflow-hidden">
@@ -275,7 +296,7 @@ export default function FamilyPage() {
 
       {view === "card" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((p) => (
+          {paged.map((p) => (
             <PersonCard
               key={p.id}
               person={p}
@@ -285,12 +306,58 @@ export default function FamilyPage() {
         </div>
       ) : (
         <ListView
-          people={filtered}
+          people={paged}
           sortField={sortField}
           sortDir={sortDir}
           onSort={handleSort}
           onDeleted={(id) => setPersons((prev) => prev.filter((x) => x.id !== id))}
         />
+      )}
+
+      {/* Pagination controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={safePage === 1}
+            className="px-3 py-1.5 rounded-lg border border-stone-300 bg-white text-sm text-stone-600 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            ← Prev
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((n) => n === 1 || n === totalPages || Math.abs(n - safePage) <= 1)
+            .reduce<(number | "…")[]>((acc, n, idx, arr) => {
+              if (idx > 0 && n - (arr[idx - 1] as number) > 1) acc.push("…");
+              acc.push(n);
+              return acc;
+            }, [])
+            .map((item, idx) =>
+              item === "…" ? (
+                <span key={`ellipsis-${idx}`} className="px-1 text-stone-400 text-sm">…</span>
+              ) : (
+                <button
+                  key={item}
+                  onClick={() => setPage(item as number)}
+                  className={`min-w-[2rem] px-3 py-1.5 rounded-lg border text-sm transition-colors ${
+                    safePage === item
+                      ? "bg-emerald-700 text-white border-emerald-700"
+                      : "border-stone-300 bg-white text-stone-600 hover:bg-stone-50"
+                  }`}
+                >
+                  {item}
+                </button>
+              )
+            )}
+
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={safePage === totalPages}
+            className="px-3 py-1.5 rounded-lg border border-stone-300 bg-white text-sm text-stone-600 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Next →
+          </button>
+        </div>
       )}
     </div>
   );

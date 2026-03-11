@@ -31,11 +31,14 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 - `src/components/PersonAvatar.tsx` — circular photo with emoji fallback
 - `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 3 MB)
 
+**Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token).
+
 **Routes:**
 | Route | Description |
 |---|---|
 | `/` | Landing page (hero + feature cards) |
-| `/family` | List all persons with search ("My Family") |
+| `/login` | Sign in / create account / forgot password |
+| `/family` | List all persons — card/list toggle, sort, search, **pagination** |
 | `/persons/new` | Create person |
 | `/persons/[id]` | Person detail: family tree tab + relationships tab |
 | `/persons/[id]/edit` | Edit person |
@@ -43,6 +46,13 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 **ID handling:** The backend stores IDs as `person:<ulid>` (e.g. `person:01jd4a8xyz`). URLs use just the ULID (no prefix, no encoding). `api.ts` exposes a `rawId()` helper that strips the `person:` prefix before building request paths.
 
 **Backend API base URL:** Set via `NEXT_PUBLIC_API_URL` in `.env.local` (defaults to `http://localhost:3000`).
+
+## Family Members page
+
+`/family` (card/list/pagination):
+- **Card view** (default): responsive grid of `PersonCard` components
+- **List view**: sortable table (family name, date of birth, place of birth); empty values sort last
+- **Pagination**: default 10 per page; page size selector (5/10/15/20/25/30); page resets to 1 on search, sort, or page-size change; ellipsised page number buttons
 
 ## Family Tree graph
 
