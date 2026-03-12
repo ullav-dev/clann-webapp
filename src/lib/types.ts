@@ -18,6 +18,7 @@ export interface Person {
   email?: string | null;
   verified?: boolean;
   biography?: string | null;
+  created_by?: string | null;
 }
 
 export interface CreatePerson {
@@ -34,6 +35,7 @@ export interface CreatePerson {
   email?: string | null;
   verified?: boolean;
   biography?: string | null;
+  created_by?: string | null;
 }
 
 export interface UpdatePerson {

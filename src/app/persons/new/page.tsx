@@ -16,7 +16,7 @@ export default function NewPersonPage() {
   }, [isLoading, user, router]);
 
   async function handleSubmit(values: CreatePerson) {
-    const person = await createPerson(values);
+    const person = await createPerson({ ...values, created_by: user!.username });
     router.push(`/persons/${rawId(person.id)}`);
   }
 

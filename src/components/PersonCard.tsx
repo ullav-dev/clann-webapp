@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { Person } from "@/lib/types";
-import { deletePerson, rawId } from "@/lib/api";
+import { rawId } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import PersonAvatar from "./PersonAvatar";
 
 interface Props {
@@ -20,6 +21,7 @@ export function fullName(p: { first_name: string; middle_name?: string | null; f
 }
 
 export default function PersonCard({ person, onDeleted }: Props) {
+  const api = useApi();
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete(e: React.MouseEvent) {
@@ -27,7 +29,7 @@ export default function PersonCard({ person, onDeleted }: Props) {
     if (!confirm(`Delete ${fullName(person)}? This cannot be undone.`)) return;
     setDeleting(true);
     try {
-      await deletePerson(person.id);
+      await api.deletePerson(person.id);
       onDeleted?.(person.id);
     } catch {
       alert("Delete failed");

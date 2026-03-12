@@ -3,7 +3,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { listPersons, deletePerson, rawId } from "@/lib/api";
+import { rawId } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import type { Person } from "@/lib/types";
 import { sortPersons, filterPersons, totalPages, pageSlice } from "@/lib/persons";
 import type { SortField, SortDir } from "@/lib/persons";
@@ -30,13 +31,14 @@ function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
 }
 
 function ListView({ people, sortField, sortDir, onSort, onDeleted }: ListViewProps) {
+  const api = useApi();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleDelete(person: Person) {
     if (!confirm(`Delete ${fullName(person)}? This cannot be undone.`)) return;
     setDeletingId(person.id);
     try {
-      await deletePerson(person.id);
+      await api.deletePerson(person.id);
       onDeleted(person.id);
     } catch {
       alert("Delete failed");
@@ -137,6 +139,7 @@ function ListIcon() {
 
 export default function FamilyPage() {
   const { user, isLoading: authLoading } = useAuth();
+  const api = useApi();
   const router = useRouter();
 
   const [persons, setPersons] = useState<Person[]>([]);
@@ -155,7 +158,7 @@ export default function FamilyPage() {
 
   useEffect(() => {
     if (!user) return;
-    listPersons()
+    api.listPersons()
       .then(setPersons)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));

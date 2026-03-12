@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getPerson, updatePerson } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import type { Person, UpdatePerson } from "@/lib/types";
 import PersonForm from "@/components/PersonForm";
 import { fullName } from "@/components/PersonCard";
@@ -11,15 +11,16 @@ import { fullName } from "@/components/PersonCard";
 export default function EditPersonPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const api = useApi();
   const [person, setPerson] = useState<Person | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getPerson(id).then(setPerson).finally(() => setLoading(false));
+    api.getPerson(id).then(setPerson).finally(() => setLoading(false));
   }, [id]);
 
   async function handleSubmit(values: UpdatePerson) {
-    await updatePerson(id, values);
+    await api.updatePerson(id, values);
     router.push(`/persons/${id}`);
   }
 

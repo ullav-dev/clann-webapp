@@ -15,6 +15,13 @@ const BASE_URL =
     ? (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000")
     : "";
 
+/** Append ?created_by=<username> to a path when the caller supplies one. */
+function withCreatedBy(path: string, createdBy?: string): string {
+  if (!createdBy) return path;
+  const sep = path.includes("?") ? "&" : "?";
+  return `${path}${sep}created_by=${encodeURIComponent(createdBy)}`;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: { "Content-Type": "application/json", ...init?.headers },
@@ -32,27 +39,27 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 // Person CRUD
-export const listPersons = (): Promise<Person[]> =>
-  request("/api/persons");
+export const listPersons = (createdBy?: string): Promise<Person[]> =>
+  request(withCreatedBy("/api/persons", createdBy));
 
 export const createPerson = (body: CreatePerson): Promise<Person> =>
   request("/api/persons", { method: "POST", body: JSON.stringify(body) });
 
-export const getPerson = (id: string): Promise<Person> =>
-  request(`/api/persons/${rawId(id)}`);
+export const getPerson = (id: string, createdBy?: string): Promise<Person> =>
+  request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy));
 
-export const updatePerson = (id: string, body: UpdatePerson): Promise<Person> =>
-  request(`/api/persons/${rawId(id)}`, { method: "PUT", body: JSON.stringify(body) });
+export const updatePerson = (id: string, body: UpdatePerson, createdBy?: string): Promise<Person> =>
+  request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy), { method: "PUT", body: JSON.stringify(body) });
 
-export const deletePerson = (id: string): Promise<void> =>
-  request(`/api/persons/${rawId(id)}`, { method: "DELETE" });
+export const deletePerson = (id: string, createdBy?: string): Promise<void> =>
+  request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy), { method: "DELETE" });
 
 // Relationships
-export const getRelationships = (id: string): Promise<RelationshipsResponse> =>
-  request(`/api/persons/${rawId(id)}/relationships`);
+export const getRelationships = (id: string, createdBy?: string): Promise<RelationshipsResponse> =>
+  request(withCreatedBy(`/api/persons/${rawId(id)}/relationships`, createdBy));
 
-export const addRelationship = (id: string, body: AddRelationshipRequest): Promise<void> =>
-  request(`/api/persons/${rawId(id)}/relationships`, {
+export const addRelationship = (id: string, body: AddRelationshipRequest, createdBy?: string): Promise<void> =>
+  request(withCreatedBy(`/api/persons/${rawId(id)}/relationships`, createdBy), {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -60,9 +67,10 @@ export const addRelationship = (id: string, body: AddRelationshipRequest): Promi
 export const deleteRelationship = (
   id: string,
   relType: string,
-  relatedId: string
+  relatedId: string,
+  createdBy?: string,
 ): Promise<void> =>
-  request(`/api/persons/${rawId(id)}/relationships/${relType}/${relatedId}`, {
+  request(withCreatedBy(`/api/persons/${rawId(id)}/relationships/${relType}/${relatedId}`, createdBy), {
     method: "DELETE",
   });
 
@@ -70,22 +78,24 @@ export const deleteRelationship = (
 export const updateSpouseDates = (
   id: string,
   relatedId: string,
-  body: UpdateSpouseDatesRequest
+  body: UpdateSpouseDatesRequest,
+  createdBy?: string,
 ): Promise<void> =>
-  request(`/api/persons/${rawId(id)}/spouse-dates/${relatedId}`, {
+  request(withCreatedBy(`/api/persons/${rawId(id)}/spouse-dates/${relatedId}`, createdBy), {
     method: "PATCH",
     body: JSON.stringify(body),
   });
 
 // Family tree
-export const getFamilyTree = (id: string): Promise<FamilyTreeNode> =>
-  request(`/api/persons/${rawId(id)}/family-tree`);
+export const getFamilyTree = (id: string, createdBy?: string): Promise<FamilyTreeNode> =>
+  request(withCreatedBy(`/api/persons/${rawId(id)}/family-tree`, createdBy));
 
 // Image
-export async function uploadPersonImage(id: string, file: File): Promise<void> {
+export async function uploadPersonImage(id: string, file: File, createdBy?: string): Promise<void> {
   const form = new FormData();
   form.append("image", file);
-  const res = await fetch(`${BASE_URL}/api/persons/${rawId(id)}/image`, {
+  const path = withCreatedBy(`/api/persons/${rawId(id)}/image`, createdBy);
+  const res = await fetch(`${BASE_URL}${path}`, {
     method: "POST",
     body: form,
   });

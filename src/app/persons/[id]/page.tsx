@@ -4,15 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import {
-  getPerson,
-  getRelationships,
-  getFamilyTree,
-  deletePerson,
-  deleteRelationship,
-  updateSpouseDates,
-  rawId,
-} from "@/lib/api";
+import { rawId } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import type { Person, SpouseInfo, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
 import { fullName } from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
@@ -33,6 +26,7 @@ export default function PersonDetailPage() {
   // params.id is the raw ULID (no "person:" prefix) — URLs use rawId()
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const api = useApi();
 
   const [person, setPerson] = useState<Person | null>(null);
   const [rels, setRels] = useState<RelationshipsResponse | null>(null);
@@ -53,9 +47,9 @@ export default function PersonDetailPage() {
     setError(null);
     try {
       const [p, r, t] = await Promise.all([
-        getPerson(id),
-        getRelationships(id),
-        getFamilyTree(id),
+        api.getPerson(id),
+        api.getRelationships(id),
+        api.getFamilyTree(id),
       ]);
       setPerson(p);
       setRels(r);
@@ -78,7 +72,7 @@ export default function PersonDetailPage() {
   async function saveSpouseDates(spouseId: string) {
     setSavingSpouse(true);
     try {
-      await updateSpouseDates(id, spouseId, {
+      await api.updateSpouseDates(id, spouseId, {
         spouse_from: spouseFromEdit || null,
         spouse_to: spouseToEdit || null,
       });
@@ -95,7 +89,7 @@ export default function PersonDetailPage() {
     if (!confirm(`Delete ${person ? fullName(person) : "this person"}? This cannot be undone.`)) return;
     setDeleting(true);
     try {
-      await deletePerson(id);
+      await api.deletePerson(id);
       router.push("/family");
     } catch (e) {
       alert(e instanceof Error ? e.message : "Delete failed");
@@ -105,7 +99,7 @@ export default function PersonDetailPage() {
 
   async function handleDeleteRel(group: "father" | "mother" | "siblings" | "spouse", related: Person | SpouseInfo) {
     if (!confirm(`Remove ${fullName(related)} as ${group}?`)) return;
-    await deleteRelationship(id, REL_TYPE_MAP[group], related.id);
+    await api.deleteRelationship(id, REL_TYPE_MAP[group], related.id);
     load();
   }
 

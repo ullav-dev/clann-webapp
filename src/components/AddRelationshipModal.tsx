@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { Person, RelationshipType, SiblingType } from "@/lib/types";
-import { listPersons, addRelationship, getRelationships } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import { fullName, personIcon } from "./PersonCard";
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 }
 
 export default function AddRelationshipModal({ personId, onDone, onClose }: Props) {
+  const api = useApi();
   const [persons, setPersons] = useState<Person[]>([]);
   const [relType, setRelType] = useState<RelationshipType>("Father");
   const [siblingType, setSiblingType] = useState<SiblingType>("Brother");
@@ -23,7 +24,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    listPersons().then((all) =>
+    api.listPersons().then((all) =>
       setPersons(all.filter((p) => p.id !== personId))
     );
   }, [personId]);
@@ -38,7 +39,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
     setError(null);
     setLoading(true);
     try {
-      await addRelationship(personId, {
+      await api.addRelationship(personId, {
         type: relType,
         related_id: selectedId,
         sibling_type: relType === "Sibling" ? siblingType : undefined,
@@ -50,8 +51,8 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
       // sibling if the sibling doesn't already have them.
       if (relType === "Sibling") {
         const [rootRels, siblingRels] = await Promise.all([
-          getRelationships(personId),
-          getRelationships(selectedId),
+          api.getRelationships(personId),
+          api.getRelationships(selectedId),
         ]);
 
         const inheritParent = async (
@@ -62,7 +63,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
           const siblingParentIds = new Set(siblingParents.map((p) => p.id));
           for (const parent of rootParents) {
             if (!siblingParentIds.has(parent.id)) {
-              await addRelationship(selectedId, { type, related_id: parent.id });
+              await api.addRelationship(selectedId, { type, related_id: parent.id });
             }
           }
         };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { uploadPersonImage } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 
 const MAX_BYTES = 3 * 1024 * 1024; // 3 MB
 const ACCEPTED = ["image/jpeg", "image/png"];
@@ -12,6 +12,7 @@ interface Props {
 }
 
 export default function ImageUpload({ personId, onUploaded }: Props) {
+  const api = useApi();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +27,7 @@ export default function ImageUpload({ personId, onUploaded }: Props) {
     setError(null);
     setUploading(true);
     try {
-      await uploadPersonImage(personId, file);
+      await api.uploadPersonImage(personId, file);
       onUploaded();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed");
