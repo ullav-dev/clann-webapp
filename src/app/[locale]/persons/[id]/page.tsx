@@ -51,7 +51,7 @@ export default function PersonDetailPage() {
       setRels(r);
       setTree(tr);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("failedToLoad"));
+      setError(e instanceof Error ? e.message : t("deleteFailed"));
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,7 @@ export default function PersonDetailPage() {
   }
 
   async function handleDelete() {
-    if (!confirm(t("deleteConfirm", { name: person ? fullName(person) : t("thisPerson") }))) return;
+    if (!confirm(t("deleteConfirm", { name: person ? fullName(person) : t("notFound") }))) return;
     setDeleting(true);
     try {
       await api.deletePerson(id);
@@ -126,13 +126,13 @@ export default function PersonDetailPage() {
           <div>
             <h1 className="text-3xl font-bold text-stone-800">{fullName(person)}</h1>
             <p className="text-stone-500 mt-0.5 text-sm">
-              {person.sex} · {person.date_of_birth ? t("bornDate", { date: person.date_of_birth }) : t("birthDateUnknown")}
-              {person.date_of_death ? ` · ${t("diedDate", { date: person.date_of_death })}` : ""}
+              {person.sex} · {person.date_of_birth ? t("bornPrefix", { date: person.date_of_birth }) : t("birthDateUnknown")}
+              {person.date_of_death ? ` · ${t("diedPrefix", { date: person.date_of_death })}` : ""}
             </p>
             {(person.place_of_birth || person.place_of_death) && (
               <p className="text-stone-400 text-xs mt-0.5">
-                {person.place_of_birth && t("from", { place: person.place_of_birth })}
-                {person.place_of_death && ` · ${t("diedIn", { place: person.place_of_death })}`}
+                {person.place_of_birth && t("fromPlace", { place: person.place_of_birth })}
+                {person.place_of_death && ` · ${t("diedInPlace", { place: person.place_of_death })}`}
               </p>
             )}
           </div>
@@ -159,7 +159,7 @@ export default function PersonDetailPage() {
         {(["tree", "relationships"] as const).map((tabKey) => (
           <button key={tabKey} onClick={() => setTab(tabKey)}
             className={`px-4 py-2 text-sm font-medium capitalize border-b-2 transition-colors -mb-px ${tab === tabKey ? "border-emerald-600 text-emerald-700" : "border-transparent text-stone-500 hover:text-stone-700"}`}>
-            {tabKey === "tree" ? t("tabTree") : t("tabRelationships")}
+            {tabKey === "tree" ? t("tabFamilyTree") : t("tabRelationships")}
           </button>
         ))}
       </div>
@@ -167,7 +167,7 @@ export default function PersonDetailPage() {
       {tab === "tree" && tree && (
         <div>
           <FamilyTreeView tree={tree} />
-          <p className="text-xs text-stone-400 mt-2 text-center">{t("treeHint")}</p>
+          <p className="text-xs text-stone-400 mt-2 text-center">{t("treeHelpText")}</p>
         </div>
       )}
 
@@ -183,7 +183,7 @@ export default function PersonDetailPage() {
             return (
               <section key={group}>
                 <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3">
-                  {group === "father" ? t("groupFather") : group === "mother" ? t("groupMother") : t("groupSiblings")}
+                  {group === "father" ? t("sectionFather") : group === "mother" ? t("sectionMother") : t("sectionSiblings")}
                 </h2>
                 {people.length === 0 ? (<p className="text-stone-400 text-sm italic">{t("noneRecorded")}</p>) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -193,7 +193,7 @@ export default function PersonDetailPage() {
                           <PersonAvatar person={p} size={36} />
                           <div className="min-w-0">
                             <p className="font-medium text-sm text-stone-800 group-hover:text-emerald-700 truncate">{fullName(p)}</p>
-                            {p.date_of_birth && <p className="text-xs text-stone-400">{t("bornDate", { date: p.date_of_birth })}</p>}
+                            {p.date_of_birth && <p className="text-xs text-stone-400">{t("bornPrefix", { date: p.date_of_birth })}</p>}
                           </div>
                         </Link>
                         <button onClick={() => handleDeleteRel(group, p)} className="text-stone-300 hover:text-red-500 transition-colors text-lg ml-2 flex-shrink-0" title={t("removeRelationship")}>×</button>
@@ -205,7 +205,7 @@ export default function PersonDetailPage() {
             );
           })}
           <section>
-            <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3">{t("groupSpouse")}</h2>
+            <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3">{t("sectionSpouse")}</h2>
             {rels.spouse.length === 0 ? (<p className="text-stone-400 text-sm italic">{t("noneRecorded")}</p>) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {rels.spouse.map((sp: SpouseInfo) => (
@@ -215,7 +215,7 @@ export default function PersonDetailPage() {
                         <PersonAvatar person={sp} size={36} />
                         <div className="min-w-0">
                           <p className="font-medium text-sm text-stone-800 group-hover:text-emerald-700 truncate">{fullName(sp)}</p>
-                          {sp.date_of_birth && <p className="text-xs text-stone-400">{t("bornDate", { date: sp.date_of_birth })}</p>}
+                          {sp.date_of_birth && <p className="text-xs text-stone-400">{t("bornPrefix", { date: sp.date_of_birth })}</p>}
                         </div>
                       </Link>
                       <div className="flex items-center gap-1 flex-shrink-0">
@@ -232,12 +232,12 @@ export default function PersonDetailPage() {
                       <div className="mt-3 space-y-2">
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="text-xs text-stone-500 block mb-0.5">{t("from")}</label>
-                            <input type="text" value={spouseFromEdit} onChange={(e) => setSpouseFromEdit(e.target.value)} placeholder={t("fromPlaceholder")} className="w-full rounded border border-stone-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+                            <label className="text-xs text-stone-500 block mb-0.5">{t("spouseFrom")}</label>
+                            <input type="text" value={spouseFromEdit} onChange={(e) => setSpouseFromEdit(e.target.value)} placeholder={t("spouseFromPlaceholder")} className="w-full rounded border border-stone-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
                           </div>
                           <div>
-                            <label className="text-xs text-stone-500 block mb-0.5">{t("to")}</label>
-                            <input type="text" value={spouseToEdit} onChange={(e) => setSpouseToEdit(e.target.value)} placeholder={t("toPlaceholder")} className="w-full rounded border border-stone-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+                            <label className="text-xs text-stone-500 block mb-0.5">{t("spouseTo")}</label>
+                            <input type="text" value={spouseToEdit} onChange={(e) => setSpouseToEdit(e.target.value)} placeholder={t("spouseToPlaceholder")} className="w-full rounded border border-stone-300 px-2 py-1 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" />
                           </div>
                         </div>
                         <div className="flex gap-2">
