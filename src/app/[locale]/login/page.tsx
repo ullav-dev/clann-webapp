@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
-import { register, confirmEmail, requestPasswordReset, confirmPasswordReset } from "@/lib/auth-api";
+import { register, requestPasswordReset, confirmPasswordReset } from "@/lib/auth-api";
 
 type Tab = "login" | "register";
 type Stage = "form" | "verify-email" | "reset-request" | "reset-confirm";
@@ -26,9 +26,7 @@ export default function LoginPage() {
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
-  const [confirmationToken, setConfirmationToken] = useState("");
   const [pendingEmail, setPendingEmail] = useState("");
-  const [pendingPassword, setPendingPassword] = useState("");
   const [resetEmail, setResetEmail] = useState("");
   const [resetToken, setResetToken] = useState("");
   const [resetNewPassword, setResetNewPassword] = useState("");
@@ -58,28 +56,11 @@ export default function LoginPage() {
     if (regPassword !== regConfirm) return setError(t("passwordsDoNotMatch"));
     setSubmitting(true);
     try {
-      const { confirmation_token } = await register(regUsername, regEmail, regPassword);
+      await register(regUsername, regEmail, regPassword);
       setPendingEmail(regEmail);
-      setPendingPassword(regPassword);
-      setConfirmationToken(confirmation_token);
       setStage("verify-email");
     } catch (err) {
       setError(err instanceof Error ? err.message : t("registrationFailed"));
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleVerifyEmail(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-    try {
-      await confirmEmail(confirmationToken);
-      await login(pendingEmail, pendingPassword);
-      router.push("/family");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("verifyEmailFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -127,35 +108,20 @@ export default function LoginPage() {
   if (stage === "verify-email") {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm w-full max-w-md p-8">
-          <div className="flex items-center gap-2 mb-6">
-            <span className="text-2xl">📧</span>
-            <span className="font-bold text-lg text-stone-800">{t("verifyEmailTitle")}</span>
-          </div>
-          <p className="text-sm text-stone-600 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3 mb-6">
+        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm w-full max-w-md p-8 text-center">
+          <div className="text-4xl mb-4">📧</div>
+          <h1 className="font-bold text-lg text-stone-800 mb-2">{t("verifyEmailTitle")}</h1>
+          <p className="text-sm text-stone-600 mb-6">
             {t("verifyEmailMessage", { email: pendingEmail })}
           </p>
           {error && <ErrorBox message={error} />}
-          <form onSubmit={handleVerifyEmail} className="space-y-4">
-            <Field label={t("verifyEmailToken")} htmlFor="confirm-token">
-              <input
-                id="confirm-token"
-                required
-                value={confirmationToken}
-                onChange={(e) => setConfirmationToken(e.target.value)}
-                placeholder={t("verifyEmailTokenPlaceholder")}
-                className={inputCls}
-              />
-            </Field>
-            <SubmitButton loading={submitting} label={t("verifyEmailSubmit")} pleaseWait={t("verifyEmailVerifying")} />
-            <button
-              type="button"
-              onClick={() => { setStage("form"); setError(null); }}
-              className="w-full text-sm text-stone-500 hover:text-stone-700 transition-colors"
-            >
-              {t("backToLogin")}
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={() => { setStage("form"); setError(null); }}
+            className="text-sm text-stone-500 hover:text-stone-700 transition-colors"
+          >
+            {t("backToLogin")}
+          </button>
         </div>
       </div>
     );
