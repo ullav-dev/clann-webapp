@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { confirmPasswordReset } from "@/lib/auth-api";
+import PasswordInput from "@/components/PasswordInput";
 
 function PasswordResetContent() {
   const t = useTranslations("login");
@@ -47,27 +48,23 @@ function PasswordResetContent() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex flex-col gap-1">
           <label htmlFor="new-password" className="text-sm font-medium text-stone-700">{t("newPassword")}</label>
-          <input
+          <PasswordInput
             id="new-password"
-            type="password"
             required
             minLength={8}
             autoFocus
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={setPassword}
             placeholder={t("passwordPlaceholder")}
-            className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm w-full focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="confirm-password" className="text-sm font-medium text-stone-700">{t("confirmPassword")}</label>
-          <input
+          <PasswordInput
             id="confirm-password"
-            type="password"
             required
             value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm w-full focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            onChange={setConfirm}
           />
         </div>
         <button

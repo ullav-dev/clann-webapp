@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { register, requestPasswordReset } from "@/lib/auth-api";
+import PasswordInput from "@/components/PasswordInput";
 
 type Tab = "login" | "register";
 type Stage = "form" | "verify-email" | "reset-request";
@@ -157,7 +158,7 @@ export default function LoginPage() {
               <input id="login-email" type="email" required autoFocus value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} className={inputCls} />
             </Field>
             <Field label={t("password")} htmlFor="login-password">
-              <input id="login-password" type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className={inputCls} />
+              <PasswordInput id="login-password" required value={loginPassword} onChange={setLoginPassword} />
             </Field>
             <SubmitButton loading={submitting} label={t("signIn")} pleaseWait={t("pleaseWait")} />
             <div className="text-center">
@@ -176,10 +177,10 @@ export default function LoginPage() {
               <input id="reg-email" type="email" required value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className={inputCls} />
             </Field>
             <Field label={t("password")} htmlFor="reg-password">
-              <input id="reg-password" type="password" required minLength={8} value={regPassword} onChange={(e) => setRegPassword(e.target.value)} className={inputCls} placeholder={t("passwordPlaceholder")} />
+              <PasswordInput id="reg-password" required minLength={8} value={regPassword} onChange={setRegPassword} placeholder={t("passwordPlaceholder")} />
             </Field>
             <Field label={t("confirmPassword")} htmlFor="reg-confirm">
-              <input id="reg-confirm" type="password" required value={regConfirm} onChange={(e) => setRegConfirm(e.target.value)} className={inputCls} />
+              <PasswordInput id="reg-confirm" required value={regConfirm} onChange={setRegConfirm} />
             </Field>
             <SubmitButton loading={submitting} label={t("createAccount")} pleaseWait={t("pleaseWait")} />
           </form>
