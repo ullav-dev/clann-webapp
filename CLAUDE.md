@@ -34,9 +34,16 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 - `src/components/PersonCard.tsx` — card used on the list page; includes inline delete
 - `src/components/PersonAvatar.tsx` — circular photo with emoji fallback
 - `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 3 MB)
+- `src/components/PasswordInput.tsx` — password field with show/hide toggle (eye icon button); used on all password inputs in the app
 - `src/components/LocaleSwitcher.tsx` — language selector dropdown in the nav
 
 **Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token).
+
+**Email flows:** The auth service sends transactional emails when SMTP is configured (`SMTP_HOST` in its `.env`). `APP_BASE_URL` in the auth service `.env` must point to the webapp locale root (e.g. `http://localhost:3001/en`) so that links in emails resolve correctly.
+- **Email verification:** registration triggers a confirmation email; user clicks link → `/[locale]/auth/confirm-email?token=…` → `POST /auth/confirm-email`
+- **Password reset:** forgot-password form → `POST /auth/password-reset/request` → reset email sent; user clicks link → `/[locale]/auth/password-reset?token=…` → `POST /auth/password-reset/confirm`
+
+Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by Next.js App Router to avoid "Missing html and body tags" errors).
 
 **Routes:** All routes are locale-prefixed (e.g. `/en/family`, `/de/family`). The middleware in `src/middleware.ts` detects the locale from the `Accept-Language` header and redirects bare paths.
 
@@ -44,6 +51,8 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 |---|---|
 | `/[locale]` | Landing page (hero + feature cards) |
 | `/[locale]/login` | Sign in / create account / forgot password |
+| `/[locale]/auth/confirm-email` | Handles email verification link clicks (`?token=`); activates account |
+| `/[locale]/auth/password-reset` | Handles password reset link clicks (`?token=`); new-password form |
 | `/[locale]/family` | List all persons — card/list toggle, sort, search, **pagination** |
 | `/[locale]/persons/new` | Create person |
 | `/[locale]/persons/[id]` | Person detail: family tree tab + relationships tab |
