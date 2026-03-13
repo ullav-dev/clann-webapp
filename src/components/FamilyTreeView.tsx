@@ -32,6 +32,8 @@ type NodeData = {
   sex: string;
   role: Role;
   dob?: string;
+  placeOfBirth?: string | null;
+  biography?: string | null;
   imagePath?: string | null;
   orientation: Orientation;
 };
@@ -55,51 +57,67 @@ function PersonNode({ data }: NodeProps) {
   const showImage = !!d.imagePath && !imgError;
 
   const style = ROLE_STYLES[d.role];
-
-  // Main axis (ancestors ↔ children):
-  //   vertical   → source=Bottom (children below), target=Top (ancestors above)
-  //   horizontal → source=Left   (children left),  target=Right (ancestors right)
-  // Spouse axis (perpendicular):
-  //   vertical   → source=Right, target=Left
-  //   horizontal → source=Bottom, target=Top
   const isH = d.orientation === "horizontal";
 
+  const hasTooltip = !!(d.dob || d.placeOfBirth || d.biography);
+
   return (
-    <div
-      onClick={() => router.push(`/persons/${rawId(d.id)}`)}
-      className={`cursor-pointer rounded-xl border-2 shadow-md px-4 py-3 w-[148px] text-center select-none transition-shadow hover:shadow-lg ${style.border} ${style.bg}`}
-    >
-      {/* Main-axis handles */}
-      <Handle id="main-s" type="source" position={isH ? Position.Left   : Position.Bottom} className={style.handle} />
-      <Handle id="main-t" type="target" position={isH ? Position.Right  : Position.Top}    className={style.handle} />
-      {/* Spouse-axis handles (perpendicular) */}
-      <Handle id="sp-s" type="source" position={isH ? Position.Bottom : Position.Right} className={style.handle} />
-      <Handle id="sp-t" type="target" position={isH ? Position.Top    : Position.Left}  className={style.handle} />
+    <div className="group relative">
+      <div
+        onClick={() => router.push(`/persons/${rawId(d.id)}`)}
+        className={`cursor-pointer rounded-xl border-2 shadow-md px-4 py-3 w-[148px] text-center select-none transition-shadow hover:shadow-lg ${style.border} ${style.bg}`}
+      >
+        {/* Main-axis handles */}
+        <Handle id="main-s" type="source" position={isH ? Position.Left   : Position.Bottom} className={style.handle} />
+        <Handle id="main-t" type="target" position={isH ? Position.Right  : Position.Top}    className={style.handle} />
+        {/* Spouse-axis handles (perpendicular) */}
+        <Handle id="sp-s" type="source" position={isH ? Position.Bottom : Position.Right} className={style.handle} />
+        <Handle id="sp-t" type="target" position={isH ? Position.Top    : Position.Left}  className={style.handle} />
 
-      <div className="flex justify-center mb-2">
-        {showImage ? (
-          <div className={`relative w-14 h-14 rounded-full overflow-hidden ring-2 bg-stone-100 ${
-            d.role === "father" ? "ring-blue-200" : d.role === "mother" ? "ring-rose-200" : "ring-emerald-200"
-          }`}>
-            <Image
-              src={personImageUrl(d.id)}
-              alt=""
-              fill
-              className="object-cover"
-              onError={() => setImgError(true)}
-              sizes="56px"
-              unoptimized
-            />
+        <div className="flex justify-center mb-2">
+          {showImage ? (
+            <div className={`relative w-14 h-14 rounded-full overflow-hidden ring-2 bg-stone-100 ${
+              d.role === "father" ? "ring-blue-200" : d.role === "mother" ? "ring-rose-200" : "ring-emerald-200"
+            }`}>
+              <Image
+                src={personImageUrl(d.id)}
+                alt=""
+                fill
+                className="object-cover"
+                onError={() => setImgError(true)}
+                sizes="56px"
+                unoptimized
+              />
+            </div>
+          ) : (
+            <span className="text-4xl leading-none">{d.sex === "Female" ? "👩" : "👨"}</span>
+          )}
+        </div>
+
+        <div className={`font-semibold text-sm leading-tight ${style.text}`}>
+          {d.name}
+        </div>
+        {d.dob && <div className="text-xs text-stone-400 mt-1">b. {d.dob}</div>}
+      </div>
+
+      {hasTooltip && (
+        <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 hidden group-hover:block">
+          <div className="bg-stone-800 text-white text-xs rounded-lg px-3 py-2 w-52 shadow-xl space-y-1">
+            {d.dob && (
+              <div><span className="text-stone-400">b.</span> {d.dob}</div>
+            )}
+            {d.placeOfBirth && (
+              <div><span className="text-stone-400">from</span> {d.placeOfBirth}</div>
+            )}
+            {d.biography && (
+              <div className="pt-1 border-t border-stone-600 text-stone-200 leading-snug line-clamp-4">
+                {d.biography}
+              </div>
+            )}
           </div>
-        ) : (
-          <span className="text-4xl leading-none">{d.sex === "Female" ? "👩" : "👨"}</span>
-        )}
-      </div>
-
-      <div className={`font-semibold text-sm leading-tight ${style.text}`}>
-        {d.name}
-      </div>
-      {d.dob && <div className="text-xs text-stone-400 mt-1">b. {d.dob}</div>}
+          <div className="mx-auto w-2 h-2 bg-stone-800 rotate-45 -mt-1" />
+        </div>
+      )}
     </div>
   );
 }
@@ -137,7 +155,9 @@ function buildGraph(
       name: [node.first_name, node.family_name].join(" "),
       sex: node.sex ?? "Male",
       role,
-      dob: undefined,
+      dob: node.date_of_birth ?? undefined,
+      placeOfBirth: node.place_of_birth ?? null,
+      biography: node.biography ?? null,
       imagePath: node.image_path ?? null,
       orientation,
     } satisfies NodeData,
@@ -309,7 +329,9 @@ export default function FamilyTreeView({ tree }: Props) {
             name: [sib.first_name, sib.family_name].join(" "),
             sex: sib.sex ?? "Male",
             role: "sibling" as Role,
-            dob: undefined,
+            dob: sib.date_of_birth ?? undefined,
+            placeOfBirth: sib.place_of_birth ?? null,
+            biography: sib.biography ?? null,
             imagePath: sib.image_path ?? null,
             orientation,
           } satisfies NodeData,

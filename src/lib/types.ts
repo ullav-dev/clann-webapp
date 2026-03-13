@@ -85,6 +85,9 @@ export interface FamilyTreeNode {
   family_name: string;
   first_name: string;
   sex?: Sex;
+  date_of_birth?: string | null;
+  place_of_birth?: string | null;
+  biography?: string | null;
   image_path?: string | null;
   father?: FamilyTreeNode[];
   mother?: FamilyTreeNode[];
