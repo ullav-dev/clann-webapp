@@ -1,6 +1,6 @@
 # Clann – Family Tree Web App
 
-A responsive family tree management application built with Next.js, backed by [clann-server](https://github.com/colinmanning/clann-server) (Rust · Axum · SurrealDB).
+A responsive, localised family tree management application built with Next.js, backed by [clann-server](https://github.com/colinmanning/clann-server) (Rust · Axum · SurrealDB).
 
 ## Features
 
@@ -15,7 +15,8 @@ A responsive family tree management application built with Next.js, backed by [c
   - Click any node to navigate to that person's profile
 - **Export** — download the tree as a **JPEG image** or **JSON file**
 - **Family Members list** — card or list view with sort (family name, date of birth, place of birth), name search, and **pagination** (5–30 per page, default 10)
-- **Authentication** — login, registration, and password reset via ullav-user-management; family data is gated behind login
+- **Authentication** — login, registration, and password reset via ullav-user-management; family data is gated behind login; ownership filter enforced server-side
+- **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
 
 ## Prerequisites
 
@@ -36,7 +37,7 @@ echo "NEXT_PUBLIC_API_URL=http://localhost:3000" > .env.local
 npm run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001).
+Open [http://localhost:3001](http://localhost:3001). The middleware will detect your browser language and redirect to the appropriate locale prefix (e.g. `/en/`, `/de/`, `/ga/`).
 
 > **Node v25 note:** the `.bin/next` symlink is broken on Node v25. The npm scripts already work around this by invoking `node node_modules/next/dist/bin/next` directly.
 
@@ -49,37 +50,52 @@ Open [http://localhost:3001](http://localhost:3001).
 | Styling | Tailwind CSS v4 |
 | Graph | React Flow (`@xyflow/react`) |
 | Image export | `html-to-image` |
+| i18n | next-intl v4 |
 | Backend | clann-server (Rust · Axum · SurrealDB) |
 | Auth | ullav-user-management (Rust · Actix-web · PostgreSQL) |
 
 ## Project structure
 
 ```
+messages/
+  en.json                   # English translations (base)
+  de.json                   # German translations
+  ga.json                   # Irish (Gaeilge) translations
 src/
   app/
-    page.tsx                  # Landing page
-    login/page.tsx            # Sign in / register / password reset
-    family/page.tsx           # Person list (card/list, sort, search, pagination)
-    persons/
-      new/page.tsx            # Create person
-      [id]/
-        page.tsx              # Person detail (tree + relationships tabs)
-        edit/page.tsx         # Edit person
+    layout.tsx              # Root layout (pass-through for locale layout)
+    [locale]/
+      layout.tsx            # Locale layout: <html lang>, providers, Nav
+      page.tsx              # Landing page
+      login/page.tsx        # Sign in / register / password reset
+      family/page.tsx       # Person list (card/list, sort, search, pagination)
+      persons/
+        new/page.tsx        # Create person
+        [id]/
+          page.tsx          # Person detail (tree + relationships tabs)
+          edit/page.tsx     # Edit person
   components/
-    FamilyTreeView.tsx        # React Flow graph (SSR-disabled)
-    PersonForm.tsx            # Shared create/edit form
-    AddRelationshipModal.tsx  # Link relationships
-    PersonCard.tsx            # Card on list page
-    PersonAvatar.tsx          # Circular photo with fallback emoji
-    ImageUpload.tsx           # Drag-and-drop uploader
-    Nav.tsx                   # Top navigation bar
+    FamilyTreeView.tsx      # React Flow graph (SSR-disabled)
+    PersonForm.tsx          # Shared create/edit form
+    AddRelationshipModal.tsx # Link relationships
+    PersonCard.tsx          # Card on list page
+    PersonAvatar.tsx        # Circular photo with fallback emoji
+    ImageUpload.tsx         # Drag-and-drop uploader
+    LocaleSwitcher.tsx      # Language selector dropdown
+    Nav.tsx                 # Top navigation bar
   contexts/
-    AuthContext.tsx           # JWT auth state (localStorage)
+    AuthContext.tsx         # JWT auth state (localStorage)
+  hooks/
+    useApi.ts               # API hook; binds created_by=username on every call
+  i18n/
+    routing.ts              # Supported locales and default locale
+    request.ts              # Server-side locale/message loader
   lib/
-    types.ts                  # TypeScript types (mirrors OpenAPI schema)
-    api.ts                    # Typed fetch wrappers
-    auth-api.ts               # Auth service fetch wrappers
-    persons.ts                # Pure sort/filter/pagination helpers (tested)
+    types.ts                # TypeScript types (mirrors OpenAPI schema)
+    api.ts                  # Typed fetch wrappers
+    auth-api.ts             # Auth service fetch wrappers
+    persons.ts              # Pure sort/filter/pagination helpers (tested)
+  middleware.ts             # Locale detection and URL prefix routing
 ```
 
 ## Testing
@@ -100,3 +116,5 @@ npm run test:watch # Watch mode
 ## API
 
 All requests go through the Next.js rewrite proxy (`/api/*` → `http://localhost:3000/api/*`), so there are no CORS issues. The backend base URL is configured via `NEXT_PUBLIC_API_URL` in `.env.local`.
+
+Every API call includes `created_by=<username>` (applied automatically by `useApi`). The backend enforces ownership server-side and grants admin access when the username matches the `ADMIN_USERNAME` environment variable.

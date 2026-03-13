@@ -19,7 +19,7 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 
 ## Architecture
 
-**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · React Flow (`@xyflow/react`) · `html-to-image`
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · React Flow (`@xyflow/react`) · `html-to-image` · next-intl v4
 
 **API proxy:** `next.config.ts` rewrites `/api/*` → `http://localhost:3000/api/*` so browser fetches never hit CORS. The API client (`src/lib/api.ts`) uses relative paths in the browser and the absolute backend URL server-side.
 
@@ -27,28 +27,41 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 - `src/lib/types.ts` — all TypeScript types mirroring the OpenAPI schema
 - `src/lib/api.ts` — typed fetch wrappers for every backend endpoint
 - `src/lib/persons.ts` — pure utility functions (`sortPersons`, `filterPersons`, `totalPages`, `pageSlice`) extracted for testability
+- `src/hooks/useApi.ts` — binds all API calls with `created_by=username` so the backend ownership filter is always applied
 - `src/components/FamilyTreeView.tsx` — React Flow graph; loaded via `dynamic(..., { ssr: false })`. Shows 2-generation ancestors, direct children, and spouses for the root person. Supports vertical/horizontal orientation toggle and JPEG/JSON export.
 - `src/components/PersonForm.tsx` — shared create/edit form; fields: name, sex, birth/death, identity (nickname/username/email/verified), biography (textarea, max 1000 chars)
 - `src/components/AddRelationshipModal.tsx` — modal for linking Father / Mother / Sibling / Spouse. When adding a sibling, automatically inherits the root person's parents.
 - `src/components/PersonCard.tsx` — card used on the list page; includes inline delete
 - `src/components/PersonAvatar.tsx` — circular photo with emoji fallback
 - `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 3 MB)
+- `src/components/LocaleSwitcher.tsx` — language selector dropdown in the nav
 
 **Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token).
 
-**Routes:**
+**Routes:** All routes are locale-prefixed (e.g. `/en/family`, `/de/family`). The middleware in `src/middleware.ts` detects the locale from the `Accept-Language` header and redirects bare paths.
+
 | Route | Description |
 |---|---|
-| `/` | Landing page (hero + feature cards) |
-| `/login` | Sign in / create account / forgot password |
-| `/family` | List all persons — card/list toggle, sort, search, **pagination** |
-| `/persons/new` | Create person |
-| `/persons/[id]` | Person detail: family tree tab + relationships tab |
-| `/persons/[id]/edit` | Edit person |
+| `/[locale]` | Landing page (hero + feature cards) |
+| `/[locale]/login` | Sign in / create account / forgot password |
+| `/[locale]/family` | List all persons — card/list toggle, sort, search, **pagination** |
+| `/[locale]/persons/new` | Create person |
+| `/[locale]/persons/[id]` | Person detail: family tree tab + relationships tab |
+| `/[locale]/persons/[id]/edit` | Edit person |
 
 **ID handling:** The backend stores IDs as `person:<ulid>` (e.g. `person:01jd4a8xyz`). URLs use just the ULID (no prefix, no encoding). `api.ts` exposes a `rawId()` helper that strips the `person:` prefix before building request paths. **Always use `rawId(person.id)` when constructing links or `router.push` calls** — never `encodeURIComponent(person.id)`, which embeds the prefix in the URL and causes 404s.
 
 **Backend API base URL:** Set via `NEXT_PUBLIC_API_URL` in `.env.local` (defaults to `http://localhost:3000`).
+
+## i18n
+
+**Library:** next-intl v4. Supported locales: `en` (default), `de`, `ga`. Defined in `src/i18n/routing.ts`.
+
+- Translation files live in `messages/{locale}.json`, organised by namespace (`nav`, `family`, `personDetail`, `personForm`, `addRelationship`, `imageUpload`, `familyTree`, etc.)
+- Server components use `await getTranslations("namespace")` (from `next-intl/server`)
+- Client components use `useTranslations("namespace")` (React hook)
+- Do **not** use `t.rich(...)` with `{placeholder}` syntax — use separate keys or XML-style tags (`<b>text</b>`) instead. The `{br}` self-closing placeholder is not supported; split into two keys and insert `<br />` manually.
+- The `LocaleSwitcher` component replaces the locale segment in the current pathname and calls `router.push`.
 
 ## Family Members page
 
