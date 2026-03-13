@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
-import { register, requestPasswordReset, confirmPasswordReset } from "@/lib/auth-api";
+import { register, requestPasswordReset } from "@/lib/auth-api";
 
 type Tab = "login" | "register";
-type Stage = "form" | "verify-email" | "reset-request" | "reset-confirm";
+type Stage = "form" | "verify-email" | "reset-request";
 
 export default function LoginPage() {
   const { user, isLoading, login } = useAuth();
@@ -28,9 +28,7 @@ export default function LoginPage() {
   const [regConfirm, setRegConfirm] = useState("");
   const [pendingEmail, setPendingEmail] = useState("");
   const [resetEmail, setResetEmail] = useState("");
-  const [resetToken, setResetToken] = useState("");
-  const [resetNewPassword, setResetNewPassword] = useState("");
-  const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
     if (!isLoading && user) router.replace("/family");
@@ -71,33 +69,10 @@ export default function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const resp = await requestPasswordReset(resetEmail);
-      if (resp.reset_token) {
-        setResetToken(resp.reset_token);
-        setResetMessage(null);
-        setStage("reset-confirm");
-      } else {
-        setResetMessage(resp.message ?? t("resetTokenMessage"));
-      }
+      await requestPasswordReset(resetEmail);
+      setResetSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("requestFailed"));
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleResetConfirm(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-    try {
-      await confirmPasswordReset(resetToken, resetNewPassword);
-      setStage("form");
-      setTab("login");
-      setResetMessage(null);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("resetFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -127,7 +102,7 @@ export default function LoginPage() {
     );
   }
 
-  if (stage === "reset-request" || stage === "reset-confirm") {
+  if (stage === "reset-request") {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="bg-white rounded-2xl border border-stone-200 shadow-sm w-full max-w-md p-8">
@@ -136,34 +111,22 @@ export default function LoginPage() {
             <span className="font-bold text-lg text-stone-800">{t("resetPassword")}</span>
           </div>
           {error && <ErrorBox message={error} />}
-          {stage === "reset-request" && (
+          {resetSent ? (
+            <div className="text-center space-y-4">
+              <div className="text-4xl">📧</div>
+              <p className="text-sm text-stone-600">{t("resetTokenMessage")}</p>
+              <button type="button" onClick={() => { setStage("form"); setError(null); setResetSent(false); }} className="text-sm text-stone-500 hover:text-stone-700 transition-colors">
+                {t("backToLogin")}
+              </button>
+            </div>
+          ) : (
             <form onSubmit={handleResetRequest} className="space-y-4">
-              {resetMessage && (
-                <p className="text-sm text-stone-600 bg-stone-50 rounded-lg px-4 py-3">{resetMessage}</p>
-              )}
               <Field label={t("emailAddress")} htmlFor="reset-email">
                 <input id="reset-email" type="email" required autoFocus value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} className={inputCls} />
               </Field>
               <SubmitButton loading={submitting} label={t("sendResetToken")} pleaseWait={t("pleaseWait")} />
               <button type="button" onClick={() => { setStage("form"); setError(null); }} className="w-full text-sm text-stone-500 hover:text-stone-700 transition-colors">
                 {t("backToLogin")}
-              </button>
-            </form>
-          )}
-          {stage === "reset-confirm" && (
-            <form onSubmit={handleResetConfirm} className="space-y-4">
-              <p className="text-sm text-stone-600 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
-                {t("resetTokenReceived")}
-              </p>
-              <Field label={t("resetToken")} htmlFor="reset-token">
-                <input id="reset-token" required value={resetToken} onChange={(e) => setResetToken(e.target.value)} className={inputCls} placeholder={t("resetTokenPlaceholder")} />
-              </Field>
-              <Field label={t("newPassword")} htmlFor="reset-new-pw">
-                <input id="reset-new-pw" type="password" required minLength={8} autoFocus value={resetNewPassword} onChange={(e) => setResetNewPassword(e.target.value)} className={inputCls} />
-              </Field>
-              <SubmitButton loading={submitting} label={t("setNewPassword")} pleaseWait={t("pleaseWait")} />
-              <button type="button" onClick={() => { setStage("reset-request"); setError(null); }} className="w-full text-sm text-stone-500 hover:text-stone-700 transition-colors">
-                {t("back")}
               </button>
             </form>
           )}
