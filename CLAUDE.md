@@ -88,6 +88,7 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 - **Orientation:** vertical (ancestors up, children down, spouses right) or horizontal (ancestors right, children left, spouses below).
 - **Node `width: 148, height: 120`** must be set on each node object so the MiniMap can render them before DOM measurement.
 - `nodeTypes` is defined outside the component to avoid React Flow re-renders.
+- **Hover tooltip:** each node shows a dark tooltip above it on hover with `date_of_birth`, `place_of_birth`, and `biography` (biography capped at 4 lines). Only rendered when at least one field is non-null.
 
 ## Tests
 
