@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import {
   ReactFlow,
@@ -236,32 +237,34 @@ function buildGraph(
 
 // ── Legend ───────────────────────────────────────────────────────────────────
 
-function Legend() {
+type TranslateFn = ReturnType<typeof useTranslations>;
+
+function Legend({ t }: { t: TranslateFn }) {
   return (
     <div className="inline-flex items-center gap-4 text-xs text-stone-600">
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-3 h-3 rounded-sm border-2 border-emerald-600 bg-emerald-50" />
-        You
+        {t("legendYou")}
       </span>
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-3 h-3 rounded-sm border-2 border-blue-400 bg-blue-50" />
-        Father
+        {t("legendFather")}
       </span>
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-3 h-3 rounded-sm border-2 border-rose-400 bg-rose-50" />
-        Mother
+        {t("legendMother")}
       </span>
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-3 h-3 rounded-sm border-2 border-amber-400 bg-amber-50" />
-        Child
+        {t("legendChild")}
       </span>
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-3 h-3 rounded-sm border-2 border-violet-400 bg-violet-50" />
-        Spouse
+        {t("legendSpouse")}
       </span>
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-3 h-3 rounded-sm border-2 border-teal-400 bg-teal-50" />
-        Sibling
+        {t("legendSibling")}
       </span>
     </div>
   );
@@ -275,6 +278,7 @@ interface Props {
 
 export default function FamilyTreeView({ tree }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("familyTree");
   const [orientation, setOrientation] = useState<Orientation>("vertical");
   const [showSiblings, setShowSiblings] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -365,7 +369,7 @@ export default function FamilyTreeView({ tree }: Props) {
         <div className="inline-flex rounded-lg border border-stone-300 bg-white shadow-sm overflow-hidden">
           <button
             onClick={() => setOrientation("vertical")}
-            title="Ancestors above (top-to-bottom)"
+            title={t("orientationVerticalTitle")}
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm transition-colors ${
               orientation === "vertical"
                 ? "bg-emerald-700 text-white"
@@ -375,11 +379,11 @@ export default function FamilyTreeView({ tree }: Props) {
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L11 6.414V16a1 1 0 11-2 0V6.414L7.707 7.707A1 1 0 016.293 6.293l3-3A1 1 0 0110 3z" clipRule="evenodd" />
             </svg>
-            Vertical
+            {t("orientationVertical")}
           </button>
           <button
             onClick={() => setOrientation("horizontal")}
-            title="Ancestors to the right (left-to-right)"
+            title={t("orientationHorizontalTitle")}
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm transition-colors border-l border-stone-300 ${
               orientation === "horizontal"
                 ? "bg-emerald-700 text-white"
@@ -389,24 +393,24 @@ export default function FamilyTreeView({ tree }: Props) {
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L12.586 8H4a1 1 0 110-2h8.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
-            Horizontal
+            {t("orientationHorizontal")}
           </button>
         </div>
 
         {/* Siblings toggle */}
         <button
           onClick={() => setShowSiblings((v) => !v)}
-          title="Show or hide siblings of the root person"
+          title={t("siblingsToggleTitle")}
           className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border shadow-sm transition-colors ${
             showSiblings
               ? "bg-teal-600 text-white border-teal-600"
               : "bg-white text-stone-600 border-stone-300 hover:bg-stone-50"
           }`}
         >
-          👫 Siblings
+          {t("siblingsToggle")}
         </button>
 
-        <Legend />
+        <Legend t={t} />
 
         {/* Export buttons */}
         <div className="inline-flex items-center gap-2">
@@ -417,7 +421,7 @@ export default function FamilyTreeView({ tree }: Props) {
           <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
-          Export as JSON
+          {t("exportJson")}
         </button>
         <button
           onClick={exportJpeg}
@@ -430,14 +434,14 @@ export default function FamilyTreeView({ tree }: Props) {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
               </svg>
-              Exporting…
+              {t("exporting")}
             </>
           ) : (
             <>
               <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
-              Export as JPEG
+              {t("exportJpeg")}
             </>
           )}
         </button>

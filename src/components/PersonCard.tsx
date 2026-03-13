@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Person } from "@/lib/types";
 import { rawId } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
@@ -22,17 +23,19 @@ export function fullName(p: { first_name: string; middle_name?: string | null; f
 
 export default function PersonCard({ person, onDeleted }: Props) {
   const api = useApi();
+  const t = useTranslations("family");
+  const tPerson = useTranslations("personDetail");
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete(e: React.MouseEvent) {
     e.preventDefault();
-    if (!confirm(`Delete ${fullName(person)}? This cannot be undone.`)) return;
+    if (!confirm(t("deleteConfirm", { name: fullName(person) }))) return;
     setDeleting(true);
     try {
       await api.deletePerson(person.id);
       onDeleted?.(person.id);
     } catch {
-      alert("Delete failed");
+      alert(t("deleteFailed"));
       setDeleting(false);
     }
   }
@@ -49,8 +52,8 @@ export default function PersonCard({ person, onDeleted }: Props) {
             {fullName(person)}
           </p>
           <p className="text-xs text-stone-500 mt-0.5">
-            {person.date_of_birth ? `b. ${person.date_of_birth}` : "Birth date unknown"}
-            {person.date_of_death ? ` · d. ${person.date_of_death}` : ""}
+            {person.date_of_birth ? tPerson("bornPrefix", { date: person.date_of_birth }) : tPerson("birthDateUnknown")}
+            {person.date_of_death ? ` · ${tPerson("diedPrefix", { date: person.date_of_death })}` : ""}
           </p>
         </div>
       </Link>
@@ -58,7 +61,7 @@ export default function PersonCard({ person, onDeleted }: Props) {
       <button
         onClick={handleDelete}
         disabled={deleting}
-        title="Delete person"
+        title={t("deletePersonTitle")}
         className="absolute top-3 right-3 p-1.5 rounded-lg text-stone-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
       >
         {deleting ? (

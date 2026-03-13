@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useApi } from "@/hooks/useApi";
 
 const MAX_BYTES = 3 * 1024 * 1024; // 3 MB
@@ -13,16 +14,17 @@ interface Props {
 
 export default function ImageUpload({ personId, onUploaded }: Props) {
   const api = useApi();
+  const t = useTranslations("imageUpload");
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleFile(file: File) {
     if (!ACCEPTED.includes(file.type)) {
-      return setError("Only JPEG or PNG files are accepted.");
+      return setError(t("invalidType"));
     }
     if (file.size > MAX_BYTES) {
-      return setError("File must be 3 MB or smaller.");
+      return setError(t("fileTooLarge"));
     }
     setError(null);
     setUploading(true);
@@ -30,7 +32,7 @@ export default function ImageUpload({ personId, onUploaded }: Props) {
       await api.uploadPersonImage(personId, file);
       onUploaded();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+      setError(e instanceof Error ? e.message : t("uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -64,9 +66,9 @@ export default function ImageUpload({ personId, onUploaded }: Props) {
           onChange={handleChange}
         />
         <p className="text-sm text-stone-500">
-          {uploading ? "Uploading…" : "Click or drag a photo here"}
+          {uploading ? t("uploading") : t("clickOrDrag")}
         </p>
-        <p className="text-xs text-stone-400 mt-1">JPEG or PNG · max 3 MB</p>
+        <p className="text-xs text-stone-400 mt-1">{t("constraints")}</p>
       </div>
       {error && (
         <p className="text-xs text-red-600">{error}</p>

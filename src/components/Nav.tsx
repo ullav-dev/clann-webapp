@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
+import LocaleSwitcher from "./LocaleSwitcher";
 
 export default function Nav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isLoading, logout } = useAuth();
+  const t = useTranslations("nav");
 
   function handleLogout() {
     logout();
@@ -16,7 +19,7 @@ export default function Nav() {
 
   const activeLink = (path: string) =>
     `text-sm font-medium transition-colors ${
-      pathname.startsWith(path)
+      pathname.includes(path)
         ? "text-emerald-700"
         : "text-stone-600 hover:text-stone-900"
     }`;
@@ -34,13 +37,13 @@ export default function Nav() {
             {!isLoading && user ? (
               <>
                 <Link href="/family" className={activeLink("/family")}>
-                  My Family
+                  {t("myFamily")}
                 </Link>
                 <Link
                   href="/persons/new"
                   className="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
                 >
-                  <span>+</span> Add Person
+                  <span>+</span> {t("addPerson")}
                 </Link>
                 <div className="flex items-center gap-2 pl-2 border-l border-stone-200">
                   <span className="text-sm text-stone-500 hidden sm:block">{user.username}</span>
@@ -48,7 +51,7 @@ export default function Nav() {
                     onClick={handleLogout}
                     className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
                   >
-                    Logout
+                    {t("logout")}
                   </button>
                 </div>
               </>
@@ -56,14 +59,15 @@ export default function Nav() {
               <Link
                 href="/login"
                 className={`text-sm font-medium px-4 py-2 rounded-lg border transition-colors ${
-                  pathname === "/login"
+                  pathname.endsWith("/login")
                     ? "border-emerald-600 text-emerald-700 bg-emerald-50"
                     : "border-stone-300 text-stone-700 hover:bg-stone-50"
                 }`}
               >
-                Login
+                {t("login")}
               </Link>
             ) : null}
+            <LocaleSwitcher />
           </nav>
         </div>
       </div>

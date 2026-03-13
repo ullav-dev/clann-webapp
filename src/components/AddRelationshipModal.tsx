@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import type { Person, RelationshipType, SiblingType } from "@/lib/types";
 import { useApi } from "@/hooks/useApi";
 import { fullName, personIcon } from "./PersonCard";
@@ -13,6 +14,7 @@ interface Props {
 
 export default function AddRelationshipModal({ personId, onDone, onClose }: Props) {
   const api = useApi();
+  const t = useTranslations("addRelationship");
   const [persons, setPersons] = useState<Person[]>([]);
   const [relType, setRelType] = useState<RelationshipType>("Father");
   const [siblingType, setSiblingType] = useState<SiblingType>("Brother");
@@ -35,7 +37,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedId) return setError("Please select a person");
+    if (!selectedId) return setError(t("pleaseSelectPerson"));
     setError(null);
     setLoading(true);
     try {
@@ -74,7 +76,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
 
       onDone();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : t("unknownError"));
       setLoading(false);
     }
   }
@@ -83,7 +85,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
-          <h2 className="font-semibold text-stone-800">Add Relationship</h2>
+          <h2 className="font-semibold text-stone-800">{t("title")}</h2>
           <button
             onClick={onClose}
             className="text-stone-400 hover:text-stone-600 transition-colors text-xl leading-none"
@@ -101,20 +103,20 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
 
           {/* Relationship type */}
           <div>
-            <label className="text-sm font-medium text-stone-700 block mb-2">Relationship Type</label>
+            <label className="text-sm font-medium text-stone-700 block mb-2">{t("relationshipType")}</label>
             <div className="grid grid-cols-2 gap-2">
-              {(["Father", "Mother", "Sibling", "Spouse"] as RelationshipType[]).map((t) => (
+              {(["Father", "Mother", "Sibling", "Spouse"] as RelationshipType[]).map((rt) => (
                 <button
-                  key={t}
+                  key={rt}
                   type="button"
-                  onClick={() => setRelType(t)}
+                  onClick={() => setRelType(rt)}
                   className={`py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${
-                    relType === t
+                    relType === rt
                       ? "bg-emerald-700 text-white border-emerald-700"
                       : "border-stone-300 text-stone-700 hover:border-emerald-400"
                   }`}
                 >
-                  {t === "Father" ? "👨 Father" : t === "Mother" ? "👩 Mother" : t === "Sibling" ? "👫 Sibling" : "💍 Spouse"}
+                  {rt === "Father" ? t("father") : rt === "Mother" ? t("mother") : rt === "Sibling" ? t("sibling") : t("spouse")}
                 </button>
               ))}
             </div>
@@ -123,20 +125,20 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
           {/* Sibling type */}
           {relType === "Sibling" && (
             <div>
-              <label className="text-sm font-medium text-stone-700 block mb-2">Sibling Type</label>
+              <label className="text-sm font-medium text-stone-700 block mb-2">{t("siblingType")}</label>
               <div className="flex gap-2">
-                {(["Brother", "Sister"] as SiblingType[]).map((t) => (
+                {(["Brother", "Sister"] as SiblingType[]).map((st) => (
                   <button
-                    key={t}
+                    key={st}
                     type="button"
-                    onClick={() => setSiblingType(t)}
+                    onClick={() => setSiblingType(st)}
                     className={`flex-1 py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${
-                      siblingType === t
+                      siblingType === st
                         ? "bg-emerald-700 text-white border-emerald-700"
                         : "border-stone-300 text-stone-700 hover:border-emerald-400"
                     }`}
                   >
-                    {t === "Brother" ? "👦 Brother" : "👧 Sister"}
+                    {st === "Brother" ? t("brother") : t("sister")}
                   </button>
                 ))}
               </div>
@@ -147,20 +149,20 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
           {relType === "Spouse" && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium text-stone-700 block mb-1">From (optional)</label>
+                <label className="text-sm font-medium text-stone-700 block mb-1">{t("spouseFrom")}</label>
                 <input
                   type="text"
-                  placeholder="e.g. 1990"
+                  placeholder={t("spouseFromPlaceholder")}
                   value={spouseFrom}
                   onChange={(e) => setSpouseFrom(e.target.value)}
                   className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-stone-700 block mb-1">To (optional)</label>
+                <label className="text-sm font-medium text-stone-700 block mb-1">{t("spouseTo")}</label>
                 <input
                   type="text"
-                  placeholder="e.g. present"
+                  placeholder={t("spouseToPlaceholder")}
                   value={spouseTo}
                   onChange={(e) => setSpouseTo(e.target.value)}
                   className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
@@ -171,17 +173,17 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
 
           {/* Person search */}
           <div>
-            <label className="text-sm font-medium text-stone-700 block mb-2">Select Person</label>
+            <label className="text-sm font-medium text-stone-700 block mb-2">{t("selectPerson")}</label>
             <input
               type="search"
-              placeholder="Search by name…"
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm mb-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
             <div className="max-h-48 overflow-y-auto space-y-1 rounded-lg border border-stone-200 p-1">
               {filtered.length === 0 && (
-                <p className="text-stone-400 text-sm text-center py-4">No people found</p>
+                <p className="text-stone-400 text-sm text-center py-4">{t("noPeopleFound")}</p>
               )}
               {filtered.map((p) => (
                 <button
@@ -198,7 +200,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
                   <span>{fullName(p)}</span>
                   {p.date_of_birth && (
                     <span className={`ml-auto text-xs ${selectedId === p.id ? "text-emerald-200" : "text-stone-400"}`}>
-                      b. {p.date_of_birth}
+                      {t("bornPrefix", { date: p.date_of_birth })}
                     </span>
                   )}
                 </button>
@@ -212,14 +214,14 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
               onClick={onClose}
               className="flex-1 border border-stone-300 rounded-lg py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               type="submit"
               disabled={loading || !selectedId}
               className="flex-1 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white rounded-lg py-2.5 text-sm font-medium transition-colors"
             >
-              {loading ? "Adding…" : "Add Relationship"}
+              {loading ? t("adding") : t("addRelationship")}
             </button>
           </div>
         </form>
