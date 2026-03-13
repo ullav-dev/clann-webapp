@@ -66,7 +66,20 @@
     "registrationFailed": "Registrierung fehlgeschlagen",
     "requestFailed": "Anfrage fehlgeschlagen",
     "resetTokenMessage": "Falls die E-Mail registriert ist, erhalten Sie einen Reset-Token.",
-    "resetFailed": "Zurücksetzen fehlgeschlagen"
+    "resetFailed": "Zurücksetzen fehlgeschlagen",
+    "verifyEmailTitle": "E-Mail bestätigen",
+    "verifyEmailMessage": "Ein Bestätigungslink wurde an {email} gesendet. Klicken Sie darauf, um Ihr Konto zu aktivieren, oder fügen Sie den Token unten ein.",
+    "verifyEmailToken": "Bestätigungstoken",
+    "verifyEmailTokenPlaceholder": "Bestätigungstoken einfügen",
+    "verifyEmailSubmit": "E-Mail bestätigen",
+    "verifyEmailVerifying": "Wird bestätigt…",
+    "verifyEmailFailed": "Bestätigung fehlgeschlagen",
+    "confirmEmailTitle": "E-Mail wird bestätigt",
+    "confirmEmailVerifying": "Ihre E-Mail-Adresse wird bestätigt…",
+    "confirmEmailSuccess": "E-Mail bestätigt! Sie können sich jetzt anmelden.",
+    "confirmEmailFailed": "Bestätigung fehlgeschlagen. Der Link ist möglicherweise abgelaufen.",
+    "confirmEmailSignIn": "Anmelden →",
+    "confirmEmailBackToLogin": "← Zurück zur Anmeldung"
   },
   "family": {
     "title": "Familienmitglieder",

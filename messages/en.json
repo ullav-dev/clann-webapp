@@ -66,7 +66,20 @@
     "registrationFailed": "Registration failed",
     "requestFailed": "Request failed",
     "resetTokenMessage": "If the email is registered you will receive a reset token.",
-    "resetFailed": "Reset failed"
+    "resetFailed": "Reset failed",
+    "verifyEmailTitle": "Verify Your Email",
+    "verifyEmailMessage": "A confirmation link has been sent to {email}. Click it to activate your account, or paste the token below.",
+    "verifyEmailToken": "Confirmation Token",
+    "verifyEmailTokenPlaceholder": "Paste your confirmation token",
+    "verifyEmailSubmit": "Verify Email",
+    "verifyEmailVerifying": "Verifying…",
+    "verifyEmailFailed": "Verification failed",
+    "confirmEmailTitle": "Confirming Your Email",
+    "confirmEmailVerifying": "Verifying your email address…",
+    "confirmEmailSuccess": "Email confirmed! You can now sign in.",
+    "confirmEmailFailed": "Verification failed. The link may have expired.",
+    "confirmEmailSignIn": "Sign In →",
+    "confirmEmailBackToLogin": "← Back to login"
   },
   "family": {
     "title": "Family Members",

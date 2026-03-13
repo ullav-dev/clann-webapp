@@ -66,7 +66,20 @@
     "registrationFailed": "Theip ar chlárú",
     "requestFailed": "Theip ar an iarratas",
     "resetTokenMessage": "Má tá an ríomhphost cláraithe, gheobhaidh tú token athshocraithe.",
-    "resetFailed": "Theip ar athshocrú"
+    "resetFailed": "Theip ar athshocrú",
+    "verifyEmailTitle": "Deimhnigh Do Ríomhphost",
+    "verifyEmailMessage": "Seoladh nasc deimhnithe chuig {email}. Cliceáil air chun do chuntas a ghníomhachtú, nó greamaigh an token thíos.",
+    "verifyEmailToken": "Token Deimhnithe",
+    "verifyEmailTokenPlaceholder": "Greamaigh do token deimhnithe",
+    "verifyEmailSubmit": "Deimhnigh Ríomhphost",
+    "verifyEmailVerifying": "Á dheimhniú…",
+    "verifyEmailFailed": "Theip ar an deimhniú",
+    "confirmEmailTitle": "Do Ríomhphost á Dheimhniú",
+    "confirmEmailVerifying": "Do sheoladh ríomhphoist á dheimhniú…",
+    "confirmEmailSuccess": "Ríomhphost deimhnithe! Is féidir leat síniú isteach anois.",
+    "confirmEmailFailed": "Theip ar an deimhniú. D'fhéadfadh an nasc a bheith imithe in éag.",
+    "confirmEmailSignIn": "Sínigh Isteach →",
+    "confirmEmailBackToLogin": "← Ar ais go dtí logáil isteach"
   },
   "family": {
     "title": "Baill Teaghlaigh",
