@@ -12,7 +12,8 @@
     "ga": "Gaeilge"
   },
   "landing": {
-    "heroHeading": "Stair do theaghlaigh,{br}ceangailte go hálainn.",
+    "heroHeading1": "Stair do theaghlaigh,",
+    "heroHeading2": "ceangailte go hálainn.",
     "heroDescription": "Is aip phríobháideach crann teaghlaigh é Clann. Taifead daoine, tóg caidrimh, agus déan iniúchadh ar do shinsearacht trí ghraf idirghníomhach amhairc — ar fad stóráilte ar do fhreastalaí féin.",
     "openFamily": "Mo Theaghlach a Oscailt →",
     "featuresHeading": "Gach rud a theastaíonn uait",

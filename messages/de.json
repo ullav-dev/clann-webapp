@@ -12,7 +12,8 @@
     "ga": "Gaeilge"
   },
   "landing": {
-    "heroHeading": "Ihre Familiengeschichte,{br}wunderschön verbunden.",
+    "heroHeading1": "Ihre Familiengeschichte,",
+    "heroHeading2": "wunderschön verbunden.",
     "heroDescription": "Clann ist eine private Stammbaum-App. Erfassen Sie Personen, bauen Sie Beziehungen auf und erkunden Sie Ihre Ahnen durch einen interaktiven visuellen Graphen – alles auf Ihrem eigenen Server gespeichert.",
     "openFamily": "Meine Familie öffnen →",
     "featuresHeading": "Alles, was Sie brauchen",

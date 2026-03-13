@@ -58,7 +58,7 @@ export default async function LandingPage() {
               <span className="text-4xl font-bold tracking-tight">Clann</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold leading-tight mb-4">
-              {t.rich("heroHeading", { br: () => <br /> })}
+              {t("heroHeading1")}<br />{t("heroHeading2")}
             </h1>
             <p className="text-emerald-100 text-lg mb-8 max-w-md">{t("heroDescription")}</p>
             <Link
