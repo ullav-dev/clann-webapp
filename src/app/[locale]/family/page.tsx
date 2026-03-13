@@ -139,8 +139,6 @@ export default function FamilyPage() {
     setPage(1);
   }
 
-  if (authLoading || !user) return null;
-
   const filtered = useMemo(() => {
     const matched = filterPersons(persons, search);
     return view === "list" ? sortPersons(matched, sortField, sortDir) : matched;
@@ -149,6 +147,8 @@ export default function FamilyPage() {
   const numPages = totalPages(filtered.length, pageSize);
   const safePage = Math.min(page, numPages);
   const paged = pageSlice(filtered, safePage, pageSize);
+
+  if (authLoading || !user) return null;
 
   return (
     <div>
