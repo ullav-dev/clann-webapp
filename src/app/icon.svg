@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#059669"/>
+  <!-- Trunk -->
+  <rect x="14" y="22" width="4" height="6" rx="1" fill="#f0fdf4"/>
+  <!-- Bottom foliage layer -->
+  <polygon points="16,10 8,24 24,24" fill="#f0fdf4"/>
+  <!-- Middle foliage layer -->
+  <polygon points="16,5 9,18 23,18" fill="#d1fae5"/>
+  <!-- Top foliage layer -->
+  <polygon points="16,1 10,13 22,13" fill="#f0fdf4"/>
+</svg>
