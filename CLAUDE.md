@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev        # Start dev server on port 3001
+npm run dev        # Start dev server on port 3001 (webpack; --webpack flag avoids Turbopack crashes on Node v25)
 npm run build      # Production build
 npm run start      # Start production server on port 3001
 npm run lint       # Lint
