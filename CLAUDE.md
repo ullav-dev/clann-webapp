@@ -39,9 +39,9 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 
 **Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token).
 
-**Email flows:** The auth service sends transactional emails when SMTP is configured (`SMTP_HOST` in its `.env`). `APP_BASE_URL` in the auth service `.env` must point to the webapp locale root (e.g. `http://localhost:3001/en`) so that links in emails resolve correctly.
-- **Email verification:** registration triggers a confirmation email; user clicks link → `/[locale]/auth/confirm-email?token=…` → `POST /auth/confirm-email`
-- **Password reset:** forgot-password form → `POST /auth/password-reset/request` → reset email sent; user clicks link → `/[locale]/auth/password-reset?token=…` → `POST /auth/password-reset/confirm`
+**Email flows:** The auth service sends transactional emails when SMTP is configured (`SMTP_HOST` in its `.env`). The webapp passes an `app_url` parameter in each relevant API call so the auth service constructs locale-aware links without needing `APP_BASE_URL` in its own config.
+- **Email verification:** registration triggers a confirmation email; `app_url` is set to `{origin}/{locale}/auth/confirm-email`; user clicks link → `POST /auth/confirm-email`
+- **Password reset:** forgot-password form → `POST /auth/password-reset/request` with `app_url` set to `{origin}/{locale}/auth/password-reset` → reset email sent; user clicks link → `POST /auth/password-reset/confirm`
 
 Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by Next.js App Router to avoid "Missing html and body tags" errors).
 

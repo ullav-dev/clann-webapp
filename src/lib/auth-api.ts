@@ -51,11 +51,12 @@ export const login = (email: string, password: string): Promise<LoginResponse> =
 export const register = (
   username: string,
   email: string,
-  password: string
+  password: string,
+  app_url?: string
 ): Promise<RegisterResponse> =>
   authRequest("/users", {
     method: "POST",
-    body: JSON.stringify({ username, email, password }),
+    body: JSON.stringify({ username, email, password, ...(app_url ? { app_url } : {}) }),
   });
 
 export const confirmEmail = (token: string): Promise<void> =>
@@ -64,10 +65,10 @@ export const confirmEmail = (token: string): Promise<void> =>
     body: JSON.stringify({ token }),
   });
 
-export const requestPasswordReset = (email: string): Promise<{ reset_token?: string; message?: string }> =>
+export const requestPasswordReset = (email: string, app_url?: string): Promise<{ reset_token?: string; message?: string }> =>
   authRequest("/auth/password-reset/request", {
     method: "POST",
-    body: JSON.stringify({ email }),
+    body: JSON.stringify({ email, ...(app_url ? { app_url } : {}) }),
   });
 
 export const confirmPasswordReset = (token: string, new_password: string): Promise<void> =>

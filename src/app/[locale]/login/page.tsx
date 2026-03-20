@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +14,8 @@ type Stage = "form" | "verify-email" | "reset-request";
 export default function LoginPage() {
   const { user, isLoading, login } = useAuth();
   const router = useRouter();
+  const params = useParams();
+  const locale = params.locale as string;
   const t = useTranslations("login");
 
   const [tab, setTab] = useState<Tab>("login");
@@ -55,7 +57,8 @@ export default function LoginPage() {
     if (regPassword !== regConfirm) return setError(t("passwordsDoNotMatch"));
     setSubmitting(true);
     try {
-      await register(regUsername, regEmail, regPassword);
+      const confirmUrl = `${window.location.origin}/${locale}/auth/confirm-email`;
+      await register(regUsername, regEmail, regPassword, confirmUrl);
       setPendingEmail(regEmail);
       setStage("verify-email");
     } catch (err) {
@@ -70,7 +73,8 @@ export default function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await requestPasswordReset(resetEmail);
+      const resetUrl = `${window.location.origin}/${locale}/auth/password-reset`;
+      await requestPasswordReset(resetEmail, resetUrl);
       setResetSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("requestFailed"));
