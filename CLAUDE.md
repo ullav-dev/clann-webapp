@@ -40,8 +40,8 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 **Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token).
 
 **Email flows:** The auth service sends transactional emails when SMTP is configured (`SMTP_HOST` in its `.env`). The webapp passes an `app_url` parameter in each relevant API call so the auth service constructs locale-aware links without needing `APP_BASE_URL` in its own config.
-- **Email verification:** registration triggers a confirmation email; `app_url` is set to `{origin}/{locale}/auth/confirm-email`; user clicks link → `POST /auth/confirm-email`
-- **Password reset:** forgot-password form → `POST /auth/password-reset/request` with `app_url` set to `{origin}/{locale}/auth/password-reset` → reset email sent; user clicks link → `POST /auth/password-reset/confirm`
+- **Email verification:** registration triggers a confirmation email; `app_url` is set to `{origin}/{locale}` (the auth service appends its own path); user clicks link → `POST /auth/confirm-email`
+- **Password reset:** forgot-password form → `POST /auth/password-reset/request` with `app_url` set to `{origin}/{locale}` → reset email sent; user clicks link → `POST /auth/password-reset/confirm`
 
 Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by Next.js App Router to avoid "Missing html and body tags" errors).
 

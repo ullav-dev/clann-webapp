@@ -57,7 +57,7 @@ export default function LoginPage() {
     if (regPassword !== regConfirm) return setError(t("passwordsDoNotMatch"));
     setSubmitting(true);
     try {
-      const confirmUrl = `${window.location.origin}/${locale}/auth/confirm-email`;
+      const confirmUrl = `${window.location.origin}/${locale}`;
       await register(regUsername, regEmail, regPassword, confirmUrl);
       setPendingEmail(regEmail);
       setStage("verify-email");
@@ -73,7 +73,7 @@ export default function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const resetUrl = `${window.location.origin}/${locale}/auth/password-reset`;
+      const resetUrl = `${window.location.origin}/${locale}`;
       await requestPasswordReset(resetEmail, resetUrl);
       setResetSent(true);
     } catch (err) {
