@@ -53,6 +53,15 @@ export default async function HelpPage() {
         </Cards>
       </Section>
 
+      <Section title={t("multipleTrees.title")} icon="🌲">
+        <Cards>
+          <Card title={t("multipleTrees.manageTitle")} body={t("multipleTrees.manageBody")} />
+          <Card title={t("multipleTrees.primaryTitle")} body={t("multipleTrees.primaryBody")} />
+          <Card title={t("multipleTrees.exportTitle")} body={t("multipleTrees.exportBody")} />
+          <Card title={t("multipleTrees.importTitle")} body={t("multipleTrees.importBody")} />
+        </Cards>
+      </Section>
+
       <div className="rounded-2xl bg-emerald-50 border border-emerald-200 px-6 py-5 flex items-center justify-between gap-4">
         <p className="text-emerald-800 text-sm">{t("cta")}</p>
         <Link

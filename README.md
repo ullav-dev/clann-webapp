@@ -14,8 +14,8 @@ A responsive, localised family tree management application built with Next.js, b
   - Pan, zoom, and minimap navigation
   - Click any node to navigate to that person's profile
   - Hover over any node to see a tooltip with date of birth, place of birth, and biography
-- **Multiple family trees** — create and manage multiple trees per account; one tree is designated **primary** (auto-selected on login); switch between trees from the nav bar dropdown; set any tree as primary, or delete a tree (cascade-deletes all its people and relationships)
-- **Export** — download the tree as a **JPEG image** or **JSON file** (includes tree metadata; related persons serialized as slim identity nodes; siblings include `sibling_type`)
+- **Multiple family trees** — create and manage multiple trees per account; one tree is designated **primary** (auto-selected on login); switch between trees from the nav bar dropdown; set any tree as primary; delete non-primary trees (cascade-deletes all their people and relationships; the primary tree is protected from deletion)
+- **Export** — download the tree as a **JPEG image** or a **flat JSON file** (`persons` array + `relationships` array, with full person fields and typed relationship entries including `sibling_type` and spouse dates)
 - **Import** — upload a previously exported Clann JSON file to create a new tree; 3-step modal (upload → name/preview → live progress) reconstructs all people and relationships
 - **Family Members list** — card or list view with sort (family name, date of birth, place of birth), name search, and **pagination** (5–30 per page, default 10)
 - **Authentication** — login, registration with **email verification**, and **email-based password reset** via ullav-user-management; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind login; ownership filter enforced server-side; all password fields have a show/hide toggle

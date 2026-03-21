@@ -310,6 +310,17 @@
       "searchBody": "Clóscríobh sa bhosca cuardaigh chun scagadh de réir ainm láithreach. I radharc liosta, cliceáil aon cheannteideal colúin (Sloinne, Dáta Breithe, Áit Bhreithe) chun sórtáil. Sórtáiltear luachanna folmha go dtí an bun i gcónaí.",
       "paginationTitle": "Leathanaíocht",
       "paginationBody": "Úsáid an roghnóir In aghaidh an leathanaigh (5, 10, 15, 20, 25, nó 30) chun rialú cé mhéad duine a thaispeántar ag aon am. Nascleanúint le cnaipí uimhrithe leathanaigh nó Roimhe / Ar Aghaidh. Athshocraíonn an leathanach go 1 aon uair a chuardaíonn tú nó a athraíonn tú méid an leathanaigh."
+    },
+    "multipleTrees": {
+      "title": "Crainnte Teaghlaigh Iolracha",
+      "manageTitle": "Crainnte a bhainistiú",
+      "manageBody": "Úsáid roghnóir an chrainn sa bharra nascleanúna chun crainnte nua a chruthú agus aistriú eatarthu. Taispeántar an crann atá roghnaithe faoi láthair sa bharra nascleanúna. Agus crann eile á roghnú, téann tú díreach go leathanach ball teaghlaigh an chrainn sin.",
+      "primaryTitle": "Crann príomhúil",
+      "primaryBody": "Tá crann amháin in aghaidh an chuntais marcáilte mar phríomhúil (taispeántar le suaitheantas óir sa roghchlár é). Cuir aon chrann eile chun cinn mar phríomhúil ag baint úsáide as an deilbhín réaltóige. Ní féidir an crann príomhúil a scriosadh — cuir crann eile chun cinn ar dtús má theastaíonn uait é a bhaint.",
+      "exportTitle": "Crann a easpórtáil",
+      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, agus úsáid na cnaipí sa bharra uirlisí. Le hEaspórtáil mar JPEG sábhálann tú íomhá den chrann infheicthe. Le hEaspórtáil mar JSON íoslódáiltear comhad struchtúrtha ina bhfuil gach duine agus caidreamh — úsáideach chun comhroinnt, cartlannú, nó athiompórtáil.",
+      "importTitle": "Crann a iompórtáil",
+      "importBody": "Cliceáil roghnóir an chrainn sa bharra nascleanúna agus roghnaigh 'Crann a iompórtáil...'. Uaslódáil comhad JSON a easpórtáladh roimhe seo ó Clann. Feicfidh tú réamhamharc a thaispeánann cé mhéad duine agus caidreamh a fuarthas. Tabhair ainm don chrann nua agus cliceáil Tosaigh iompórtáil — atógtar gach duine agus caidreamh go huathoibríoch."
     }
   },
   "familyTree": {

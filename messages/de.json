@@ -310,6 +310,17 @@
       "searchBody": "Geben Sie in das Suchfeld ein, um sofort nach Namen zu filtern. Klicken Sie in der Listenansicht auf einen Spaltenheader (Familienname, Geburtsdatum, Geburtsort) zum Sortieren. Leere Werte werden immer ans Ende sortiert.",
       "paginationTitle": "Seitennavigation",
       "paginationBody": "Verwenden Sie den Pro-Seite-Selektor (5, 10, 15, 20, 25 oder 30), um die Anzahl der gleichzeitig angezeigten Personen zu steuern. Navigieren Sie mit den nummerierten Seitenbuttons oder Zurück / Weiter. Die Seite wird bei jeder Suche oder Änderung der Seitengröße auf 1 zurückgesetzt."
+    },
+    "multipleTrees": {
+      "title": "Mehrere Stammbäume",
+      "manageTitle": "Bäume verwalten",
+      "manageBody": "Verwenden Sie den Baumwähler in der Navigationsleiste, um neue Bäume zu erstellen und zwischen ihnen zu wechseln. Der aktuell ausgewählte Baum wird in der Navigationsleiste angezeigt. Beim Auswählen eines anderen Baumes werden Sie direkt zur Familienmitglieder-Seite dieses Baumes weitergeleitet.",
+      "primaryTitle": "Primärer Baum",
+      "primaryBody": "Ein Baum pro Konto ist als primär markiert (im Dropdown mit einem goldenen Badge angezeigt). Verwenden Sie das Sternsymbol, um einen anderen Baum zum primären zu machen. Der primäre Baum kann nicht gelöscht werden — machen Sie zuerst einen anderen Baum zum primären, wenn Sie ihn entfernen möchten.",
+      "exportTitle": "Baum exportieren",
+      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum und verwenden Sie die Schaltflächen in der Symbolleiste. Mit Als JPEG exportieren wird ein Schnappschuss des sichtbaren Baumes als Bild gespeichert. Als JSON exportieren lädt eine strukturierte Datei mit allen Personen und Beziehungen herunter — nützlich zum Teilen, Archivieren oder erneuten Importieren.",
+      "importTitle": "Baum importieren",
+      "importBody": "Klicken Sie auf den Baumwähler in der Navigationsleiste und wählen Sie 'Baum importieren…'. Laden Sie eine zuvor aus Clann exportierte JSON-Datei hoch. Sie sehen eine Vorschau, die zeigt, wie viele Personen und Beziehungen gefunden wurden. Geben Sie dem neuen Baum einen Namen und klicken Sie auf Import starten — alle Personen und Beziehungen werden automatisch wiederhergestellt."
     }
   },
   "familyTree": {

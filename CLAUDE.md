@@ -36,7 +36,7 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 - `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 3 MB)
 - `src/components/PasswordInput.tsx` — password field with show/hide toggle (eye icon button); used on all password inputs in the app
 - `src/components/LocaleSwitcher.tsx` — language selector dropdown in the nav
-- `src/components/TreeSelector.tsx` — dropdown in the nav for selecting, creating, deleting, and setting the primary family tree; also opens `ImportTreeModal`
+- `src/components/TreeSelector.tsx` — dropdown in the nav for selecting, creating, deleting (non-primary only), and setting the primary family tree; also opens `ImportTreeModal`
 - `src/components/ImportTreeModal.tsx` — 3-step modal (upload → name/preview → progress → done) for importing a tree from a Clann JSON export
 - `src/contexts/TreeContext.tsx` — holds the list of trees, the active tree, and tree CRUD actions; persists active selection in localStorage (`clann_active_tree`)
 - `src/lib/tree-import.ts` — pure parser for the Clann JSON export format; deduplicates persons and relationships
@@ -75,7 +75,7 @@ Each user can own multiple family trees. One tree per user is designated **prima
 - `trees` — all trees owned by the current user
 - `activeTree` — the currently selected tree (persisted in `localStorage` under `clann_active_tree`)
 - `createTree(name, displayName)` — first tree created is automatically primary
-- `deleteTree(name)` — falls back to primary/first remaining tree
+- `deleteTree(name)` — only non-primary trees can be deleted; falls back to primary/first remaining tree after deletion
 - `setPrimaryTree(name)` — calls `PATCH /api/trees/{name}/set-primary`; updates `is_primary` in the local list
 
 **API endpoints:**
@@ -89,9 +89,15 @@ Each user can own multiple family trees. One tree per user is designated **prima
 
 **Scoping:** `useApi.listPersons` and `useApi.createPerson` automatically inject `tree=activeTree.name`. Always use `useApi` rather than calling `api.*` directly when tree-scoping is needed.
 
-**JSON export format:** The exported file includes `tree_name`, `tree_display_name`, `exported_at`, and `root` (the full `FamilyTreeNode`). Related persons are serialized as slim nodes — `father`/`mother`/`spouse` as `{id, first_name, family_name}` and `siblings` as `{id, first_name, family_name, sibling_type}`. Children are serialized recursively with the same slim rules applied to their sub-relationships.
+**JSON export format (flat):** The exported file contains `tree_name`, `tree_display_name`, `exported_at`, a flat `persons` array (all fields), and a flat `relationships` array. Each relationship entry has `person_id`, `related_id`, `type` (`father`/`mother`/`sibling`/`spouse`), plus `sibling_type` (for siblings) and `spouse_from`/`spouse_to` (for spouses). Relationships are deduplicated using a canonical key (smaller ID first for symmetric types).
 
-**Import:** `ImportTreeModal` reads the exported JSON via `parseTreeExport` (in `src/lib/tree-import.ts`), creates a new tree, imports persons sequentially (building an `originalId → newId` map), then adds relationships using the mapped IDs. `sibling_type` is taken directly from the export; if absent it falls back to derivation from the sibling's `sex`.
+The export fetches persons via `listPersons`, then fetches each person's relationships **sequentially** (not `Promise.all`) to avoid SurrealDB WebSocket concurrency errors under parallel load.
+
+**Import:** `ImportTreeModal` calls `parseTreeExport` (in `src/lib/tree-import.ts`), which auto-detects the format:
+- If the JSON has a `persons` array → `parseFlatExport` (current format)
+- Otherwise → `parseTreeWalkExport` (legacy tree-walk format, preserved for backward compatibility)
+
+After parsing, the modal creates a new tree via `TreeContext.createTree` (so the tree appears immediately in the dropdown), imports persons sequentially (building an `originalId → newId` map), then adds relationships using the mapped IDs. `sibling_type` is taken directly from the export; if absent it falls back to the sibling's `sex`.
 
 ## i18n
 

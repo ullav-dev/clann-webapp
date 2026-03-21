@@ -310,6 +310,17 @@
       "searchBody": "Type in the search box to filter by name instantly. In list view, click any column header (Family Name, Date of Birth, Place of Birth) to sort. Empty values always sort to the bottom.",
       "paginationTitle": "Pagination",
       "paginationBody": "Use the Per page selector (5, 10, 15, 20, 25, or 30) to control how many people appear at once. Navigate with the numbered page buttons or Prev / Next. The page resets to 1 whenever you search or change the page size."
+    },
+    "multipleTrees": {
+      "title": "Multiple Family Trees",
+      "manageTitle": "Managing trees",
+      "manageBody": "Use the tree selector in the navigation bar to create new trees and switch between them. The currently selected tree is shown in the nav bar. Selecting a different tree takes you straight to that tree's family members page.",
+      "primaryTitle": "Primary tree",
+      "primaryBody": "One tree per account is marked as primary (shown with a gold badge in the dropdown). Promote any other tree to primary using the star icon. The primary tree cannot be deleted — promote another tree first if you need to remove it.",
+      "exportTitle": "Exporting a tree",
+      "exportBody": "Open any person's profile, go to the Family Tree tab, and use the toolbar buttons. Export as JPEG saves a snapshot image of the visible tree. Export as JSON downloads a structured file containing all people and relationships — useful for sharing, archiving, or re-importing.",
+      "importTitle": "Importing a tree",
+      "importBody": "Click the tree selector in the nav bar and choose 'Import tree…'. Upload a JSON file previously exported from Clann. You will see a preview showing how many people and relationships were found. Give the new tree a name and click Start import — all people and relationships are reconstructed automatically."
     }
   },
   "familyTree": {
