@@ -244,7 +244,7 @@
       "siblingTitle": "Geschwister und Eltern",
       "siblingBody": "Wenn Sie ein Geschwisterkind hinzufügen, weist Clann automatisch denselben Vater und dieselbe Mutter dem neuen Geschwisterkind zu — Sie müssen Eltern also nur einmal erfassen, und alle Geschwister erben sie.",
       "spouseTitle": "Ehe-Daten",
-      "spouseBody": "Ehebeziehungen können optionale Von- und Bis-Daten tragen (Freitext, z. B. „1990" oder „2. Juni 2001"). Setzen Sie sie beim Hinzufügen der Beziehung oder bearbeiten Sie sie direkt im Tab Beziehungen."
+      "spouseBody": "Ehebeziehungen können optionale Von- und Bis-Daten tragen (Freitext, z. B. '1990' oder '2. Juni 2001'). Setzen Sie sie beim Hinzufügen der Beziehung oder bearbeiten Sie sie direkt im Tab Beziehungen."
     },
     "familyTree": {
       "title": "Stammbaum",
