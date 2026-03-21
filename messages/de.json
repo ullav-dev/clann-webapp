@@ -3,7 +3,8 @@
     "myFamily": "Meine Familie",
     "addPerson": "Person hinzufügen",
     "logout": "Abmelden",
-    "login": "Anmelden"
+    "login": "Anmelden",
+    "help": "Hilfe"
   },
   "localeSwitcher": {
     "label": "Sprache",
@@ -212,6 +213,61 @@
     "invalidType": "Nur JPEG- oder PNG-Dateien werden akzeptiert.",
     "fileTooLarge": "Die Datei darf maximal 3 MB groß sein.",
     "uploadFailed": "Hochladen fehlgeschlagen"
+  },
+  "help": {
+    "title": "Hilfe & Dokumentation",
+    "subtitle": "Lernen Sie, wie Sie Clann verwenden, um Ihren Stammbaum aufzubauen und zu erkunden.",
+    "cta": "Bereit, loszulegen?",
+    "ctaButton": "Meine Familie öffnen",
+    "gettingStarted": {
+      "title": "Erste Schritte",
+      "step1Title": "Konto erstellen",
+      "step1Body": "Klicken Sie auf Anmelden und wählen Sie Konto erstellen. Geben Sie einen Benutzernamen, eine E-Mail-Adresse und ein Passwort (mindestens 8 Zeichen) ein. Sie erhalten eine Bestätigungs-E-Mail — klicken Sie auf den Link, um Ihr Konto zu aktivieren.",
+      "step2Title": "Erste Person hinzufügen",
+      "step2Body": "Klicken Sie auf Person hinzufügen in der Navigationsleiste. Füllen Sie Vorname, Familienname und Geschlecht (Pflichtfelder) aus. Optional können Sie Geburts- und Sterbedaten, Orte, eine Biografie und ein Foto hinzufügen.",
+      "step3Title": "Beziehungen aufbauen",
+      "step3Body": "Öffnen Sie das Profil einer Person und gehen Sie zum Tab Beziehungen. Klicken Sie auf + Beziehung hinzufügen, um sie als Vater, Mutter, Geschwister oder Ehepartner einer anderen Person in Ihrem Baum zu verknüpfen."
+    },
+    "people": {
+      "title": "Personen verwalten",
+      "fieldsTitle": "Personenfelder",
+      "fieldsBody": "Jede Person hat: Vorname und Familienname (Pflicht), zweiter Vorname, Geschlecht (Pflicht), Geburts- und Sterbedatum und -ort, Spitzname, Benutzername, E-Mail, Identität-verifiziert-Markierung und eine Biografie (bis zu 1.000 Zeichen).",
+      "photoTitle": "Foto hinzufügen",
+      "photoBody": "Klicken Sie auf der Detailseite einer Person auf den Avatar, um den Foto-Upload zu öffnen. Ziehen Sie eine JPEG- oder PNG-Datei (bis zu 3 MB) per Drag & Drop, oder klicken Sie zum Durchsuchen. Fotos erscheinen auf Karten, Detailseiten und im Stammbaum-Graphen.",
+      "editTitle": "Bearbeiten und löschen",
+      "editBody": "Öffnen Sie das Profil einer Person und klicken Sie auf Bearbeiten, um die Details zu aktualisieren. Zum Löschen klicken Sie auf Löschen auf der Profilseite oder auf das Papierkorb-Symbol auf einer Familienmitglied-Karte. Das Löschen kann nicht rückgängig gemacht werden."
+    },
+    "relationships": {
+      "title": "Beziehungen",
+      "typesTitle": "Beziehungstypen",
+      "typesBody": "Sie können Personen als Vater, Mutter, Geschwister (Bruder oder Schwester) oder Ehepartner verknüpfen. Öffnen Sie das Profil einer Person, gehen Sie zum Tab Beziehungen, und klicken Sie auf + Beziehung hinzufügen, um den Typ und die verknüpfte Person auszuwählen.",
+      "siblingTitle": "Geschwister und Eltern",
+      "siblingBody": "Wenn Sie ein Geschwisterkind hinzufügen, weist Clann automatisch denselben Vater und dieselbe Mutter dem neuen Geschwisterkind zu — Sie müssen Eltern also nur einmal erfassen, und alle Geschwister erben sie.",
+      "spouseTitle": "Ehe-Daten",
+      "spouseBody": "Ehebeziehungen können optionale Von- und Bis-Daten tragen (Freitext, z. B. „1990" oder „2. Juni 2001"). Setzen Sie sie beim Hinzufügen der Beziehung oder bearbeiten Sie sie direkt im Tab Beziehungen."
+    },
+    "familyTree": {
+      "title": "Stammbaum",
+      "overviewTitle": "Was Sie sehen",
+      "overviewBody": "Der Baum zeigt die ausgewählte Person (Wurzel) in der Mitte, bis zu zwei Generationen von Vorfahren darüber, direkte Kinder darunter und Ehepartner zur Seite. Klicken Sie auf den Namen einer Person in der Familienliste, um deren Baum zu öffnen.",
+      "coloursTitle": "Farbcodierung",
+      "coloursBody": "Smaragdgrün = Sie (Wurzel) · Blau = Vaterseite · Rosa = Mutterseite · Bernstein = Kinder · Violett = Ehepartner · Türkis = Geschwister. Die Legende wird am unteren Rand des Baumes angezeigt.",
+      "navigationTitle": "Im Baum navigieren",
+      "navigationBody": "Verschieben Sie die Ansicht durch Klicken und Ziehen. Zoomen Sie mit dem Scrollrad oder per Pinch-Geste. Klicken Sie auf einen Knoten, um das Profil dieser Person zu öffnen. Fahren Sie mit der Maus über einen Knoten, um ein Tooltip mit Geburtsdatum, Geburtsort und Biografie zu sehen.",
+      "orientationTitle": "Ausrichtung ändern",
+      "orientationBody": "Verwenden Sie die Schaltflächen Vertikal / Horizontal in der Baumleiste, um das Layout zu wechseln. Vertikal platziert Vorfahren oben und Kinder unten. Horizontal platziert Vorfahren rechts und Kinder links.",
+      "exportTitle": "Baum exportieren",
+      "exportBody": "Klicken Sie auf Als JPEG exportieren, um den sichtbaren Baum als Bild herunterzuladen. Klicken Sie auf Als JSON exportieren, um die Rohdaten des Baumes zur Archivierung oder Nutzung in anderen Tools herunterzuladen."
+    },
+    "familyList": {
+      "title": "Familienmitglieder-Liste",
+      "viewsTitle": "Karten- und Listenansicht",
+      "viewsBody": "Wechseln Sie zwischen einem responsiven Kartengitter und einer sortierbaren Tabelle über den Umschalter Karten / Liste oben auf der Seite Familienmitglieder. Die Kartenansicht zeigt Fotos; die Listenansicht eignet sich besser zum Sortieren.",
+      "searchTitle": "Suchen und sortieren",
+      "searchBody": "Geben Sie in das Suchfeld ein, um sofort nach Namen zu filtern. Klicken Sie in der Listenansicht auf einen Spaltenheader (Familienname, Geburtsdatum, Geburtsort) zum Sortieren. Leere Werte werden immer ans Ende sortiert.",
+      "paginationTitle": "Seitennavigation",
+      "paginationBody": "Verwenden Sie den Pro-Seite-Selektor (5, 10, 15, 20, 25 oder 30), um die Anzahl der gleichzeitig angezeigten Personen zu steuern. Navigieren Sie mit den nummerierten Seitenbuttons oder Zurück / Weiter. Die Seite wird bei jeder Suche oder Änderung der Seitengröße auf 1 zurückgesetzt."
+    }
   },
   "familyTree": {
     "orientationVertical": "Vertikal",

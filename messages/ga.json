@@ -3,7 +3,8 @@
     "myFamily": "Mo Theaghlach",
     "addPerson": "Duine a Chur Leis",
     "logout": "Logáil Amach",
-    "login": "Logáil Isteach"
+    "login": "Logáil Isteach",
+    "help": "Cabhair"
   },
   "localeSwitcher": {
     "label": "Teanga",
@@ -212,6 +213,61 @@
     "invalidType": "Ní ghlactar ach le comhaid JPEG nó PNG.",
     "fileTooLarge": "Ní mór don chomhad a bheith 3 MB nó níos lú.",
     "uploadFailed": "Theip ar uaslódáil"
+  },
+  "help": {
+    "title": "Cabhair & Doiciméadacht",
+    "subtitle": "Foghlaim conas Clann a úsáid chun do chrann teaghlaigh a thógáil agus a iniúchadh.",
+    "cta": "Réidh le tús a chur?",
+    "ctaButton": "Mo Theaghlach a Oscailt",
+    "gettingStarted": {
+      "title": "Ag Tosú",
+      "step1Title": "Cruthaigh cuntas",
+      "step1Body": "Cliceáil Logáil Isteach agus roghnaigh Cruthaigh Cuntas. Cuir isteach ainm úsáideora, seoladh ríomhphoist, agus pasfhocal (8 gcarachtar ar a laghad). Gheobhaidh tú ríomhphost deimhnithe — cliceáil an nasc chun do chuntas a ghníomhachtú.",
+      "step2Title": "Cuir an chéad duine leis",
+      "step2Body": "Cliceáil Duine a Chur Leis sa bharra nascleanúna. Líon isteach an céadainm, sloinne, agus inscne (riachtanach). Is féidir leat dátaí agus áiteanna breithe agus báis, beathaisnéis, agus grianghraf a chur leis más mian leat.",
+      "step3Title": "Tóg caidrimh",
+      "step3Body": "Oscail próifíl duine agus téigh go dtí an tab Caidrimh. Cliceáil + Caidreamh a Chur Leis chun iad a nascadh mar Athair, Máthair, Deartháir/Deirfiúr, nó Céile duine eile i do chrann."
+    },
+    "people": {
+      "title": "Daoine a Bhainistiú",
+      "fieldsTitle": "Réimsí duine",
+      "fieldsBody": "Tá ag gach duine: Céadainm agus Sloinne (riachtanach), Meáinainm, Inscne (riachtanach), Dáta agus Áit Breithe, Dáta agus Áit Báis, Leasainm, Ainm Úsáideora, Ríomhphost, bratach Céannacht Fíoraithe, agus Beathaisnéis (suas le 1,000 carachtar).",
+      "photoTitle": "Grianghraf a chur leis",
+      "photoBody": "Ar leathanach mionsonraí duine, cliceáil an abhatár chun an t-uaslódálaí grianghraf a oscailt. Tarraing agus scaoil comhad JPEG nó PNG (suas le 3 MB), nó cliceáil chun brabhsáil. Feictear grianghraif ar chártaí, leathanaigh mionsonraí, agus i ngraf an chrainn teaghlaigh.",
+      "editTitle": "Eagarthóireacht agus scriosadh",
+      "editBody": "Oscail próifíl duine agus cliceáil Eagar chun a gcuid sonraí a nuashonrú. Chun scriosadh, cliceáil Scrios ar an leathanach próifíle nó an deilbhín bruscair ar chárta ball teaghlaigh. Ní féidir scriosadh a chealú."
+    },
+    "relationships": {
+      "title": "Caidrimh",
+      "typesTitle": "Cineálacha caidrimh",
+      "typesBody": "Is féidir leat daoine a nascadh mar Athair, Máthair, Deartháir/Deirfiúr, nó Céile. Oscail próifíl duine, téigh go dtí an tab Caidrimh, agus cliceáil + Caidreamh a Chur Leis chun an cineál agus an duine gaolmhar a roghnú.",
+      "siblingTitle": "Deartháireacha/deirfiúracha agus tuismitheoirí",
+      "siblingBody": "Nuair a chuireann tú deartháir nó deirfiúr leis, sannann Clann an tAthair agus an Mháthair chéanna don deartháir/deirfiúr nua go huathoibríoch — mar sin ní gá duit tuismitheoirí a thaifeadadh ach uair amháin.",
+      "spouseTitle": "Dátaí céile",
+      "spouseBody": "Is féidir dátaí roghnach Ó agus Go a bheith ag caidrimh céile (téacs saorchineál, m.sh. \"1990\" nó \"2 Meitheamh 2001\"). Socraigh iad agus an caidreamh á chur leis, nó cuir in eagar iad go díreach sa tab Caidrimh."
+    },
+    "familyTree": {
+      "title": "Crann Teaghlaigh",
+      "overviewTitle": "Cad a fheiceann tú",
+      "overviewBody": "Taispeánann an crann an duine roghnaithe (fréamh) sa lár, suas le dhá ghlúin de shinsir os a chionn, leanaí díreacha thíos, agus céilí ar an taobh. Cliceáil ainm aon duine sa liosta teaghlaigh chun a gcrann a oscailt.",
+      "coloursTitle": "Dathchodarsnacht",
+      "coloursBody": "Smaragaid = tú féin (fréamh) · Gorm = taobh an Athar · Rós = taobh na Máthar · Ómra = Leanaí · Corcairghorm = Céile · Dúghorm = Deartháir/Deirfiúr. Taispeántar an finscéal ag bun an chrainn.",
+      "navigationTitle": "Nascleanúint sa chrann",
+      "navigationBody": "Pan trí chliceáil agus tarraing. Zúmáil leis an roth scrollála nó le gníomh pinse. Cliceáil aon nód chun próifíl an duine sin a oscailt. Luigh os cionn nód chun leid uirlise a fheiceáil le dáta breithe, áit bhreithe, agus beathaisnéis.",
+      "orientationTitle": "Leagan amach a athrú",
+      "orientationBody": "Úsáid na cnaipí Ingearach / Cothrománach sa bharra chrainn chun an leagan amach a scoránú. Cuireann Ingearach sinsir os cionn agus leanaí thíos. Cuireann Cothrománach sinsir ar dheis agus leanaí ar chlé.",
+      "exportTitle": "An crann a easpórtáil",
+      "exportBody": "Cliceáil Easpórtáil mar JPEG chun an crann infheicthe a íoslódáil mar íomhá. Cliceáil Easpórtáil mar JSON chun sonraí amh an chrainn a íoslódáil le haghaidh cartlannaithe nó úsáide in uirlisí eile."
+    },
+    "familyList": {
+      "title": "Liosta Baill Teaghlaigh",
+      "viewsTitle": "Radharcanna cárta agus liosta",
+      "viewsBody": "Scoránaigh idir greille cártaí freagrúil agus tábla inshórtála ag baint úsáide as an scoránán Cártaí / Liosta ag barr an leathanaigh Baill Teaghlaigh. Taispeánann an radharc cárta grianghraif; tá an radharc liosta níos fearr le haghaidh sórtála.",
+      "searchTitle": "Cuardach agus sórtáil",
+      "searchBody": "Clóscríobh sa bhosca cuardaigh chun scagadh de réir ainm láithreach. I radharc liosta, cliceáil aon cheannteideal colúin (Sloinne, Dáta Breithe, Áit Bhreithe) chun sórtáil. Sórtáiltear luachanna folmha go dtí an bun i gcónaí.",
+      "paginationTitle": "Leathanaíocht",
+      "paginationBody": "Úsáid an roghnóir In aghaidh an leathanaigh (5, 10, 15, 20, 25, nó 30) chun rialú cé mhéad duine a thaispeántar ag aon am. Nascleanúint le cnaipí uimhrithe leathanaigh nó Roimhe / Ar Aghaidh. Athshocraíonn an leathanach go 1 aon uair a chuardaíonn tú nó a athraíonn tú méid an leathanaigh."
+    }
   },
   "familyTree": {
     "orientationVertical": "Ingearach",

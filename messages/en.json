@@ -3,7 +3,8 @@
     "myFamily": "My Family",
     "addPerson": "Add Person",
     "logout": "Logout",
-    "login": "Login"
+    "login": "Login",
+    "help": "Help"
   },
   "localeSwitcher": {
     "label": "Language",
@@ -212,6 +213,61 @@
     "invalidType": "Only JPEG or PNG files are accepted.",
     "fileTooLarge": "File must be 3 MB or smaller.",
     "uploadFailed": "Upload failed"
+  },
+  "help": {
+    "title": "Help & Documentation",
+    "subtitle": "Learn how to use Clann to build and explore your family tree.",
+    "cta": "Ready to get started?",
+    "ctaButton": "Open My Family",
+    "gettingStarted": {
+      "title": "Getting Started",
+      "step1Title": "Create an account",
+      "step1Body": "Click Sign In and choose Create Account. Enter a username, email address, and password (at least 8 characters). You will receive a confirmation email — click the link to activate your account.",
+      "step2Title": "Add your first person",
+      "step2Body": "Click Add Person in the navigation bar. Fill in the first name, family name, and sex (required). Optionally add birth and death dates and places, a biography, and a photo.",
+      "step3Title": "Build relationships",
+      "step3Body": "Open a person's profile and go to the Relationships tab. Click + Add Relationship to link them as Father, Mother, Sibling, or Spouse of another person in your tree."
+    },
+    "people": {
+      "title": "Managing People",
+      "fieldsTitle": "Person fields",
+      "fieldsBody": "Each person has: First Name and Family Name (required), Middle Name, Sex (required), Date and Place of Birth, Date and Place of Death, Nickname, Username, Email, Identity Verified flag, and a Biography (up to 1,000 characters).",
+      "photoTitle": "Adding a photo",
+      "photoBody": "On a person's detail page, click the avatar to open the photo uploader. Drag and drop a JPEG or PNG file (up to 3 MB), or click to browse. Photos appear on cards, detail pages, and in the family tree graph.",
+      "editTitle": "Editing and deleting",
+      "editBody": "Open a person's profile and click Edit to update their details. To delete, click Delete on the profile page or the trash icon on a family member card. Deletion cannot be undone."
+    },
+    "relationships": {
+      "title": "Relationships",
+      "typesTitle": "Relationship types",
+      "typesBody": "You can link people as Father, Mother, Sibling (Brother or Sister), or Spouse. Open a person's profile, go to the Relationships tab, and click + Add Relationship to choose the type and the related person.",
+      "siblingTitle": "Siblings and parents",
+      "siblingBody": "When you add a sibling, Clann automatically assigns the same Father and Mother to the new sibling — so you only need to record parents once and all siblings inherit them.",
+      "spouseTitle": "Spouse dates",
+      "spouseBody": "Spouse relationships can carry optional From and To dates (free-form text, e.g. \"1990\" or \"2 June 2001\"). Set them when adding the relationship, or edit them inline in the Relationships tab."
+    },
+    "familyTree": {
+      "title": "Family Tree",
+      "overviewTitle": "What you see",
+      "overviewBody": "The tree shows the selected person (root) at the centre, up to two generations of ancestors above, direct children below, and spouses to the side. Click any person's name in the family list to open their tree.",
+      "coloursTitle": "Colour coding",
+      "coloursBody": "Emerald = you (root) · Blue = Father side · Rose = Mother side · Amber = Children · Violet = Spouse · Teal = Sibling. The legend is shown at the bottom of the tree.",
+      "navigationTitle": "Navigating the tree",
+      "navigationBody": "Pan by clicking and dragging. Zoom with the scroll wheel or pinch gesture. Click any node to open that person's profile. Hover over a node to see a tooltip with date of birth, place of birth, and biography.",
+      "orientationTitle": "Changing orientation",
+      "orientationBody": "Use the Vertical / Horizontal buttons in the tree toolbar to toggle the layout. Vertical places ancestors above and children below. Horizontal places ancestors to the right and children to the left.",
+      "exportTitle": "Exporting the tree",
+      "exportBody": "Click Export as JPEG to download the visible tree as an image you can share. Click Export as JSON to download the raw tree data for archiving or use in other tools."
+    },
+    "familyList": {
+      "title": "Family Members List",
+      "viewsTitle": "Card and list views",
+      "viewsBody": "Switch between a responsive card grid and a sortable table using the Cards / List toggle at the top of the Family Members page. The card view shows photos; the list view is better for sorting.",
+      "searchTitle": "Searching and sorting",
+      "searchBody": "Type in the search box to filter by name instantly. In list view, click any column header (Family Name, Date of Birth, Place of Birth) to sort. Empty values always sort to the bottom.",
+      "paginationTitle": "Pagination",
+      "paginationBody": "Use the Per page selector (5, 10, 15, 20, 25, or 30) to control how many people appear at once. Navigate with the numbered page buttons or Prev / Next. The page resets to 1 whenever you search or change the page size."
+    }
   },
   "familyTree": {
     "orientationVertical": "Vertical",

@@ -50,6 +50,7 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 | Route | Description |
 |---|---|
 | `/[locale]` | Landing page (hero + feature cards) |
+| `/[locale]/help` | In-app documentation (getting started, people, relationships, family tree, family list) |
 | `/[locale]/login` | Sign in / create account / forgot password |
 | `/[locale]/auth/confirm-email` | Handles email verification link clicks (`?token=`); activates account |
 | `/[locale]/auth/password-reset` | Handles password reset link clicks (`?token=`); new-password form |

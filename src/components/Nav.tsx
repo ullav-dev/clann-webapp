@@ -39,6 +39,9 @@ export default function Nav() {
                 <Link href="/family" className={activeLink("/family")}>
                   {t("myFamily")}
                 </Link>
+                <Link href="/help" className={activeLink("/help")}>
+                  {t("help")}
+                </Link>
                 <Link
                   href="/persons/new"
                   className="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
@@ -56,16 +59,21 @@ export default function Nav() {
                 </div>
               </>
             ) : !isLoading ? (
-              <Link
-                href="/login"
-                className={`text-sm font-medium px-4 py-2 rounded-lg border transition-colors ${
-                  pathname.endsWith("/login")
-                    ? "border-emerald-600 text-emerald-700 bg-emerald-50"
-                    : "border-stone-300 text-stone-700 hover:bg-stone-50"
-                }`}
-              >
-                {t("login")}
-              </Link>
+              <>
+                <Link href="/help" className={activeLink("/help")}>
+                  {t("help")}
+                </Link>
+                <Link
+                  href="/login"
+                  className={`text-sm font-medium px-4 py-2 rounded-lg border transition-colors ${
+                    pathname.endsWith("/login")
+                      ? "border-emerald-600 text-emerald-700 bg-emerald-50"
+                      : "border-stone-300 text-stone-700 hover:bg-stone-50"
+                  }`}
+                >
+                  {t("login")}
+                </Link>
+              </>
             ) : null}
             <LocaleSwitcher />
           </nav>
