@@ -3,11 +3,16 @@
 import { useState, useRef, useEffect } from "react";
 import { useTree } from "@/contexts/TreeContext";
 import { useTranslations } from "next-intl";
+import { useRouter, usePathname } from "next/navigation";
 import ImportTreeModal from "./ImportTreeModal";
 
 export default function TreeSelector() {
   const { trees, activeTree, isLoading, setActiveTree, createTree, deleteTree, setPrimaryTree } = useTree();
   const t = useTranslations("trees");
+  const router = useRouter();
+  const pathname = usePathname();
+  // Extract locale from the pathname prefix, e.g. "/en/persons/123" → "en"
+  const locale = pathname.split("/")[1] ?? "en";
 
   const [open, setOpen] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
@@ -108,7 +113,7 @@ export default function TreeSelector() {
               {trees.map((tree) => (
                 <li key={tree.name} className="flex items-center gap-1 px-2 py-1.5 hover:bg-stone-50 group">
                   <button
-                    onClick={() => { setActiveTree(tree); setOpen(false); }}
+                    onClick={() => { setActiveTree(tree); setOpen(false); router.push(`/${locale}/family`); }}
                     className="flex-1 flex items-center gap-2 text-left min-w-0"
                   >
                     <span className={`text-sm truncate ${activeTree?.name === tree.name ? "font-semibold text-emerald-700" : "text-stone-700"}`}>
