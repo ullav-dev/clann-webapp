@@ -16,9 +16,10 @@ import {
   MarkerType,
 } from "@xyflow/react";
 import { toJpeg } from "html-to-image";
-import type { FamilyTreeNode, SiblingType } from "@/lib/types";
-import { rawId, personImageUrl } from "@/lib/api";
+import type { FamilyTreeNode } from "@/lib/types";
+import { rawId, personImageUrl, listPersons, getRelationships } from "@/lib/api";
 import { useTree } from "@/contexts/TreeContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { personIcon } from "@/components/PersonCard";
 import { useRouter } from "next/navigation";
 
@@ -291,37 +292,6 @@ function Legend({ t }: { t: TranslateFn }) {
   );
 }
 
-// ── Export serialization ──────────────────────────────────────────────────────
-
-type SlimNode = { id: string; first_name: string; family_name: string };
-type SlimSibling = SlimNode & { sibling_type: SiblingType };
-
-function slim(n: FamilyTreeNode): SlimNode {
-  return { id: n.id, first_name: n.first_name, family_name: n.family_name };
-}
-
-function serializeNode(n: FamilyTreeNode): object {
-  return {
-    id: n.id,
-    first_name: n.first_name,
-    family_name: n.family_name,
-    sex: n.sex,
-    date_of_birth: n.date_of_birth ?? null,
-    place_of_birth: n.place_of_birth ?? null,
-    biography: n.biography ?? null,
-    ...(n.father?.length   ? { father:   n.father.map(slim) }  : {}),
-    ...(n.mother?.length   ? { mother:   n.mother.map(slim) }  : {}),
-    ...(n.spouse?.length   ? { spouse:   n.spouse.map(slim) }  : {}),
-    ...(n.children?.length ? { children: n.children.map(serializeNode) } : {}),
-    ...(n.siblings?.length ? {
-      siblings: n.siblings.map((s): SlimSibling => ({
-        ...slim(s),
-        sibling_type: s.sibling_type ?? (s.sex === "Female" ? "Sister" : "Brother"),
-      })),
-    } : {}),
-  };
-}
-
 // ── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -332,9 +302,11 @@ export default function FamilyTreeView({ tree }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("familyTree");
   const { activeTree } = useTree();
+  const { user } = useAuth();
   const [orientation, setOrientation] = useState<Orientation>("vertical");
   const [showSiblings, setShowSiblings] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportingJson, setExportingJson] = useState(false);
 
   const { nodes, edges } = useMemo(() => {
     const nodes: Node[] = [];
@@ -389,22 +361,66 @@ export default function FamilyTreeView({ tree }: Props) {
     // future: open edit panel
   }, []);
 
-  const exportJson = useCallback(() => {
-    const payload = {
-      tree_name: activeTree?.name ?? "unknown",
-      tree_display_name: activeTree?.display_name ?? "Family Tree",
-      exported_at: new Date().toISOString(),
-      root: serializeNode(tree),
-    };
-    const json = JSON.stringify(payload, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${activeTree?.name ?? "family-tree"}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }, [tree, activeTree]);
+  const exportJson = useCallback(async () => {
+    if (!activeTree || !user) return;
+    setExportingJson(true);
+    try {
+      const persons = await listPersons(user.username, activeTree.name);
+
+      const relResults = await Promise.all(
+        persons.map((p) => getRelationships(p.id, user.username).then((r) => ({ id: p.id, r })))
+      );
+
+      const relKeys = new Set<string>();
+      const relationships: object[] = [];
+      function addRel(type: string, personId: string, relatedId: string, siblingType?: string) {
+        const key =
+          type === "Spouse" || type === "Sibling"
+            ? `${type}:${[personId, relatedId].sort().join(":")}`
+            : `${type}:${personId}:${relatedId}`;
+        if (!relKeys.has(key)) {
+          relKeys.add(key);
+          const rel: Record<string, string> = { type, person_id: personId, related_id: relatedId };
+          if (siblingType) rel.sibling_type = siblingType;
+          relationships.push(rel);
+        }
+      }
+
+      for (const { id, r } of relResults) {
+        for (const p of r.father)   addRel("Father",  id, p.id);
+        for (const p of r.mother)   addRel("Mother",  id, p.id);
+        for (const p of r.siblings) addRel("Sibling", id, p.id, p.sex === "Female" ? "Sister" : "Brother");
+        for (const p of r.spouse)   addRel("Spouse",  id, p.id);
+      }
+
+      const exportPersons = persons.map(({ id, first_name, family_name, middle_name, sex,
+        date_of_birth, date_of_death, place_of_birth, place_of_death,
+        nickname, username, email, biography, verified }) => ({
+        id, first_name, family_name, middle_name, sex,
+        date_of_birth, date_of_death, place_of_birth, place_of_death,
+        nickname, username, email, biography, verified,
+      }));
+
+      const payload = {
+        tree_name: activeTree.name,
+        tree_display_name: activeTree.display_name,
+        exported_at: new Date().toISOString(),
+        persons: exportPersons,
+        relationships,
+      };
+
+      const json = JSON.stringify(payload, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${activeTree.name}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportingJson(false);
+    }
+  }, [activeTree, user]);
 
   const exportJpeg = useCallback(async () => {
     if (!containerRef.current) return;
@@ -477,11 +493,19 @@ export default function FamilyTreeView({ tree }: Props) {
         <div className="inline-flex items-center gap-2">
         <button
           onClick={exportJson}
-          className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors"
+          disabled={exportingJson}
+          className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors disabled:opacity-50"
         >
-          <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
+          {exportingJson ? (
+            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+            </svg>
+          ) : (
+            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          )}
           {t("exportJson")}
         </button>
         <button

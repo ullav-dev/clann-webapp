@@ -7,7 +7,14 @@ export interface ImportPerson {
   sex: Sex;
   date_of_birth?: string | null;
   place_of_birth?: string | null;
+  place_of_death?: string | null;
+  date_of_death?: string | null;
+  middle_name?: string | null;
+  nickname?: string | null;
+  username?: string | null;
+  email?: string | null;
   biography?: string | null;
+  verified?: boolean;
 }
 
 export interface ImportRelationship {
@@ -31,16 +38,90 @@ export function parseTreeExport(raw: unknown): ParsedImport {
   if (!raw || typeof raw !== "object") throw new Error("Invalid file: expected a JSON object");
   const obj = raw as Record<string, unknown>;
 
-  if (!obj.root || typeof obj.root !== "object") {
-    throw new Error("Invalid file: missing 'root' field");
+  const suggestedName = typeof obj.tree_name === "string" ? obj.tree_name : "";
+  const suggestedDisplayName = typeof obj.tree_display_name === "string" ? obj.tree_display_name : "";
+
+  // New flat format: { persons: [...], relationships: [...] }
+  if (Array.isArray(obj.persons)) {
+    return parseFlatExport(obj, suggestedName, suggestedDisplayName);
   }
 
+  // Legacy tree-walk format: { root: FamilyTreeNode }
+  if (!obj.root || typeof obj.root !== "object") {
+    throw new Error("Invalid file: missing 'persons' or 'root' field");
+  }
+  return parseTreeWalkExport(obj, suggestedName, suggestedDisplayName);
+}
+
+// ── Flat format parser ────────────────────────────────────────────────────────
+
+function parseFlatExport(
+  obj: Record<string, unknown>,
+  suggestedName: string,
+  suggestedDisplayName: string,
+): ParsedImport {
+  const rawPersons = obj.persons as Record<string, unknown>[];
+  const rawRels = Array.isArray(obj.relationships)
+    ? (obj.relationships as Record<string, unknown>[])
+    : [];
+
+  const persons: ImportPerson[] = rawPersons.map((p) => ({
+    originalId: String(p.id ?? ""),
+    first_name: String(p.first_name ?? ""),
+    family_name: String(p.family_name ?? ""),
+    sex: (p.sex as Sex) ?? "Male",
+    date_of_birth: (p.date_of_birth as string | null) ?? null,
+    date_of_death: (p.date_of_death as string | null) ?? null,
+    place_of_birth: (p.place_of_birth as string | null) ?? null,
+    place_of_death: (p.place_of_death as string | null) ?? null,
+    middle_name: (p.middle_name as string | null) ?? null,
+    nickname: (p.nickname as string | null) ?? null,
+    username: (p.username as string | null) ?? null,
+    email: (p.email as string | null) ?? null,
+    biography: (p.biography as string | null) ?? null,
+    verified: typeof p.verified === "boolean" ? p.verified : undefined,
+  }));
+
+  const relKeys = new Set<string>();
+  const relationships: ImportRelationship[] = [];
+
+  for (const r of rawRels) {
+    const type = r.type as ImportRelationship["type"];
+    if (!["Father", "Mother", "Sibling", "Spouse"].includes(type)) continue;
+    const personId = String(r.person_id ?? "");
+    const relatedId = String(r.related_id ?? "");
+    if (!personId || !relatedId) continue;
+
+    const key =
+      type === "Spouse" || type === "Sibling"
+        ? `${type}:${[personId, relatedId].sort().join(":")}`
+        : `${type}:${personId}:${relatedId}`;
+    if (!relKeys.has(key)) {
+      relKeys.add(key);
+      relationships.push({
+        type,
+        personId,
+        relatedId,
+        sibling_type: (r.sibling_type as SiblingType | null) ?? null,
+      });
+    }
+  }
+
+  return { persons, relationships, suggestedName, suggestedDisplayName };
+}
+
+// ── Legacy tree-walk format parser ───────────────────────────────────────────
+
+function parseTreeWalkExport(
+  obj: Record<string, unknown>,
+  suggestedName: string,
+  suggestedDisplayName: string,
+): ParsedImport {
   const persons = new Map<string, ImportPerson>();
   const relKeys = new Set<string>();
   const relationships: ImportRelationship[] = [];
 
   function addRel(type: "Father" | "Mother" | "Sibling" | "Spouse", personId: string, relatedId: string, siblingType?: SiblingType | null) {
-    // For symmetric types, use a canonical key so each pair is added once
     const key =
       type === "Spouse" || type === "Sibling"
         ? `${type}:${[personId, relatedId].sort().join(":")}`
@@ -93,7 +174,7 @@ export function parseTreeExport(raw: unknown): ParsedImport {
   return {
     persons: Array.from(persons.values()),
     relationships,
-    suggestedName: typeof obj.tree_name === "string" ? obj.tree_name : "",
-    suggestedDisplayName: typeof obj.tree_display_name === "string" ? obj.tree_display_name : "",
+    suggestedName,
+    suggestedDisplayName,
   };
 }
