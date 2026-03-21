@@ -18,6 +18,7 @@ import {
 import { toJpeg } from "html-to-image";
 import type { FamilyTreeNode } from "@/lib/types";
 import { rawId, personImageUrl } from "@/lib/api";
+import { useTree } from "@/contexts/TreeContext";
 import { personIcon } from "@/components/PersonCard";
 import { useRouter } from "next/navigation";
 
@@ -299,6 +300,7 @@ interface Props {
 export default function FamilyTreeView({ tree }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("familyTree");
+  const { activeTree } = useTree();
   const [orientation, setOrientation] = useState<Orientation>("vertical");
   const [showSiblings, setShowSiblings] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -357,15 +359,21 @@ export default function FamilyTreeView({ tree }: Props) {
   }, []);
 
   const exportJson = useCallback(() => {
-    const json = JSON.stringify(tree, null, 2);
+    const payload = {
+      tree_name: activeTree?.name ?? "unknown",
+      tree_display_name: activeTree?.display_name ?? "Family Tree",
+      exported_at: new Date().toISOString(),
+      root: tree,
+    };
+    const json = JSON.stringify(payload, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `family-tree-${tree.family_name ?? "export"}.json`;
+    link.download = `${activeTree?.name ?? "family-tree"}.json`;
     link.click();
     URL.revokeObjectURL(url);
-  }, [tree]);
+  }, [tree, activeTree]);
 
   const exportJpeg = useCallback(async () => {
     if (!containerRef.current) return;
@@ -377,7 +385,7 @@ export default function FamilyTreeView({ tree }: Props) {
       });
       const link = document.createElement("a");
       link.href = dataUrl;
-      link.download = `family-tree-${tree.family_name ?? "export"}.jpg`;
+      link.download = `${activeTree?.name ?? "family-tree"}.jpg`;
       link.click();
     } finally {
       setExporting(false);
