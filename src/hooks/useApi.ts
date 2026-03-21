@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useTree } from "@/contexts/TreeContext";
 import * as api from "@/lib/api";
 import type {
   CreatePerson,
@@ -11,17 +12,19 @@ import type {
 
 /**
  * Returns typed API helpers pre-bound with the current user's `created_by`
- * value so that every request automatically enforces ownership on the backend.
- *
- * Admin users (role "admin") omit the filter so they can access all records.
+ * and the active family tree so that every request automatically enforces
+ * ownership and tree scoping on the backend.
  */
 export function useApi() {
   const { user } = useAuth();
+  const { activeTree } = useTree();
   const createdBy = user?.username;
+  const tree = activeTree?.name;
 
   return {
-    listPersons: () => api.listPersons(createdBy),
-    createPerson: (body: CreatePerson) => api.createPerson(body),
+    listPersons: () => api.listPersons(createdBy, tree),
+    createPerson: (body: CreatePerson) =>
+      api.createPerson({ ...body, created_by: createdBy, tree: tree ?? "" }),
     getPerson: (id: string) => api.getPerson(id, createdBy),
     updatePerson: (id: string, body: UpdatePerson) => api.updatePerson(id, body, createdBy),
     deletePerson: (id: string) => api.deletePerson(id, createdBy),

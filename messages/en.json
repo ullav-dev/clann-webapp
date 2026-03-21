@@ -86,6 +86,8 @@
     "listView": "List view",
     "list": "List",
     "errorLoading": "Could not load persons: {error}",
+    "noTreeTitle": "No family tree selected",
+    "noTreeDescription": "Use the tree selector in the navigation bar to create your first family tree.",
     "noPeopleYet": "No people yet",
     "noPeopleDescription": "Start building your family tree by adding the first person.",
     "addFirstPerson": "Add First Person",
@@ -103,7 +105,8 @@
   "newPerson": {
     "title": "Add Person",
     "subtitle": "Create a new family member record.",
-    "submitLabel": "Create Person"
+    "submitLabel": "Create Person",
+    "noTree": "Please select or create a family tree before adding people."
   },
   "personDetail": {
     "loading": "Loading…",
@@ -213,6 +216,23 @@
     "invalidType": "Only JPEG or PNG files are accepted.",
     "fileTooLarge": "File must be 3 MB or smaller.",
     "uploadFailed": "Upload failed"
+  },
+  "trees": {
+    "loading": "Loading…",
+    "noTree": "Select a tree",
+    "noTreesYet": "No trees yet",
+    "primary": "Primary",
+    "deleteTitle": "Delete this tree",
+    "deleteConfirm": "Delete '{name}'? This will permanently delete the tree and ALL its people. This cannot be undone.",
+    "deleteFailed": "Delete failed",
+    "createNew": "New tree",
+    "displayNamePlaceholder": "Display name (e.g. Smith Family)",
+    "namePlaceholder": "Unique name (e.g. smith-family)",
+    "nameHint": "Letters, numbers and hyphens only. Must be globally unique.",
+    "create": "Create",
+    "creating": "Creating…",
+    "createFailed": "Create failed",
+    "cancel": "Cancel"
   },
   "help": {
     "title": "Help & Documentation",

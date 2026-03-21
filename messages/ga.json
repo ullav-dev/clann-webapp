@@ -86,6 +86,8 @@
     "listView": "Radharc liosta",
     "list": "Liosta",
     "errorLoading": "Níorbh fhéidir daoine a lódáil: {error}",
+    "noTreeTitle": "Níl aon chrann teaghlaigh roghnaithe",
+    "noTreeDescription": "Úsáid roghnóir an chrainn sa bharra nascleanúna chun do chéad chrann teaghlaigh a chruthú.",
     "noPeopleYet": "Níl aon duine fós",
     "noPeopleDescription": "Tosaigh ag tógáil do chrainn teaghlaigh trí an chéad duine a chur leis.",
     "addFirstPerson": "An Chéad Duine a Chur Leis",
@@ -103,7 +105,8 @@
   "newPerson": {
     "title": "Duine a Chur Leis",
     "subtitle": "Cruthaigh taifead ball teaghlaigh nua.",
-    "submitLabel": "Cruthaigh Duine"
+    "submitLabel": "Cruthaigh Duine",
+    "noTree": "Roghnaigh nó cruthaigh crann teaghlaigh sula gcuireann tú daoine leis."
   },
   "personDetail": {
     "loading": "Á lódáil…",
@@ -213,6 +216,23 @@
     "invalidType": "Ní ghlactar ach le comhaid JPEG nó PNG.",
     "fileTooLarge": "Ní mór don chomhad a bheith 3 MB nó níos lú.",
     "uploadFailed": "Theip ar uaslódáil"
+  },
+  "trees": {
+    "loading": "Á lódáil…",
+    "noTree": "Roghnaigh crann",
+    "noTreesYet": "Níl aon chrann fós",
+    "primary": "Príomha",
+    "deleteTitle": "Scrios an crann seo",
+    "deleteConfirm": "Scrios '{name}'? Scriosfaidh sé seo an crann agus GACH duine ann go buan. Ní féidir é seo a chealú.",
+    "deleteFailed": "Theip ar scriosadh",
+    "createNew": "Crann nua",
+    "displayNamePlaceholder": "Ainm taispeána (m.sh. Teaghlach Uí Bhriain)",
+    "namePlaceholder": "Ainm uathúil (m.sh. teaghlach-ui-bhriain)",
+    "nameHint": "Litreacha, uimhreacha agus fleiscíní amháin. Ní mór dó a bheith uathúil go domhanda.",
+    "create": "Cruthaigh",
+    "creating": "Á chruthú…",
+    "createFailed": "Theip ar chruthú",
+    "cancel": "Cealaigh"
   },
   "help": {
     "title": "Cabhair & Doiciméadacht",

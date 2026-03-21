@@ -4,25 +4,37 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import PersonForm from "@/components/PersonForm";
-import { createPerson, rawId } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import type { CreatePerson } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTree } from "@/contexts/TreeContext";
 
 export default function NewPersonPage() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const { activeTree, isLoading: treeLoading } = useTree();
+  const api = useApi();
   const t = useTranslations("newPerson");
 
   useEffect(() => {
-    if (!isLoading && !user) router.replace("/login");
-  }, [isLoading, user, router]);
+    if (!authLoading && !user) router.replace("/login");
+  }, [authLoading, user, router]);
 
   async function handleSubmit(values: CreatePerson) {
-    const person = await createPerson({ ...values, created_by: user!.username });
-    router.push(`/persons/${rawId(person.id)}`);
+    const person = await api.createPerson(values);
+    router.push(`/persons/${api.rawId(person.id)}`);
   }
 
-  if (isLoading || !user) return null;
+  if (authLoading || treeLoading || !user) return null;
+
+  if (!activeTree) {
+    return (
+      <div className="max-w-2xl mx-auto text-center py-20 text-stone-400">
+        <div className="text-5xl mb-4">🌳</div>
+        <p className="text-stone-600 font-medium">{t("noTree")}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto">

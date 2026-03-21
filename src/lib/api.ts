@@ -6,6 +6,8 @@ import type {
   AddRelationshipRequest,
   UpdateSpouseDatesRequest,
   FamilyTreeNode,
+  FamilyTree,
+  CreateFamilyTree,
 } from "./types";
 
 // In the browser, use relative paths so Next.js proxies to the backend (avoids CORS).
@@ -38,9 +40,29 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
+// Family trees
+export const listTrees = (owner?: string): Promise<FamilyTree[]> => {
+  const qs = owner ? `?owner=${encodeURIComponent(owner)}` : "";
+  return request(`/api/trees${qs}`);
+};
+
+export const createTree = (body: CreateFamilyTree): Promise<FamilyTree> =>
+  request("/api/trees", { method: "POST", body: JSON.stringify(body) });
+
+export const getTree = (name: string): Promise<FamilyTree> =>
+  request(`/api/trees/${encodeURIComponent(name)}`);
+
+export const deleteTree = (name: string): Promise<void> =>
+  request(`/api/trees/${encodeURIComponent(name)}`, { method: "DELETE" });
+
 // Person CRUD
-export const listPersons = (createdBy?: string): Promise<Person[]> =>
-  request(withCreatedBy("/api/persons", createdBy));
+export const listPersons = (createdBy?: string, tree?: string): Promise<Person[]> => {
+  const params = new URLSearchParams();
+  if (createdBy) params.set("created_by", createdBy);
+  if (tree) params.set("tree", tree);
+  const qs = params.toString();
+  return request(`/api/persons${qs ? `?${qs}` : ""}`);
+};
 
 export const createPerson = (body: CreatePerson): Promise<Person> =>
   request("/api/persons", { method: "POST", body: JSON.stringify(body) });

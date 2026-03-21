@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import "../globals.css";
 import Nav from "@/components/Nav";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { TreeProvider } from "@/contexts/TreeContext";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -44,8 +45,10 @@ export default async function LocaleLayout({
       <body className={`${geist.className} bg-stone-50 text-stone-900 min-h-screen`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
-            <Nav />
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
+            <TreeProvider>
+              <Nav />
+              <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
+            </TreeProvider>
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

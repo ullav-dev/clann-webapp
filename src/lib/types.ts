@@ -2,6 +2,21 @@ export type Sex = "Male" | "Female";
 export type RelationshipType = "Father" | "Mother" | "Sibling" | "Spouse";
 export type SiblingType = "Brother" | "Sister";
 
+export interface FamilyTree {
+  id: string; // "family_tree:<ulid>"
+  name: string; // unique slug e.g. "smith-family"
+  display_name: string;
+  owner: string; // username
+  is_primary?: boolean;
+}
+
+export interface CreateFamilyTree {
+  name: string;
+  display_name: string;
+  owner: string;
+  is_primary?: boolean;
+}
+
 export interface Person {
   id: string; // e.g. "person:01jd4a8xyz"
   family_name: string;
@@ -19,6 +34,7 @@ export interface Person {
   verified?: boolean;
   biography?: string | null;
   created_by?: string | null;
+  tree?: string | null;
 }
 
 export interface CreatePerson {
@@ -36,6 +52,8 @@ export interface CreatePerson {
   verified?: boolean;
   biography?: string | null;
   created_by?: string | null;
+  /** Tree name (slug). Required by the API; injected automatically by useApi. */
+  tree?: string | null;
 }
 
 export interface UpdatePerson {

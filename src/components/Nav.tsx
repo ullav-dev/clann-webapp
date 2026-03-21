@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import LocaleSwitcher from "./LocaleSwitcher";
+import TreeSelector from "./TreeSelector";
 
 export default function Nav() {
   const pathname = usePathname();
@@ -39,6 +40,7 @@ export default function Nav() {
                 <Link href="/family" className={activeLink("/family")}>
                   {t("myFamily")}
                 </Link>
+                <TreeSelector />
                 <Link href="/help" className={activeLink("/help")}>
                   {t("help")}
                 </Link>

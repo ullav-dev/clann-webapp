@@ -13,6 +13,7 @@ import PersonCard from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
 import { fullName } from "@/components/PersonCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTree } from "@/contexts/TreeContext";
 
 type ViewMode = "card" | "list";
 
@@ -103,6 +104,7 @@ function ListIcon() { return (<svg className="w-4 h-4" viewBox="0 0 20 20" fill=
 
 export default function FamilyPage() {
   const { user, isLoading: authLoading } = useAuth();
+  const { activeTree, isLoading: treeLoading } = useTree();
   const api = useApi();
   const router = useRouter();
   const t = useTranslations("family");
@@ -122,12 +124,16 @@ export default function FamilyPage() {
   }, [authLoading, user, router]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || treeLoading) return;
+    if (!activeTree) { setLoading(false); return; }
+    setLoading(true);
+    setPersons([]);
     api.listPersons()
       .then(setPersons)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, activeTree?.name, treeLoading]);
 
   function handleSort(field: SortField) {
     if (field === sortField) {
@@ -148,7 +154,17 @@ export default function FamilyPage() {
   const safePage = Math.min(page, numPages);
   const paged = pageSlice(filtered, safePage, pageSize);
 
-  if (authLoading || !user) return null;
+  if (authLoading || treeLoading || !user) return null;
+
+  if (!activeTree) {
+    return (
+      <div className="text-center py-20 text-stone-400">
+        <div className="text-6xl mb-4">🌳</div>
+        <p className="text-lg font-medium text-stone-600">{t("noTreeTitle")}</p>
+        <p className="text-sm mt-1">{t("noTreeDescription")}</p>
+      </div>
+    );
+  }
 
   return (
     <div>

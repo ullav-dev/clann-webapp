@@ -86,6 +86,8 @@
     "listView": "Listenansicht",
     "list": "Liste",
     "errorLoading": "Personen konnten nicht geladen werden: {error}",
+    "noTreeTitle": "Kein Stammbaum ausgewählt",
+    "noTreeDescription": "Verwenden Sie die Baumauswahl in der Navigationsleiste, um Ihren ersten Stammbaum zu erstellen.",
     "noPeopleYet": "Noch keine Personen",
     "noPeopleDescription": "Beginnen Sie mit dem Aufbau Ihres Stammbaums, indem Sie die erste Person hinzufügen.",
     "addFirstPerson": "Erste Person hinzufügen",
@@ -103,7 +105,8 @@
   "newPerson": {
     "title": "Person hinzufügen",
     "subtitle": "Neuen Familienmitglied-Datensatz erstellen.",
-    "submitLabel": "Person erstellen"
+    "submitLabel": "Person erstellen",
+    "noTree": "Bitte wählen oder erstellen Sie einen Stammbaum, bevor Sie Personen hinzufügen."
   },
   "personDetail": {
     "loading": "Laden…",
@@ -213,6 +216,23 @@
     "invalidType": "Nur JPEG- oder PNG-Dateien werden akzeptiert.",
     "fileTooLarge": "Die Datei darf maximal 3 MB groß sein.",
     "uploadFailed": "Hochladen fehlgeschlagen"
+  },
+  "trees": {
+    "loading": "Laden…",
+    "noTree": "Baum auswählen",
+    "noTreesYet": "Noch keine Bäume",
+    "primary": "Primär",
+    "deleteTitle": "Diesen Baum löschen",
+    "deleteConfirm": "'{name}' löschen? Dies löscht dauerhaft den Baum und ALLE seine Personen. Dies kann nicht rückgängig gemacht werden.",
+    "deleteFailed": "Löschen fehlgeschlagen",
+    "createNew": "Neuer Baum",
+    "displayNamePlaceholder": "Anzeigename (z. B. Familie Müller)",
+    "namePlaceholder": "Eindeutiger Name (z. B. familie-mueller)",
+    "nameHint": "Nur Buchstaben, Zahlen und Bindestriche. Muss global eindeutig sein.",
+    "create": "Erstellen",
+    "creating": "Erstellen…",
+    "createFailed": "Erstellen fehlgeschlagen",
+    "cancel": "Abbrechen"
   },
   "help": {
     "title": "Hilfe & Dokumentation",
