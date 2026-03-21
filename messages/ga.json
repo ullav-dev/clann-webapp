@@ -226,7 +226,7 @@
     "setPrimaryFailed": "Theip ar shocrú an phríomhchrainn",
     "deleteTitle": "Scrios an crann seo",
     "deleteConfirmTitle": "An gcrann teaghlaigh a scriosadh?",
-    "deleteConfirmBody": "Scriosfaidh sé seo '{name}' agus gach duine ann go buan. Ní féidir é seo a chealú.",
+    "deleteConfirmBody": "Scriosfaidh sé seo {name} agus gach duine ann go buan. Ní féidir é seo a chealú.",
     "deleteButton": "Scrios an crann",
     "deleting": "Á scriosadh…",
     "deleteFailed": "Theip ar scriosadh",

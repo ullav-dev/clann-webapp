@@ -226,7 +226,7 @@
     "setPrimaryFailed": "Failed to set primary tree",
     "deleteTitle": "Delete this tree",
     "deleteConfirmTitle": "Delete family tree?",
-    "deleteConfirmBody": "This will permanently delete '{name}' and every person in it. This cannot be undone.",
+    "deleteConfirmBody": "This will permanently delete {name} and every person in it. This cannot be undone.",
     "deleteButton": "Delete tree",
     "deleting": "Deleting…",
     "deleteFailed": "Delete failed",

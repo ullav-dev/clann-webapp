@@ -226,7 +226,7 @@
     "setPrimaryFailed": "Primären Baum konnte nicht festgelegt werden",
     "deleteTitle": "Diesen Baum löschen",
     "deleteConfirmTitle": "Stammbaum löschen?",
-    "deleteConfirmBody": "Hiermit wird '{name}' und alle darin enthaltenen Personen dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
+    "deleteConfirmBody": "Hiermit wird {name} und alle darin enthaltenen Personen dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
     "deleteButton": "Baum löschen",
     "deleting": "Wird gelöscht…",
     "deleteFailed": "Löschen fehlgeschlagen",
