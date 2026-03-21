@@ -22,6 +22,9 @@ export default function TreeSelector() {
   const [nameManuallyEdited, setNameManuallyEdited] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ name: string; displayName: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   // Close on outside click
@@ -69,12 +72,23 @@ export default function TreeSelector() {
     }
   }
 
-  async function handleDelete(name: string, displayName: string) {
-    if (!confirm(t("deleteConfirm", { name: displayName }))) return;
+  function handleDelete(name: string, displayName: string) {
+    setOpen(false);
+    setDeleteError(null);
+    setPendingDelete({ name, displayName });
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    setDeleteError(null);
     try {
-      await deleteTree(name);
+      await deleteTree(pendingDelete.name);
+      setPendingDelete(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : t("deleteFailed"));
+      setDeleteError(err instanceof Error ? err.message : t("deleteFailed"));
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -222,6 +236,43 @@ export default function TreeSelector() {
 
       {showImport && (
         <ImportTreeModal onClose={() => setShowImport(false)} />
+      )}
+
+      {pendingDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
+                <svg className="w-5 h-5 text-red-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="font-semibold text-stone-800">{t("deleteConfirmTitle")}</h2>
+                <p className="text-sm text-stone-500 mt-1">
+                  {t("deleteConfirmBody", { name: pendingDelete.displayName })}
+                </p>
+              </div>
+            </div>
+            {deleteError && <p className="text-sm text-red-600">{deleteError}</p>}
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => { setPendingDelete(null); setDeleteError(null); }}
+                disabled={deleting}
+                className="flex-1 border border-stone-300 text-stone-600 text-sm py-2 rounded-lg hover:bg-stone-50 transition-colors disabled:opacity-50"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-medium py-2 rounded-lg transition-colors"
+              >
+                {deleting ? t("deleting") : t("deleteButton")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
