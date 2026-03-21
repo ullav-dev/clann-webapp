@@ -36,6 +36,10 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 - `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 3 MB)
 - `src/components/PasswordInput.tsx` — password field with show/hide toggle (eye icon button); used on all password inputs in the app
 - `src/components/LocaleSwitcher.tsx` — language selector dropdown in the nav
+- `src/components/TreeSelector.tsx` — dropdown in the nav for selecting, creating, deleting, and setting the primary family tree; also opens `ImportTreeModal`
+- `src/components/ImportTreeModal.tsx` — 3-step modal (upload → name/preview → progress → done) for importing a tree from a Clann JSON export
+- `src/contexts/TreeContext.tsx` — holds the list of trees, the active tree, and tree CRUD actions; persists active selection in localStorage (`clann_active_tree`)
+- `src/lib/tree-import.ts` — pure parser for the Clann JSON export format; deduplicates persons and relationships
 
 **Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token).
 
@@ -62,6 +66,32 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 **ID handling:** The backend stores IDs as `person:<ulid>` (e.g. `person:01jd4a8xyz`). URLs use just the ULID (no prefix, no encoding). `api.ts` exposes a `rawId()` helper that strips the `person:` prefix before building request paths. **Always use `rawId(person.id)` when constructing links or `router.push` calls** — never `encodeURIComponent(person.id)`, which embeds the prefix in the URL and causes 404s.
 
 **Backend API base URL:** Set via `NEXT_PUBLIC_API_URL` in `.env.local` (defaults to `http://localhost:3000`).
+
+## Multiple family trees
+
+Each user can own multiple family trees. One tree per user is designated **primary** (the default on first login).
+
+**Context:** `TreeContext` / `useTree()` provides:
+- `trees` — all trees owned by the current user
+- `activeTree` — the currently selected tree (persisted in `localStorage` under `clann_active_tree`)
+- `createTree(name, displayName)` — first tree created is automatically primary
+- `deleteTree(name)` — falls back to primary/first remaining tree
+- `setPrimaryTree(name)` — calls `PATCH /api/trees/{name}/set-primary`; updates `is_primary` in the local list
+
+**API endpoints:**
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/api/trees?owner=<username>` | List trees for a user |
+| `POST` | `/api/trees` | Create; pass `is_primary: true` to make it primary (clears others) |
+| `GET` | `/api/trees/{name}` | Get a single tree |
+| `DELETE` | `/api/trees/{name}` | Cascade-deletes all persons and relationships |
+| `PATCH` | `/api/trees/{name}/set-primary` | Promote a tree to primary (clears others for same owner) |
+
+**Scoping:** `useApi.listPersons` and `useApi.createPerson` automatically inject `tree=activeTree.name`. Always use `useApi` rather than calling `api.*` directly when tree-scoping is needed.
+
+**JSON export format:** The exported file includes `tree_name`, `tree_display_name`, `exported_at`, and `root` (the full `FamilyTreeNode`). Related persons are serialized as slim nodes — `father`/`mother`/`spouse` as `{id, first_name, family_name}` and `siblings` as `{id, first_name, family_name, sibling_type}`. Children are serialized recursively with the same slim rules applied to their sub-relationships.
+
+**Import:** `ImportTreeModal` reads the exported JSON via `parseTreeExport` (in `src/lib/tree-import.ts`), creates a new tree, imports persons sequentially (building an `originalId → newId` map), then adds relationships using the mapped IDs. `sibling_type` is taken directly from the export; if absent it falls back to derivation from the sibling's `sex`.
 
 ## i18n
 

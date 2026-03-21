@@ -14,7 +14,9 @@ A responsive, localised family tree management application built with Next.js, b
   - Pan, zoom, and minimap navigation
   - Click any node to navigate to that person's profile
   - Hover over any node to see a tooltip with date of birth, place of birth, and biography
-- **Export** — download the tree as a **JPEG image** or **JSON file**
+- **Multiple family trees** — create and manage multiple trees per account; one tree is designated **primary** (auto-selected on login); switch between trees from the nav bar dropdown; set any tree as primary, or delete a tree (cascade-deletes all its people and relationships)
+- **Export** — download the tree as a **JPEG image** or **JSON file** (includes tree metadata; related persons serialized as slim identity nodes; siblings include `sibling_type`)
+- **Import** — upload a previously exported Clann JSON file to create a new tree; 3-step modal (upload → name/preview → live progress) reconstructs all people and relationships
 - **Family Members list** — card or list view with sort (family name, date of birth, place of birth), name search, and **pagination** (5–30 per page, default 10)
 - **Authentication** — login, registration with **email verification**, and **email-based password reset** via ullav-user-management; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind login; ownership filter enforced server-side; all password fields have a show/hide toggle
 - **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, list view), accessible from the nav bar without logging in
@@ -92,8 +94,12 @@ src/
     PasswordInput.tsx       # Password field with show/hide toggle
     LocaleSwitcher.tsx      # Language selector dropdown
     Nav.tsx                 # Top navigation bar
+  components/
+    TreeSelector.tsx        # Nav dropdown: select/create/delete/set-primary tree, open import modal
+    ImportTreeModal.tsx     # 3-step import modal (upload → name → progress → done)
   contexts/
     AuthContext.tsx         # JWT auth state (localStorage)
+    TreeContext.tsx         # Active tree + tree CRUD (localStorage: clann_active_tree)
   hooks/
     useApi.ts               # API hook; binds created_by=username on every call
   i18n/
@@ -104,6 +110,7 @@ src/
     api.ts                  # Typed fetch wrappers
     auth-api.ts             # Auth service fetch wrappers
     persons.ts              # Pure sort/filter/pagination helpers (tested)
+    tree-import.ts          # Parser for Clann JSON export format
   middleware.ts             # Locale detection and URL prefix routing
 ```
 
