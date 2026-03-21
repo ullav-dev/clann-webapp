@@ -1,10 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
+import type { FamilyTree } from "@/lib/types";
 import * as api from "@/lib/api";
 import { parseTreeExport, type ParsedImport } from "@/lib/tree-import";
 
@@ -32,8 +33,10 @@ interface Props {
 export default function ImportTreeModal({ onClose }: Props) {
   const t = useTranslations("trees");
   const { user } = useAuth();
-  const { createTree } = useTree();
+  const { createTree, setActiveTree } = useTree();
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split("/")[1] ?? "en";
 
   const fileRef = useRef<HTMLInputElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
@@ -46,6 +49,7 @@ export default function ImportTreeModal({ onClose }: Props) {
   const [nameManuallyEdited, setNameManuallyEdited] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+  const [importedTree, setImportedTree] = useState<FamilyTree | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
   function handleDisplayNameChange(val: string) {
@@ -104,8 +108,11 @@ export default function ImportTreeModal({ onClose }: Props) {
     setProgress(prog);
 
     try {
-      // Step 1: create the tree (via context so the trees list stays in sync)
-      const tree = await createTree(name.trim(), displayName.trim());
+      // Step 1: create the tree (select: false avoids triggering the family page's
+      // activeTree useEffect, which would fire a concurrent listPersons request and
+      // cause SurrealDB WebSocket "Connection uninitialised" errors during the import loop)
+      const tree = await createTree(name.trim(), displayName.trim(), { select: false });
+      setImportedTree(tree);
 
       // Step 2: create all persons, build old→new ID map
       const idMap = new Map<string, string>();
@@ -274,7 +281,11 @@ export default function ImportTreeModal({ onClose }: Props) {
               <p className="text-stone-700 font-medium">{t("importDone")}</p>
               <p className="text-sm text-stone-500">{t("importDoneDescription")}</p>
               <button
-                onClick={() => { onClose(); router.push("/family"); }}
+                onClick={() => {
+                  if (importedTree) setActiveTree(importedTree);
+                  onClose();
+                  router.push(`/${locale}/family`);
+                }}
                 className="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
               >
                 {t("importGoToFamily")}

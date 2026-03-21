@@ -10,7 +10,7 @@ interface TreeState {
   activeTree: FamilyTree | null;
   isLoading: boolean;
   setActiveTree: (tree: FamilyTree) => void;
-  createTree: (name: string, displayName: string) => Promise<FamilyTree>;
+  createTree: (name: string, displayName: string, options?: { select?: boolean }) => Promise<FamilyTree>;
   deleteTree: (name: string) => Promise<void>;
   setPrimaryTree: (name: string) => Promise<void>;
 }
@@ -61,7 +61,7 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, tree.name);
   }, []);
 
-  const createTree = useCallback(async (name: string, displayName: string): Promise<FamilyTree> => {
+  const createTree = useCallback(async (name: string, displayName: string, options?: { select?: boolean }): Promise<FamilyTree> => {
     // First tree created by this user becomes the primary tree
     const isPrimary = trees.length === 0;
     const tree = await api.createTree({
@@ -74,9 +74,12 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
       const updated = isPrimary ? prev.map((t) => ({ ...t, is_primary: false })) : prev;
       return [...updated, tree];
     });
-    // Auto-select newly created tree
-    setActiveTreeState(tree);
-    localStorage.setItem(STORAGE_KEY, tree.name);
+    // Auto-select unless caller explicitly opts out (e.g. during bulk import to avoid
+    // triggering background re-fetches that can cause concurrent SurrealDB queries)
+    if (options?.select !== false) {
+      setActiveTreeState(tree);
+      localStorage.setItem(STORAGE_KEY, tree.name);
+    }
     return tree;
   }, [user, trees.length]);
 
