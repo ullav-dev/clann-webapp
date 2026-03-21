@@ -17,6 +17,7 @@ A responsive, localised family tree management application built with Next.js, b
 - **Export** — download the tree as a **JPEG image** or **JSON file**
 - **Family Members list** — card or list view with sort (family name, date of birth, place of birth), name search, and **pagination** (5–30 per page, default 10)
 - **Authentication** — login, registration with **email verification**, and **email-based password reset** via ullav-user-management; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind login; ownership filter enforced server-side; all password fields have a show/hide toggle
+- **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, list view), accessible from the nav bar without logging in
 - **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
 
 ## Prerequisites
@@ -74,6 +75,7 @@ src/
           page.tsx          # Handles email verification link (?token=)
         password-reset/
           page.tsx          # Handles password reset link (?token=)
+      help/page.tsx         # In-app documentation (server component)
       family/page.tsx       # Person list (card/list, sort, search, pagination)
       persons/
         new/page.tsx        # Create person

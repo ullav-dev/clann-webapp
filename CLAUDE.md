@@ -72,6 +72,7 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 - Client components use `useTranslations("namespace")` (React hook)
 - Do **not** use `t.rich(...)` with `{placeholder}` syntax — use separate keys or XML-style tags (`<b>text</b>`) instead. The `{br}` self-closing placeholder is not supported; split into two keys and insert `<br />` manually.
 - The `LocaleSwitcher` component replaces the locale segment in the current pathname and calls `router.push`.
+- **JSON string safety:** never use unescaped ASCII `"` (U+0022) inside translation string values — use `'single quotes'` or `\"escaped\"` instead. Typographic opening quotes like `„` (U+201E) are fine but their matching closing quote must not be a plain `"` or the JSON parser will terminate the string early.
 
 ## Family Members page
 
