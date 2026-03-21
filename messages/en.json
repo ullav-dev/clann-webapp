@@ -222,6 +222,8 @@
     "noTree": "Select a tree",
     "noTreesYet": "No trees yet",
     "primary": "Primary",
+    "setPrimaryTitle": "Set as primary tree",
+    "setPrimaryFailed": "Failed to set primary tree",
     "deleteTitle": "Delete this tree",
     "deleteConfirm": "Delete '{name}'? This will permanently delete the tree and ALL its people. This cannot be undone.",
     "deleteFailed": "Delete failed",

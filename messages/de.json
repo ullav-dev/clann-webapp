@@ -222,6 +222,8 @@
     "noTree": "Baum auswählen",
     "noTreesYet": "Noch keine Bäume",
     "primary": "Primär",
+    "setPrimaryTitle": "Als primären Baum festlegen",
+    "setPrimaryFailed": "Primären Baum konnte nicht festgelegt werden",
     "deleteTitle": "Diesen Baum löschen",
     "deleteConfirm": "'{name}' löschen? Dies löscht dauerhaft den Baum und ALLE seine Personen. Dies kann nicht rückgängig gemacht werden.",
     "deleteFailed": "Löschen fehlgeschlagen",

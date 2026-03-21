@@ -12,6 +12,7 @@ interface TreeState {
   setActiveTree: (tree: FamilyTree) => void;
   createTree: (name: string, displayName: string) => Promise<FamilyTree>;
   deleteTree: (name: string) => Promise<void>;
+  setPrimaryTree: (name: string) => Promise<void>;
 }
 
 const TreeContext = createContext<TreeState>({
@@ -21,6 +22,7 @@ const TreeContext = createContext<TreeState>({
   setActiveTree: () => {},
   createTree: async () => { throw new Error("TreeProvider not mounted"); },
   deleteTree: async () => { throw new Error("TreeProvider not mounted"); },
+  setPrimaryTree: async () => { throw new Error("TreeProvider not mounted"); },
 });
 
 const STORAGE_KEY = "clann_active_tree";
@@ -95,8 +97,15 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
     });
   }, [activeTree]);
 
+  const setPrimaryTree = useCallback(async (name: string): Promise<void> => {
+    const updated = await api.setPrimaryTree(name);
+    setTrees((prev) =>
+      prev.map((t) => ({ ...t, is_primary: t.name === updated.name }))
+    );
+  }, []);
+
   return (
-    <TreeContext.Provider value={{ trees, activeTree, isLoading, setActiveTree, createTree, deleteTree }}>
+    <TreeContext.Provider value={{ trees, activeTree, isLoading, setActiveTree, createTree, deleteTree, setPrimaryTree }}>
       {children}
     </TreeContext.Provider>
   );

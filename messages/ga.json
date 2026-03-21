@@ -222,6 +222,8 @@
     "noTree": "Roghnaigh crann",
     "noTreesYet": "Níl aon chrann fós",
     "primary": "Príomha",
+    "setPrimaryTitle": "Socraigh mar phríomhchrann",
+    "setPrimaryFailed": "Theip ar shocrú an phríomhchrainn",
     "deleteTitle": "Scrios an crann seo",
     "deleteConfirm": "Scrios '{name}'? Scriosfaidh sé seo an crann agus GACH duine ann go buan. Ní féidir é seo a chealú.",
     "deleteFailed": "Theip ar scriosadh",

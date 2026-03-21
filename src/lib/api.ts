@@ -55,6 +55,9 @@ export const getTree = (name: string): Promise<FamilyTree> =>
 export const deleteTree = (name: string): Promise<void> =>
   request(`/api/trees/${encodeURIComponent(name)}`, { method: "DELETE" });
 
+export const setPrimaryTree = (name: string): Promise<FamilyTree> =>
+  request(`/api/trees/${encodeURIComponent(name)}/set-primary`, { method: "PATCH" });
+
 // Person CRUD
 export const listPersons = (createdBy?: string, tree?: string): Promise<Person[]> => {
   const params = new URLSearchParams();
