@@ -16,7 +16,7 @@ import {
   MarkerType,
 } from "@xyflow/react";
 import { toJpeg } from "html-to-image";
-import type { FamilyTreeNode } from "@/lib/types";
+import type { FamilyTreeNode, SiblingType } from "@/lib/types";
 import { rawId, personImageUrl } from "@/lib/api";
 import { useTree } from "@/contexts/TreeContext";
 import { personIcon } from "@/components/PersonCard";
@@ -291,6 +291,37 @@ function Legend({ t }: { t: TranslateFn }) {
   );
 }
 
+// ── Export serialization ──────────────────────────────────────────────────────
+
+type SlimNode = { id: string; first_name: string; family_name: string };
+type SlimSibling = SlimNode & { sibling_type: SiblingType };
+
+function slim(n: FamilyTreeNode): SlimNode {
+  return { id: n.id, first_name: n.first_name, family_name: n.family_name };
+}
+
+function serializeNode(n: FamilyTreeNode): object {
+  return {
+    id: n.id,
+    first_name: n.first_name,
+    family_name: n.family_name,
+    sex: n.sex,
+    date_of_birth: n.date_of_birth ?? null,
+    place_of_birth: n.place_of_birth ?? null,
+    biography: n.biography ?? null,
+    ...(n.father?.length   ? { father:   n.father.map(slim) }  : {}),
+    ...(n.mother?.length   ? { mother:   n.mother.map(slim) }  : {}),
+    ...(n.spouse?.length   ? { spouse:   n.spouse.map(slim) }  : {}),
+    ...(n.children?.length ? { children: n.children.map(serializeNode) } : {}),
+    ...(n.siblings?.length ? {
+      siblings: n.siblings.map((s): SlimSibling => ({
+        ...slim(s),
+        sibling_type: s.sibling_type ?? (s.sex === "Female" ? "Sister" : "Brother"),
+      })),
+    } : {}),
+  };
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -363,7 +394,7 @@ export default function FamilyTreeView({ tree }: Props) {
       tree_name: activeTree?.name ?? "unknown",
       tree_display_name: activeTree?.display_name ?? "Family Tree",
       exported_at: new Date().toISOString(),
-      root: tree,
+      root: serializeNode(tree),
     };
     const json = JSON.stringify(payload, null, 2);
     const blob = new Blob([json], { type: "application/json" });

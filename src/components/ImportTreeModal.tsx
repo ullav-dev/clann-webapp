@@ -7,7 +7,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
 import * as api from "@/lib/api";
 import { parseTreeExport, type ParsedImport } from "@/lib/tree-import";
-import type { SiblingType } from "@/lib/types";
 
 type Step = "upload" | "name" | "importing" | "done";
 
@@ -136,17 +135,10 @@ export default function ImportTreeModal({ onClose }: Props) {
           continue;
         }
 
-        // Derive sibling_type from the sex of the related person
-        let siblingType: SiblingType | undefined;
-        if (rel.type === "Sibling") {
-          const sibling = parsed.persons.find((p) => p.originalId === rel.relatedId);
-          siblingType = sibling?.sex === "Female" ? "Sister" : "Brother";
-        }
-
         await api.addRelationship(newPersonId, {
           type: rel.type,
           related_id: newRelatedId,
-          sibling_type: siblingType ?? null,
+          sibling_type: rel.sibling_type ?? null,
         }, user.username);
 
         prog.relsDone += 1;

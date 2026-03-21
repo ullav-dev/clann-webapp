@@ -1,4 +1,4 @@
-import type { FamilyTreeNode, Sex } from "./types";
+import type { FamilyTreeNode, Sex, SiblingType } from "./types";
 
 export interface ImportPerson {
   originalId: string;
@@ -16,6 +16,7 @@ export interface ImportRelationship {
   personId: string;
   /** Original ID of the related person */
   relatedId: string;
+  sibling_type?: SiblingType | null;
 }
 
 export interface ParsedImport {
@@ -38,7 +39,7 @@ export function parseTreeExport(raw: unknown): ParsedImport {
   const relKeys = new Set<string>();
   const relationships: ImportRelationship[] = [];
 
-  function addRel(type: "Father" | "Mother" | "Sibling" | "Spouse", personId: string, relatedId: string) {
+  function addRel(type: "Father" | "Mother" | "Sibling" | "Spouse", personId: string, relatedId: string, siblingType?: SiblingType | null) {
     // For symmetric types, use a canonical key so each pair is added once
     const key =
       type === "Spouse" || type === "Sibling"
@@ -46,7 +47,7 @@ export function parseTreeExport(raw: unknown): ParsedImport {
         : `${type}:${personId}:${relatedId}`;
     if (!relKeys.has(key)) {
       relKeys.add(key);
-      relationships.push({ type, personId, relatedId });
+      relationships.push({ type, personId, relatedId, sibling_type: siblingType ?? null });
     }
   }
 
@@ -81,7 +82,8 @@ export function parseTreeExport(raw: unknown): ParsedImport {
       walk(spouse);
     }
     for (const sibling of node.siblings ?? []) {
-      addRel("Sibling", node.id, sibling.id);
+      const siblingType: SiblingType = sibling.sibling_type ?? (sibling.sex === "Female" ? "Sister" : "Brother");
+      addRel("Sibling", node.id, sibling.id, siblingType);
       walk(sibling);
     }
   }
