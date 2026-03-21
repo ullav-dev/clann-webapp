@@ -367,9 +367,11 @@ export default function FamilyTreeView({ tree }: Props) {
     try {
       const persons = await listPersons(user.username, activeTree.name);
 
-      const relResults = await Promise.all(
-        persons.map((p) => getRelationships(p.id, user.username).then((r) => ({ id: p.id, r })))
-      );
+      const relResults: { id: string; r: Awaited<ReturnType<typeof getRelationships>> }[] = [];
+      for (const p of persons) {
+        const r = await getRelationships(p.id, user.username);
+        relResults.push({ id: p.id, r });
+      }
 
       const relKeys = new Set<string>();
       const relationships: object[] = [];
