@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTree } from "@/contexts/TreeContext";
 import { useTranslations } from "next-intl";
+import ImportTreeModal from "./ImportTreeModal";
 
 export default function TreeSelector() {
   const { trees, activeTree, isLoading, setActiveTree, createTree, deleteTree } = useTree();
@@ -10,6 +11,7 @@ export default function TreeSelector() {
 
   const [open, setOpen] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState("");
   const [newName, setNewName] = useState("");
   const [nameManuallyEdited, setNameManuallyEdited] = useState(false);
@@ -27,6 +29,7 @@ export default function TreeSelector() {
         setError(null);
       }
     }
+
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
@@ -174,15 +177,27 @@ export default function TreeSelector() {
                 </div>
               </form>
             ) : (
-              <button
-                onClick={() => setShowCreate(true)}
-                className="w-full text-left px-3 py-2 text-sm text-emerald-700 hover:bg-emerald-50 transition-colors font-medium"
-              >
-                + {t("createNew")}
-              </button>
+              <div className="divide-y divide-stone-100">
+                <button
+                  onClick={() => setShowCreate(true)}
+                  className="w-full text-left px-3 py-2 text-sm text-emerald-700 hover:bg-emerald-50 transition-colors font-medium"
+                >
+                  + {t("createNew")}
+                </button>
+                <button
+                  onClick={() => { setOpen(false); setShowImport(true); }}
+                  className="w-full text-left px-3 py-2 text-sm text-stone-500 hover:bg-stone-50 transition-colors"
+                >
+                  ↑ {t("importTree")}
+                </button>
+              </div>
             )}
           </div>
         </div>
+      )}
+
+      {showImport && (
+        <ImportTreeModal onClose={() => setShowImport(false)} />
       )}
     </div>
   );
