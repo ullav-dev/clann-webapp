@@ -32,7 +32,7 @@ interface Props {
 export default function ImportTreeModal({ onClose }: Props) {
   const t = useTranslations("trees");
   const { user } = useAuth();
-  const { createTree, setActiveTree } = useTree();
+  const { createTree } = useTree();
   const router = useRouter();
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -104,8 +104,8 @@ export default function ImportTreeModal({ onClose }: Props) {
     setProgress(prog);
 
     try {
-      // Step 1: create the tree
-      const tree = await api.createTree({ name: name.trim(), display_name: displayName.trim(), owner: user.username });
+      // Step 1: create the tree (via context so the trees list stays in sync)
+      const tree = await createTree(name.trim(), displayName.trim());
 
       // Step 2: create all persons, build old→new ID map
       const idMap = new Map<string, string>();
@@ -152,8 +152,6 @@ export default function ImportTreeModal({ onClose }: Props) {
         setProgress({ ...prog });
       }
 
-      // Select the new tree and navigate
-      setActiveTree(tree);
       setStep("done");
     } catch (err) {
       setImportError(err instanceof Error ? err.message : t("importFailed"));
