@@ -6,3 +6,16 @@
 
 /* Markdown editor */
 @import "@uiw/react-md-editor/markdown-editor.css";
+
+/* Life Story PDF print: hide everything except the print view */
+@media print {
+  body * { visibility: hidden; }
+  .life-story-print, .life-story-print * { visibility: visible; }
+  .life-story-print {
+    position: fixed;
+    inset: 0;
+    padding: 2cm 2.5cm;
+    background: white;
+    color: black;
+  }
+}

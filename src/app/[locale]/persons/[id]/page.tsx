@@ -15,6 +15,7 @@ import { fullName } from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
 import ImageUpload from "@/components/ImageUpload";
 import AddRelationshipModal from "@/components/AddRelationshipModal";
+import LifeStoryPrintView from "@/components/LifeStoryPrintView";
 
 const FamilyTreeView = dynamic(() => import("@/components/FamilyTreeView"), { ssr: false });
 
@@ -296,6 +297,14 @@ export default function PersonDetailPage() {
 
       {tab === "lifestory" && (
         <div className="max-w-3xl space-y-4">
+          <div className="flex justify-end">
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 border border-stone-300 bg-white hover:bg-stone-50 text-stone-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+            >
+              ↓ {t("exportPdf")}
+            </button>
+          </div>
           {showLifeUpload && (
             <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
@@ -362,6 +371,11 @@ export default function PersonDetailPage() {
       )}
 
       {showAddRel && (<AddRelationshipModal personId={id} onDone={() => { setShowAddRel(false); load(); }} onClose={() => setShowAddRel(false)} />)}
+
+      <LifeStoryPrintView
+        person={person}
+        lifeImageUrl={person.life_image_path ? api.personLifeImageUrl(id) : null}
+      />
     </div>
   );
 }
