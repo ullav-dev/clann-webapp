@@ -91,7 +91,7 @@ export default function PersonDetailPage() {
   }
 
   async function handleDeleteRel(group: "father" | "mother" | "siblings" | "spouse", related: Person | SpouseInfo) {
-    if (!confirm(t("removeRelConfirm", { name: fullName(related), group }))) return;
+    if (!confirm(t("removeConfirm", { name: fullName(related), group }))) return;
     await api.deleteRelationship(id, REL_TYPE_MAP[group], related.id);
     load();
   }

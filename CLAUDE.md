@@ -54,7 +54,7 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 | Route | Description |
 |---|---|
 | `/[locale]` | Landing page (hero + feature cards) |
-| `/[locale]/help` | In-app documentation (getting started, people, relationships, family tree, family list) |
+| `/[locale]/help` | In-app documentation (getting started, people, relationships, family tree, family list, multiple trees) |
 | `/[locale]/login` | Sign in / create account / forgot password |
 | `/[locale]/auth/confirm-email` | Handles email verification link clicks (`?token=`); activates account |
 | `/[locale]/auth/password-reset` | Handles password reset link clicks (`?token=`); new-password form |
@@ -74,7 +74,7 @@ Each user can own multiple family trees. One tree per user is designated **prima
 **Context:** `TreeContext` / `useTree()` provides:
 - `trees` — all trees owned by the current user
 - `activeTree` — the currently selected tree (persisted in `localStorage` under `clann_active_tree`)
-- `createTree(name, displayName)` — first tree created is automatically primary
+- `createTree(name, displayName, options?)` — first tree created is automatically primary; pass `{ select: false }` to suppress auto-selection (used by `ImportTreeModal` to avoid triggering the family page's `listPersons` re-fetch during import)
 - `deleteTree(name)` — only non-primary trees can be deleted; falls back to primary/first remaining tree after deletion
 - `setPrimaryTree(name)` — calls `PATCH /api/trees/{name}/set-primary`; updates `is_primary` in the local list
 
@@ -91,13 +91,15 @@ Each user can own multiple family trees. One tree per user is designated **prima
 
 **JSON export format (flat):** The exported file contains `tree_name`, `tree_display_name`, `exported_at`, a flat `persons` array (all fields), and a flat `relationships` array. Each relationship entry has `person_id`, `related_id`, `type` (`father`/`mother`/`sibling`/`spouse`), plus `sibling_type` (for siblings) and `spouse_from`/`spouse_to` (for spouses). Relationships are deduplicated using a canonical key (smaller ID first for symmetric types).
 
-The export fetches persons via `listPersons`, then fetches each person's relationships **sequentially** (not `Promise.all`) to avoid SurrealDB WebSocket concurrency errors under parallel load.
+The export fetches persons via `listPersons`, then fetches each person's relationships **sequentially** (not `Promise.all`).
+
+**Backend concurrency:** The clann-server wraps its `Surreal<Any>` WebSocket connection in `Arc<tokio::sync::Mutex<DbConn>>`. All handlers acquire this mutex before querying, serialising all database access. This prevents "Connection uninitialised" / "Specify a namespace to use" errors that occur when concurrent Axum handlers interleave queries on the shared WebSocket connection.
 
 **Import:** `ImportTreeModal` calls `parseTreeExport` (in `src/lib/tree-import.ts`), which auto-detects the format:
 - If the JSON has a `persons` array → `parseFlatExport` (current format)
 - Otherwise → `parseTreeWalkExport` (legacy tree-walk format, preserved for backward compatibility)
 
-After parsing, the modal creates a new tree via `TreeContext.createTree` (so the tree appears immediately in the dropdown), imports persons sequentially (building an `originalId → newId` map), then adds relationships using the mapped IDs. `sibling_type` is taken directly from the export; if absent it falls back to the sibling's `sex`.
+After parsing, the modal creates a new tree via `TreeContext.createTree(..., { select: false })` (so the tree appears in the dropdown but does not become the active tree, avoiding a concurrent `listPersons` re-fetch), imports persons sequentially (building an `originalId → newId` map), then adds relationships using the mapped IDs. `sibling_type` is taken directly from the export; if absent it falls back to the sibling's `sex`. On completion the "Go to family" button explicitly sets the imported tree as active.
 
 ## i18n
 
@@ -109,6 +111,7 @@ After parsing, the modal creates a new tree via `TreeContext.createTree` (so the
 - Do **not** use `t.rich(...)` with `{placeholder}` syntax — use separate keys or XML-style tags (`<b>text</b>`) instead. The `{br}` self-closing placeholder is not supported; split into two keys and insert `<br />` manually.
 - The `LocaleSwitcher` component replaces the locale segment in the current pathname and calls `router.push`.
 - **JSON string safety:** never use unescaped ASCII `"` (U+0022) inside translation string values — use `'single quotes'` or `\"escaped\"` instead. Typographic opening quotes like `„` (U+201E) are fine but their matching closing quote must not be a plain `"` or the JSON parser will terminate the string early.
+- **Key naming:** the confirmation prompt for removing a relationship is `personDetail.removeConfirm` (not `removeRelConfirm`).
 
 ## Family Members page
 

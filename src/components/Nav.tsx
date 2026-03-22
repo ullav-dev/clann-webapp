@@ -41,9 +41,6 @@ export default function Nav() {
                   {t("myFamily")}
                 </Link>
                 <TreeSelector />
-                <Link href="/help" className={activeLink("/help")}>
-                  {t("help")}
-                </Link>
                 <Link
                   href="/persons/new"
                   className="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
@@ -59,12 +56,12 @@ export default function Nav() {
                     {t("logout")}
                   </button>
                 </div>
-              </>
-            ) : !isLoading ? (
-              <>
                 <Link href="/help" className={activeLink("/help")}>
                   {t("help")}
                 </Link>
+              </>
+            ) : !isLoading ? (
+              <>
                 <Link
                   href="/login"
                   className={`text-sm font-medium px-4 py-2 rounded-lg border transition-colors ${
@@ -74,6 +71,9 @@ export default function Nav() {
                   }`}
                 >
                   {t("login")}
+                </Link>
+                <Link href="/help" className={activeLink("/help")}>
+                  {t("help")}
                 </Link>
               </>
             ) : null}
