@@ -10,9 +10,11 @@ const ACCEPTED = ["image/jpeg", "image/png"];
 interface Props {
   personId: string;
   onUploaded: () => void;
+  /** Override the upload function. When omitted, uploads to the profile image endpoint. */
+  uploadFn?: (file: File) => Promise<void>;
 }
 
-export default function ImageUpload({ personId, onUploaded }: Props) {
+export default function ImageUpload({ personId, onUploaded, uploadFn }: Props) {
   const api = useApi();
   const t = useTranslations("imageUpload");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -29,7 +31,7 @@ export default function ImageUpload({ personId, onUploaded }: Props) {
     setError(null);
     setUploading(true);
     try {
-      await api.uploadPersonImage(personId, file);
+      await (uploadFn ? uploadFn(file) : api.uploadPersonImage(personId, file));
       onUploaded();
     } catch (e) {
       setError(e instanceof Error ? e.message : t("uploadFailed"));

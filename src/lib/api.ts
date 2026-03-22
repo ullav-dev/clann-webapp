@@ -145,6 +145,24 @@ export function personImageUrl(id: string): string {
   return `/api/persons/${rawId(id)}/image`;
 }
 
+export async function uploadPersonLifeImage(id: string, file: File, createdBy?: string): Promise<void> {
+  const form = new FormData();
+  form.append("image", file);
+  const path = withCreatedBy(`/api/persons/${rawId(id)}/life-image`, createdBy);
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    body: form,
+  });
+  if (res.status === 204) return;
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+}
+
+/** URL that serves the person's life story image directly (proxied through Next.js). */
+export function personLifeImageUrl(id: string): string {
+  return `/api/persons/${rawId(id)}/life-image`;
+}
+
 /** Strip the "person:" prefix the API stores, returning just the ULID part. */
 export function rawId(id: string): string {
   return id.startsWith("person:") ? id.slice(7) : id;

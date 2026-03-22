@@ -39,6 +39,7 @@ export default function PersonDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAddRel, setShowAddRel] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
+  const [showLifeUpload, setShowLifeUpload] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [tab, setTab] = useState<"tree" | "relationships" | "lifestory">("tree");
   const [editingSpouseId, setEditingSpouseId] = useState<string | null>(null);
@@ -294,17 +295,63 @@ export default function PersonDetailPage() {
       )}
 
       {tab === "lifestory" && (
-        <div className="max-w-3xl">
-          {person.biography ? (
-            <div className="prose prose-stone prose-sm sm:prose-base max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{person.biography}</ReactMarkdown>
+        <div className="max-w-3xl space-y-4">
+          {showLifeUpload && (
+            <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-medium text-stone-700">{t("lifeImageSection")}</p>
+                <button onClick={() => setShowLifeUpload(false)} className="text-stone-400 hover:text-stone-600 text-xl leading-none">×</button>
+              </div>
+              <ImageUpload
+                personId={id}
+                uploadFn={(file) => api.uploadPersonLifeImage(id, file)}
+                onUploaded={() => { setShowLifeUpload(false); load(); }}
+              />
             </div>
-          ) : (
-            <p className="text-stone-400 text-sm italic">
-              {t("lifeStoryEmpty")}{" "}
-              <Link href={`/persons/${id}/edit`} className="text-emerald-700 underline not-italic">{t("lifeStoryEmptyEdit")}</Link>
-            </p>
           )}
+
+          <div className="flex flex-col sm:flex-row gap-6">
+            {person.life_image_path && (
+              <div className="shrink-0">
+                <button
+                  onClick={() => setShowLifeUpload((v) => !v)}
+                  title={t("changeLifeImage")}
+                  className="relative group/lifeimg block"
+                >
+                  <img
+                    src={api.personLifeImageUrl(id)}
+                    alt={t("lifeImageSection")}
+                    className="rounded-xl object-cover w-full sm:w-48 md:w-64 max-h-80 sm:max-h-none"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/30 text-white text-xs font-medium opacity-0 group-hover/lifeimg:opacity-100 transition-opacity">
+                    {t("changeLifeImage")}
+                  </span>
+                </button>
+              </div>
+            )}
+
+            <div className="flex-1 min-w-0 space-y-4">
+              {person.biography ? (
+                <div className="prose prose-stone prose-sm sm:prose-base max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{person.biography}</ReactMarkdown>
+                </div>
+              ) : (
+                <p className="text-stone-400 text-sm italic">
+                  {t("lifeStoryEmpty")}{" "}
+                  <Link href={`/persons/${id}/edit`} className="text-emerald-700 underline not-italic">{t("lifeStoryEmptyEdit")}</Link>
+                </p>
+              )}
+
+              {!person.life_image_path && !showLifeUpload && (
+                <button
+                  onClick={() => setShowLifeUpload(true)}
+                  className="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-emerald-700 border border-dashed border-stone-300 hover:border-emerald-400 rounded-lg px-3 py-1.5 transition-colors"
+                >
+                  + {t("addLifeImage")}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

@@ -28,6 +28,7 @@ export interface Person {
   place_of_birth?: string | null;
   place_of_death?: string | null;
   image_path?: string | null;
+  life_image_path?: string | null;
   nickname?: string | null;
   username?: string | null;
   email?: string | null;

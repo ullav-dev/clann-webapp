@@ -39,7 +39,9 @@ export function useApi() {
     addPersonToTree: (id: string, treeName: string) => api.addPersonToTree(id, treeName, createdBy),
     removePersonFromTree: (id: string, treeName: string) => api.removePersonFromTree(id, treeName, createdBy),
     uploadPersonImage: (id: string, file: File) => api.uploadPersonImage(id, file, createdBy),
+    uploadPersonLifeImage: (id: string, file: File) => api.uploadPersonLifeImage(id, file, createdBy),
     rawId: api.rawId,
     personImageUrl: api.personImageUrl,
+    personLifeImageUrl: api.personLifeImageUrl,
   };
 }
