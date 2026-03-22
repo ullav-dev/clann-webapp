@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { rawId } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
+import { useTree } from "@/contexts/TreeContext";
 import type { Person, SpouseInfo, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
 import { fullName } from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
@@ -26,6 +27,7 @@ export default function PersonDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const api = useApi();
+  const { trees: allTrees } = useTree();
   const t = useTranslations("personDetail");
 
   const [person, setPerson] = useState<Person | null>(null);
@@ -253,6 +255,39 @@ export default function PersonDetailPage() {
               </div>
             )}
           </section>
+        </div>
+      )}
+
+      {tab === "relationships" && person && (
+        <div className="mt-6">
+          <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3">{t("sectionTrees")}</h2>
+          <div className="flex flex-wrap gap-2">
+            {(person.trees ?? []).map((treeName) => {
+              const isOnly = (person.trees ?? []).length === 1;
+              return (
+                <div key={treeName} className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5">
+                  <span className="text-sm text-emerald-800 font-medium">{treeName}</span>
+                  <button
+                    disabled={isOnly}
+                    title={isOnly ? t("cannotRemoveLastTree") : t("removeFromTree")}
+                    onClick={async () => { await api.removePersonFromTree(id, treeName); load(); }}
+                    className="text-emerald-400 hover:text-red-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-base leading-none ml-1"
+                  >×</button>
+                </div>
+              );
+            })}
+            {allTrees
+              .filter((tr) => !(person.trees ?? []).includes(tr.name))
+              .map((tr) => (
+                <button
+                  key={tr.name}
+                  onClick={async () => { await api.addPersonToTree(id, tr.name); load(); }}
+                  className="text-sm border border-dashed border-stone-300 text-stone-500 hover:border-emerald-400 hover:text-emerald-700 rounded-lg px-3 py-1.5 transition-colors"
+                >
+                  + {tr.display_name}
+                </button>
+              ))}
+          </div>
         </div>
       )}
 

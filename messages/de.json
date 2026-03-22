@@ -145,7 +145,11 @@
     "cancel": "Abbrechen",
     "deleteFailed": "Löschen fehlgeschlagen",
     "saveFailed": "Speichern fehlgeschlagen",
-    "removeConfirm": "{name} als {group} entfernen?"
+    "removeConfirm": "{name} als {group} entfernen?",
+    "sectionTrees": "🌲 Stammbäume",
+    "addToTree": "Zu {tree} hinzufügen",
+    "removeFromTree": "Entfernen",
+    "cannotRemoveLastTree": "Muss mindestens einem Stammbaum angehören"
   },
   "editPerson": {
     "backTo": "← Zurück zu {name}",

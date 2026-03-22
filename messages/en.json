@@ -145,7 +145,11 @@
     "cancel": "Cancel",
     "deleteFailed": "Delete failed",
     "saveFailed": "Save failed",
-    "removeConfirm": "Remove {name} as {group}?"
+    "removeConfirm": "Remove {name} as {group}?",
+    "sectionTrees": "🌲 Family Trees",
+    "addToTree": "Add to {tree}",
+    "removeFromTree": "Remove",
+    "cannotRemoveLastTree": "Must belong to at least one tree"
   },
   "editPerson": {
     "backTo": "← Back to {name}",

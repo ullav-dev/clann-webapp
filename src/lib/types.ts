@@ -34,7 +34,7 @@ export interface Person {
   verified?: boolean;
   biography?: string | null;
   created_by?: string | null;
-  tree?: string | null;
+  trees?: string[];
 }
 
 export interface CreatePerson {
@@ -52,8 +52,8 @@ export interface CreatePerson {
   verified?: boolean;
   biography?: string | null;
   created_by?: string | null;
-  /** Tree name (slug). Required by the API; injected automatically by useApi. */
-  tree?: string | null;
+  /** Tree names (slugs). Required by the API; injected automatically by useApi. */
+  trees?: string[];
 }
 
 export interface UpdatePerson {

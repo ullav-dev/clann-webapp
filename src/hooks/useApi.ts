@@ -24,7 +24,7 @@ export function useApi() {
   return {
     listPersons: () => api.listPersons(createdBy, tree),
     createPerson: (body: CreatePerson) =>
-      api.createPerson({ ...body, created_by: createdBy, tree: tree ?? "" }),
+      api.createPerson({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),
     getPerson: (id: string) => api.getPerson(id, createdBy),
     updatePerson: (id: string, body: UpdatePerson) => api.updatePerson(id, body, createdBy),
     deletePerson: (id: string) => api.deletePerson(id, createdBy),
@@ -36,6 +36,8 @@ export function useApi() {
     updateSpouseDates: (id: string, relatedId: string, body: UpdateSpouseDatesRequest) =>
       api.updateSpouseDates(id, relatedId, body, createdBy),
     getFamilyTree: (id: string) => api.getFamilyTree(id, createdBy),
+    addPersonToTree: (id: string, treeName: string) => api.addPersonToTree(id, treeName, createdBy),
+    removePersonFromTree: (id: string, treeName: string) => api.removePersonFromTree(id, treeName, createdBy),
     uploadPersonImage: (id: string, file: File) => api.uploadPersonImage(id, file, createdBy),
     rawId: api.rawId,
     personImageUrl: api.personImageUrl,

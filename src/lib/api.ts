@@ -79,6 +79,17 @@ export const updatePerson = (id: string, body: UpdatePerson, createdBy?: string)
 export const deletePerson = (id: string, createdBy?: string): Promise<void> =>
   request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy), { method: "DELETE" });
 
+export const addPersonToTree = (id: string, tree: string, createdBy?: string): Promise<void> =>
+  request(withCreatedBy(`/api/persons/${rawId(id)}/trees`, createdBy), {
+    method: "POST",
+    body: JSON.stringify({ tree }),
+  });
+
+export const removePersonFromTree = (id: string, treeName: string, createdBy?: string): Promise<void> =>
+  request(withCreatedBy(`/api/persons/${rawId(id)}/trees/${encodeURIComponent(treeName)}`, createdBy), {
+    method: "DELETE",
+  });
+
 // Relationships
 export const getRelationships = (id: string, createdBy?: string): Promise<RelationshipsResponse> =>
   request(withCreatedBy(`/api/persons/${rawId(id)}/relationships`, createdBy));

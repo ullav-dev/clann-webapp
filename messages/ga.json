@@ -145,7 +145,11 @@
     "cancel": "Cealaigh",
     "deleteFailed": "Theip ar scriosadh",
     "saveFailed": "Theip ar shábháil",
-    "removeConfirm": "Bain {name} mar {group}?"
+    "removeConfirm": "Bain {name} mar {group}?",
+    "sectionTrees": "🌲 Crainn Teaghlaigh",
+    "addToTree": "Cuir le {tree}",
+    "removeFromTree": "Bain",
+    "cannotRemoveLastTree": "Ní mór a bheith i gcrann amháin ar a laghad"
   },
   "editPerson": {
     "backTo": "← Ar ais go {name}",
