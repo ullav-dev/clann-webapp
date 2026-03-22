@@ -127,6 +127,9 @@
     "replacePhoto": "Replace photo",
     "tabFamilyTree": "🌳 Family Tree",
     "tabRelationships": "👥 Relationships",
+    "tabLifeStory": "📖 Life Story",
+    "lifeStoryEmpty": "No life story has been written yet.",
+    "lifeStoryEmptyEdit": "Add one in Edit.",
     "treeHelpText": "Click any person to view their profile. Ancestors flow up · Children flow down.",
     "addRelationship": "+ Add Relationship",
     "sectionFather": "👨 Father",
@@ -184,7 +187,7 @@
     "emailPlaceholder": "e.g. john@example.com",
     "identityVerified": "Identity verified",
     "biographySection": "Biography",
-    "biographyPlaceholder": "A short biography…",
+    "biographyPlaceholder": "Write a biography… (markdown supported)",
     "saving": "Saving…",
     "sexRequired": "Sex is required",
     "unknownError": "Unknown error"
@@ -278,7 +281,7 @@
     "people": {
       "title": "Managing People",
       "fieldsTitle": "Person fields",
-      "fieldsBody": "Each person has: First Name and Family Name (required), Middle Name, Sex (required), Date and Place of Birth, Date and Place of Death, Nickname, Username, Email, Identity Verified flag, and a Biography (up to 1,000 characters).",
+      "fieldsBody": "Each person has: First Name and Family Name (required), Middle Name, Sex (required), Date and Place of Birth, Date and Place of Death, Nickname, Username, Email, Identity Verified flag, and a Biography (supports markdown — rendered in the Life Story tab).",
       "photoTitle": "Adding a photo",
       "photoBody": "On a person's detail page, click the avatar to open the photo uploader. Drag and drop a JPEG or PNG file (up to 3 MB), or click to browse. Photos appear on cards, detail pages, and in the family tree graph.",
       "editTitle": "Editing and deleting",
@@ -314,6 +317,15 @@
       "searchBody": "Type in the search box to filter by name instantly. In list view, click any column header (Family Name, Date of Birth, Place of Birth) to sort. Empty values always sort to the bottom.",
       "paginationTitle": "Pagination",
       "paginationBody": "Use the Per page selector (5, 10, 15, 20, 25, or 30) to control how many people appear at once. Navigate with the numbered page buttons or Prev / Next. The page resets to 1 whenever you search or change the page size."
+    },
+    "lifeStory": {
+      "title": "Life Story",
+      "overviewTitle": "What is the Life Story panel?",
+      "overviewBody": "Every person has a Life Story tab on their profile page. It renders the biography field as formatted text — headings, paragraphs, bold, italics, lists, and links are all supported.",
+      "editingTitle": "Writing a life story",
+      "editingBody": "Open a person's profile and click Edit. The Biography field has a built-in markdown editor with a toolbar. Write freely and use the toolbar buttons for formatting. Click Save Changes when done.",
+      "markdownTitle": "Markdown formatting",
+      "markdownBody": "The editor uses Markdown: # Heading 1, ## Heading 2, **bold**, *italic*, - bullet list, 1. numbered list, [link text](url). The Life Story tab renders the final result."
     },
     "multipleTrees": {
       "title": "Multiple Family Trees",

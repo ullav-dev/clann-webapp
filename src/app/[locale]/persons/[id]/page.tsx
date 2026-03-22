@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useTranslations } from "next-intl";
 import { rawId } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
@@ -38,7 +40,7 @@ export default function PersonDetailPage() {
   const [showAddRel, setShowAddRel] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [tab, setTab] = useState<"tree" | "relationships">("tree");
+  const [tab, setTab] = useState<"tree" | "relationships" | "lifestory">("tree");
   const [editingSpouseId, setEditingSpouseId] = useState<string | null>(null);
   const [spouseFromEdit, setSpouseFromEdit] = useState("");
   const [spouseToEdit, setSpouseToEdit] = useState("");
@@ -158,10 +160,10 @@ export default function PersonDetailPage() {
       )}
 
       <div className="flex gap-1 mb-6 border-b border-stone-200">
-        {(["tree", "relationships"] as const).map((tabKey) => (
+        {(["tree", "relationships", "lifestory"] as const).map((tabKey) => (
           <button key={tabKey} onClick={() => setTab(tabKey)}
-            className={`px-4 py-2 text-sm font-medium capitalize border-b-2 transition-colors -mb-px ${tab === tabKey ? "border-emerald-600 text-emerald-700" : "border-transparent text-stone-500 hover:text-stone-700"}`}>
-            {tabKey === "tree" ? t("tabFamilyTree") : t("tabRelationships")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${tab === tabKey ? "border-emerald-600 text-emerald-700" : "border-transparent text-stone-500 hover:text-stone-700"}`}>
+            {tabKey === "tree" ? t("tabFamilyTree") : tabKey === "relationships" ? t("tabRelationships") : t("tabLifeStory")}
           </button>
         ))}
       </div>
@@ -288,6 +290,21 @@ export default function PersonDetailPage() {
                 </button>
               ))}
           </div>
+        </div>
+      )}
+
+      {tab === "lifestory" && (
+        <div className="max-w-3xl">
+          {person.biography ? (
+            <div className="prose prose-stone prose-sm sm:prose-base max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{person.biography}</ReactMarkdown>
+            </div>
+          ) : (
+            <p className="text-stone-400 text-sm italic">
+              {t("lifeStoryEmpty")}{" "}
+              <Link href={`/persons/${id}/edit`} className="text-emerald-700 underline not-italic">{t("lifeStoryEmptyEdit")}</Link>
+            </p>
+          )}
         </div>
       )}
 

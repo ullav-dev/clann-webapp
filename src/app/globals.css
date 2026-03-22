@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* React Flow */
 @import "@xyflow/react/dist/style.css";
+
+/* Markdown editor */
+@import "@uiw/react-md-editor/markdown-editor.css";

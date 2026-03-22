@@ -19,7 +19,7 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 
 ## Architecture
 
-**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · React Flow (`@xyflow/react`) · `html-to-image` · next-intl v4
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · React Flow (`@xyflow/react`) · `html-to-image` · next-intl v4 · `@uiw/react-md-editor` · `react-markdown` + `remark-gfm` · `@tailwindcss/typography`
 
 **API proxy:** `next.config.ts` rewrites `/api/*` → `http://localhost:3000/api/*` so browser fetches never hit CORS. The API client (`src/lib/api.ts`) uses relative paths in the browser and the absolute backend URL server-side.
 
@@ -29,7 +29,8 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 - `src/lib/persons.ts` — pure utility functions (`sortPersons`, `filterPersons`, `totalPages`, `pageSlice`) extracted for testability
 - `src/hooks/useApi.ts` — binds all API calls with `created_by=username` so the backend ownership filter is always applied
 - `src/components/FamilyTreeView.tsx` — React Flow graph; loaded via `dynamic(..., { ssr: false })`. Shows 2-generation ancestors, direct children, and spouses for the root person. Supports vertical/horizontal orientation toggle and JPEG/JSON export.
-- `src/components/PersonForm.tsx` — shared create/edit form; fields: name, sex, birth/death, identity (nickname/username/email/verified), biography (textarea, max 1000 chars)
+- `src/components/PersonForm.tsx` — shared create/edit form; fields: name, sex, birth/death, identity (nickname/username/email/verified), biography (markdown editor via `MarkdownEditor`; no character cap)
+- `src/components/MarkdownEditor.tsx` — thin wrapper around `@uiw/react-md-editor`; dynamically imported (`ssr: false`); wraps output in `data-color-mode="light"` to prevent dark-mode flicker; always yields a plain markdown string
 - `src/components/AddRelationshipModal.tsx` — modal for linking Father / Mother / Sibling / Spouse. When adding a sibling, automatically inherits the root person's parents.
 - `src/components/PersonCard.tsx` — card used on the list page; includes inline delete
 - `src/components/PersonAvatar.tsx` — circular photo with emoji fallback
@@ -54,13 +55,13 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 | Route | Description |
 |---|---|
 | `/[locale]` | Landing page (hero + feature cards) |
-| `/[locale]/help` | In-app documentation (getting started, people, relationships, family tree, family list, multiple trees) |
+| `/[locale]/help` | In-app documentation (getting started, people, relationships, family tree, life story, family list, multiple trees) |
 | `/[locale]/login` | Sign in / create account / forgot password |
 | `/[locale]/auth/confirm-email` | Handles email verification link clicks (`?token=`); activates account |
 | `/[locale]/auth/password-reset` | Handles password reset link clicks (`?token=`); new-password form |
 | `/[locale]/family` | List all persons — card/list toggle, sort, search, **pagination** |
 | `/[locale]/persons/new` | Create person |
-| `/[locale]/persons/[id]` | Person detail: family tree tab + relationships tab |
+| `/[locale]/persons/[id]` | Person detail: family tree tab · relationships tab · life story tab |
 | `/[locale]/persons/[id]/edit` | Edit person |
 
 **ID handling:** The backend stores IDs as `person:<ulid>` (e.g. `person:01jd4a8xyz`). URLs use just the ULID (no prefix, no encoding). `api.ts` exposes a `rawId()` helper that strips the `person:` prefix before building request paths. **Always use `rawId(person.id)` when constructing links or `router.push` calls** — never `encodeURIComponent(person.id)`, which embeds the prefix in the URL and causes 404s.
@@ -119,6 +120,12 @@ After parsing, the modal creates a new tree via `TreeContext.createTree(..., { s
 - **Card view** (default): responsive grid of `PersonCard` components
 - **List view**: sortable table (family name, date of birth, place of birth); empty values sort last
 - **Pagination**: default 10 per page; page size selector (5/10/15/20/25/30); page resets to 1 on search, sort, or page-size change; ellipsised page number buttons
+
+## Life Story tab
+
+The **Life Story** tab on the person detail page renders `person.biography` as formatted markdown using `react-markdown` with the `remark-gfm` plugin (tables, strikethrough, task lists). The output is wrapped in Tailwind `prose prose-stone` classes from `@tailwindcss/typography` (registered via `@plugin "@tailwindcss/typography"` in `globals.css`). When the biography is empty, a prompt with a link to the Edit page is shown instead.
+
+The biography field is edited via `MarkdownEditor` (a dynamic-import wrapper around `@uiw/react-md-editor`), which stores content as a plain markdown string — no serialisation step needed.
 
 ## Family Tree graph
 

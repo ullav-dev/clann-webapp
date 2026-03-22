@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { CreatePerson, UpdatePerson, Sex } from "@/lib/types";
+import MarkdownEditor from "@/components/MarkdownEditor";
 
 type FormValues = {
   first_name: string;
@@ -169,10 +170,12 @@ export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
         <legend className="text-xs font-semibold text-stone-500 uppercase tracking-wide px-1">
           {t("biographySection")} <span className="font-normal normal-case text-stone-400">{t("optional")}</span>
         </legend>
-        <div className="flex flex-col gap-1">
-          <textarea id="biography" value={values.biography} maxLength={1000} rows={4} placeholder={t("biographyPlaceholder")} onChange={(e) => set("biography", e.target.value)} className={`${input} resize-y`} />
-          <p className="text-xs text-stone-400 text-right">{values.biography.length} / 1000</p>
-        </div>
+        <MarkdownEditor
+          value={values.biography}
+          onChange={(v) => set("biography", v)}
+          placeholder={t("biographyPlaceholder")}
+          height={280}
+        />
       </fieldset>
 
       <div className="flex justify-end pt-2">

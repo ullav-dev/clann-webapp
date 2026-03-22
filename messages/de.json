@@ -127,6 +127,9 @@
     "replacePhoto": "Foto ersetzen",
     "tabFamilyTree": "🌳 Stammbaum",
     "tabRelationships": "👥 Beziehungen",
+    "tabLifeStory": "📖 Lebensgeschichte",
+    "lifeStoryEmpty": "Es wurde noch keine Lebensgeschichte verfasst.",
+    "lifeStoryEmptyEdit": "Im Bearbeiten-Modus hinzufügen.",
     "treeHelpText": "Klicken Sie auf eine Person, um ihr Profil anzuzeigen. Vorfahren nach oben · Kinder nach unten.",
     "addRelationship": "+ Beziehung hinzufügen",
     "sectionFather": "👨 Vater",
@@ -314,6 +317,15 @@
       "searchBody": "Geben Sie in das Suchfeld ein, um sofort nach Namen zu filtern. Klicken Sie in der Listenansicht auf einen Spaltenheader (Familienname, Geburtsdatum, Geburtsort) zum Sortieren. Leere Werte werden immer ans Ende sortiert.",
       "paginationTitle": "Seitennavigation",
       "paginationBody": "Verwenden Sie den Pro-Seite-Selektor (5, 10, 15, 20, 25 oder 30), um die Anzahl der gleichzeitig angezeigten Personen zu steuern. Navigieren Sie mit den nummerierten Seitenbuttons oder Zurück / Weiter. Die Seite wird bei jeder Suche oder Änderung der Seitengröße auf 1 zurückgesetzt."
+    },
+    "lifeStory": {
+      "title": "Lebensgeschichte",
+      "overviewTitle": "Was ist das Lebensgeschichte-Panel?",
+      "overviewBody": "Jede Person hat auf ihrer Profilseite einen Reiter 'Lebensgeschichte'. Dieser zeigt das Biografie-Feld als formatierten Text an — Überschriften, Absätze, Fett, Kursiv, Listen und Links werden unterstützt.",
+      "editingTitle": "Eine Lebensgeschichte schreiben",
+      "editingBody": "Öffnen Sie das Profil einer Person und klicken Sie auf Bearbeiten. Das Biografie-Feld verfügt über einen integrierten Markdown-Editor mit einer Symbolleiste. Schreiben Sie frei und nutzen Sie die Symbolleiste zur Formatierung. Klicken Sie auf Änderungen speichern, wenn Sie fertig sind.",
+      "markdownTitle": "Markdown-Formatierung",
+      "markdownBody": "Der Editor verwendet Markdown: # Überschrift 1, ## Überschrift 2, **fett**, *kursiv*, - Aufzählungsliste, 1. nummerierte Liste, [Linktext](url). Der Reiter Lebensgeschichte zeigt das fertige Ergebnis an."
     },
     "multipleTrees": {
       "title": "Mehrere Stammbäume",

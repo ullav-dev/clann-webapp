@@ -127,6 +127,9 @@
     "replacePhoto": "Ionadaigh grianghraf",
     "tabFamilyTree": "🌳 Crann Teaghlaigh",
     "tabRelationships": "👥 Caidrimh",
+    "tabLifeStory": "📖 Scéal Beatha",
+    "lifeStoryEmpty": "Níl aon scéal beatha scríofa go fóill.",
+    "lifeStoryEmptyEdit": "Cuir ceann leis in Eagar.",
     "treeHelpText": "Cliceáil ar dhuine ar bith chun a phróifíl a fheiceáil. Sinsir aníos · Leanaí síos.",
     "addRelationship": "+ Caidreamh a Chur Leis",
     "sectionFather": "👨 Athair",
@@ -314,6 +317,15 @@
       "searchBody": "Clóscríobh sa bhosca cuardaigh chun scagadh de réir ainm láithreach. I radharc liosta, cliceáil aon cheannteideal colúin (Sloinne, Dáta Breithe, Áit Bhreithe) chun sórtáil. Sórtáiltear luachanna folmha go dtí an bun i gcónaí.",
       "paginationTitle": "Leathanaíocht",
       "paginationBody": "Úsáid an roghnóir In aghaidh an leathanaigh (5, 10, 15, 20, 25, nó 30) chun rialú cé mhéad duine a thaispeántar ag aon am. Nascleanúint le cnaipí uimhrithe leathanaigh nó Roimhe / Ar Aghaidh. Athshocraíonn an leathanach go 1 aon uair a chuardaíonn tú nó a athraíonn tú méid an leathanaigh."
+    },
+    "lifeStory": {
+      "title": "Scéal Beatha",
+      "overviewTitle": "Cad é painéal an Scéil Beatha?",
+      "overviewBody": "Tá cluaisín Scéal Beatha ar leathanach próifíle gach duine. Taispeánann sé an réimse beathaisnéise mar théacs formáidithe — teidil, míreanna, trom, iodálach, liostaí agus naisc ar fad tacaithe.",
+      "editingTitle": "Scéal beatha a scríobh",
+      "editingBody": "Oscail próifíl duine agus cliceáil Eagar. Tá eagarthóir marcála ionsuite sa réimse Beathaisnéise le barra uirlisí. Scríobh go saor agus úsáid na cnaipí barra uirlisí le haghaidh formáidithe. Cliceáil Sábháil Athruithe nuair atá tú réidh.",
+      "markdownTitle": "Formáidiú Markdown",
+      "markdownBody": "Úsáideann an t-eagarthóir Markdown: # Ceannteideal 1, ## Ceannteideal 2, **trom**, *iodálach*, - liosta urchair, 1. liosta uimhrithe, [téacs nasc](url). Taispeánann an cluaisín Scéal Beatha an toradh críochnaithe."
     },
     "multipleTrees": {
       "title": "Crainnte Teaghlaigh Iolracha",

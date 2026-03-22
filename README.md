@@ -4,7 +4,7 @@ A responsive, localised family tree management application built with Next.js, b
 
 ## Features
 
-- **Person management** — create, edit, delete people with name, sex, birth/death dates and places, optional biography (up to 1000 characters), and identity-verified flag
+- **Person management** — create, edit, delete people with name, sex, birth/death dates and places, optional biography (markdown, rendered in the Life Story tab), and identity-verified flag
 - **Photo upload** — JPEG/PNG photos (≤ 3 MB) shown on cards, detail pages, and in the family tree graph
 - **Relationships** — link people as Father, Mother, Sibling (Brother/Sister), or Spouse. Adding a sibling automatically inherits the root person's parents. Spouse relationships carry optional **from** and **to** dates, editable inline in the Relationships tab.
 - **Interactive family tree graph** — powered by React Flow
@@ -19,7 +19,8 @@ A responsive, localised family tree management application built with Next.js, b
 - **Import** — upload a previously exported Clann JSON file to create a new tree; 3-step modal (upload → name/preview → live progress) reconstructs all people and relationships
 - **Family Members list** — card or list view with sort (family name, date of birth, place of birth), name search, and **pagination** (5–30 per page, default 10)
 - **Authentication** — login, registration with **email verification**, and **email-based password reset** via ullav-user-management; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind login; ownership filter enforced server-side; all password fields have a show/hide toggle
-- **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, list view, multiple trees including export/import), accessible from the nav bar (far-right item) without logging in
+- **Life Story** — biography field accepts markdown (headings, bold, italic, lists, links); rendered as formatted prose in the dedicated **Life Story** tab on each person's profile page; edited using a toolbar-driven markdown editor in the edit form
+- **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, list view, multiple trees including export/import), accessible from the nav bar (far-right item) without logging in
 - **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
 
 ## Prerequisites
@@ -53,6 +54,8 @@ Open [http://localhost:3001](http://localhost:3001). The middleware will detect 
 | Language | TypeScript |
 | Styling | Tailwind CSS v4 |
 | Graph | React Flow (`@xyflow/react`) |
+| Markdown editor | `@uiw/react-md-editor` |
+| Markdown renderer | `react-markdown` + `remark-gfm` |
 | Image export | `html-to-image` |
 | i18n | next-intl v4 |
 | Backend | clann-server (Rust · Axum · SurrealDB) |
@@ -82,11 +85,12 @@ src/
       persons/
         new/page.tsx        # Create person
         [id]/
-          page.tsx          # Person detail (tree + relationships tabs)
+          page.tsx          # Person detail (family tree, relationships, life story tabs)
           edit/page.tsx     # Edit person
   components/
     FamilyTreeView.tsx      # React Flow graph (SSR-disabled)
-    PersonForm.tsx          # Shared create/edit form
+    PersonForm.tsx          # Shared create/edit form (biography uses MarkdownEditor)
+    MarkdownEditor.tsx      # Dynamically-imported @uiw/react-md-editor wrapper (SSR-safe)
     AddRelationshipModal.tsx # Link relationships
     PersonCard.tsx          # Card on list page
     PersonAvatar.tsx        # Circular photo with fallback emoji
