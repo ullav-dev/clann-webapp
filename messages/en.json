@@ -337,7 +337,9 @@
       "markdownTitle": "Markdown formatting",
       "markdownBody": "The editor uses Markdown: # Heading 1, ## Heading 2, **bold**, *italic*, - bullet list, 1. numbered list, [link text](url). The Life Story tab renders the final result.",
       "lifeImageTitle": "Life story image",
-      "lifeImageBody": "A larger portrait or scene image can be added to the Life Story tab. Open a person's profile, go to the Life Story tab, and click '+ Add Life Story Image' (or hover over the existing image and click Change). Drag and drop a JPEG or PNG (up to 2 MB) into the upload area. The image appears at the top left of the Life Story panel with the biography flowing to its right."
+      "lifeImageBody": "A larger portrait or scene image can be added to the Life Story tab. Open a person's profile, go to the Life Story tab, and click '+ Add Life Story Image' (or hover over the existing image and click Change). Drag and drop a JPEG or PNG (up to 2 MB) into the upload area. The image appears at the top left of the Life Story panel with the biography flowing to its right.",
+      "exportPdfTitle": "Exporting as PDF",
+      "exportPdfBody": "Click the 'Export as PDF' button at the top of the Life Story tab to open your browser's print dialog. Choose 'Save as PDF' (or the equivalent in your browser) to download a formatted PDF. The file is named after the person. The PDF includes their name, birth details, life story image, and full biography."
     },
     "multipleTrees": {
       "title": "Multiple Family Trees",

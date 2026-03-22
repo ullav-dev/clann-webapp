@@ -11,9 +11,9 @@
 .life-story-print { display: none; }
 
 @media print {
-  /* Hide all page chrome */
-  body > * { display: none !important; }
-  /* Re-show the print container and everything inside it */
+  /* Hide all page chrome except the portalled print container */
+  body > *:not(.life-story-print) { display: none !important; }
+  /* Show the print container */
   .life-story-print {
     display: block !important;
     position: fixed;
@@ -22,5 +22,4 @@
     background: white;
     color: black;
   }
-  .life-story-print * { display: revert; }
 }

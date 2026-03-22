@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Person } from "@/lib/types";
@@ -11,9 +13,14 @@ interface Props {
 }
 
 export default function LifeStoryPrintView({ person, lifeImageUrl }: Props) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const hasBirthInfo = person.date_of_birth || person.place_of_birth;
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div className="life-story-print">
       {/* Header */}
       <div className="mb-6 pb-4 border-b-2 border-stone-300">
@@ -46,6 +53,7 @@ export default function LifeStoryPrintView({ person, lifeImageUrl }: Props) {
 
       {/* Clear float */}
       <div style={{ clear: "both" }} />
-    </div>
+    </div>,
+    document.body
   );
 }
