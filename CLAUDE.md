@@ -34,7 +34,7 @@ The backend (clann-server) must be running on `http://localhost:3000`. After reb
 - `src/components/AddRelationshipModal.tsx` — modal for linking Father / Mother / Sibling / Spouse. When adding a sibling, automatically inherits the root person's parents.
 - `src/components/PersonCard.tsx` — card used on the list page; includes inline delete
 - `src/components/PersonAvatar.tsx` — circular photo with emoji fallback
-- `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 3 MB)
+- `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 2 MB); accepts an optional `uploadFn` prop to override the default profile-image endpoint, making it reusable for the life story image
 - `src/components/PasswordInput.tsx` — password field with show/hide toggle (eye icon button); used on all password inputs in the app
 - `src/components/LocaleSwitcher.tsx` — language selector dropdown in the nav
 - `src/components/TreeSelector.tsx` — dropdown in the nav for selecting, creating, deleting (non-primary only), and setting the primary family tree; also opens `ImportTreeModal`
@@ -126,6 +126,8 @@ After parsing, the modal creates a new tree via `TreeContext.createTree(..., { s
 The **Life Story** tab on the person detail page renders `person.biography` as formatted markdown using `react-markdown` with the `remark-gfm` plugin (tables, strikethrough, task lists). The output is wrapped in Tailwind `prose prose-stone` classes from `@tailwindcss/typography` (registered via `@plugin "@tailwindcss/typography"` in `globals.css`). When the biography is empty, a prompt with a link to the Edit page is shown instead.
 
 The biography field is edited via `MarkdownEditor` (a dynamic-import wrapper around `@uiw/react-md-editor`), which stores content as a plain markdown string — no serialisation step needed.
+
+**Life story image (`life_image_path`):** A separate, typically larger image for the Life Story panel. Stored as `{ulid}_life.{ext}` in the same upload directory as profile images (to avoid filename collisions with `{ulid}.{ext}`). Uploaded via `POST /api/persons/{id}/life-image`, served via `GET /api/persons/{id}/life-image`. When present, the image is displayed top-left in the tab with the biography flowing to its right (stacks vertically on mobile). Clicking the image or the "+ Add Life Story Image" button toggles an inline `ImageUpload` panel (same pattern as the profile photo). The `ImageUpload` component's `uploadFn` prop is used to target the life-image endpoint rather than the default profile-image endpoint.
 
 ## Family Tree graph
 

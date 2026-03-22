@@ -5,7 +5,7 @@ A responsive, localised family tree management application built with Next.js, b
 ## Features
 
 - **Person management** — create, edit, delete people with name, sex, birth/death dates and places, optional biography (markdown, rendered in the Life Story tab), and identity-verified flag
-- **Photo upload** — JPEG/PNG photos (≤ 3 MB) shown on cards, detail pages, and in the family tree graph
+- **Photo upload** — JPEG/PNG profile photos (≤ 2 MB) shown on cards, detail pages, and in the family tree graph
 - **Relationships** — link people as Father, Mother, Sibling (Brother/Sister), or Spouse. Adding a sibling automatically inherits the root person's parents. Spouse relationships carry optional **from** and **to** dates, editable inline in the Relationships tab.
 - **Interactive family tree graph** — powered by React Flow
   - 2-generation ancestor view plus direct children and spouses for the root person
@@ -19,7 +19,7 @@ A responsive, localised family tree management application built with Next.js, b
 - **Import** — upload a previously exported Clann JSON file to create a new tree; 3-step modal (upload → name/preview → live progress) reconstructs all people and relationships
 - **Family Members list** — card or list view with sort (family name, date of birth, place of birth), name search, and **pagination** (5–30 per page, default 10)
 - **Authentication** — login, registration with **email verification**, and **email-based password reset** via ullav-user-management; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind login; ownership filter enforced server-side; all password fields have a show/hide toggle
-- **Life Story** — biography field accepts markdown (headings, bold, italic, lists, links); rendered as formatted prose in the dedicated **Life Story** tab on each person's profile page; edited using a toolbar-driven markdown editor in the edit form
+- **Life Story** — biography field accepts markdown (headings, bold, italic, lists, links); rendered as formatted prose in the dedicated **Life Story** tab on each person's profile page; edited using a toolbar-driven markdown editor in the edit form. An optional **life story image** (JPEG/PNG ≤ 2 MB) can be uploaded directly from the Life Story tab and is displayed top-left alongside the biography text
 - **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, list view, multiple trees including export/import), accessible from the nav bar (far-right item) without logging in
 - **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
 
@@ -94,7 +94,7 @@ src/
     AddRelationshipModal.tsx # Link relationships
     PersonCard.tsx          # Card on list page
     PersonAvatar.tsx        # Circular photo with fallback emoji
-    ImageUpload.tsx         # Drag-and-drop uploader
+    ImageUpload.tsx         # Drag-and-drop uploader; accepts uploadFn prop to target any image endpoint
     PasswordInput.tsx       # Password field with show/hide toggle
     LocaleSwitcher.tsx      # Language selector dropdown
     Nav.tsx                 # Top navigation bar
