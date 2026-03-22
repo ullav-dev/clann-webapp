@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { register, requestPasswordReset } from "@/lib/auth-api";
 import PasswordInput from "@/components/PasswordInput";
+import TermsModal from "@/components/TermsModal";
 
 type Tab = "login" | "register";
 type Stage = "form" | "verify-email" | "reset-request";
@@ -29,6 +30,8 @@ export default function LoginPage() {
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
+  const [regTerms, setRegTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
   const [resetEmail, setResetEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
@@ -55,6 +58,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     if (regPassword !== regConfirm) return setError(t("passwordsDoNotMatch"));
+    if (!regTerms) return setError(t("termsNotAccepted"));
     setSubmitting(true);
     try {
       const confirmUrl = `${window.location.origin}/${locale}`;
@@ -186,9 +190,28 @@ export default function LoginPage() {
             <Field label={t("confirmPassword")} htmlFor="reg-confirm">
               <PasswordInput id="reg-confirm" required value={regConfirm} onChange={setRegConfirm} />
             </Field>
+            <label className="flex items-start gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={regTerms}
+                onChange={(e) => setRegTerms(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 shrink-0"
+              />
+              <span className="text-sm text-stone-700">
+                {t("termsAgreePrefix")}{" "}
+                <button
+                  type="button"
+                  onClick={() => setShowTerms(true)}
+                  className="text-emerald-700 underline hover:text-emerald-800 transition-colors"
+                >
+                  {t("termsLinkText")}
+                </button>
+              </span>
+            </label>
             <SubmitButton loading={submitting} label={t("createAccount")} pleaseWait={t("pleaseWait")} />
           </form>
         )}
+        {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
         <p className="mt-6 text-center text-xs text-stone-400">
           <Link href="/" className="hover:text-stone-600 transition-colors">{t("backToHome")}</Link>
         </p>
