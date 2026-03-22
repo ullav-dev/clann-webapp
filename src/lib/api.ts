@@ -131,13 +131,14 @@ export async function uploadPersonImage(id: string, file: File, createdBy?: stri
   const form = new FormData();
   form.append("image", file);
   const path = withCreatedBy(`/api/persons/${rawId(id)}/image`, createdBy);
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "POST",
-    body: form,
-  });
-  if (res.status === 204) return;
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+  const res = await fetch(`${BASE_URL}${path}`, { method: "POST", body: form });
+  if (res.ok) return;
+  const ct = res.headers.get("content-type") ?? "";
+  if (ct.includes("application/json")) {
+    const data = await res.json();
+    throw new Error(data.error ?? `HTTP ${res.status}`);
+  }
+  throw new Error(`HTTP ${res.status}`);
 }
 
 /** URL that serves the person's image directly (proxied through Next.js). */
@@ -149,13 +150,14 @@ export async function uploadPersonLifeImage(id: string, file: File, createdBy?: 
   const form = new FormData();
   form.append("image", file);
   const path = withCreatedBy(`/api/persons/${rawId(id)}/life-image`, createdBy);
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: "POST",
-    body: form,
-  });
-  if (res.status === 204) return;
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+  const res = await fetch(`${BASE_URL}${path}`, { method: "POST", body: form });
+  if (res.ok) return;
+  const ct = res.headers.get("content-type") ?? "";
+  if (ct.includes("application/json")) {
+    const data = await res.json();
+    throw new Error(data.error ?? `HTTP ${res.status}`);
+  }
+  throw new Error(`HTTP ${res.status}`);
 }
 
 /** URL that serves the person's life story image directly (proxied through Next.js). */
