@@ -345,6 +345,9 @@
       "importBody": "Klicken Sie auf den Baumwähler in der Navigationsleiste und wählen Sie 'Baum importieren…'. Laden Sie eine zuvor aus Clann exportierte JSON-Datei hoch. Sie sehen eine Vorschau, die zeigt, wie viele Personen und Beziehungen gefunden wurden. Geben Sie dem neuen Baum einen Namen und klicken Sie auf Import starten — alle Personen und Beziehungen werden automatisch wiederhergestellt."
     }
   },
+  "footer": {
+    "termsLink": "Nutzungsbedingungen"
+  },
   "familyTree": {
     "orientationVertical": "Vertikal",
     "orientationVerticalTitle": "Vorfahren oben (von oben nach unten)",

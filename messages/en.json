@@ -345,6 +345,9 @@
       "importBody": "Click the tree selector in the nav bar and choose 'Import tree…'. Upload a JSON file previously exported from Clann. You will see a preview showing how many people and relationships were found. Give the new tree a name and click Start import — all people and relationships are reconstructed automatically."
     }
   },
+  "footer": {
+    "termsLink": "Terms & Conditions"
+  },
   "familyTree": {
     "orientationVertical": "Vertical",
     "orientationVerticalTitle": "Ancestors above (top-to-bottom)",

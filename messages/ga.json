@@ -345,6 +345,9 @@
       "importBody": "Cliceáil roghnóir an chrainn sa bharra nascleanúna agus roghnaigh 'Crann a iompórtáil...'. Uaslódáil comhad JSON a easpórtáladh roimhe seo ó Clann. Feicfidh tú réamhamharc a thaispeánann cé mhéad duine agus caidreamh a fuarthas. Tabhair ainm don chrann nua agus cliceáil Tosaigh iompórtáil — atógtar gach duine agus caidreamh go huathoibríoch."
     }
   },
+  "footer": {
+    "termsLink": "Téarmaí & Coinníollacha"
+  },
   "familyTree": {
     "orientationVertical": "Ingearach",
     "orientationVerticalTitle": "Sinsir os cionn (barr go bun)",
