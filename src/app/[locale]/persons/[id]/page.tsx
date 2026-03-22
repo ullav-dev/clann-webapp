@@ -312,7 +312,7 @@ export default function PersonDetailPage() {
 
           <div className="flex flex-col sm:flex-row gap-6">
             {person.life_image_path && (
-              <div className="shrink-0">
+              <div className="shrink-0 flex flex-col gap-2">
                 <button
                   onClick={() => setShowLifeUpload((v) => !v)}
                   title={t("changeLifeImage")}
@@ -327,6 +327,12 @@ export default function PersonDetailPage() {
                     {t("changeLifeImage")}
                   </span>
                 </button>
+                {(person.date_of_birth || person.place_of_birth) && (
+                  <div className="text-xs text-stone-500 space-y-0.5 px-1">
+                    {person.date_of_birth && <p>{t("bornPrefix", { date: person.date_of_birth })}</p>}
+                    {person.place_of_birth && <p>{t("fromPlace", { place: person.place_of_birth })}</p>}
+                  </div>
+                )}
               </div>
             )}
 
