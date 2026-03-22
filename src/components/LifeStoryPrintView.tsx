@@ -14,7 +14,7 @@ export default function LifeStoryPrintView({ person, lifeImageUrl }: Props) {
   const hasBirthInfo = person.date_of_birth || person.place_of_birth;
 
   return (
-    <div className="life-story-print hidden">
+    <div className="life-story-print">
       {/* Header */}
       <div className="mb-6 pb-4 border-b-2 border-stone-300">
         <h1 className="text-3xl font-bold text-stone-900 mb-1">{fullName(person)}</h1>

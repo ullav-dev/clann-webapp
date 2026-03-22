@@ -7,15 +7,20 @@
 /* Markdown editor */
 @import "@uiw/react-md-editor/markdown-editor.css";
 
-/* Life Story PDF print: hide everything except the print view */
+/* Life Story PDF print */
+.life-story-print { display: none; }
+
 @media print {
-  body * { visibility: hidden; }
-  .life-story-print, .life-story-print * { visibility: visible; }
+  /* Hide all page chrome */
+  body > * { display: none !important; }
+  /* Re-show the print container and everything inside it */
   .life-story-print {
+    display: block !important;
     position: fixed;
     inset: 0;
     padding: 2cm 2.5cm;
     background: white;
     color: black;
   }
+  .life-story-print * { display: revert; }
 }
