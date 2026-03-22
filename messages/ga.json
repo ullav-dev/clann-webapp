@@ -334,7 +334,9 @@
       "editingTitle": "Scéal beatha a scríobh",
       "editingBody": "Oscail próifíl duine agus cliceáil Eagar. Tá eagarthóir marcála ionsuite sa réimse Beathaisnéise le barra uirlisí. Scríobh go saor agus úsáid na cnaipí barra uirlisí le haghaidh formáidithe. Cliceáil Sábháil Athruithe nuair atá tú réidh.",
       "markdownTitle": "Formáidiú Markdown",
-      "markdownBody": "Úsáideann an t-eagarthóir Markdown: # Ceannteideal 1, ## Ceannteideal 2, **trom**, *iodálach*, - liosta urchair, 1. liosta uimhrithe, [téacs nasc](url). Taispeánann an cluaisín Scéal Beatha an toradh críochnaithe."
+      "markdownBody": "Úsáideann an t-eagarthóir Markdown: # Ceannteideal 1, ## Ceannteideal 2, **trom**, *iodálach*, - liosta urchair, 1. liosta uimhrithe, [téacs nasc](url). Taispeánann an cluaisín Scéal Beatha an toradh críochnaithe.",
+      "lifeImageTitle": "Íomhá Scéal Beatha",
+      "lifeImageBody": "Is féidir íomhá portráide nó radhairc níos mó a chur le cluaisín an Scéil Beatha. Oscail próifíl duine, téigh go dtí an cluaisín Scéal Beatha agus cliceáil '+ Cuir Íomhá Scéal Beatha leis' (nó cliceáil Athraigh nuair a bhogann tú an luch thar an íomhá atá ann cheana). Tarraing agus scaoil comhad JPEG nó PNG (suas le 2 MB) isteach sa limistéar uaslódála. Feictear an íomhá ar bharr chlé an phainéil le beathaisnéis ar a taobh dheis."
     },
     "multipleTrees": {
       "title": "Crainnte Teaghlaigh Iolracha",

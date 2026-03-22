@@ -334,7 +334,9 @@
       "editingTitle": "Eine Lebensgeschichte schreiben",
       "editingBody": "Öffnen Sie das Profil einer Person und klicken Sie auf Bearbeiten. Das Biografie-Feld verfügt über einen integrierten Markdown-Editor mit einer Symbolleiste. Schreiben Sie frei und nutzen Sie die Symbolleiste zur Formatierung. Klicken Sie auf Änderungen speichern, wenn Sie fertig sind.",
       "markdownTitle": "Markdown-Formatierung",
-      "markdownBody": "Der Editor verwendet Markdown: # Überschrift 1, ## Überschrift 2, **fett**, *kursiv*, - Aufzählungsliste, 1. nummerierte Liste, [Linktext](url). Der Reiter Lebensgeschichte zeigt das fertige Ergebnis an."
+      "markdownBody": "Der Editor verwendet Markdown: # Überschrift 1, ## Überschrift 2, **fett**, *kursiv*, - Aufzählungsliste, 1. nummerierte Liste, [Linktext](url). Der Reiter Lebensgeschichte zeigt das fertige Ergebnis an.",
+      "lifeImageTitle": "Bild für die Lebensgeschichte",
+      "lifeImageBody": "Ein größeres Porträt- oder Szenenbild kann dem Reiter Lebensgeschichte hinzugefügt werden. Öffnen Sie das Profil einer Person, gehen Sie zum Reiter Lebensgeschichte und klicken Sie auf '+ Bild für Lebensgeschichte hinzufügen' (oder bewegen Sie die Maus über das vorhandene Bild und klicken Sie auf Ändern). Ziehen Sie eine JPEG- oder PNG-Datei (bis zu 2 MB) in den Upload-Bereich. Das Bild erscheint oben links im Lebensgeschichte-Panel mit der Biografie rechts daneben."
     },
     "multipleTrees": {
       "title": "Mehrere Stammbäume",

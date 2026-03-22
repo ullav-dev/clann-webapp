@@ -58,6 +58,7 @@ export default async function HelpPage() {
           <Card title={t("lifeStory.overviewTitle")} body={t("lifeStory.overviewBody")} />
           <Card title={t("lifeStory.editingTitle")} body={t("lifeStory.editingBody")} />
           <Card title={t("lifeStory.markdownTitle")} body={t("lifeStory.markdownBody")} />
+          <Card title={t("lifeStory.lifeImageTitle")} body={t("lifeStory.lifeImageBody")} />
         </Cards>
       </Section>
 

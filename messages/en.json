@@ -334,7 +334,9 @@
       "editingTitle": "Writing a life story",
       "editingBody": "Open a person's profile and click Edit. The Biography field has a built-in markdown editor with a toolbar. Write freely and use the toolbar buttons for formatting. Click Save Changes when done.",
       "markdownTitle": "Markdown formatting",
-      "markdownBody": "The editor uses Markdown: # Heading 1, ## Heading 2, **bold**, *italic*, - bullet list, 1. numbered list, [link text](url). The Life Story tab renders the final result."
+      "markdownBody": "The editor uses Markdown: # Heading 1, ## Heading 2, **bold**, *italic*, - bullet list, 1. numbered list, [link text](url). The Life Story tab renders the final result.",
+      "lifeImageTitle": "Life story image",
+      "lifeImageBody": "A larger portrait or scene image can be added to the Life Story tab. Open a person's profile, go to the Life Story tab, and click '+ Add Life Story Image' (or hover over the existing image and click Change). Drag and drop a JPEG or PNG (up to 2 MB) into the upload area. The image appears at the top left of the Life Story panel with the biography flowing to its right."
     },
     "multipleTrees": {
       "title": "Multiple Family Trees",
