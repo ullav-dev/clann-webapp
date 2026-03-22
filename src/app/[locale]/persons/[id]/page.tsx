@@ -299,7 +299,12 @@ export default function PersonDetailPage() {
         <div className="max-w-3xl space-y-4">
           <div className="flex justify-end">
             <button
-              onClick={() => window.print()}
+              onClick={() => {
+                const prev = document.title;
+                document.title = fullName(person);
+                window.addEventListener("afterprint", () => { document.title = prev; }, { once: true });
+                window.print();
+              }}
               className="inline-flex items-center gap-1.5 border border-stone-300 bg-white hover:bg-stone-50 text-stone-600 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
             >
               ↓ {t("exportPdf")}
