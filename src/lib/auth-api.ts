@@ -3,7 +3,7 @@
 
 const BASE =
   typeof window === "undefined"
-    ? (process.env.NEXT_PUBLIC_AUTH_URL ?? "http://localhost:8081")
+    ? (process.env.AUTH_URL ?? "http://localhost:8081")
     : "/auth-api";
 
 export interface AuthUser {

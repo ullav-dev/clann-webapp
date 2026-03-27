@@ -14,7 +14,7 @@ import type {
 // On the server, fall back to the absolute URL.
 const BASE_URL =
   typeof window === "undefined"
-    ? (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000")
+    ? (process.env.API_URL ?? "http://localhost:3000")
     : "";
 
 /** Append ?created_by=<username> to a path when the caller supplies one. */
