@@ -17,6 +17,33 @@ npm run test:watch # Run tests in watch mode
 
 The backend (clann-server) must be running on `http://localhost:3000`. After rebuilding the backend, always restart the running process — the old binary continues serving until killed.
 
+## Production deployment (Docker)
+
+```bash
+# Build and start the webapp container
+docker compose -f docker-compose-prod.yaml up -d --build
+
+# Pull a pre-built image instead of building locally
+docker compose -f docker-compose-prod.yaml pull && docker compose -f docker-compose-prod.yaml up -d
+```
+
+**Files:**
+- `Dockerfile` — three-stage build: `deps` (npm ci) → `builder` (next build) → `runner` (node:22-alpine, standalone server)
+- `docker-compose-prod.yaml` — single `webapp` service; joins the external `ullav-net` Docker network to reach clann-server and ullav-auth (managed by their own compose files)
+- `.env.prod` — non-sensitive runtime config (not committed); contains `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_AUTH_URL` pointing to the internal Docker service names
+- `.dockerignore` — excludes `node_modules`, `.next`, `.env*`, `memory/`, etc. from the build context
+
+**`output: "standalone"`** is set in `next.config.ts` so the build emits a self-contained `server.js` with only the files needed at runtime — no `node_modules` in the final image.
+
+**Environment variables** are read at server startup by the standalone server and by the `rewrites()` function in `next.config.ts`, so `NEXT_PUBLIC_API_URL` / `NEXT_PUBLIC_AUTH_URL` can be set at runtime via `.env.prod` (no rebuild needed to point at different backend hosts).
+
+**Network:** the `ullav-net` external network must exist before starting any service:
+```bash
+docker network create ullav-net
+```
+
+The webapp has no secrets of its own — all sensitive values live in clann-server and ullav-user-management.
+
 ## Architecture
 
 **Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · React Flow (`@xyflow/react`) · `html-to-image` · next-intl v4 · `@uiw/react-md-editor` · `react-markdown` + `remark-gfm` · `@tailwindcss/typography`

@@ -46,6 +46,42 @@ Open [http://localhost:3001](http://localhost:3001). The middleware will detect 
 
 > **Node v25 note:** the `.bin/next` symlink is broken on Node v25. The npm scripts already work around this by invoking `node node_modules/next/dist/bin/next` directly.
 
+## Production deployment (Docker)
+
+The webapp ships as a minimal Docker image built with Next.js standalone output.
+
+### Prerequisites
+
+- Docker with the `ullav-net` external network created:
+  ```bash
+  docker network create ullav-net
+  ```
+- clann-server and ullav-user-management already running on `ullav-net` (managed by their own compose files)
+
+### Configuration
+
+Copy `.env.prod` and fill in the internal Docker service addresses:
+
+```bash
+# .env.prod (not committed — create on the server)
+NEXT_PUBLIC_API_URL=http://clann-server:3000
+NEXT_PUBLIC_AUTH_URL=http://ullav-auth:8081
+PORT=3001
+```
+
+### Build and run
+
+```bash
+# Build image and start container
+docker compose -f docker-compose-prod.yaml up -d --build
+
+# Or pull a pre-built image
+docker compose -f docker-compose-prod.yaml pull
+docker compose -f docker-compose-prod.yaml up -d
+```
+
+The webapp has no secrets of its own — sensitive values are managed by the backend services.
+
 ## Stack
 
 | Layer | Technology |

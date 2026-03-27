@@ -1,0 +1,13 @@
+services:
+  webapp:
+    build: .
+    image: ghcr.io/ullav-dev/clann-webapp:latest
+    init: true
+    env_file: .env.prod
+    networks:
+      - ullav-net
+    restart: unless-stopped
+
+networks:
+  ullav-net:
+    external: true
