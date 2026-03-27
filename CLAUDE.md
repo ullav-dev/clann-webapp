@@ -30,12 +30,16 @@ docker compose -f docker-compose-prod.yaml pull && docker compose -f docker-comp
 **Files:**
 - `Dockerfile` — three-stage build: `deps` (npm ci) → `builder` (next build) → `runner` (node:22-alpine, standalone server)
 - `docker-compose-prod.yaml` — single `webapp` service; joins the external `ullav-net` Docker network to reach clann-server and ullav-auth (managed by their own compose files)
-- `.env.prod` — non-sensitive runtime config (not committed); contains `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_AUTH_URL` pointing to the internal Docker service names
+- `.env.prod` — non-sensitive runtime config (not committed); sets `API_URL` and `AUTH_URL` pointing to the internal Docker service names
 - `.dockerignore` — excludes `node_modules`, `.next`, `.env*`, `memory/`, etc. from the build context
 
 **`output: "standalone"`** is set in `next.config.ts` so the build emits a self-contained `server.js` with only the files needed at runtime — no `node_modules` in the final image.
 
-**Environment variables** are read at server startup by the standalone server and by the `rewrites()` function in `next.config.ts`, so `NEXT_PUBLIC_API_URL` / `NEXT_PUBLIC_AUTH_URL` can be set at runtime via `.env.prod` (no rebuild needed to point at different backend hosts).
+**Environment variables — important:** `NEXT_PUBLIC_*` variables are statically inlined by the Next.js bundler at build time (into both client bundles and server-side code). Setting them at runtime has no effect. Instead, the server-side backend URLs use plain (non-`NEXT_PUBLIC_`) env vars:
+- `API_URL` — base URL for server-side calls to clann-server and for the `/api/*` rewrite destination (default: `http://clann-server:3001`)
+- `AUTH_URL` — base URL for server-side calls to ullav-auth and for the `/auth-api/*` rewrite destination (default: `http://ullav-auth:8081`)
+
+The defaults in `next.config.ts` are the production Docker service names, so no env vars need to be set during the Docker build. For local dev, set both in `.env.local`.
 
 **Network:** the `ullav-net` external network must exist before starting any service:
 ```bash
@@ -93,7 +97,7 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 
 **ID handling:** The backend stores IDs as `person:<ulid>` (e.g. `person:01jd4a8xyz`). URLs use just the ULID (no prefix, no encoding). `api.ts` exposes a `rawId()` helper that strips the `person:` prefix before building request paths. **Always use `rawId(person.id)` when constructing links or `router.push` calls** — never `encodeURIComponent(person.id)`, which embeds the prefix in the URL and causes 404s.
 
-**Backend API base URL:** Set via `NEXT_PUBLIC_API_URL` in `.env.local` (defaults to `http://localhost:3000`).
+**Backend API base URL:** Set via `API_URL` in `.env.local` (defaults to `http://localhost:3000`). Also set `AUTH_URL=http://localhost:8081` for the auth service.
 
 ## Multiple family trees
 
