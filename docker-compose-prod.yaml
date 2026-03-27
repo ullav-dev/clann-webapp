@@ -1,4 +1,125 @@
 services:
+
+  # ── SurrealDB ────────────────────────────────────────────────────────────────
+  surrealdb:
+    build:
+      context: ../clann-server
+      dockerfile: scripts/Dockerfile.surrealdb
+    networks:
+      - ullav-net
+    restart: unless-stopped
+    volumes:
+      - surrealdb_data:/data
+    secrets:
+      - db_password
+    healthcheck:
+      test: ["CMD", "surreal", "isready", "--endpoint", "http://localhost:8000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── clann-server DB migration ─────────────────────────────────────────────────
+  clann-migrate:
+    build:
+      context: ../clann-server
+      dockerfile: scripts/Dockerfile.migrate
+    volumes:
+      - ../clann-server/migrations:/migrations:ro
+    env_file: ../clann-server/.env.prod
+    secrets:
+      - db_username
+      - db_password
+    networks:
+      - ullav-net
+    depends_on:
+      surrealdb:
+        condition: service_healthy
+    restart: "no"
+
+  # ── clann-server (Rust / Axum backend) ───────────────────────────────────────
+  clann-server:
+    image: ghcr.io/ullav-dev/clann-server:latest
+    init: true
+    env_file: ../clann-server/.env.prod
+    environment:
+      DB_USERNAME_FILE: /run/secrets/db_username
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_username
+      - db_password
+    networks:
+      - ullav-net
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      surrealdb:
+        condition: service_healthy
+      clann-migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # ── PostgreSQL (for ullav-user-management) ────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${AUTH_DB_USER:-clann}
+      POSTGRES_PASSWORD_FILE: /run/secrets/auth_db_password
+      POSTGRES_DB: ${AUTH_DB_NAME:-user_management}
+    secrets:
+      - auth_db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ullav-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_DB_USER:-clann} -d ${AUTH_DB_NAME:-user_management}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── ullav-user-management DB migration ───────────────────────────────────────
+  auth-migrate:
+    image: postgres:16-alpine
+    env_file: ../ullav-user-management/.env.prod
+    secrets:
+      - auth_db_password
+    volumes:
+      - ../ullav-user-management/migrations:/migrations:ro
+      - ../ullav-user-management/scripts/migrate.sh:/migrate.sh:ro
+    entrypoint: ["/bin/sh", "/migrate.sh"]
+    networks:
+      - ullav-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # ── ullav-user-management (auth service) ─────────────────────────────────────
+  ullav-auth:
+    image: ghcr.io/ullav-dev/ullav-user-management:latest
+    init: true
+    env_file: ../ullav-user-management/.env.prod
+    environment:
+      DATABASE_URL_FILE: /run/secrets/auth_database_url
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
+      SMTP_PASSWORD_FILE: /run/secrets/smtp_password
+      ADMIN_PASSWORD_FILE: /run/secrets/admin_password
+    secrets:
+      - auth_database_url
+      - jwt_secret
+      - smtp_password
+      - admin_password
+    networks:
+      - ullav-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # ── clann-webapp (Next.js frontend) ──────────────────────────────────────────
   webapp:
     build: .
     image: ghcr.io/ullav-dev/clann-webapp:latest
@@ -6,8 +127,37 @@ services:
     env_file: .env.prod
     networks:
       - ullav-net
+    depends_on:
+      - clann-server
+      - ullav-auth
     restart: unless-stopped
 
+# ── Volumes ────────────────────────────────────────────────────────────────────
+volumes:
+  surrealdb_data:
+  postgres_data:
+  uploads:
+
+# ── Networks ───────────────────────────────────────────────────────────────────
 networks:
   ullav-net:
     external: true
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+# Create ./secrets/ and populate each file before deploying.
+# Example: echo -n "mysecret" > ./secrets/db_password.txt
+secrets:
+  db_username:
+    file: ./secrets/db_username.txt
+  db_password:
+    file: ./secrets/db_password.txt
+  auth_db_password:
+    file: ./secrets/auth_db_password.txt
+  auth_database_url:
+    file: ./secrets/auth_database_url.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+  smtp_password:
+    file: ./secrets/smtp_password.txt
+  admin_password:
+    file: ./secrets/admin_password.txt
