@@ -68,7 +68,7 @@ export default function LoginPage() {
       // auto-create the first family tree once the user's account is active.
       localStorage.setItem(
         "clann_pending_tree",
-        JSON.stringify({ surname: regSurname, familyWord: t("familyWord") })
+        JSON.stringify({ surname: regSurname, familyWord: t("familyWord"), email: regEmail })
       );
       setPendingEmail(regEmail);
       setStage("verify-email");

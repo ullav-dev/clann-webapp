@@ -50,13 +50,24 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
           const raw = localStorage.getItem("clann_pending_tree");
           if (raw) {
             try {
-              const { surname, familyWord } = JSON.parse(raw) as { surname: string; familyWord: string };
+              const { surname, familyWord, email } = JSON.parse(raw) as { surname: string; familyWord: string; email: string };
               const slug = user.username.toLowerCase().replace(/[^a-z0-9]+/g, "-");
               const tree = await api.createTree({
                 name: `${slug}-family`,
                 display_name: `${surname} ${familyWord}`,
                 owner: user.username,
                 is_primary: true,
+              });
+              // Create a Person for the user in their new tree.
+              // Sex defaults to Male — the user can update it from their profile.
+              await api.createPerson({
+                first_name: user.username,
+                family_name: surname,
+                sex: "Male",
+                username: user.username,
+                email,
+                created_by: user.username,
+                trees: [tree.name],
               });
               localStorage.removeItem("clann_pending_tree");
               setTrees([tree]);
