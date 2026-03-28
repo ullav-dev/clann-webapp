@@ -32,7 +32,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const contentType = res.headers.get("content-type") ?? "";
   const hasBody = contentType.includes("application/json");
   if (!hasBody) {
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(text || `HTTP ${res.status}`);
+    }
     return undefined as T;
   }
   const data = await res.json();

@@ -81,7 +81,7 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 
 Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by Next.js App Router to avoid "Missing html and body tags" errors).
 
-**Routes:** All routes are locale-prefixed (e.g. `/en/family`, `/de/family`). The middleware in `src/middleware.ts` detects the locale from the `Accept-Language` header and redirects bare paths.
+**Routes:** All routes are locale-prefixed (e.g. `/en/family`, `/de/family`). The proxy in `src/proxy.ts` handles `/api/*` and `/auth-api/*` rewrites and then delegates to next-intl's middleware for locale detection and bare-path redirects.
 
 | Route | Description |
 |---|---|

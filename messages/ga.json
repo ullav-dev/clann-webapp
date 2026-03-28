@@ -67,6 +67,7 @@
     "termsContent": "Nuashonraithe: Márta 2026\n\n**1. Glacadh le Téarmaí**\nTrí chuntas a chruthú agus Clann a úsáid, aontaíonn tú leis na Téarmaí & Coinníollacha seo. Mura n-aontaíonn tú, ná cláraigh le do thoil.\n\n**2. Úsáid an tSeirbhís**\nIs feidhlm phríobháideach crann teaghlaigh é Clann. Ní féidir leat é a úsáid ach chun críocha pearsanta, neamhthráchtála — chun do stair teaghlaigh féin a thaifeadadh agus a fhiosrú.\n\n**3. Do Chuntas**\nTá tú freagrach as rúndacht do chuid sonraí logála isteach agus as gach gníomhaíocht a tharlaíonn faoi do chuntas.\n\n**4. Do Chuid Sonraí**\nStóráltar na sonraí teaghlaigh go léir a iontráileann tú — daoine, caidrimh, grianghraif, agus beathaisnéisí — ar an bhfreastalaí a nascann tú leis.\n\n**5. Príobháideachas**\nNí roinneann Clann do shonraí pearsanta le tríú páirtithe. Úsáidtear do chuid sonraí chun an tseirbhís a sholáthar amháin.\n\n**6. Foirceannadh**\nIs féidir leat do chuntas a scriosadh am ar bith. Coimeádaimid an ceart cuntas a bhfuil na téarmaí seo á sárú acu a chur ar fionraí nó a fhoirceannadh.\n\n**7. Séanadh**\nSoláthrófar an tseirbhís 'mar atá' gan barántas ar bith. Nílimid freagrach as aon chaillteanas nó damáiste a eascraíonn as do úsáid den tseirbhís.\n\n**8. Athruithe ar na Téarmaí Seo**\nFéadfaimid na téarmaí seo a nuashonrú ó am go ham. Ciallaíonn úsáid leanúnach den tseirbhís tar éis athruithe go nglactar leis na téarmaí athbhreithnithe.",
     "loginFailed": "Theip ar logáil isteach",
     "registrationFailed": "Theip ar chlárú",
+    "serverError": "Tharla earráid ar ár dtaobh. Déan iarracht arís le do thoil.",
     "requestFailed": "Theip ar an iarratas",
     "resetTokenMessage": "Má tá an ríomhphost cláraithe, gheobhaidh tú token athshocraithe.",
     "resetFailed": "Theip ar athshocrú",
@@ -78,7 +79,18 @@
     "confirmEmailSuccess": "Ríomhphost deimhnithe! Is féidir leat síniú isteach anois.",
     "confirmEmailFailed": "Theip ar an deimhniú. D'fhéadfadh an nasc a bheith imithe in éag.",
     "confirmEmailSignIn": "Sínigh Isteach →",
-    "confirmEmailBackToLogin": "← Ar ais go dtí logáil isteach"
+    "confirmEmailBackToLogin": "← Ar ais go dtí logáil isteach",
+    "firstName": "Céadainm",
+    "firstNamePlaceholder": "Do chéadainm",
+    "surname": "Sloinne",
+    "surnamePlaceholder": "Do shloinne",
+    "familyWord": "Teaghlach",
+    "sexLabel": "Gnéas",
+    "sexPlaceholder": "Roghnaigh…",
+    "sexMale": "Fireann",
+    "sexFemale": "Baineann",
+    "sexHint": "Úsáidtear é chun d'iontráil crainn teaghlaigh tosaigh a chruthú.",
+    "sexRequired": "Roghnaigh do ghnéas le do thoil"
   },
   "family": {
     "title": "Baill Teaghlaigh",

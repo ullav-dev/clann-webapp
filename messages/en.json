@@ -67,6 +67,7 @@
     "termsContent": "Last updated: March 2026\n\n**1. Acceptance of Terms**\nBy creating an account and using Clann, you agree to be bound by these Terms & Conditions. If you do not agree, please do not register.\n\n**2. Use of the Service**\nClann is a private family tree application. You may use it solely for personal, non-commercial purposes — recording and exploring your own family history. You must not use the service for any unlawful purpose or in any way that could harm others.\n\n**3. Your Account**\nYou are responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account. Please choose a strong password and keep it secure.\n\n**4. Your Data**\nAll family data you enter — people, relationships, photos, and biographies — is stored on the server you connect to. You are responsible for the accuracy of the data you enter. Do not upload content that infringes third-party rights or that you do not have permission to share.\n\n**5. Privacy**\nClann does not share your personal data with third parties. Your data is used solely to provide the service. The application stores a session token in your browser's local storage to keep you logged in.\n\n**6. Termination**\nYou may delete your account at any time. We reserve the right to suspend or terminate accounts that violate these terms.\n\n**7. Disclaimer**\nThe service is provided 'as is' without warranties of any kind. We are not liable for any loss or damage arising from your use of the service.\n\n**8. Changes to These Terms**\nWe may update these terms from time to time. Continued use of the service after changes constitutes acceptance of the revised terms.",
     "loginFailed": "Login failed",
     "registrationFailed": "Registration failed",
+    "serverError": "Something went wrong on our end. Please try again.",
     "requestFailed": "Request failed",
     "resetTokenMessage": "If the email is registered you will receive a reset token.",
     "resetFailed": "Reset failed",
@@ -78,7 +79,18 @@
     "confirmEmailSuccess": "Email confirmed! You can now sign in.",
     "confirmEmailFailed": "Verification failed. The link may have expired.",
     "confirmEmailSignIn": "Sign In →",
-    "confirmEmailBackToLogin": "← Back to login"
+    "confirmEmailBackToLogin": "← Back to login",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Your first name",
+    "surname": "Surname",
+    "surnamePlaceholder": "Your surname",
+    "familyWord": "Family",
+    "sexLabel": "Sex",
+    "sexPlaceholder": "Select…",
+    "sexMale": "Male",
+    "sexFemale": "Female",
+    "sexHint": "Used to create your initial family tree entry.",
+    "sexRequired": "Please select your sex"
   },
   "family": {
     "title": "Family Members",

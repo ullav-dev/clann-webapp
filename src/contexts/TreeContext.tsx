@@ -9,6 +9,7 @@ interface TreeState {
   trees: FamilyTree[];
   activeTree: FamilyTree | null;
   isLoading: boolean;
+  initError: string | null;
   setActiveTree: (tree: FamilyTree) => void;
   createTree: (name: string, displayName: string, options?: { select?: boolean }) => Promise<FamilyTree>;
   deleteTree: (name: string) => Promise<void>;
@@ -19,6 +20,7 @@ const TreeContext = createContext<TreeState>({
   trees: [],
   activeTree: null,
   isLoading: true,
+  initError: null,
   setActiveTree: () => {},
   createTree: async () => { throw new Error("TreeProvider not mounted"); },
   deleteTree: async () => { throw new Error("TreeProvider not mounted"); },
@@ -32,6 +34,7 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
   const [trees, setTrees] = useState<FamilyTree[]>([]);
   const [activeTree, setActiveTreeState] = useState<FamilyTree | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -44,7 +47,61 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(true);
     api.listTrees(user.username)
-      .then((loaded) => {
+      .then(async (loaded) => {
+        // Auto-create the first tree for a brand-new user.
+        if (loaded.length === 0) {
+          const raw = localStorage.getItem("clann_pending_tree");
+          if (raw) {
+            try {
+              const { firstName, surname, familyWord, email, sex } = JSON.parse(raw) as { firstName?: string; surname: string; familyWord: string; email: string; sex: "Male" | "Female" };
+              const slug = user.username.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+              const tree = await api.createTree({
+                name: `${slug}-family`,
+                display_name: `${surname} ${familyWord}`,
+                owner: user.username,
+                is_primary: true,
+              });
+
+              // Check whether a person with this username already exists in the system
+              // before attempting to create a duplicate (which would return a 500).
+              const allPersons = await api.listPersons();
+              const existingPerson = allPersons.find((p) => p.username === user.username);
+
+              if (existingPerson) {
+                if (existingPerson.created_by === user.username) {
+                  // Person belongs to this user (e.g. partial previous registration) — just
+                  // add them to the new tree instead of creating a duplicate.
+                  await api.addPersonToTree(existingPerson.id, tree.name, user.username);
+                } else {
+                  // Person is owned by a different account — we cannot link or duplicate it.
+                  setInitError(
+                    `A family member with the username "${user.username}" already exists in the system. ` +
+                    `Please contact an administrator to resolve this.`
+                  );
+                }
+              } else {
+                await api.createPerson({
+                  first_name: firstName || user.username,
+                  family_name: surname,
+                  sex,
+                  username: user.username,
+                  email,
+                  created_by: user.username,
+                  trees: [tree.name],
+                });
+              }
+
+              localStorage.removeItem("clann_pending_tree");
+              setTrees([tree]);
+              setActiveTreeState(tree);
+              localStorage.setItem(STORAGE_KEY, tree.name);
+              return;
+            } catch (err) {
+              console.error("[TreeContext] Failed to auto-create initial tree/person:", err);
+              localStorage.removeItem("clann_pending_tree");
+            }
+          }
+        }
         setTrees(loaded);
         const savedName = localStorage.getItem(STORAGE_KEY);
         const saved = loaded.find((t) => t.name === savedName);
@@ -108,7 +165,7 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <TreeContext.Provider value={{ trees, activeTree, isLoading, setActiveTree, createTree, deleteTree, setPrimaryTree }}>
+    <TreeContext.Provider value={{ trees, activeTree, isLoading, initError, setActiveTree, createTree, deleteTree, setPrimaryTree }}>
       {children}
     </TreeContext.Provider>
   );

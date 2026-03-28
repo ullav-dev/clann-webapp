@@ -38,7 +38,7 @@ async function authRequest<T>(path: string, init?: RequestInit): Promise<T> {
     return undefined as T;
   }
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+  if (!res.ok) throw new Error(data.error ?? data.message ?? data.detail ?? `HTTP ${res.status}`);
   return data as T;
 }
 

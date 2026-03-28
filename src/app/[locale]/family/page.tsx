@@ -104,7 +104,7 @@ function ListIcon() { return (<svg className="w-4 h-4" viewBox="0 0 20 20" fill=
 
 export default function FamilyPage() {
   const { user, isLoading: authLoading } = useAuth();
-  const { activeTree, isLoading: treeLoading } = useTree();
+  const { activeTree, isLoading: treeLoading, initError } = useTree();
   const api = useApi();
   const router = useRouter();
   const t = useTranslations("family");
@@ -168,6 +168,11 @@ export default function FamilyPage() {
 
   return (
     <div>
+      {initError && (
+        <div className="mb-6 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-amber-800 text-sm">
+          {initError}
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-stone-800">{t("title")}</h1>

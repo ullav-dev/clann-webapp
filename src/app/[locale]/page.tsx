@@ -99,12 +99,6 @@ export default async function LandingPage() {
           >
             {t("myFamily")}
           </Link>
-          <Link
-            href="/persons/new"
-            className="border border-stone-300 hover:bg-stone-100 text-stone-700 font-medium px-6 py-3 rounded-xl transition-colors"
-          >
-            {t("addFirstPerson")}
-          </Link>
         </div>
       </section>
     </div>

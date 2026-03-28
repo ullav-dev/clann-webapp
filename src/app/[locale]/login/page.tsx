@@ -27,6 +27,9 @@ export default function LoginPage() {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [regUsername, setRegUsername] = useState("");
+  const [regFirstName, setRegFirstName] = useState("");
+  const [regSurname, setRegSurname] = useState("");
+  const [regSex, setRegSex] = useState<"Male" | "Female" | "">("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
@@ -40,6 +43,12 @@ export default function LoginPage() {
     if (!isLoading && user) router.replace("/family");
   }, [isLoading, user, router]);
 
+  function errorMessage(err: unknown, fallback: string): string {
+    const msg = err instanceof Error ? err.message : "";
+    if (/^HTTP 5/.test(msg)) return t("serverError");
+    return msg || fallback;
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -48,7 +57,7 @@ export default function LoginPage() {
       await login(loginEmail, loginPassword);
       router.push("/family");
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("loginFailed"));
+      setError(errorMessage(err, t("loginFailed")));
     } finally {
       setSubmitting(false);
     }
@@ -58,15 +67,22 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     if (regPassword !== regConfirm) return setError(t("passwordsDoNotMatch"));
+    if (!regSex) return setError(t("sexRequired"));
     if (!regTerms) return setError(t("termsNotAccepted"));
     setSubmitting(true);
     try {
       const confirmUrl = `${window.location.origin}/${locale}`;
       await register(regUsername, regEmail, regPassword, confirmUrl);
+      // Store the surname and locale-specific "Family" word so TreeContext can
+      // auto-create the first family tree once the user's account is active.
+      localStorage.setItem(
+        "clann_pending_tree",
+        JSON.stringify({ firstName: regFirstName, surname: regSurname, familyWord: t("familyWord"), email: regEmail, sex: regSex })
+      );
       setPendingEmail(regEmail);
       setStage("verify-email");
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("registrationFailed"));
+      setError(errorMessage(err, t("registrationFailed")));
     } finally {
       setSubmitting(false);
     }
@@ -81,7 +97,7 @@ export default function LoginPage() {
       await requestPasswordReset(resetEmail, resetUrl);
       setResetSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("requestFailed"));
+      setError(errorMessage(err, t("requestFailed")));
     } finally {
       setSubmitting(false);
     }
@@ -101,7 +117,7 @@ export default function LoginPage() {
           {error && <ErrorBox message={error} />}
           <button
             type="button"
-            onClick={() => { setStage("form"); setError(null); }}
+            onClick={() => { setStage("form"); setTab("login"); setError(null); }}
             className="text-sm text-stone-500 hover:text-stone-700 transition-colors"
           >
             {t("backToLogin")}
@@ -181,6 +197,20 @@ export default function LoginPage() {
             <Field label={t("username")} htmlFor="reg-username">
               <input id="reg-username" required autoFocus value={regUsername} onChange={(e) => setRegUsername(e.target.value)} className={inputCls} placeholder={t("usernamePlaceholder")} />
             </Field>
+            <Field label={t("firstName")} htmlFor="reg-firstname">
+              <input id="reg-firstname" required value={regFirstName} onChange={(e) => setRegFirstName(e.target.value)} className={inputCls} placeholder={t("firstNamePlaceholder")} />
+            </Field>
+            <Field label={t("surname")} htmlFor="reg-surname">
+              <input id="reg-surname" required value={regSurname} onChange={(e) => setRegSurname(e.target.value)} className={inputCls} placeholder={t("surnamePlaceholder")} />
+            </Field>
+            <Field label={t("sexLabel")} htmlFor="reg-sex">
+              <select id="reg-sex" required value={regSex} onChange={(e) => setRegSex(e.target.value as "Male" | "Female" | "")} className={inputCls}>
+                <option value="">{t("sexPlaceholder")}</option>
+                <option value="Male">{t("sexMale")}</option>
+                <option value="Female">{t("sexFemale")}</option>
+              </select>
+              <p className="mt-1 text-xs text-stone-400">{t("sexHint")}</p>
+            </Field>
             <Field label={t("email")} htmlFor="reg-email">
               <input id="reg-email" type="email" required value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className={inputCls} />
             </Field>
@@ -208,7 +238,12 @@ export default function LoginPage() {
                 </button>
               </span>
             </label>
-            <SubmitButton loading={submitting} label={t("createAccount")} pleaseWait={t("pleaseWait")} />
+            <SubmitButton
+              loading={submitting}
+              disabled={!regUsername || !regFirstName || !regSurname || !regSex || !regEmail || !regPassword || !regConfirm || !regTerms}
+              label={t("createAccount")}
+              pleaseWait={t("pleaseWait")}
+            />
           </form>
         )}
         {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
@@ -229,9 +264,9 @@ function Field({ label, htmlFor, children }: { label: string; htmlFor: string; c
   );
 }
 
-function SubmitButton({ loading, label, pleaseWait }: { loading: boolean; label: string; pleaseWait: string }) {
+function SubmitButton({ loading, disabled, label, pleaseWait }: { loading: boolean; disabled?: boolean; label: string; pleaseWait: string }) {
   return (
-    <button type="submit" disabled={loading} className="w-full bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white font-medium py-2.5 rounded-lg transition-colors">
+    <button type="submit" disabled={loading || disabled} className="w-full bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg transition-colors">
       {loading ? pleaseWait : label}
     </button>
   );
