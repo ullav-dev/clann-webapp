@@ -228,7 +228,12 @@ export default function LoginPage() {
                 </button>
               </span>
             </label>
-            <SubmitButton loading={submitting} label={t("createAccount")} pleaseWait={t("pleaseWait")} />
+            <SubmitButton
+              loading={submitting}
+              disabled={!regUsername || !regSurname || !regSex || !regEmail || !regPassword || !regConfirm || !regTerms}
+              label={t("createAccount")}
+              pleaseWait={t("pleaseWait")}
+            />
           </form>
         )}
         {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
@@ -249,9 +254,9 @@ function Field({ label, htmlFor, children }: { label: string; htmlFor: string; c
   );
 }
 
-function SubmitButton({ loading, label, pleaseWait }: { loading: boolean; label: string; pleaseWait: string }) {
+function SubmitButton({ loading, disabled, label, pleaseWait }: { loading: boolean; disabled?: boolean; label: string; pleaseWait: string }) {
   return (
-    <button type="submit" disabled={loading} className="w-full bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white font-medium py-2.5 rounded-lg transition-colors">
+    <button type="submit" disabled={loading || disabled} className="w-full bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg transition-colors">
       {loading ? pleaseWait : label}
     </button>
   );
