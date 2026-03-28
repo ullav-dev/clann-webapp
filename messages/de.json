@@ -294,11 +294,13 @@
     "gettingStarted": {
       "title": "Erste Schritte",
       "step1Title": "Konto erstellen",
-      "step1Body": "Klicken Sie auf Anmelden und wählen Sie Konto erstellen. Geben Sie einen Benutzernamen, eine E-Mail-Adresse und ein Passwort (mindestens 8 Zeichen) ein. Sie erhalten eine Bestätigungs-E-Mail — klicken Sie auf den Link, um Ihr Konto zu aktivieren.",
-      "step2Title": "Erste Person hinzufügen",
-      "step2Body": "Klicken Sie auf Person hinzufügen in der Navigationsleiste. Füllen Sie Vorname, Familienname und Geschlecht (Pflichtfelder) aus. Optional können Sie Geburts- und Sterbedaten, Orte, eine Biografie und ein Foto hinzufügen.",
-      "step3Title": "Beziehungen aufbauen",
-      "step3Body": "Öffnen Sie das Profil einer Person und gehen Sie zum Tab Beziehungen. Klicken Sie auf + Beziehung hinzufügen, um sie als Vater, Mutter, Geschwister oder Ehepartner einer anderen Person in Ihrem Baum zu verknüpfen."
+      "step1Body": "Klicken Sie auf Anmelden und wählen Sie Konto erstellen. Geben Sie Benutzername, Vorname, Nachname, Geschlecht, E-Mail-Adresse und Passwort (mindestens 8 Zeichen) ein. Sie erhalten eine Bestätigungs-E-Mail — klicken Sie auf den Link, um Ihr Konto zu aktivieren.",
+      "step2Title": "Ihr Stammbaum ist bereit",
+      "step2Body": "Bei Ihrer ersten Anmeldung erstellt Clann automatisch einen Stammbaum, der nach Ihrem Nachnamen benannt ist, und fügt Sie als erstes Familienmitglied mit den bei der Registrierung angegebenen Daten hinzu. Sie finden Ihren Baum im Dropdown-Menü der Navigationsleiste und können Ihren Eintrag jederzeit bearbeiten.",
+      "step3Title": "Weitere Personen hinzufügen",
+      "step3Body": "Ihr eigener Eintrag ist bereits im Baum. Klicken Sie auf Person hinzufügen in der Navigationsleiste, um weitere Familienmitglieder hinzuzufügen. Füllen Sie Vorname, Familienname und Geschlecht (Pflichtfelder) aus. Optional können Sie Geburts- und Sterbedaten, Orte, eine Biografie und ein Foto hinzufügen.",
+      "step4Title": "Beziehungen aufbauen",
+      "step4Body": "Öffnen Sie das Profil einer Person und gehen Sie zum Tab Beziehungen. Klicken Sie auf + Beziehung hinzufügen, um sie als Vater, Mutter, Geschwister oder Ehepartner einer anderen Person in Ihrem Baum zu verknüpfen."
     },
     "people": {
       "title": "Personen verwalten",
