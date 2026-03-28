@@ -16,6 +16,7 @@ export default async function HelpPage() {
           <Step number={1} title={t("gettingStarted.step1Title")} body={t("gettingStarted.step1Body")} />
           <Step number={2} title={t("gettingStarted.step2Title")} body={t("gettingStarted.step2Body")} />
           <Step number={3} title={t("gettingStarted.step3Title")} body={t("gettingStarted.step3Body")} />
+          <Step number={4} title={t("gettingStarted.step4Title")} body={t("gettingStarted.step4Body")} />
         </Steps>
       </Section>
 

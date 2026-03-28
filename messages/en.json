@@ -294,11 +294,13 @@
     "gettingStarted": {
       "title": "Getting Started",
       "step1Title": "Create an account",
-      "step1Body": "Click Sign In and choose Create Account. Enter a username, email address, and password (at least 8 characters). You will receive a confirmation email — click the link to activate your account.",
-      "step2Title": "Add your first person",
-      "step2Body": "Click Add Person in the navigation bar. Fill in the first name, family name, and sex (required). Optionally add birth and death dates and places, a biography, and a photo.",
-      "step3Title": "Build relationships",
-      "step3Body": "Open a person's profile and go to the Relationships tab. Click + Add Relationship to link them as Father, Mother, Sibling, or Spouse of another person in your tree."
+      "step1Body": "Click Sign In and choose Create Account. Enter a username, first name, surname, sex, email address, and password (at least 8 characters). You will receive a confirmation email — click the link to activate your account.",
+      "step2Title": "Your family tree is ready",
+      "step2Body": "On your first login, Clann automatically creates a family tree named after your surname and adds you as the first family member using the details you provided at registration. You can find your tree in the navigation bar dropdown and edit your entry at any time.",
+      "step3Title": "Add more people",
+      "step3Body": "Your own entry is already in the tree. Click Add Person in the navigation bar to add other family members. Fill in the first name, family name, and sex (required). Optionally add birth and death dates and places, a biography, and a photo.",
+      "step4Title": "Build relationships",
+      "step4Body": "Open a person's profile and go to the Relationships tab. Click + Add Relationship to link them as Father, Mother, Sibling, or Spouse of another person in your tree."
     },
     "people": {
       "title": "Managing People",

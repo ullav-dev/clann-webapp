@@ -294,11 +294,13 @@
     "gettingStarted": {
       "title": "Ag Tosú",
       "step1Title": "Cruthaigh cuntas",
-      "step1Body": "Cliceáil Logáil Isteach agus roghnaigh Cruthaigh Cuntas. Cuir isteach ainm úsáideora, seoladh ríomhphoist, agus pasfhocal (8 gcarachtar ar a laghad). Gheobhaidh tú ríomhphost deimhnithe — cliceáil an nasc chun do chuntas a ghníomhachtú.",
-      "step2Title": "Cuir an chéad duine leis",
-      "step2Body": "Cliceáil Duine a Chur Leis sa bharra nascleanúna. Líon isteach an céadainm, sloinne, agus inscne (riachtanach). Is féidir leat dátaí agus áiteanna breithe agus báis, beathaisnéis, agus grianghraf a chur leis más mian leat.",
-      "step3Title": "Tóg caidrimh",
-      "step3Body": "Oscail próifíl duine agus téigh go dtí an tab Caidrimh. Cliceáil + Caidreamh a Chur Leis chun iad a nascadh mar Athair, Máthair, Deartháir/Deirfiúr, nó Céile duine eile i do chrann."
+      "step1Body": "Cliceáil Logáil Isteach agus roghnaigh Cruthaigh Cuntas. Cuir isteach ainm úsáideora, céadainm, sloinne, inscne, seoladh ríomhphoist, agus pasfhocal (8 gcarachtar ar a laghad). Gheobhaidh tú ríomhphost deimhnithe — cliceáil an nasc chun do chuntas a ghníomhachtú.",
+      "step2Title": "Tá do chrann teaghlaigh réidh",
+      "step2Body": "Ar do chéad logáil isteach, cruthaíonn Clann crann teaghlaigh go huathoibríoch ainmnithe i ndiaidh do shloinne, agus cuireann sé tú féin leis mar an gcéad chomhalta teaghlaigh ag baint úsáide as na sonraí a thug tú ag clárú. Is féidir leat do chrann a aimsiú sa roghchlár anuas sa bharra nascleanúna agus d'iontráil a chur in eagar am ar bith.",
+      "step3Title": "Cuir daoine eile leis",
+      "step3Body": "Tá d'iontráil féin sa chrann cheana féin. Cliceáil Duine a Chur Leis sa bharra nascleanúna chun comhaltaí teaghlaigh eile a chur leis. Líon isteach an céadainm, sloinne, agus inscne (riachtanach). Is féidir leat dátaí agus áiteanna breithe agus báis, beathaisnéis, agus grianghraf a chur leis más mian leat.",
+      "step4Title": "Tóg caidrimh",
+      "step4Body": "Oscail próifíl duine agus téigh go dtí an tab Caidrimh. Cliceáil + Caidreamh a Chur Leis chun iad a nascadh mar Athair, Máthair, Deartháir/Deirfiúr, nó Céile duine eile i do chrann."
     },
     "people": {
       "title": "Daoine a Bhainistiú",
