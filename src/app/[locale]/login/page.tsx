@@ -28,6 +28,7 @@ export default function LoginPage() {
   const [loginPassword, setLoginPassword] = useState("");
   const [regUsername, setRegUsername] = useState("");
   const [regSurname, setRegSurname] = useState("");
+  const [regSex, setRegSex] = useState<"Male" | "Female" | "">("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
@@ -59,6 +60,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     if (regPassword !== regConfirm) return setError(t("passwordsDoNotMatch"));
+    if (!regSex) return setError(t("sexRequired"));
     if (!regTerms) return setError(t("termsNotAccepted"));
     setSubmitting(true);
     try {
@@ -68,7 +70,7 @@ export default function LoginPage() {
       // auto-create the first family tree once the user's account is active.
       localStorage.setItem(
         "clann_pending_tree",
-        JSON.stringify({ surname: regSurname, familyWord: t("familyWord"), email: regEmail })
+        JSON.stringify({ surname: regSurname, familyWord: t("familyWord"), email: regEmail, sex: regSex })
       );
       setPendingEmail(regEmail);
       setStage("verify-email");
@@ -190,6 +192,14 @@ export default function LoginPage() {
             </Field>
             <Field label={t("surname")} htmlFor="reg-surname">
               <input id="reg-surname" required value={regSurname} onChange={(e) => setRegSurname(e.target.value)} className={inputCls} placeholder={t("surnamePlaceholder")} />
+            </Field>
+            <Field label={t("sexLabel")} htmlFor="reg-sex">
+              <select id="reg-sex" required value={regSex} onChange={(e) => setRegSex(e.target.value as "Male" | "Female" | "")} className={inputCls}>
+                <option value="">{t("sexPlaceholder")}</option>
+                <option value="Male">{t("sexMale")}</option>
+                <option value="Female">{t("sexFemale")}</option>
+              </select>
+              <p className="mt-1 text-xs text-stone-400">{t("sexHint")}</p>
             </Field>
             <Field label={t("email")} htmlFor="reg-email">
               <input id="reg-email" type="email" required value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className={inputCls} />

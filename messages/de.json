@@ -81,7 +81,13 @@
     "confirmEmailBackToLogin": "← Zurück zur Anmeldung",
     "surname": "Nachname",
     "surnamePlaceholder": "Ihr Nachname",
-    "familyWord": "Familie"
+    "familyWord": "Familie",
+    "sexLabel": "Geschlecht",
+    "sexPlaceholder": "Auswählen…",
+    "sexMale": "Männlich",
+    "sexFemale": "Weiblich",
+    "sexHint": "Wird verwendet, um Ihren ersten Familienbaumeintrag zu erstellen — Sie können dies später ändern.",
+    "sexRequired": "Bitte wählen Sie Ihr Geschlecht"
   },
   "family": {
     "title": "Familienmitglieder",

@@ -81,7 +81,13 @@
     "confirmEmailBackToLogin": "← Back to login",
     "surname": "Surname",
     "surnamePlaceholder": "Your surname",
-    "familyWord": "Family"
+    "familyWord": "Family",
+    "sexLabel": "Sex",
+    "sexPlaceholder": "Select…",
+    "sexMale": "Male",
+    "sexFemale": "Female",
+    "sexHint": "Used to create your initial family tree entry — you can update it later.",
+    "sexRequired": "Please select your sex"
   },
   "family": {
     "title": "Family Members",

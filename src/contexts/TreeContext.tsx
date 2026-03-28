@@ -50,7 +50,7 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
           const raw = localStorage.getItem("clann_pending_tree");
           if (raw) {
             try {
-              const { surname, familyWord, email } = JSON.parse(raw) as { surname: string; familyWord: string; email: string };
+              const { surname, familyWord, email, sex } = JSON.parse(raw) as { surname: string; familyWord: string; email: string; sex: "Male" | "Female" };
               const slug = user.username.toLowerCase().replace(/[^a-z0-9]+/g, "-");
               const tree = await api.createTree({
                 name: `${slug}-family`,
@@ -63,7 +63,7 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
               await api.createPerson({
                 first_name: user.username,
                 family_name: surname,
-                sex: "Male",
+                sex,
                 username: user.username,
                 email,
                 created_by: user.username,

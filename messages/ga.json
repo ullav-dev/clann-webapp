@@ -81,7 +81,13 @@
     "confirmEmailBackToLogin": "← Ar ais go dtí logáil isteach",
     "surname": "Sloinne",
     "surnamePlaceholder": "Do shloinne",
-    "familyWord": "Teaghlach"
+    "familyWord": "Teaghlach",
+    "sexLabel": "Gnéas",
+    "sexPlaceholder": "Roghnaigh…",
+    "sexMale": "Fireann",
+    "sexFemale": "Baineann",
+    "sexHint": "Úsáidtear é chun d'iontráil crainn teaghlaigh tosaigh a chruthú — is féidir leat é a nuashonrú níos déanaí.",
+    "sexRequired": "Roghnaigh do ghnéas le do thoil"
   },
   "family": {
     "title": "Baill Teaghlaigh",
