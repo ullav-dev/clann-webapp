@@ -78,7 +78,10 @@
     "confirmEmailSuccess": "Ríomhphost deimhnithe! Is féidir leat síniú isteach anois.",
     "confirmEmailFailed": "Theip ar an deimhniú. D'fhéadfadh an nasc a bheith imithe in éag.",
     "confirmEmailSignIn": "Sínigh Isteach →",
-    "confirmEmailBackToLogin": "← Ar ais go dtí logáil isteach"
+    "confirmEmailBackToLogin": "← Ar ais go dtí logáil isteach",
+    "surname": "Sloinne",
+    "surnamePlaceholder": "Do shloinne",
+    "familyWord": "Teaghlach"
   },
   "family": {
     "title": "Baill Teaghlaigh",

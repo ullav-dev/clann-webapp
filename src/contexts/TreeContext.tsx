@@ -44,7 +44,30 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(true);
     api.listTrees(user.username)
-      .then((loaded) => {
+      .then(async (loaded) => {
+        // Auto-create the first tree for a brand-new user.
+        if (loaded.length === 0) {
+          const raw = localStorage.getItem("clann_pending_tree");
+          if (raw) {
+            try {
+              const { surname, familyWord } = JSON.parse(raw) as { surname: string; familyWord: string };
+              const slug = user.username.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+              const tree = await api.createTree({
+                name: `${slug}-family`,
+                display_name: `${surname} ${familyWord}`,
+                owner: user.username,
+                is_primary: true,
+              });
+              localStorage.removeItem("clann_pending_tree");
+              setTrees([tree]);
+              setActiveTreeState(tree);
+              localStorage.setItem(STORAGE_KEY, tree.name);
+              return;
+            } catch {
+              localStorage.removeItem("clann_pending_tree");
+            }
+          }
+        }
         setTrees(loaded);
         const savedName = localStorage.getItem(STORAGE_KEY);
         const saved = loaded.find((t) => t.name === savedName);

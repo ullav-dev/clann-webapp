@@ -78,7 +78,10 @@
     "confirmEmailSuccess": "E-Mail bestätigt! Sie können sich jetzt anmelden.",
     "confirmEmailFailed": "Bestätigung fehlgeschlagen. Der Link ist möglicherweise abgelaufen.",
     "confirmEmailSignIn": "Anmelden →",
-    "confirmEmailBackToLogin": "← Zurück zur Anmeldung"
+    "confirmEmailBackToLogin": "← Zurück zur Anmeldung",
+    "surname": "Nachname",
+    "surnamePlaceholder": "Ihr Nachname",
+    "familyWord": "Familie"
   },
   "family": {
     "title": "Familienmitglieder",

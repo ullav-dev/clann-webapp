@@ -78,7 +78,10 @@
     "confirmEmailSuccess": "Email confirmed! You can now sign in.",
     "confirmEmailFailed": "Verification failed. The link may have expired.",
     "confirmEmailSignIn": "Sign In →",
-    "confirmEmailBackToLogin": "← Back to login"
+    "confirmEmailBackToLogin": "← Back to login",
+    "surname": "Surname",
+    "surnamePlaceholder": "Your surname",
+    "familyWord": "Family"
   },
   "family": {
     "title": "Family Members",

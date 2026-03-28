@@ -27,6 +27,7 @@ export default function LoginPage() {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [regUsername, setRegUsername] = useState("");
+  const [regSurname, setRegSurname] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
@@ -63,6 +64,12 @@ export default function LoginPage() {
     try {
       const confirmUrl = `${window.location.origin}/${locale}`;
       await register(regUsername, regEmail, regPassword, confirmUrl);
+      // Store the surname and locale-specific "Family" word so TreeContext can
+      // auto-create the first family tree once the user's account is active.
+      localStorage.setItem(
+        "clann_pending_tree",
+        JSON.stringify({ surname: regSurname, familyWord: t("familyWord") })
+      );
       setPendingEmail(regEmail);
       setStage("verify-email");
     } catch (err) {
@@ -180,6 +187,9 @@ export default function LoginPage() {
           <form onSubmit={handleRegister} className="space-y-4">
             <Field label={t("username")} htmlFor="reg-username">
               <input id="reg-username" required autoFocus value={regUsername} onChange={(e) => setRegUsername(e.target.value)} className={inputCls} placeholder={t("usernamePlaceholder")} />
+            </Field>
+            <Field label={t("surname")} htmlFor="reg-surname">
+              <input id="reg-surname" required value={regSurname} onChange={(e) => setRegSurname(e.target.value)} className={inputCls} placeholder={t("surnamePlaceholder")} />
             </Field>
             <Field label={t("email")} htmlFor="reg-email">
               <input id="reg-email" type="email" required value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className={inputCls} />
