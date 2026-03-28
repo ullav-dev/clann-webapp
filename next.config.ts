@@ -5,20 +5,9 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  async rewrites() {
-    return [
-      // Proxy /api/* to the clann-server backend (avoids CORS)
-      {
-        source: "/api/:path*",
-        destination: `${process.env.API_URL ?? "http://clann-server:3001"}/api/:path*`,
-      },
-      // Proxy /auth-api/* to the user-management service (avoids CORS)
-      {
-        source: "/auth-api/:path*",
-        destination: `${process.env.AUTH_URL ?? "http://ullav-auth:8081"}/:path*`,
-      },
-    ];
-  },
+  // API proxying (/api/* and /auth-api/*) is handled in src/middleware.ts so
+  // that API_URL / AUTH_URL are read at request time from process.env rather
+  // than being baked into routes-manifest.json at build time.
 };
 
 export default withNextIntl(nextConfig);
