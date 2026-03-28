@@ -5,7 +5,7 @@ import { routing } from "./i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   // Proxy /api/* → clann-server (keeps /api prefix).
@@ -27,6 +27,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // api/* and auth-api/* are now included (handled above before intl middleware)
   matcher: ["/((?!_next|_vercel|.*\\..*).*)"],
 };

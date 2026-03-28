@@ -18,7 +18,7 @@ A responsive, localised family tree management application built with Next.js, b
 - **Export** — download the tree as a **JPEG image** or a **flat JSON file** (`persons` array + `relationships` array, with full person fields and typed relationship entries including `sibling_type` and spouse dates)
 - **Import** — upload a previously exported Clann JSON file to create a new tree; 3-step modal (upload → name/preview → live progress) reconstructs all people and relationships
 - **Family Members list** — card or list view with sort (family name, date of birth, place of birth), name search, and **pagination** (5–30 per page, default 10)
-- **Authentication** — login, registration with **email verification**, and **email-based password reset** via ullav-user-management; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind login; ownership filter enforced server-side; all password fields have a show/hide toggle
+- **Authentication** — login, registration (first name, surname, sex, email, password) with **email verification**, and **email-based password reset** via ullav-user-management; on first login the initial family tree and person are created automatically from the registration details; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind login; ownership filter enforced server-side; all password fields have a show/hide toggle
 - **Life Story** — biography field accepts markdown (headings, bold, italic, lists, links); rendered as formatted prose in the dedicated **Life Story** tab on each person's profile page; edited using a toolbar-driven markdown editor in the edit form. An optional **life story image** (JPEG/PNG ≤ 2 MB) can be uploaded directly from the Life Story tab and is displayed top-left alongside the biography text. The tab includes an **Export as PDF** button that opens the browser print dialog; the output is named after the person and includes their name, birth details, life story image, and full biography
 - **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, list view, multiple trees including export/import), accessible from the nav bar (far-right item) without logging in
 - **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
@@ -36,13 +36,13 @@ A responsive, localised family tree management application built with Next.js, b
 npm install
 
 # Create environment file
-echo "NEXT_PUBLIC_API_URL=http://localhost:3000" > .env.local
+printf "API_URL=http://localhost:3000\nAUTH_URL=http://localhost:8081\n" > .env.local
 
 # Start the development server (port 3001)
 npm run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001). The middleware will detect your browser language and redirect to the appropriate locale prefix (e.g. `/en/`, `/de/`, `/ga/`).
+Open [http://localhost:3001](http://localhost:3001). The proxy (`src/proxy.ts`) will detect your browser language and redirect to the appropriate locale prefix (e.g. `/en/`, `/de/`, `/ga/`).
 
 > **Node v25 note:** the `.bin/next` symlink is broken on Node v25. The npm scripts already work around this by invoking `node node_modules/next/dist/bin/next` directly.
 
@@ -64,10 +64,11 @@ Copy `.env.prod` and fill in the internal Docker service addresses:
 
 ```bash
 # .env.prod (not committed — create on the server)
-NEXT_PUBLIC_API_URL=http://clann-server:3000
-NEXT_PUBLIC_AUTH_URL=http://ullav-auth:8081
-PORT=3001
+API_URL=http://clann-server:3001
+AUTH_URL=http://ullav-auth:8081
 ```
+
+> **Note:** Use plain `API_URL` / `AUTH_URL`, **not** `NEXT_PUBLIC_*` variants. `NEXT_PUBLIC_*` variables are inlined at build time and cannot be set at runtime. The defaults already point to the correct Docker service names, so these vars are only needed if your service names differ.
 
 ### Build and run
 
@@ -151,7 +152,7 @@ src/
     auth-api.ts             # Auth service fetch wrappers
     persons.ts              # Pure sort/filter/pagination helpers (tested)
     tree-import.ts          # Parser for Clann JSON export format
-  middleware.ts             # Locale detection and URL prefix routing
+  proxy.ts                  # API/auth rewrites + locale detection (Next.js 16 proxy convention)
 ```
 
 ## Testing
@@ -171,6 +172,6 @@ npm run test:watch # Watch mode
 
 ## API
 
-All requests go through the Next.js rewrite proxy (`/api/*` → `http://localhost:3000/api/*`), so there are no CORS issues. The backend base URL is configured via `NEXT_PUBLIC_API_URL` in `.env.local`.
+All browser requests go through the Next.js proxy (`src/proxy.ts`): `/api/*` is rewritten to clann-server and `/auth-api/*` to ullav-user-management, so there are no CORS issues. The backend URLs are configured via `API_URL` and `AUTH_URL` in `.env.local` (runtime env vars, not `NEXT_PUBLIC_*`).
 
 Every API call includes `created_by=<username>` (applied automatically by `useApi`). The backend enforces ownership server-side and grants admin access when the username matches the `ADMIN_USERNAME` environment variable.

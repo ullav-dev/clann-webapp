@@ -27,6 +27,7 @@ export default function LoginPage() {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [regUsername, setRegUsername] = useState("");
+  const [regFirstName, setRegFirstName] = useState("");
   const [regSurname, setRegSurname] = useState("");
   const [regSex, setRegSex] = useState<"Male" | "Female" | "">("");
   const [regEmail, setRegEmail] = useState("");
@@ -42,6 +43,12 @@ export default function LoginPage() {
     if (!isLoading && user) router.replace("/family");
   }, [isLoading, user, router]);
 
+  function errorMessage(err: unknown, fallback: string): string {
+    const msg = err instanceof Error ? err.message : "";
+    if (/^HTTP 5/.test(msg)) return t("serverError");
+    return msg || fallback;
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -50,7 +57,7 @@ export default function LoginPage() {
       await login(loginEmail, loginPassword);
       router.push("/family");
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("loginFailed"));
+      setError(errorMessage(err, t("loginFailed")));
     } finally {
       setSubmitting(false);
     }
@@ -70,12 +77,12 @@ export default function LoginPage() {
       // auto-create the first family tree once the user's account is active.
       localStorage.setItem(
         "clann_pending_tree",
-        JSON.stringify({ surname: regSurname, familyWord: t("familyWord"), email: regEmail, sex: regSex })
+        JSON.stringify({ firstName: regFirstName, surname: regSurname, familyWord: t("familyWord"), email: regEmail, sex: regSex })
       );
       setPendingEmail(regEmail);
       setStage("verify-email");
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("registrationFailed"));
+      setError(errorMessage(err, t("registrationFailed")));
     } finally {
       setSubmitting(false);
     }
@@ -90,7 +97,7 @@ export default function LoginPage() {
       await requestPasswordReset(resetEmail, resetUrl);
       setResetSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("requestFailed"));
+      setError(errorMessage(err, t("requestFailed")));
     } finally {
       setSubmitting(false);
     }
@@ -110,7 +117,7 @@ export default function LoginPage() {
           {error && <ErrorBox message={error} />}
           <button
             type="button"
-            onClick={() => { setStage("form"); setError(null); }}
+            onClick={() => { setStage("form"); setTab("login"); setError(null); }}
             className="text-sm text-stone-500 hover:text-stone-700 transition-colors"
           >
             {t("backToLogin")}
@@ -190,6 +197,9 @@ export default function LoginPage() {
             <Field label={t("username")} htmlFor="reg-username">
               <input id="reg-username" required autoFocus value={regUsername} onChange={(e) => setRegUsername(e.target.value)} className={inputCls} placeholder={t("usernamePlaceholder")} />
             </Field>
+            <Field label={t("firstName")} htmlFor="reg-firstname">
+              <input id="reg-firstname" required value={regFirstName} onChange={(e) => setRegFirstName(e.target.value)} className={inputCls} placeholder={t("firstNamePlaceholder")} />
+            </Field>
             <Field label={t("surname")} htmlFor="reg-surname">
               <input id="reg-surname" required value={regSurname} onChange={(e) => setRegSurname(e.target.value)} className={inputCls} placeholder={t("surnamePlaceholder")} />
             </Field>
@@ -230,7 +240,7 @@ export default function LoginPage() {
             </label>
             <SubmitButton
               loading={submitting}
-              disabled={!regUsername || !regSurname || !regSex || !regEmail || !regPassword || !regConfirm || !regTerms}
+              disabled={!regUsername || !regFirstName || !regSurname || !regSex || !regEmail || !regPassword || !regConfirm || !regTerms}
               label={t("createAccount")}
               pleaseWait={t("pleaseWait")}
             />
