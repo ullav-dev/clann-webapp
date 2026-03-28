@@ -86,7 +86,7 @@
     "sexPlaceholder": "Roghnaigh…",
     "sexMale": "Fireann",
     "sexFemale": "Baineann",
-    "sexHint": "Úsáidtear é chun d'iontráil crainn teaghlaigh tosaigh a chruthú — is féidir leat é a nuashonrú níos déanaí.",
+    "sexHint": "Úsáidtear é chun d'iontráil crainn teaghlaigh tosaigh a chruthú.",
     "sexRequired": "Roghnaigh do ghnéas le do thoil"
   },
   "family": {

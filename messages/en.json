@@ -86,7 +86,7 @@
     "sexPlaceholder": "Select…",
     "sexMale": "Male",
     "sexFemale": "Female",
-    "sexHint": "Used to create your initial family tree entry — you can update it later.",
+    "sexHint": "Used to create your initial family tree entry.",
     "sexRequired": "Please select your sex"
   },
   "family": {

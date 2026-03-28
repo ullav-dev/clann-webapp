@@ -86,7 +86,7 @@
     "sexPlaceholder": "Auswählen…",
     "sexMale": "Männlich",
     "sexFemale": "Weiblich",
-    "sexHint": "Wird verwendet, um Ihren ersten Familienbaumeintrag zu erstellen — Sie können dies später ändern.",
+    "sexHint": "Wird verwendet, um Ihren ersten Familienbaumeintrag zu erstellen.",
     "sexRequired": "Bitte wählen Sie Ihr Geschlecht"
   },
   "family": {
