@@ -319,7 +319,11 @@
       "typesTitle": "Cineálacha caidrimh",
       "typesBody": "Is féidir leat daoine a nascadh mar Athair, Máthair, Deartháir/Deirfiúr, nó Céile. Oscail próifíl duine, téigh go dtí an tab Caidrimh, agus cliceáil + Caidreamh a Chur Leis chun an cineál agus an duine gaolmhar a roghnú.",
       "siblingTitle": "Deartháireacha/deirfiúracha agus tuismitheoirí",
-      "siblingBody": "Nuair a chuireann tú deartháir nó deirfiúr leis, sannann Clann an tAthair agus an Mháthair chéanna don deartháir/deirfiúr nua go huathoibríoch — mar sin ní gá duit tuismitheoirí a thaifeadadh ach uair amháin.",
+      "siblingBody": "Agus deartháireacha nó deirfiúracha á gcur leis agat, is féidir leat daoine iolracha a roghnú ag an am céanna — coinnigh an liosta oscailte agus tapáil gach ainm. Sannann Clann an tAthair agus an Mháthair chéanna do gach deartháir/deirfiúr nua go huathoibríoch, mar sin ní gá duit tuismitheoirí a thaifeadadh ach uair amháin.",
+      "parentTitle": "Socrú tuismitheora — tógann sé do chrann genealais go huathoibríoch",
+      "parentBody": "Nuair a shocraíonn tú Athair nó Máthair do dhuine, cuardaíonn Clann leanaí eile an tuismitheora sin agus nascann sé iad mar dheartháireacha/deirfiúracha go huathoibríoch. Is bealach cumhachtach é seo chun crann teaghlaigh cuimsitheach a thógáil go tapa — cuir tuismitheoir comhroinnte leis uair amháin agus líonfar an líonra deartháireacha/deirfiúracha duit.",
+      "filterTitle": "Scagadh cliste daoine",
+      "filterBody": "Scagann an roghnóir daoine de réir gnéis chun na meaitseanna ábhartha amháin a thaispeáint: taispeánann Athair fir, taispeánann Máthair mná, taispeánann Deartháir fir, agus taispeánann Deirfiúr mná. Déanann sé seo níos éasca duine a aimsiú i dteaghlaigh mhóra.",
       "spouseTitle": "Dátaí céile",
       "spouseBody": "Is féidir dátaí roghnach Ó agus Go a bheith ag caidrimh céile (téacs saorchineál, m.sh. \"1990\" nó \"2 Meitheamh 2001\"). Socraigh iad agus an caidreamh á chur leis, nó cuir in eagar iad go díreach sa tab Caidrimh."
     },

@@ -21,57 +21,118 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
   const [spouseFrom, setSpouseFrom] = useState("");
   const [spouseTo, setSpouseTo] = useState("");
   const [selectedId, setSelectedId] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     api.listPersons().then((all) =>
-      setPersons(all.filter((p) => p.id !== personId))
+      setPersons(all.filter((p) => api.rawId(p.id) !== personId))
     );
   }, [personId]);
 
-  const filtered = persons.filter((p) =>
-    fullName(p).toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    if (selectedId) {
+      const selected = persons.find((p) => p.id === selectedId);
+      const requiredSex =
+        relType === "Father" ? "Male" :
+        relType === "Mother" ? "Female" :
+        relType === "Sibling" ? (siblingType === "Brother" ? "Male" : "Female") :
+        null;
+      if (selected && requiredSex && selected.sex !== requiredSex) setSelectedId("");
+    }
+    if (selectedIds.size > 0) {
+      const requiredSex =
+        relType === "Sibling" ? (siblingType === "Brother" ? "Male" : "Female") : null;
+      if (requiredSex) {
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          for (const id of prev) {
+            const p = persons.find((p) => p.id === id);
+            if (p && p.sex !== requiredSex) next.delete(id);
+          }
+          return next;
+        });
+      }
+    }
+  }, [relType, siblingType]);
+
+  const filtered = persons.filter((p) => {
+    if (relType === "Father" && p.sex !== "Male") return false;
+    if (relType === "Mother" && p.sex !== "Female") return false;
+    if (relType === "Sibling") {
+      const requiredSex = siblingType === "Brother" ? "Male" : "Female";
+      if (p.sex !== requiredSex) return false;
+    }
+    return fullName(p).toLowerCase().includes(search.toLowerCase());
+  });
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedId) return setError(t("pleaseSelectPerson"));
+    if (relType === "Sibling") {
+      if (selectedIds.size === 0) return setError(t("pleaseSelectPerson"));
+    } else {
+      if (!selectedId) return setError(t("pleaseSelectPerson"));
+    }
     setError(null);
     setLoading(true);
     try {
-      await api.addRelationship(personId, {
-        type: relType,
-        related_id: selectedId,
-        sibling_type: relType === "Sibling" ? siblingType : undefined,
-        spouse_from: relType === "Spouse" && spouseFrom ? spouseFrom : undefined,
-        spouse_to: relType === "Spouse" && spouseTo ? spouseTo : undefined,
-      });
-
-      // When adding a sibling, propagate the root person's parents to the
-      // sibling if the sibling doesn't already have them.
       if (relType === "Sibling") {
-        const [rootRels, siblingRels] = await Promise.all([
-          api.getRelationships(personId),
-          api.getRelationships(selectedId),
-        ]);
+        const rootRels = await api.getRelationships(personId);
 
-        const inheritParent = async (
-          type: "Father" | "Mother",
-          rootParents: { id: string }[],
-          siblingParents: { id: string }[],
-        ) => {
-          const siblingParentIds = new Set(siblingParents.map((p) => p.id));
-          for (const parent of rootParents) {
-            if (!siblingParentIds.has(parent.id)) {
-              await api.addRelationship(selectedId, { type, related_id: parent.id });
+        for (const sibId of selectedIds) {
+          await api.addRelationship(personId, {
+            type: "Sibling",
+            related_id: sibId,
+            sibling_type: siblingType,
+          });
+
+          const siblingRels = await api.getRelationships(sibId);
+
+          const inheritParent = async (
+            type: "Father" | "Mother",
+            rootParents: { id: string }[],
+            siblingParents: { id: string }[],
+          ) => {
+            const siblingParentIds = new Set(siblingParents.map((p) => p.id));
+            for (const parent of rootParents) {
+              if (!siblingParentIds.has(parent.id)) {
+                await api.addRelationship(sibId, { type, related_id: parent.id });
+              }
             }
-          }
-        };
+          };
 
-        await inheritParent("Father", rootRels.father, siblingRels.father);
-        await inheritParent("Mother", rootRels.mother, siblingRels.mother);
+          await inheritParent("Father", rootRels.father, siblingRels.father);
+          await inheritParent("Mother", rootRels.mother, siblingRels.mother);
+        }
+      } else {
+        await api.addRelationship(personId, {
+          type: relType,
+          related_id: selectedId,
+          spouse_from: relType === "Spouse" && spouseFrom ? spouseFrom : undefined,
+          spouse_to: relType === "Spouse" && spouseTo ? spouseTo : undefined,
+        });
+
+        // When adding a Father or Mother, find the parent's other children and
+        // set them as siblings of the current person.
+        if (relType === "Father" || relType === "Mother") {
+          const [parentTree, myRels] = await Promise.all([
+            api.getFamilyTree(selectedId),
+            api.getRelationships(personId),
+          ]);
+          const existingSiblingIds = new Set(myRels.siblings.map((s) => api.rawId(s.id)));
+          for (const child of parentTree.children ?? []) {
+            if (api.rawId(child.id) === personId) continue;
+            if (existingSiblingIds.has(api.rawId(child.id))) continue;
+            const siblingType: SiblingType = child.sex === "Female" ? "Sister" : "Brother";
+            await api.addRelationship(personId, {
+              type: "Sibling",
+              related_id: child.id,
+              sibling_type: siblingType,
+            });
+          }
+        }
       }
 
       onDone();
@@ -185,26 +246,39 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
               {filtered.length === 0 && (
                 <p className="text-stone-400 text-sm text-center py-4">{t("noPeopleFound")}</p>
               )}
-              {filtered.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setSelectedId(p.id)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
-                    selectedId === p.id
-                      ? "bg-emerald-700 text-white"
-                      : "hover:bg-stone-100 text-stone-700"
-                  }`}
-                >
-                  <span>{personIcon(p.sex)}</span>
-                  <span>{fullName(p)}</span>
-                  {p.date_of_birth && (
-                    <span className={`ml-auto text-xs ${selectedId === p.id ? "text-emerald-200" : "text-stone-400"}`}>
-                      {t("bornPrefix", { date: p.date_of_birth })}
-                    </span>
-                  )}
-                </button>
-              ))}
+              {filtered.map((p) => {
+                const isSelected = relType === "Sibling" ? selectedIds.has(p.id) : selectedId === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      if (relType === "Sibling") {
+                        setSelectedIds((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(p.id)) next.delete(p.id); else next.add(p.id);
+                          return next;
+                        });
+                      } else {
+                        setSelectedId(p.id);
+                      }
+                    }}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                      isSelected
+                        ? "bg-emerald-700 text-white"
+                        : "hover:bg-stone-100 text-stone-700"
+                    }`}
+                  >
+                    <span>{personIcon(p.sex)}</span>
+                    <span>{fullName(p)}</span>
+                    {p.date_of_birth && (
+                      <span className={`ml-auto text-xs ${isSelected ? "text-emerald-200" : "text-stone-400"}`}>
+                        {t("bornPrefix", { date: p.date_of_birth })}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -218,7 +292,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
             </button>
             <button
               type="submit"
-              disabled={loading || !selectedId}
+              disabled={loading || (relType === "Sibling" ? selectedIds.size === 0 : !selectedId)}
               className="flex-1 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white rounded-lg py-2.5 text-sm font-medium transition-colors"
             >
               {loading ? t("adding") : t("addRelationship")}

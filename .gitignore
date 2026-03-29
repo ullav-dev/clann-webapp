@@ -20,8 +20,12 @@
 # production
 /build
 
-# misc
+# Colin added
 .DS_Store
+resources
+memory
+
+# misc
 *.pem
 
 # debug

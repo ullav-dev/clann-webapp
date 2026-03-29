@@ -32,6 +32,8 @@ export default async function HelpPage() {
         <Cards>
           <Card title={t("relationships.typesTitle")} body={t("relationships.typesBody")} />
           <Card title={t("relationships.siblingTitle")} body={t("relationships.siblingBody")} />
+          <Card title={t("relationships.parentTitle")} body={t("relationships.parentBody")} />
+          <Card title={t("relationships.filterTitle")} body={t("relationships.filterBody")} />
           <Card title={t("relationships.spouseTitle")} body={t("relationships.spouseBody")} />
         </Cards>
       </Section>
