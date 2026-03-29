@@ -375,24 +375,22 @@ export default function FamilyTreeView({ tree }: Props) {
 
       const relKeys = new Set<string>();
       const relationships: object[] = [];
-      function addRel(type: string, personId: string, relatedId: string, siblingType?: string) {
+      function addRel(type: string, personId: string, relatedId: string, extra?: Record<string, string | null>) {
         const key =
           type === "Spouse" || type === "Sibling"
             ? `${type}:${[personId, relatedId].sort().join(":")}`
             : `${type}:${personId}:${relatedId}`;
         if (!relKeys.has(key)) {
           relKeys.add(key);
-          const rel: Record<string, string> = { type, person_id: personId, related_id: relatedId };
-          if (siblingType) rel.sibling_type = siblingType;
-          relationships.push(rel);
+          relationships.push({ type, person_id: personId, related_id: relatedId, ...extra });
         }
       }
 
       for (const { id, r } of relResults) {
         for (const p of r.father)   addRel("Father",  id, p.id);
         for (const p of r.mother)   addRel("Mother",  id, p.id);
-        for (const p of r.siblings) addRel("Sibling", id, p.id, p.sex === "Female" ? "Sister" : "Brother");
-        for (const p of r.spouse)   addRel("Spouse",  id, p.id);
+        for (const p of r.siblings) addRel("Sibling", id, p.id, { sibling_type: p.sex === "Female" ? "Sister" : "Brother" });
+        for (const p of r.spouse)   addRel("Spouse",  id, p.id, { spouse_from: p.spouse_from ?? null, spouse_to: p.spouse_to ?? null });
       }
 
       const exportPersons = persons.map(({ id, first_name, family_name, middle_name, sex,

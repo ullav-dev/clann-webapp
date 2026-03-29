@@ -24,6 +24,8 @@ export interface ImportRelationship {
   /** Original ID of the related person */
   relatedId: string;
   sibling_type?: SiblingType | null;
+  spouse_from?: string | null;
+  spouse_to?: string | null;
 }
 
 export interface ParsedImport {
@@ -103,6 +105,8 @@ function parseFlatExport(
         personId,
         relatedId,
         sibling_type: (r.sibling_type as SiblingType | null) ?? null,
+        spouse_from: (r.spouse_from as string | null) ?? null,
+        spouse_to: (r.spouse_to as string | null) ?? null,
       });
     }
   }
