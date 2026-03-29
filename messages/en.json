@@ -1,6 +1,6 @@
 {
   "nav": {
-    "myFamily": "My Family",
+    "myFamily": "Family Home",
     "addPerson": "Add Person",
     "logout": "Logout",
     "login": "Login",
@@ -16,10 +16,10 @@
     "heroHeading1": "Your family history,",
     "heroHeading2": "beautifully connected.",
     "heroDescription": "Clann is a private family tree app. Record people, build relationships, and explore your ancestry through an interactive visual graph — all stored on your own server.",
-    "openFamily": "Open My Family →",
+    "openFamily": "Family Home →",
     "featuresHeading": "Everything you need",
     "ctaText": "Ready to start mapping your family?",
-    "myFamily": "My Family",
+    "myFamily": "Family Home",
     "addFirstPerson": "Add First Person",
     "features": {
       "tree": {
@@ -293,7 +293,7 @@
     "title": "Help & Documentation",
     "subtitle": "Learn how to use Clann to build and explore your family tree.",
     "cta": "Ready to get started?",
-    "ctaButton": "Open My Family",
+    "ctaButton": "Family Home",
     "gettingStarted": {
       "title": "Getting Started",
       "step1Title": "Create an account",
