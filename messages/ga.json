@@ -1,6 +1,6 @@
 {
   "nav": {
-    "myFamily": "Mo Theaghlach",
+    "myFamily": "Baile Teaghlaigh",
     "addPerson": "Duine a Chur Leis",
     "logout": "Logáil Amach",
     "login": "Logáil Isteach",
@@ -16,10 +16,10 @@
     "heroHeading1": "Stair do theaghlaigh,",
     "heroHeading2": "ceangailte go hálainn.",
     "heroDescription": "Is aip phríobháideach crann teaghlaigh é Clann. Taifead daoine, tóg caidrimh, agus déan iniúchadh ar do shinsearacht trí ghraf idirghníomhach amhairc — ar fad stóráilte ar do fhreastalaí féin.",
-    "openFamily": "Mo Theaghlach a Oscailt →",
+    "openFamily": "Baile Teaghlaigh →",
     "featuresHeading": "Gach rud a theastaíonn uait",
     "ctaText": "Réidh le tús a chur le léarscáiliú do theaghlaigh?",
-    "myFamily": "Mo Theaghlach",
+    "myFamily": "Baile Teaghlaigh",
     "addFirstPerson": "An Chéad Duine a Chur Leis",
     "features": {
       "tree": {
@@ -293,7 +293,7 @@
     "title": "Cabhair & Doiciméadacht",
     "subtitle": "Foghlaim conas Clann a úsáid chun do chrann teaghlaigh a thógáil agus a iniúchadh.",
     "cta": "Réidh le tús a chur?",
-    "ctaButton": "Mo Theaghlach a Oscailt",
+    "ctaButton": "Baile Teaghlaigh",
     "gettingStarted": {
       "title": "Ag Tosú",
       "step1Title": "Cruthaigh cuntas",

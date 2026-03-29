@@ -1,6 +1,6 @@
 {
   "nav": {
-    "myFamily": "Meine Familie",
+    "myFamily": "Familien-Startseite",
     "addPerson": "Person hinzufügen",
     "logout": "Abmelden",
     "login": "Anmelden",
@@ -16,10 +16,10 @@
     "heroHeading1": "Ihre Familiengeschichte,",
     "heroHeading2": "wunderschön verbunden.",
     "heroDescription": "Clann ist eine private Stammbaum-App. Erfassen Sie Personen, bauen Sie Beziehungen auf und erkunden Sie Ihre Ahnen durch einen interaktiven visuellen Graphen – alles auf Ihrem eigenen Server gespeichert.",
-    "openFamily": "Meine Familie öffnen →",
+    "openFamily": "Familien-Startseite →",
     "featuresHeading": "Alles, was Sie brauchen",
     "ctaText": "Bereit, Ihren Stammbaum zu erstellen?",
-    "myFamily": "Meine Familie",
+    "myFamily": "Familien-Startseite",
     "addFirstPerson": "Erste Person hinzufügen",
     "features": {
       "tree": {
@@ -293,7 +293,7 @@
     "title": "Hilfe & Dokumentation",
     "subtitle": "Lernen Sie, wie Sie Clann verwenden, um Ihren Stammbaum aufzubauen und zu erkunden.",
     "cta": "Bereit, loszulegen?",
-    "ctaButton": "Meine Familie öffnen",
+    "ctaButton": "Familien-Startseite",
     "gettingStarted": {
       "title": "Erste Schritte",
       "step1Title": "Konto erstellen",
