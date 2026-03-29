@@ -231,7 +231,7 @@ export default function PersonDetailPage() {
                     </div>
                     {(sp.spouse_from || sp.spouse_to) && editingSpouseId !== sp.id && (
                       <p className="text-xs text-violet-500 mt-1">
-                        {sp.spouse_from && t("spouseFrom", { date: sp.spouse_from })}{sp.spouse_from && sp.spouse_to && " · "}{sp.spouse_to && t("spouseTo", { date: sp.spouse_to })}
+                        {sp.spouse_from && `${t("spouseFrom")}: ${sp.spouse_from}`}{sp.spouse_from && sp.spouse_to && " · "}{sp.spouse_to && `${t("spouseTo")}: ${sp.spouse_to}`}
                       </p>
                     )}
                     {editingSpouseId === sp.id && (

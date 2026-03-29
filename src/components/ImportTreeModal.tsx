@@ -153,6 +153,8 @@ export default function ImportTreeModal({ onClose }: Props) {
           type: rel.type,
           related_id: newRelatedId,
           sibling_type: rel.sibling_type ?? null,
+          spouse_from: rel.spouse_from ?? null,
+          spouse_to: rel.spouse_to ?? null,
         }, user.username);
 
         prog.relsDone += 1;
