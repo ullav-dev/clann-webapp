@@ -319,7 +319,11 @@
       "typesTitle": "Relationship types",
       "typesBody": "You can link people as Father, Mother, Sibling (Brother or Sister), or Spouse. Open a person's profile, go to the Relationships tab, and click + Add Relationship to choose the type and the related person.",
       "siblingTitle": "Siblings and parents",
-      "siblingBody": "When you add a sibling, Clann automatically assigns the same Father and Mother to the new sibling — so you only need to record parents once and all siblings inherit them.",
+      "siblingBody": "When you add siblings you can select multiple people at once — hold the list open and tap each name. Clann automatically assigns the same Father and Mother to every new sibling, so you only need to record parents once.",
+      "parentTitle": "Setting a parent builds your tree automatically",
+      "parentBody": "When you set a Father or Mother for a person, Clann looks up that parent's other children and automatically links them as siblings. This is a powerful way to build a comprehensive family tree quickly — add a shared parent once and the sibling network fills in for you.",
+      "filterTitle": "Smart person filtering",
+      "filterBody": "The person picker filters by sex to show only relevant matches: Father shows males, Mother shows females, Brother shows males, and Sister shows females. This makes it faster to find the right person in large families.",
       "spouseTitle": "Spouse dates",
       "spouseBody": "Spouse relationships can carry optional From and To dates (free-form text, e.g. \"1990\" or \"2 June 2001\"). Set them when adding the relationship, or edit them inline in the Relationships tab."
     },

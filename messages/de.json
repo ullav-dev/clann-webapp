@@ -319,7 +319,11 @@
       "typesTitle": "Beziehungstypen",
       "typesBody": "Sie können Personen als Vater, Mutter, Geschwister (Bruder oder Schwester) oder Ehepartner verknüpfen. Öffnen Sie das Profil einer Person, gehen Sie zum Tab Beziehungen, und klicken Sie auf + Beziehung hinzufügen, um den Typ und die verknüpfte Person auszuwählen.",
       "siblingTitle": "Geschwister und Eltern",
-      "siblingBody": "Wenn Sie ein Geschwisterkind hinzufügen, weist Clann automatisch denselben Vater und dieselbe Mutter dem neuen Geschwisterkind zu — Sie müssen Eltern also nur einmal erfassen, und alle Geschwister erben sie.",
+      "siblingBody": "Beim Hinzufügen von Geschwistern können Sie mehrere Personen gleichzeitig auswählen — lassen Sie die Liste offen und tippen Sie auf jeden Namen. Clann weist jedem neuen Geschwisterkind automatisch denselben Vater und dieselbe Mutter zu, sodass Sie Eltern nur einmal erfassen müssen.",
+      "parentTitle": "Elternteil setzen baut Ihren Stammbaum automatisch auf",
+      "parentBody": "Wenn Sie für eine Person einen Vater oder eine Mutter setzen, sucht Clann die anderen Kinder dieses Elternteils und verknüpft sie automatisch als Geschwister. Dies ist eine leistungsstarke Möglichkeit, schnell einen umfassenden Stammbaum aufzubauen — fügen Sie einen gemeinsamen Elternteil einmal hinzu und das Geschwisternetzwerk füllt sich von selbst.",
+      "filterTitle": "Intelligente Personenfilterung",
+      "filterBody": "Die Personenauswahl filtert nach Geschlecht, um nur passende Treffer anzuzeigen: Vater zeigt Männer, Mutter zeigt Frauen, Bruder zeigt Männer und Schwester zeigt Frauen. Das erleichtert die Suche in großen Familien.",
       "spouseTitle": "Ehe-Daten",
       "spouseBody": "Ehebeziehungen können optionale Von- und Bis-Daten tragen (Freitext, z. B. '1990' oder '2. Juni 2001'). Setzen Sie sie beim Hinzufügen der Beziehung oder bearbeiten Sie sie direkt im Tab Beziehungen."
     },
