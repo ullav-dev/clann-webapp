@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { register, requestPasswordReset } from "@/lib/auth-api";
 import PasswordInput from "@/components/PasswordInput";
 import TermsModal from "@/components/TermsModal";
+import DisclaimerModal from "@/components/DisclaimerModal";
 
 type Tab = "login" | "register";
 type Stage = "form" | "verify-email" | "reset-request";
@@ -34,7 +35,9 @@ export default function LoginPage() {
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
   const [regTerms, setRegTerms] = useState(false);
+  const [regDisclaimer, setRegDisclaimer] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
   const [resetEmail, setResetEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
@@ -68,6 +71,7 @@ export default function LoginPage() {
     setError(null);
     if (regPassword !== regConfirm) return setError(t("passwordsDoNotMatch"));
     if (!regSex) return setError(t("sexRequired"));
+    if (!regDisclaimer) return setError(t("disclaimerNotAccepted"));
     if (!regTerms) return setError(t("termsNotAccepted"));
     setSubmitting(true);
     try {
@@ -223,6 +227,24 @@ export default function LoginPage() {
             <label className="flex items-start gap-2.5 cursor-pointer select-none">
               <input
                 type="checkbox"
+                checked={regDisclaimer}
+                onChange={(e) => setRegDisclaimer(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 shrink-0"
+              />
+              <span className="text-sm text-stone-700">
+                {t("disclaimerAgreePrefix")}{" "}
+                <button
+                  type="button"
+                  onClick={() => setShowDisclaimer(true)}
+                  className="text-emerald-700 underline hover:text-emerald-800 transition-colors"
+                >
+                  {t("disclaimerLinkText")}
+                </button>
+              </span>
+            </label>
+            <label className="flex items-start gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
                 checked={regTerms}
                 onChange={(e) => setRegTerms(e.target.checked)}
                 className="mt-0.5 w-4 h-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 shrink-0"
@@ -240,13 +262,14 @@ export default function LoginPage() {
             </label>
             <SubmitButton
               loading={submitting}
-              disabled={!regUsername || !regFirstName || !regSurname || !regSex || !regEmail || !regPassword || !regConfirm || !regTerms}
+              disabled={!regUsername || !regFirstName || !regSurname || !regSex || !regEmail || !regPassword || !regConfirm || !regDisclaimer || !regTerms}
               label={t("createAccount")}
               pleaseWait={t("pleaseWait")}
             />
           </form>
         )}
         {showTerms && <TermsModal onClose={() => setShowTerms(false)} />}
+        {showDisclaimer && <DisclaimerModal onClose={() => setShowDisclaimer(false)} />}
         <p className="mt-6 text-center text-xs text-stone-400">
           <Link href="/" className="hover:text-stone-600 transition-colors">{t("backToHome")}</Link>
         </p>
