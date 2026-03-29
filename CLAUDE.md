@@ -70,6 +70,9 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 - `src/components/LocaleSwitcher.tsx` — language selector dropdown in the nav
 - `src/components/TreeSelector.tsx` — dropdown in the nav for selecting, creating, deleting (non-primary only), and setting the primary family tree; also opens `ImportTreeModal`
 - `src/components/ImportTreeModal.tsx` — 3-step modal (upload → name/preview → progress → done) for importing a tree from a Clann JSON export
+- `src/components/TermsModal.tsx` — scrollable modal for Terms & Conditions; reads content from `login.termsContent` translation key (rendered as markdown)
+- `src/components/DisclaimerModal.tsx` — scrollable modal for the Disclaimer; reads content from `disclaimer.content` translation key (rendered as markdown); used in both the footer and the registration form
+- `src/components/Footer.tsx` — site footer with © year, Disclaimer link, and Terms & Conditions link
 - `src/contexts/TreeContext.tsx` — holds the list of trees, the active tree, and tree CRUD actions; persists active selection in localStorage (`clann_active_tree`)
 - `src/lib/tree-import.ts` — pure parser for the Clann JSON export format; deduplicates persons and relationships
 
@@ -137,7 +140,7 @@ After parsing, the modal creates a new tree via `TreeContext.createTree(..., { s
 
 **Library:** next-intl v4. Supported locales: `en` (default), `de`, `ga`. Defined in `src/i18n/routing.ts`.
 
-- Translation files live in `messages/{locale}.json`, organised by namespace (`nav`, `family`, `personDetail`, `personForm`, `addRelationship`, `imageUpload`, `familyTree`, etc.)
+- Translation files live in `messages/{locale}.json`, organised by namespace (`nav`, `family`, `personDetail`, `personForm`, `addRelationship`, `imageUpload`, `familyTree`, `disclaimer`, `footer`, `help`, etc.)
 - Server components use `await getTranslations("namespace")` (from `next-intl/server`)
 - Client components use `useTranslations("namespace")` (React hook)
 - Do **not** use `t.rich(...)` with `{placeholder}` syntax — use separate keys or XML-style tags (`<b>text</b>`) instead. The `{br}` self-closing placeholder is not supported; split into two keys and insert `<br />` manually.

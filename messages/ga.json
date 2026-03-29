@@ -60,11 +60,14 @@
     "backToHome": "← Ar ais go dtí an baile",
     "passwordsDoNotMatch": "Ní hionann na pasfhocail",
     "termsNotAccepted": "Ní mór duit glacadh leis na Téarmaí & Coinníollacha chun cuntas a chruthú",
+    "disclaimerAgreePrefix": "Léigh mé agus thuig mé an",
+    "disclaimerLinkText": "Séanadh",
+    "disclaimerNotAccepted": "Ní mór duit an Séanadh a léamh agus a ghlacadh chun cuntas a chruthú",
     "termsAgreePrefix": "Léigh mé agus glacaim leis na",
     "termsLinkText": "Téarmaí & Coinníollacha",
     "termsModalTitle": "Téarmaí & Coinníollacha",
     "termsModalClose": "Dún",
-    "termsContent": "Nuashonraithe: Márta 2026\n\n**1. Glacadh le Téarmaí**\nTrí chuntas a chruthú agus Clann a úsáid, aontaíonn tú leis na Téarmaí & Coinníollacha seo. Mura n-aontaíonn tú, ná cláraigh le do thoil.\n\n**2. Úsáid an tSeirbhís**\nIs feidhlm phríobháideach crann teaghlaigh é Clann. Ní féidir leat é a úsáid ach chun críocha pearsanta, neamhthráchtála — chun do stair teaghlaigh féin a thaifeadadh agus a fhiosrú.\n\n**3. Do Chuntas**\nTá tú freagrach as rúndacht do chuid sonraí logála isteach agus as gach gníomhaíocht a tharlaíonn faoi do chuntas.\n\n**4. Do Chuid Sonraí**\nStóráltar na sonraí teaghlaigh go léir a iontráileann tú — daoine, caidrimh, grianghraif, agus beathaisnéisí — ar an bhfreastalaí a nascann tú leis.\n\n**5. Príobháideachas**\nNí roinneann Clann do shonraí pearsanta le tríú páirtithe. Úsáidtear do chuid sonraí chun an tseirbhís a sholáthar amháin.\n\n**6. Foirceannadh**\nIs féidir leat do chuntas a scriosadh am ar bith. Coimeádaimid an ceart cuntas a bhfuil na téarmaí seo á sárú acu a chur ar fionraí nó a fhoirceannadh.\n\n**7. Séanadh**\nSoláthrófar an tseirbhís 'mar atá' gan barántas ar bith. Nílimid freagrach as aon chaillteanas nó damáiste a eascraíonn as do úsáid den tseirbhís.\n\n**8. Athruithe ar na Téarmaí Seo**\nFéadfaimid na téarmaí seo a nuashonrú ó am go ham. Ciallaíonn úsáid leanúnach den tseirbhís tar éis athruithe go nglactar leis na téarmaí athbhreithnithe.",
+    "termsContent": "Nuashonraithe: Márta 2026\n\n**1. Glacadh le Téarmaí**\nTrí chuntas a chruthú agus Clann a úsáid, aontaíonn tú leis na Téarmaí & Coinníollacha seo. Mura n-aontaíonn tú, ná cláraigh le do thoil.\n\n**2. Úsáid an tSeirbhís**\nIs feidhlm phríobháideach crann teaghlaigh é Clann. Ní féidir leat é a úsáid ach chun críocha pearsanta, neamhthráchtála — chun do stair teaghlaigh féin a thaifeadadh agus a fhiosrú.\n\n**3. Do Chuntas**\nTá tú freagrach as rúndacht do chuid sonraí logála isteach agus as gach gníomhaíocht a tharlaíonn faoi do chuntas.\n\n**4. Do Chuid Sonraí**\nStóráltar na sonraí teaghlaigh go léir a iontráileann tú — daoine, caidrimh, grianghraif, agus beathaisnéisí — ar an bhfreastalaí a nascann tú leis.\n\n**5. Príobháideachas**\nNí roinneann Clann do shonraí pearsanta le tríú páirtithe. Úsáidtear do chuid sonraí chun an tseirbhís a sholáthar amháin.\n\n**6. Foirceannadh**\nIs féidir leat do chuntas a scriosadh am ar bith. Coimeádaimid an ceart cuntas a bhfuil na téarmaí seo á sárú acu a chur ar fionraí nó a fhoirceannadh.\n\n**7. Séanadh**\nSoláthrófar an tseirbhís 'mar atá' gan barántas ar bith. Nílimid freagrach as aon chaillteanas nó damáiste a eascraíonn as do úsáid den tseirbhís.\n\n**8. Athruithe ar na Téarmaí Seo**\nFéadfaimid na téarmaí seo a nuashonrú ó am go ham. Ciallaíonn úsáid leanúnach den tseirbhís tar éis athruithe go nglactar leis na téarmaí athbhreithnithe.\n\n**9. Séanadh Feidhlme**\nTrí chuntas a chruthú, deimhníonn tú go bhfuil an Séanadh léite agat agus go bhfuil tú eolach air, ina leagtar amach coinníollacha úsáide an tseirbhís bhunúsaigh Clann. Tá an Séanadh inrochtana ag am ar bith ó bhuntásc na feidhlme.",
     "loginFailed": "Theip ar logáil isteach",
     "registrationFailed": "Theip ar chlárú",
     "serverError": "Tharla earráid ar ár dtaobh. Déan iarracht arís le do thoil.",
@@ -368,7 +371,13 @@
     }
   },
   "footer": {
-    "termsLink": "Téarmaí & Coinníollacha"
+    "termsLink": "Téarmaí & Coinníollacha",
+    "disclaimerLink": "Séanadh"
+  },
+  "disclaimer": {
+    "modalTitle": "Séanadh",
+    "modalClose": "Dún",
+    "content": "Is féidir réiteach bunúsach Clann a úsáid saor in aisce faoi na coinníollacha atá leagtha amach anseo.\nMura mian leat cloí leis na coinníollacha seo, ba cheart duit do chuntas a scriosadh.\n\n1. Má chuireann tú eolas leis an mbunachar sonraí Clann, tá tú freagrach as cruinneas na sonraí sin.\n2. Ba cheart duit cúltaca a dhéanamh de do chuid sonraí go rialta ag baint úsáide as an bhfeidhm onnmhairithe san fheidhlm. Tá tú go hiomlán freagrach má chailltear do chuid sonraí nó má bhíonn siad as fáil.\n3. Tabhair faoi deara nach n-onnmhairítear íomhánna a uaslódáladh san fheidhlm bhunúsach, mar sin ba cheart duit do chóipeanna féin de na híomhánna seo a choimeád más mian leat iad a úsáid lasmuigh den fheidhlm.\n4. Ní dhéantar (agus ní dhéanfar go deo) na sonraí a stórálann tú i mbunachar sonraí Clann a chur ar fáil do thríú páirtithe faoi aon chúinsí.\n5. Úsáideann feidhlm Clann aistriúchán uathoibríoch do théacs, nach bhfuil ráthaithe a bheith 100% cruinn. I ngach cás, is é an téacs Béarla an príomhtheanga le húsáid in aon phlé faoi raon feidhme agus úsáid na feidhlme."
   },
   "familyTree": {
     "orientationVertical": "Ingearach",

@@ -60,11 +60,14 @@
     "backToHome": "← Back to home",
     "passwordsDoNotMatch": "Passwords do not match",
     "termsNotAccepted": "You must accept the Terms & Conditions to create an account",
+    "disclaimerAgreePrefix": "I have read and understood the",
+    "disclaimerLinkText": "Disclaimer",
+    "disclaimerNotAccepted": "You must read and accept the Disclaimer to create an account",
     "termsAgreePrefix": "I have read and agree to the",
     "termsLinkText": "Terms & Conditions",
     "termsModalTitle": "Terms & Conditions",
     "termsModalClose": "Close",
-    "termsContent": "Last updated: March 2026\n\n**1. Acceptance of Terms**\nBy creating an account and using Clann, you agree to be bound by these Terms & Conditions. If you do not agree, please do not register.\n\n**2. Use of the Service**\nClann is a private family tree application. You may use it solely for personal, non-commercial purposes — recording and exploring your own family history. You must not use the service for any unlawful purpose or in any way that could harm others.\n\n**3. Your Account**\nYou are responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account. Please choose a strong password and keep it secure.\n\n**4. Your Data**\nAll family data you enter — people, relationships, photos, and biographies — is stored on the server you connect to. You are responsible for the accuracy of the data you enter. Do not upload content that infringes third-party rights or that you do not have permission to share.\n\n**5. Privacy**\nClann does not share your personal data with third parties. Your data is used solely to provide the service. The application stores a session token in your browser's local storage to keep you logged in.\n\n**6. Termination**\nYou may delete your account at any time. We reserve the right to suspend or terminate accounts that violate these terms.\n\n**7. Disclaimer**\nThe service is provided 'as is' without warranties of any kind. We are not liable for any loss or damage arising from your use of the service.\n\n**8. Changes to These Terms**\nWe may update these terms from time to time. Continued use of the service after changes constitutes acceptance of the revised terms.",
+    "termsContent": "Last updated: March 2026\n\n**1. Acceptance of Terms**\nBy creating an account and using Clann, you agree to be bound by these Terms & Conditions. If you do not agree, please do not register.\n\n**2. Use of the Service**\nClann is a private family tree application. You may use it solely for personal, non-commercial purposes — recording and exploring your own family history. You must not use the service for any unlawful purpose or in any way that could harm others.\n\n**3. Your Account**\nYou are responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account. Please choose a strong password and keep it secure.\n\n**4. Your Data**\nAll family data you enter — people, relationships, photos, and biographies — is stored on the server you connect to. You are responsible for the accuracy of the data you enter. Do not upload content that infringes third-party rights or that you do not have permission to share.\n\n**5. Privacy**\nClann does not share your personal data with third parties. Your data is used solely to provide the service. The application stores a session token in your browser's local storage to keep you logged in.\n\n**6. Termination**\nYou may delete your account at any time. We reserve the right to suspend or terminate accounts that violate these terms.\n\n**7. Disclaimer**\nThe service is provided 'as is' without warranties of any kind. We are not liable for any loss or damage arising from your use of the service.\n\n**8. Changes to These Terms**\nWe may update these terms from time to time. Continued use of the service after changes constitutes acceptance of the revised terms.\n\n**9. Application Disclaimer**\nBy creating an account, you confirm that you have read and are familiar with the Disclaimer, which sets out the conditions of use of the basic Clann service. The Disclaimer is accessible at any time from the footer of the application.",
     "loginFailed": "Login failed",
     "registrationFailed": "Registration failed",
     "serverError": "Something went wrong on our end. Please try again.",
@@ -368,7 +371,13 @@
     }
   },
   "footer": {
-    "termsLink": "Terms & Conditions"
+    "termsLink": "Terms & Conditions",
+    "disclaimerLink": "Disclaimer"
+  },
+  "disclaimer": {
+    "modalTitle": "Disclaimer",
+    "modalClose": "Close",
+    "content": "The basic Clann solution can be used free of charge under the conditions outlined here.\nIf you do not wish to adhere to these conditions, you should delete your account.\n\n1. If you add information to the Clann database, you are responsible for the accuracy of that data.\n2. You should regularly back up your data using the export function in the application. You are fully responsible if your data is lost or becomes unavailable.\n3. Note that images uploaded in the basic application are not exported, so you should maintain your own copies of these images if you wish to use them outside of the application.\n4. The data you store in the Clann database is never (and never will be) made available to third parties under any circumstances.\n5. The Clann app uses automated translation for text, which are not guaranteed to be 100% accurate. In all cases, the English text is the primary language to be used in any discussions about the scope and use of the application."
   },
   "familyTree": {
     "orientationVertical": "Vertical",

@@ -60,11 +60,14 @@
     "backToHome": "← Zurück zur Startseite",
     "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
     "termsNotAccepted": "Sie müssen die Nutzungsbedingungen akzeptieren, um ein Konto zu erstellen",
+    "disclaimerAgreePrefix": "Ich habe den",
+    "disclaimerLinkText": "Haftungsausschluss",
+    "disclaimerNotAccepted": "Sie müssen den Haftungsausschluss lesen und akzeptieren, um ein Konto zu erstellen",
     "termsAgreePrefix": "Ich habe die",
     "termsLinkText": "Nutzungsbedingungen gelesen und stimme ihnen zu",
     "termsModalTitle": "Nutzungsbedingungen",
     "termsModalClose": "Schließen",
-    "termsContent": "Zuletzt aktualisiert: März 2026\n\n**1. Akzeptanz der Bedingungen**\nDurch das Erstellen eines Kontos und die Nutzung von Clann erklären Sie sich mit diesen Nutzungsbedingungen einverstanden. Wenn Sie nicht einverstanden sind, registrieren Sie sich bitte nicht.\n\n**2. Nutzung des Dienstes**\nClann ist eine private Stammbaum-Anwendung. Sie dürfen sie ausschließlich für persönliche, nicht-kommerzielle Zwecke nutzen — um Ihre eigene Familiengeschichte zu erfassen und zu erkunden. Sie dürfen den Dienst nicht für rechtswidrige Zwecke oder auf eine Weise nutzen, die anderen schaden könnte.\n\n**3. Ihr Konto**\nSie sind für die Vertraulichkeit Ihrer Anmeldedaten und für alle Aktivitäten verantwortlich, die unter Ihrem Konto stattfinden. Wählen Sie bitte ein starkes Passwort und bewahren Sie es sicher auf.\n\n**4. Ihre Daten**\nAlle Familiendaten, die Sie eingeben — Personen, Beziehungen, Fotos und Biographien — werden auf dem von Ihnen verbundenen Server gespeichert. Sie sind für die Richtigkeit der eingegebenen Daten verantwortlich.\n\n**5. Datenschutz**\nClann gibt Ihre persönlichen Daten nicht an Dritte weiter. Ihre Daten werden ausschließlich zur Erbringung des Dienstes verwendet.\n\n**6. Kündigung**\nSie können Ihr Konto jederzeit löschen. Wir behalten uns das Recht vor, Konten zu sperren oder zu kündigen, die gegen diese Bedingungen verstoßen.\n\n**7. Haftungsausschluss**\nDer Dienst wird ohne jegliche Gewährleistung bereitgestellt. Wir haften nicht für Verluste oder Schäden, die durch Ihre Nutzung des Dienstes entstehen.\n\n**8. Änderungen dieser Bedingungen**\nWir können diese Bedingungen von Zeit zu Zeit aktualisieren. Die fortgesetzte Nutzung des Dienstes nach Änderungen gilt als Akzeptanz der überarbeiteten Bedingungen.",
+    "termsContent": "Zuletzt aktualisiert: März 2026\n\n**1. Akzeptanz der Bedingungen**\nDurch das Erstellen eines Kontos und die Nutzung von Clann erklären Sie sich mit diesen Nutzungsbedingungen einverstanden. Wenn Sie nicht einverstanden sind, registrieren Sie sich bitte nicht.\n\n**2. Nutzung des Dienstes**\nClann ist eine private Stammbaum-Anwendung. Sie dürfen sie ausschließlich für persönliche, nicht-kommerzielle Zwecke nutzen — um Ihre eigene Familiengeschichte zu erfassen und zu erkunden. Sie dürfen den Dienst nicht für rechtswidrige Zwecke oder auf eine Weise nutzen, die anderen schaden könnte.\n\n**3. Ihr Konto**\nSie sind für die Vertraulichkeit Ihrer Anmeldedaten und für alle Aktivitäten verantwortlich, die unter Ihrem Konto stattfinden. Wählen Sie bitte ein starkes Passwort und bewahren Sie es sicher auf.\n\n**4. Ihre Daten**\nAlle Familiendaten, die Sie eingeben — Personen, Beziehungen, Fotos und Biographien — werden auf dem von Ihnen verbundenen Server gespeichert. Sie sind für die Richtigkeit der eingegebenen Daten verantwortlich.\n\n**5. Datenschutz**\nClann gibt Ihre persönlichen Daten nicht an Dritte weiter. Ihre Daten werden ausschließlich zur Erbringung des Dienstes verwendet.\n\n**6. Kündigung**\nSie können Ihr Konto jederzeit löschen. Wir behalten uns das Recht vor, Konten zu sperren oder zu kündigen, die gegen diese Bedingungen verstoßen.\n\n**7. Haftungsausschluss**\nDer Dienst wird ohne jegliche Gewährleistung bereitgestellt. Wir haften nicht für Verluste oder Schäden, die durch Ihre Nutzung des Dienstes entstehen.\n\n**8. Änderungen dieser Bedingungen**\nWir können diese Bedingungen von Zeit zu Zeit aktualisieren. Die fortgesetzte Nutzung des Dienstes nach Änderungen gilt als Akzeptanz der überarbeiteten Bedingungen.\n\n**9. Anwendungs-Haftungsausschluss**\nDurch das Erstellen eines Kontos bestätigen Sie, dass Sie den Haftungsausschluss gelesen haben und mit ihm vertraut sind, der die Nutzungsbedingungen des grundlegenden Clann-Dienstes beschreibt. Der Haftungsausschluss ist jederzeit über die Fußzeile der Anwendung zugänglich.",
     "loginFailed": "Anmeldung fehlgeschlagen",
     "registrationFailed": "Registrierung fehlgeschlagen",
     "serverError": "Auf unserer Seite ist ein Fehler aufgetreten. Bitte versuche es erneut.",
@@ -368,7 +371,13 @@
     }
   },
   "footer": {
-    "termsLink": "Nutzungsbedingungen"
+    "termsLink": "Nutzungsbedingungen",
+    "disclaimerLink": "Haftungsausschluss"
+  },
+  "disclaimer": {
+    "modalTitle": "Haftungsausschluss",
+    "modalClose": "Schließen",
+    "content": "Die grundlegende Clann-Lösung kann kostenlos unter den hier beschriebenen Bedingungen genutzt werden.\nWenn Sie diese Bedingungen nicht einhalten möchten, sollten Sie Ihr Konto löschen.\n\n1. Wenn Sie Informationen in die Clann-Datenbank eingeben, sind Sie für die Richtigkeit dieser Daten verantwortlich.\n2. Sie sollten Ihre Daten regelmäßig mit der Exportfunktion in der Anwendung sichern. Sie tragen die volle Verantwortung, wenn Ihre Daten verloren gehen oder nicht mehr verfügbar sind.\n3. Beachten Sie, dass in der Basisanwendung hochgeladene Bilder nicht exportiert werden. Sie sollten daher eigene Kopien dieser Bilder aufbewahren, wenn Sie sie außerhalb der Anwendung verwenden möchten.\n4. Die in der Clann-Datenbank gespeicherten Daten werden unter keinen Umständen an Dritte weitergegeben (und werden es auch niemals sein).\n5. Die Clann-App verwendet automatische Übersetzung für Texte, die nicht zu 100 % korrekt sein müssen. In allen Fällen ist der englische Text die primäre Sprache für Diskussionen über den Umfang und die Nutzung der Anwendung."
   },
   "familyTree": {
     "orientationVertical": "Vertikal",
