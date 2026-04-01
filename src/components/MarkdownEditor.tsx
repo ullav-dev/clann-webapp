@@ -9,7 +9,8 @@ interface Props {
   onChange: (value: string) => void;
   placeholder?: string;
   height?: number;
-  textareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  textareaProps?: Record<string, any>;
 }
 
 export default function MarkdownEditor({ value, onChange, placeholder, height = 300, textareaProps }: Props) {

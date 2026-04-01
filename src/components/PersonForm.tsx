@@ -227,9 +227,9 @@ export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
           placeholder={t("biographyPlaceholder")}
           height={280}
           textareaProps={{
-            onSelect: (e) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
-            onKeyUp: (e) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
-            onMouseUp: (e) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+            onSelect: (e: React.SyntheticEvent<HTMLTextAreaElement>) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+            onKeyUp: (e: React.KeyboardEvent<HTMLTextAreaElement>) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+            onMouseUp: (e: React.MouseEvent<HTMLTextAreaElement>) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
           }}
         />
 
