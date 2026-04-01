@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { CreatePerson, UpdatePerson, Sex } from "@/lib/types";
 import MarkdownEditor from "@/components/MarkdownEditor";
+import { useAuth } from "@/contexts/AuthContext";
+import { DamPicker } from "@ullav/dam-picker";
+import type { PickedAsset } from "@ullav/dam-picker";
 
 type FormValues = {
   first_name: string;
@@ -46,9 +49,43 @@ const empty: FormValues = {
 
 export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
   const t = useTranslations("personForm");
+  const { token } = useAuth();
   const [values, setValues] = useState<FormValues>({ ...empty, ...initial });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [dropZoneActive, setDropZoneActive] = useState(false);
+
+  function insertAssetMarkdown(asset: PickedAsset) {
+    const md = `\n\n![${asset.name}](${asset.url})\n`;
+    setValues((v) => ({ ...v, biography: v.biography + md }));
+  }
+
+  function handleBioDragOver(e: React.DragEvent) {
+    if (e.dataTransfer.types.includes("application/json")) {
+      e.preventDefault();
+      setDropZoneActive(true);
+    }
+  }
+
+  function handleBioDragLeave(e: React.DragEvent) {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDropZoneActive(false);
+    }
+  }
+
+  function handleBioDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDropZoneActive(false);
+    const json = e.dataTransfer.getData("application/json");
+    if (!json) return;
+    try {
+      const asset = JSON.parse(json) as PickedAsset;
+      if (asset.id && asset.url) insertAssetMarkdown(asset);
+    } catch {
+      // not a PickedAsset — ignore
+    }
+  }
 
   function set(field: keyof FormValues, value: string) {
     setValues((v) => ({ ...v, [field]: value }));
@@ -170,12 +207,47 @@ export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
         <legend className="text-xs font-semibold text-stone-500 uppercase tracking-wide px-1">
           {t("biographySection")} <span className="font-normal normal-case text-stone-400">{t("optional")}</span>
         </legend>
+
         <MarkdownEditor
           value={values.biography}
           onChange={(v) => set("biography", v)}
           placeholder={t("biographyPlaceholder")}
           height={280}
         />
+
+        {/* Drop zone — separate from the textarea to avoid native text-drop conflicts */}
+        <div
+          onDragOver={handleBioDragOver}
+          onDragLeave={handleBioDragLeave}
+          onDrop={handleBioDrop}
+          className={`py-2 px-3 rounded-lg border-2 border-dashed text-center text-xs font-medium transition-colors ${
+            dropZoneActive
+              ? "border-blue-400 bg-blue-50 text-blue-700"
+              : "border-stone-200 text-stone-400"
+          }`}
+        >
+          {dropZoneActive ? "Release to insert image" : "Drop an image from the media library here"}
+        </div>
+
+        {/* Media library toggle */}
+        <button
+          type="button"
+          onClick={() => setShowPicker((s) => !s)}
+          className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+        >
+          {showPicker ? "Hide media library" : "Browse media library…"}
+        </button>
+
+        {/* Inline DamPicker — click an asset to insert, or drag onto the drop zone above */}
+        {showPicker && token && (
+          <div className="h-80 border border-stone-200 rounded-lg overflow-hidden">
+            <DamPicker
+              apiBase="/api/dam"
+              token={token}
+              onSelect={insertAssetMarkdown}
+            />
+          </div>
+        )}
       </fieldset>
 
       <div className="flex justify-end pt-2">
