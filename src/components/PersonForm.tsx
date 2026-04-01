@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import type { CreatePerson, UpdatePerson, Sex } from "@/lib/types";
 import MarkdownEditor from "@/components/MarkdownEditor";
@@ -55,10 +55,23 @@ export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
   const [loading, setLoading] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [dropZoneActive, setDropZoneActive] = useState(false);
+  const [dropZoneSuccess, setDropZoneSuccess] = useState(false);
+  const cursorPosRef = useRef<number | null>(null);
 
   function insertAssetMarkdown(asset: PickedAsset) {
-    const md = `\n\n![${asset.name}](${asset.url})\n`;
-    setValues((v) => ({ ...v, biography: v.biography + md }));
+    const url = asset.url.replace(/\/?$/, "/thumbnail");
+    const snippet = `![${asset.name}](${url})`;
+    setValues((v) => {
+      const bio = v.biography;
+      const pos = cursorPosRef.current ?? bio.length;
+      const before = bio.slice(0, pos);
+      const after = bio.slice(pos);
+      const prefix = before.length > 0 && !before.endsWith("\n") ? "\n\n" : "";
+      const suffix = after.length > 0 && !after.startsWith("\n") ? "\n\n" : "";
+      return { ...v, biography: before + prefix + snippet + suffix + after };
+    });
+    setDropZoneSuccess(true);
+    setTimeout(() => setDropZoneSuccess(false), 2000);
   }
 
   function handleBioDragOver(e: React.DragEvent) {
@@ -213,6 +226,11 @@ export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
           onChange={(v) => set("biography", v)}
           placeholder={t("biographyPlaceholder")}
           height={280}
+          textareaProps={{
+            onSelect: (e) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+            onKeyUp: (e) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+            onMouseUp: (e) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+          }}
         />
 
         {/* Drop zone — separate from the textarea to avoid native text-drop conflicts */}
@@ -223,10 +241,16 @@ export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
           className={`py-2 px-3 rounded-lg border-2 border-dashed text-center text-xs font-medium transition-colors ${
             dropZoneActive
               ? "border-blue-400 bg-blue-50 text-blue-700"
+              : dropZoneSuccess
+              ? "border-emerald-400 bg-emerald-50 text-emerald-700"
               : "border-stone-200 text-stone-400"
           }`}
         >
-          {dropZoneActive ? "Release to insert image" : "Drop an image from the media library here"}
+          {dropZoneActive
+            ? "Release to insert image"
+            : dropZoneSuccess
+            ? "✓ Image inserted into biography"
+            : "Drop an image from the media library here"}
         </div>
 
         {/* Media library toggle */}

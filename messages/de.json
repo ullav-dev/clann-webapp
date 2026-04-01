@@ -360,7 +360,9 @@
       "lifeImageTitle": "Bild für die Lebensgeschichte",
       "lifeImageBody": "Ein größeres Porträt- oder Szenenbild kann dem Reiter Lebensgeschichte hinzugefügt werden. Öffnen Sie das Profil einer Person, gehen Sie zum Reiter Lebensgeschichte und klicken Sie auf '+ Bild für Lebensgeschichte hinzufügen' (oder bewegen Sie die Maus über das vorhandene Bild und klicken Sie auf Ändern). Ziehen Sie eine JPEG- oder PNG-Datei (bis zu 2 MB) in den Upload-Bereich. Das Bild erscheint oben links im Lebensgeschichte-Panel mit der Biografie rechts daneben.",
       "exportPdfTitle": "Als PDF exportieren",
-      "exportPdfBody": "Klicken Sie auf die Schaltfläche 'Als PDF exportieren' oben im Reiter Lebensgeschichte, um den Druckdialog Ihres Browsers zu öffnen. Wählen Sie 'Als PDF speichern' (oder die entsprechende Option in Ihrem Browser), um eine formatierte PDF-Datei herunterzuladen. Die Datei wird nach der Person benannt. Das PDF enthält Name, Geburtsdaten, Lebensgeschichte-Bild und die vollständige Biografie."
+      "exportPdfBody": "Klicken Sie auf die Schaltfläche 'Als PDF exportieren' oben im Reiter Lebensgeschichte, um den Druckdialog Ihres Browsers zu öffnen. Wählen Sie 'Als PDF speichern' (oder die entsprechende Option in Ihrem Browser), um eine formatierte PDF-Datei herunterzuladen. Die Datei wird nach der Person benannt. Das PDF enthält Name, Geburtsdaten, Lebensgeschichte-Bild und die vollständige Biografie.",
+      "mediaLibraryTitle": "Bilder aus der Medienbibliothek einfügen",
+      "mediaLibraryBody": "Klicken Sie beim Bearbeiten einer Biografie auf 'Medienbibliothek durchsuchen' unterhalb des Editors, um eine integrierte Medienauswahl zu öffnen. Klicken Sie auf ein Bild, um es an der aktuellen Cursorposition einzufügen, oder ziehen Sie es aus der Auswahl auf die Ablagezone unterhalb des Editors. Bilder werden als Miniaturansichten eingefügt. Eine grüne Bestätigungsmeldung erscheint kurz, um die Einfügung zu bestätigen."
     },
     "multipleTrees": {
       "title": "Mehrere Stammbäume",

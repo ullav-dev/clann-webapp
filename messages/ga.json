@@ -360,7 +360,9 @@
       "lifeImageTitle": "Íomhá Scéal Beatha",
       "lifeImageBody": "Is féidir íomhá portráide nó radhairc níos mó a chur le cluaisín an Scéil Beatha. Oscail próifíl duine, téigh go dtí an cluaisín Scéal Beatha agus cliceáil '+ Cuir Íomhá Scéal Beatha leis' (nó cliceáil Athraigh nuair a bhogann tú an luch thar an íomhá atá ann cheana). Tarraing agus scaoil comhad JPEG nó PNG (suas le 2 MB) isteach sa limistéar uaslódála. Feictear an íomhá ar bharr chlé an phainéil le beathaisnéis ar a taobh dheis.",
       "exportPdfTitle": "Á Easpórtáil mar PDF",
-      "exportPdfBody": "Cliceáil an cnaipe 'Easpórtáil mar PDF' ag barr an chluaisín Scéal Beatha chun dialóg priontála do bhrabhsálaí a oscailt. Roghnaigh 'Sábháil mar PDF' (nó an rogha chomhionann i do bhrabhsálaí) chun PDF formáidithe a íoslódáil. Ainmnítear an comhad i ndiaidh an duine. Áirítear sa PDF a n-ainm, sonraí breithe, íomhá scéil beatha agus an bheathaisnéis iomlán."
+      "exportPdfBody": "Cliceáil an cnaipe 'Easpórtáil mar PDF' ag barr an chluaisín Scéal Beatha chun dialóg priontála do bhrabhsálaí a oscailt. Roghnaigh 'Sábháil mar PDF' (nó an rogha chomhionann i do bhrabhsálaí) chun PDF formáidithe a íoslódáil. Ainmnítear an comhad i ndiaidh an duine. Áirítear sa PDF a n-ainm, sonraí breithe, íomhá scéil beatha agus an bheathaisnéis iomlán.",
+      "mediaLibraryTitle": "Íomhánna a chur isteach ón leabharlann meán",
+      "mediaLibraryBody": "Agus beathaisnéis á heagar agat, cliceáil 'Leabharlann meán a bhrabhsáil' faoin eagarthóir chun roghnóir meán ionsuite a oscailt. Cliceáil ar aon íomhá chun í a chur isteach ag suíomh reatha do chúrsóra, nó tarraing í ón roghnóir go dtí an crios scaoilte faoin eagarthóir. Cuirtear íomhánna isteach mar mhionsamhlacha. Feictear teachtaireacht dheimhnithe ghlais go gairid chun an iontráil a dheimhniú."
     },
     "multipleTrees": {
       "title": "Crainnte Teaghlaigh Iolracha",
