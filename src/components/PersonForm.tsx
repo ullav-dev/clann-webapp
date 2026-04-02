@@ -269,6 +269,7 @@ export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
               apiBase="/api/dam"
               token={token}
               onSelect={insertAssetMarkdown}
+              filter={(a) => a.asset_type.startsWith("image/")}
             />
           </div>
         )}
