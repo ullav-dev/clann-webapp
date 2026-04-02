@@ -49,7 +49,7 @@ const empty: FormValues = {
 
 export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
   const t = useTranslations("personForm");
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [values, setValues] = useState<FormValues>({ ...empty, ...initial });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -269,7 +269,7 @@ export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
               apiBase="/api/dam"
               token={token}
               onSelect={insertAssetMarkdown}
-              filter={(a) => a.asset_type.startsWith("image/")}
+              filter={(a) => a.asset_type.startsWith("image/") && a.creator === (user?.username ?? "")}
             />
           </div>
         )}
