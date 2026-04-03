@@ -96,6 +96,7 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 | `/[locale]/login` | Sign in / create account / forgot password |
 | `/[locale]/auth/confirm-email` | Handles email verification link clicks (`?token=`); activates account |
 | `/[locale]/auth/password-reset` | Handles password reset link clicks (`?token=`); new-password form |
+| `/[locale]/auth/sso` | SSO handoff from ullav-portal (`?t=<encoded-session>`); writes session to localStorage and redirects to `/family` |
 | `/[locale]/family` | List all persons — card/list toggle, sort, search, **pagination** |
 | `/[locale]/persons/new` | Create person |
 | `/[locale]/persons/[id]` | Person detail: family tree tab · relationships tab · life story tab |
