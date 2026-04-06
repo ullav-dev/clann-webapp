@@ -1,6 +1,8 @@
 # Stage 1: Install dependencies
 FROM node:22-alpine AS deps
 WORKDIR /app
+# Upgrade npm to match the version used to generate package-lock.json
+RUN npm install -g npm@11
 COPY package*.json ./
 RUN npm ci
 
