@@ -39,6 +39,7 @@ docker compose -f docker-compose-prod.yaml pull && docker compose -f docker-comp
 - `API_URL` — base URL for server-side calls to clann-server and for the `/api/*` rewrite destination (default: `http://clann-server:3001`)
 - `AUTH_URL` — base URL for server-side calls to ullav-auth and for the `/auth-api/*` rewrite destination (default: `http://ullav-auth:8081`)
 - `DAM_URL` — base URL for the `/api/dam/*` rewrite to ullav-dam-server (default: `http://ullav-dam-server:8080`); set to `http://localhost:8080` in `.env.local` for local dev
+- `NEXT_PUBLIC_IDLE_TIMEOUT_MS` — idle session timeout in milliseconds (default: `3600000` = 1 hour); **build-time** `NEXT_PUBLIC_*` var so it is inlined into the client bundle; set low (e.g. `70000`) to test the warning modal
 
 The defaults in `next.config.ts` are the production Docker service names, so no env vars need to be set during the Docker build. For local dev, set all three in `.env.local`.
 
@@ -77,7 +78,7 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 - `src/contexts/TreeContext.tsx` — holds the list of trees, the active tree, and tree CRUD actions; persists active selection in localStorage (`clann_active_tree`)
 - `src/lib/tree-import.ts` — pure parser for the Clann JSON export format; deduplicates persons and relationships
 
-**Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token).
+**Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token). The context also implements **idle session timeout**: after `NEXT_PUBLIC_IDLE_TIMEOUT_MS` ms of inactivity (default 1 hour) the user is automatically signed out; a warning modal appears 60 s beforehand with "Stay Signed In" / "Sign Out Now" buttons. Activity events (`mousemove`, `keydown`, `pointerdown`, `scroll`, `touchstart`) reset the timer; events are ignored while the modal is open so the user must make an explicit choice. The `IdleWarningModal` component lives inside `AuthContext.tsx`.
 
 **DAM proxy:** `src/proxy.ts` rewrites `/api/dam/*` → `DAM_URL` (default `http://ullav-dam-server:8080`), stripping the `/api/dam` prefix. This must be checked before the generic `/api/*` rule. The `DamPicker` component from `@ullav/dam-picker` uses `/api/dam` as its `apiBase`.
 
@@ -144,7 +145,7 @@ After parsing, the modal creates a new tree via `TreeContext.createTree(..., { s
 
 **Library:** next-intl v4. Supported locales: `en` (default), `de`, `ga`. Defined in `src/i18n/routing.ts`.
 
-- Translation files live in `messages/{locale}.json`, organised by namespace (`nav`, `family`, `personDetail`, `personForm`, `addRelationship`, `imageUpload`, `familyTree`, `disclaimer`, `footer`, `help`, etc.)
+- Translation files live in `messages/{locale}.json`, organised by namespace (`nav`, `family`, `personDetail`, `personForm`, `addRelationship`, `imageUpload`, `familyTree`, `disclaimer`, `footer`, `help`, `idleWarning`, etc.)
 - Server components use `await getTranslations("namespace")` (from `next-intl/server`)
 - Client components use `useTranslations("namespace")` (React hook)
 - Do **not** use `t.rich(...)` with `{placeholder}` syntax — use separate keys or XML-style tags (`<b>text</b>`) instead. The `{br}` self-closing placeholder is not supported; split into two keys and insert `<br />` manually.
