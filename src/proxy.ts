@@ -8,6 +8,15 @@ const intlMiddleware = createMiddleware(routing);
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
+  // Proxy /api/dam/* → ullav-dam-server (strips /api/dam prefix).
+  // Must be checked before the generic /api/* rule below.
+  if (pathname.startsWith("/api/dam/")) {
+    const damUrl = process.env.DAM_URL ?? "http://ullav-dam-server:8080";
+    return NextResponse.rewrite(
+      new URL(pathname.slice("/api/dam".length) + search, damUrl)
+    );
+  }
+
   // Proxy /api/* → clann-server (keeps /api prefix).
   // API_URL is read at request time so it can be set via runtime env vars.
   if (pathname.startsWith("/api/")) {

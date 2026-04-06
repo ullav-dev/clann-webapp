@@ -2,9 +2,15 @@
   "nav": {
     "myFamily": "Family Home",
     "addPerson": "Add Person",
-    "logout": "Logout",
-    "login": "Login",
+    "logout": "Sign Out",
+    "login": "Sign In",
     "help": "Help"
+  },
+  "idleWarning": {
+    "title": "Session Expiring",
+    "message": "You have been inactive. You will be signed out in {seconds} seconds.",
+    "stayLoggedIn": "Stay Signed In",
+    "logoutNow": "Sign Out Now"
   },
   "localeSwitcher": {
     "label": "Language",
@@ -44,7 +50,7 @@
     "resetPassword": "Reset Password",
     "emailAddress": "Email address",
     "sendResetToken": "Send Reset Token",
-    "backToLogin": "← Back to login",
+    "backToLogin": "← Back to sign in",
     "newPassword": "New Password",
     "setNewPassword": "Set New Password",
     "signIn": "Sign In",
@@ -68,7 +74,7 @@
     "termsModalTitle": "Terms & Conditions",
     "termsModalClose": "Close",
     "termsContent": "Last updated: March 2026\n\n**1. Acceptance of Terms**\nBy creating an account and using Clann, you agree to be bound by these Terms & Conditions. If you do not agree, please do not register.\n\n**2. Use of the Service**\nClann is a private family tree application. You may use it solely for personal, non-commercial purposes — recording and exploring your own family history. You must not use the service for any unlawful purpose or in any way that could harm others.\n\n**3. Your Account**\nYou are responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account. Please choose a strong password and keep it secure.\n\n**4. Your Data**\nAll family data you enter — people, relationships, photos, and biographies — is stored on the server you connect to. You are responsible for the accuracy of the data you enter. Do not upload content that infringes third-party rights or that you do not have permission to share.\n\n**5. Privacy**\nClann does not share your personal data with third parties. Your data is used solely to provide the service. The application stores a session token in your browser's local storage to keep you logged in.\n\n**6. Termination**\nYou may delete your account at any time. We reserve the right to suspend or terminate accounts that violate these terms.\n\n**7. Disclaimer**\nThe service is provided 'as is' without warranties of any kind. We are not liable for any loss or damage arising from your use of the service.\n\n**8. Changes to These Terms**\nWe may update these terms from time to time. Continued use of the service after changes constitutes acceptance of the revised terms.\n\n**9. Application Disclaimer**\nBy creating an account, you confirm that you have read and are familiar with the Disclaimer, which sets out the conditions of use of the basic Clann service. The Disclaimer is accessible at any time from the footer of the application.",
-    "loginFailed": "Login failed",
+    "loginFailed": "Sign in failed",
     "registrationFailed": "Registration failed",
     "serverError": "Something went wrong on our end. Please try again.",
     "requestFailed": "Request failed",
@@ -82,7 +88,7 @@
     "confirmEmailSuccess": "Email confirmed! You can now sign in.",
     "confirmEmailFailed": "Verification failed. The link may have expired.",
     "confirmEmailSignIn": "Sign In →",
-    "confirmEmailBackToLogin": "← Back to login",
+    "confirmEmailBackToLogin": "← Back to sign in",
     "firstName": "First Name",
     "firstNamePlaceholder": "Your first name",
     "surname": "Surname",
@@ -360,7 +366,9 @@
       "lifeImageTitle": "Life story image",
       "lifeImageBody": "A larger portrait or scene image can be added to the Life Story tab. Open a person's profile, go to the Life Story tab, and click '+ Add Life Story Image' (or hover over the existing image and click Change). Drag and drop a JPEG or PNG (up to 2 MB) into the upload area. The image appears at the top left of the Life Story panel with the biography flowing to its right.",
       "exportPdfTitle": "Exporting as PDF",
-      "exportPdfBody": "Click the 'Export as PDF' button at the top of the Life Story tab to open your browser's print dialog. Choose 'Save as PDF' (or the equivalent in your browser) to download a formatted PDF. The file is named after the person. The PDF includes their name, birth details, life story image, and full biography."
+      "exportPdfBody": "Click the 'Export as PDF' button at the top of the Life Story tab to open your browser's print dialog. Choose 'Save as PDF' (or the equivalent in your browser) to download a formatted PDF. The file is named after the person. The PDF includes their name, birth details, life story image, and full biography.",
+      "mediaLibraryTitle": "Inserting images from the media library",
+      "mediaLibraryBody": "While editing a biography, click 'Browse media library' below the editor to open an inline media picker. Click any image to insert it at your current cursor position, or drag it from the picker onto the drop zone below the editor. Images are inserted as thumbnails. A green confirmation message appears briefly to confirm the insertion."
     },
     "multipleTrees": {
       "title": "Multiple Family Trees",

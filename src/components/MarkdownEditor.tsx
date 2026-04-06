@@ -9,9 +9,11 @@ interface Props {
   onChange: (value: string) => void;
   placeholder?: string;
   height?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  textareaProps?: Record<string, any>;
 }
 
-export default function MarkdownEditor({ value, onChange, placeholder, height = 300 }: Props) {
+export default function MarkdownEditor({ value, onChange, placeholder, height = 300, textareaProps }: Props) {
   return (
     <div data-color-mode="light">
       <MDEditor
@@ -19,7 +21,7 @@ export default function MarkdownEditor({ value, onChange, placeholder, height = 
         onChange={(v) => onChange(v ?? "")}
         preview="edit"
         height={height}
-        textareaProps={{ placeholder }}
+        textareaProps={{ placeholder, ...textareaProps }}
       />
     </div>
   );

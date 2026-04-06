@@ -18,8 +18,8 @@ A responsive, localised family tree management application built with Next.js, b
 - **Export** — download the tree as a **JPEG image** or a **flat JSON file** (`persons` array + `relationships` array, with full person fields and typed relationship entries including `sibling_type` and spouse dates)
 - **Import** — upload a previously exported Clann JSON file to create a new tree; 3-step modal (upload → name/preview → live progress) reconstructs all people and relationships
 - **Family Members list** — card or list view with sort (family name, date of birth, place of birth), name search, and **pagination** (5–30 per page, default 10)
-- **Authentication** — login, registration (first name, surname, sex, email, password) with **email verification**, and **email-based password reset** via ullav-user-management; registration requires accepting both a **Disclaimer** and the **Terms & Conditions** (each opens a scrollable modal); on first login the initial family tree and person are created automatically from the registration details; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind login; ownership filter enforced server-side; all password fields have a show/hide toggle
-- **Life Story** — biography field accepts markdown (headings, bold, italic, lists, links); rendered as formatted prose in the dedicated **Life Story** tab on each person's profile page; edited using a toolbar-driven markdown editor in the edit form. An optional **life story image** (JPEG/PNG ≤ 2 MB) can be uploaded directly from the Life Story tab and is displayed top-left alongside the biography text. The tab includes an **Export as PDF** button that opens the browser print dialog; the output is named after the person and includes their name, birth details, life story image, and full biography
+- **Authentication** — sign in, registration (first name, surname, sex, email, password) with **email verification**, and **email-based password reset** via ullav-user-management; registration requires accepting both a **Disclaimer** and the **Terms & Conditions** (each opens a scrollable modal); on first login the initial family tree and person are created automatically from the registration details; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind sign-in; ownership filter enforced server-side; all password fields have a show/hide toggle; **idle session timeout** automatically signs out inactive users after 1 hour (configurable via `NEXT_PUBLIC_IDLE_TIMEOUT_MS`), with a localised 60-second warning modal before sign-out
+- **Life Story** — biography field accepts markdown (headings, bold, italic, lists, links); rendered as formatted prose in the dedicated **Life Story** tab on each person's profile page; edited using a toolbar-driven markdown editor in the edit form. Images from the **media library** can be inserted inline: click "Browse media library" to open an inline asset picker, then click an image to insert it at the cursor position, or drag it onto the drop zone below the editor — images are inserted as thumbnails at the current cursor position. An optional **life story image** (JPEG/PNG ≤ 2 MB) can be uploaded directly from the Life Story tab and is displayed top-left alongside the biography text. The tab includes an **Export as PDF** button that opens the browser print dialog; the output is named after the person and includes their name, birth details, life story image, and full biography
 - **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, list view, multiple trees including export/import), accessible from the nav bar (far-right item) without logging in
 - **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
 
@@ -28,6 +28,7 @@ A responsive, localised family tree management application built with Next.js, b
 - Node.js ≥ 18 (tested on v25; see note below)
 - [clann-server](https://github.com/colinmanning/clann-server) running on `http://localhost:3000`
 - [ullav-user-management](https://github.com/colinmanning/ullav-user-management) running on `http://localhost:8081` (auth service)
+- [ullav-dam-server](https://github.com/colinmanning/ullav-dam-server) running on `http://localhost:8080` (media library; required for biography image insertion)
 
 ## Setup
 
@@ -36,7 +37,7 @@ A responsive, localised family tree management application built with Next.js, b
 npm install
 
 # Create environment file
-printf "API_URL=http://localhost:3000\nAUTH_URL=http://localhost:8081\n" > .env.local
+printf "API_URL=http://localhost:3000\nAUTH_URL=http://localhost:8081\nDAM_URL=http://localhost:8080\n" > .env.local
 
 # Start the development server (port 3001)
 npm run dev
@@ -66,9 +67,10 @@ Copy `.env.prod` and fill in the internal Docker service addresses:
 # .env.prod (not committed — create on the server)
 API_URL=http://clann-server:3001
 AUTH_URL=http://ullav-auth:8081
+DAM_URL=http://ullav-dam-server:8080
 ```
 
-> **Note:** Use plain `API_URL` / `AUTH_URL`, **not** `NEXT_PUBLIC_*` variants. `NEXT_PUBLIC_*` variables are inlined at build time and cannot be set at runtime. The defaults already point to the correct Docker service names, so these vars are only needed if your service names differ.
+> **Note:** Use plain `API_URL` / `AUTH_URL` / `DAM_URL`, **not** `NEXT_PUBLIC_*` variants — plain env vars cannot be set at runtime. The defaults already point to the correct Docker service names, so these vars are only needed if your service names differ. `NEXT_PUBLIC_IDLE_TIMEOUT_MS` is the exception: it **is** a `NEXT_PUBLIC_*` var and must be set at build time if you want a non-default timeout.
 
 ### Build and run
 
@@ -175,6 +177,6 @@ npm run test:watch # Watch mode
 
 ## API
 
-All browser requests go through the Next.js proxy (`src/proxy.ts`): `/api/*` is rewritten to clann-server and `/auth-api/*` to ullav-user-management, so there are no CORS issues. The backend URLs are configured via `API_URL` and `AUTH_URL` in `.env.local` (runtime env vars, not `NEXT_PUBLIC_*`).
+All browser requests go through the Next.js proxy (`src/proxy.ts`): `/api/*` is rewritten to clann-server, `/auth-api/*` to ullav-user-management, and `/api/dam/*` to ullav-dam-server (with the `/api/dam` prefix stripped), so there are no CORS issues. The backend URLs are configured via `API_URL`, `AUTH_URL`, and `DAM_URL` in `.env.local` (runtime env vars, not `NEXT_PUBLIC_*`).
 
 Every API call includes `created_by=<username>` (applied automatically by `useApi`). The backend enforces ownership server-side and grants admin access when the username matches the `ADMIN_USERNAME` environment variable.

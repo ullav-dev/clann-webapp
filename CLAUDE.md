@@ -38,8 +38,10 @@ docker compose -f docker-compose-prod.yaml pull && docker compose -f docker-comp
 **Environment variables — important:** `NEXT_PUBLIC_*` variables are statically inlined by the Next.js bundler at build time (into both client bundles and server-side code). Setting them at runtime has no effect. Instead, the server-side backend URLs use plain (non-`NEXT_PUBLIC_`) env vars:
 - `API_URL` — base URL for server-side calls to clann-server and for the `/api/*` rewrite destination (default: `http://clann-server:3001`)
 - `AUTH_URL` — base URL for server-side calls to ullav-auth and for the `/auth-api/*` rewrite destination (default: `http://ullav-auth:8081`)
+- `DAM_URL` — base URL for the `/api/dam/*` rewrite to ullav-dam-server (default: `http://ullav-dam-server:8080`); set to `http://localhost:8080` in `.env.local` for local dev
+- `NEXT_PUBLIC_IDLE_TIMEOUT_MS` — idle session timeout in milliseconds (default: `3600000` = 1 hour); **build-time** `NEXT_PUBLIC_*` var so it is inlined into the client bundle; set low (e.g. `70000`) to test the warning modal
 
-The defaults in `next.config.ts` are the production Docker service names, so no env vars need to be set during the Docker build. For local dev, set both in `.env.local`.
+The defaults in `next.config.ts` are the production Docker service names, so no env vars need to be set during the Docker build. For local dev, set all three in `.env.local`.
 
 **Network:** the `ullav-net` external network must exist before starting any service:
 ```bash
@@ -60,8 +62,8 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 - `src/lib/persons.ts` — pure utility functions (`sortPersons`, `filterPersons`, `totalPages`, `pageSlice`) extracted for testability
 - `src/hooks/useApi.ts` — binds all API calls with `created_by=username` so the backend ownership filter is always applied
 - `src/components/FamilyTreeView.tsx` — React Flow graph; loaded via `dynamic(..., { ssr: false })`. Shows 2-generation ancestors, direct children, and spouses for the root person. Supports vertical/horizontal orientation toggle and JPEG/JSON export.
-- `src/components/PersonForm.tsx` — shared create/edit form; fields: name, sex, birth/death, identity (nickname/username/email/verified), biography (markdown editor via `MarkdownEditor`; no character cap)
-- `src/components/MarkdownEditor.tsx` — thin wrapper around `@uiw/react-md-editor`; dynamically imported (`ssr: false`); wraps output in `data-color-mode="light"` to prevent dark-mode flicker; always yields a plain markdown string
+- `src/components/PersonForm.tsx` — shared create/edit form; fields: name, sex, birth/death, identity (nickname/username/email/verified), biography (markdown editor via `MarkdownEditor`; no character cap). Includes an inline `DamPicker` (toggled by "Browse media library" button) and a drop zone below the editor. Both click-to-insert and drag-and-drop call `insertAssetMarkdown`, which appends `/thumbnail` to the asset URL and inserts the markdown image at the last tracked cursor position (tracked via `onSelect`/`onKeyUp`/`onMouseUp` on the textarea via `textareaProps`; falls back to end of string). A 2-second green flash on the drop zone confirms insertion.
+- `src/components/MarkdownEditor.tsx` — thin wrapper around `@uiw/react-md-editor`; dynamically imported (`ssr: false`); wraps output in `data-color-mode="light"` to prevent dark-mode flicker; always yields a plain markdown string; accepts a `textareaProps` passthrough for attaching handlers to the underlying textarea
 - `src/components/AddRelationshipModal.tsx` — modal for linking Father / Mother / Sibling / Spouse. The person list is filtered by sex: Father/Brother → males only, Mother/Sister → females only. Sibling mode supports **multi-select** (click to toggle; submit links all selected siblings at once and inherits the root person's parents to each). Setting a Father or Mother also triggers **auto-sibling discovery**: fetches the parent's existing children via `getFamilyTree` and links any that are not already siblings — deduplication uses `rawId()` to normalise the `person:<ulid>` IDs returned by the API against the bare ULID in `personId` from `useParams`.
 - `src/components/PersonCard.tsx` — card used on the list page; includes inline delete
 - `src/components/PersonAvatar.tsx` — circular photo with emoji fallback
@@ -76,7 +78,9 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 - `src/contexts/TreeContext.tsx` — holds the list of trees, the active tree, and tree CRUD actions; persists active selection in localStorage (`clann_active_tree`)
 - `src/lib/tree-import.ts` — pure parser for the Clann JSON export format; deduplicates persons and relationships
 
-**Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token).
+**Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token). The context also implements **idle session timeout**: after `NEXT_PUBLIC_IDLE_TIMEOUT_MS` ms of inactivity (default 1 hour) the user is automatically signed out; a warning modal appears 60 s beforehand with "Stay Signed In" / "Sign Out Now" buttons. Activity events (`mousemove`, `keydown`, `pointerdown`, `scroll`, `touchstart`) reset the timer; events are ignored while the modal is open so the user must make an explicit choice. The `IdleWarningModal` component lives inside `AuthContext.tsx`.
+
+**DAM proxy:** `src/proxy.ts` rewrites `/api/dam/*` → `DAM_URL` (default `http://ullav-dam-server:8080`), stripping the `/api/dam` prefix. This must be checked before the generic `/api/*` rule. The `DamPicker` component from `@ullav/dam-picker` uses `/api/dam` as its `apiBase`.
 
 **Email flows:** The auth service sends transactional emails when SMTP is configured (`SMTP_HOST` in its `.env`). The webapp passes an `app_url` parameter in each relevant API call so the auth service constructs locale-aware links without needing `APP_BASE_URL` in its own config.
 - **Email verification:** registration triggers a confirmation email; `app_url` is set to `{origin}/{locale}` (the auth service appends its own path); user clicks link → `POST /auth/confirm-email`
@@ -93,6 +97,7 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 | `/[locale]/login` | Sign in / create account / forgot password |
 | `/[locale]/auth/confirm-email` | Handles email verification link clicks (`?token=`); activates account |
 | `/[locale]/auth/password-reset` | Handles password reset link clicks (`?token=`); new-password form |
+| `/[locale]/auth/sso` | SSO handoff from ullav-portal (`?t=<encoded-session>`); writes session to localStorage and redirects to `/family` |
 | `/[locale]/family` | List all persons — card/list toggle, sort, search, **pagination** |
 | `/[locale]/persons/new` | Create person |
 | `/[locale]/persons/[id]` | Person detail: family tree tab · relationships tab · life story tab |
@@ -140,7 +145,7 @@ After parsing, the modal creates a new tree via `TreeContext.createTree(..., { s
 
 **Library:** next-intl v4. Supported locales: `en` (default), `de`, `ga`. Defined in `src/i18n/routing.ts`.
 
-- Translation files live in `messages/{locale}.json`, organised by namespace (`nav`, `family`, `personDetail`, `personForm`, `addRelationship`, `imageUpload`, `familyTree`, `disclaimer`, `footer`, `help`, etc.)
+- Translation files live in `messages/{locale}.json`, organised by namespace (`nav`, `family`, `personDetail`, `personForm`, `addRelationship`, `imageUpload`, `familyTree`, `disclaimer`, `footer`, `help`, `idleWarning`, etc.)
 - Server components use `await getTranslations("namespace")` (from `next-intl/server`)
 - Client components use `useTranslations("namespace")` (React hook)
 - Do **not** use `t.rich(...)` with `{placeholder}` syntax — use separate keys or XML-style tags (`<b>text</b>`) instead. The `{br}` self-closing placeholder is not supported; split into two keys and insert `<br />` manually.
@@ -159,7 +164,7 @@ After parsing, the modal creates a new tree via `TreeContext.createTree(..., { s
 
 The **Life Story** tab on the person detail page renders `person.biography` as formatted markdown using `react-markdown` with the `remark-gfm` plugin (tables, strikethrough, task lists). The output is wrapped in Tailwind `prose prose-stone` classes from `@tailwindcss/typography` (registered via `@plugin "@tailwindcss/typography"` in `globals.css`). When the biography is empty, a prompt with a link to the Edit page is shown instead.
 
-The biography field is edited via `MarkdownEditor` (a dynamic-import wrapper around `@uiw/react-md-editor`), which stores content as a plain markdown string — no serialisation step needed.
+The biography field is edited via `MarkdownEditor` (a dynamic-import wrapper around `@uiw/react-md-editor`), which stores content as a plain markdown string — no serialisation step needed. Images from the media library can be inserted inline (see `PersonForm` description above).
 
 **Life story image (`life_image_path`):** A separate, typically larger image for the Life Story panel. Stored as `{ulid}_life.{ext}` in the same upload directory as profile images (to avoid filename collisions with `{ulid}.{ext}`). Uploaded via `POST /api/persons/{id}/life-image`, served via `GET /api/persons/{id}/life-image`. When present, the image is displayed top-left in the tab with the biography flowing to its right (stacks vertically on mobile). Clicking the image or the "+ Add Life Story Image" button toggles an inline `ImageUpload` panel (same pattern as the profile photo). The `ImageUpload` component's `uploadFn` prop is used to target the life-image endpoint rather than the default profile-image endpoint.
 

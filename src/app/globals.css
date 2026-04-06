@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../../node_modules/@ullav/dam-picker/src";
 @plugin "@tailwindcss/typography";
 
 /* React Flow */
