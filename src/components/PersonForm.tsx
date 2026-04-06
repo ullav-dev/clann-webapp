@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import type { CreatePerson, UpdatePerson, Sex } from "@/lib/types";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { useAuth } from "@/contexts/AuthContext";
-import { DamPicker } from "@ullav/dam-picker";
-import type { PickedAsset } from "@ullav/dam-picker";
+import DamPicker from "@/lib/dam-picker/DamPicker";
+import type { PickedAsset } from "@/lib/dam-picker/api";
 
 type FormValues = {
   first_name: string;
