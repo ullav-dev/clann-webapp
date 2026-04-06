@@ -8,7 +8,9 @@
     "start": "node node_modules/next/dist/bin/next start --port 3001",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "docker": "docker build -t clann-webapp .",
+    "predocker": "docker run --rm -v \"$(pwd)\":/app -w /app node:22-alpine npm install --package-lock-only"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
