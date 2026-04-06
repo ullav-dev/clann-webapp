@@ -6,6 +6,12 @@
     "login": "Sign In",
     "help": "Help"
   },
+  "idleWarning": {
+    "title": "Session Expiring",
+    "message": "You have been inactive. You will be signed out in {seconds} seconds.",
+    "stayLoggedIn": "Stay Signed In",
+    "logoutNow": "Sign Out Now"
+  },
   "localeSwitcher": {
     "label": "Language",
     "en": "English",
