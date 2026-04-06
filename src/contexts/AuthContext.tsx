@@ -12,6 +12,8 @@ interface AuthState {
   /** true while restoring session from localStorage (prevents auth flash) */
   isLoading: boolean;
   login: (email: string, password: string) => Promise<LoginResponse>;
+  /** Used by the SSO page to set session without a page reload */
+  setSession: (session: { user: AuthUser; token: string; roles: string[] }) => void;
   logout: () => void;
 }
 
@@ -21,6 +23,7 @@ const AuthContext = createContext<AuthState>({
   roles: [],
   isLoading: true,
   login: async () => { throw new Error("AuthProvider not mounted"); },
+  setSession: () => {},
   logout: () => {},
 });
 
@@ -135,6 +138,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
+  const setSession = useCallback((session: { user: AuthUser; token: string; roles: string[] }) => {
+    setUser(session.user);
+    setToken(session.token);
+    setRoles(session.roles);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+  }, []);
+
   const login = useCallback(async (email: string, password: string): Promise<LoginResponse> => {
     const resp = await apiLogin(email, password);
     setUser(resp.user);
@@ -196,7 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <AuthContext.Provider value={{ user, token, roles, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, roles, isLoading, login, setSession, logout }}>
       {children}
       {idleWarning && (
         <IdleWarningModal onStay={startTimers} onLogout={logout} />
