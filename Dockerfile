@@ -1,8 +1,9 @@
 # Stage 1: Install dependencies
 FROM node:22-alpine AS deps
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+COPY package*.json .npmrc ./
+RUN --mount=type=secret,id=npm_token \
+    NODE_AUTH_TOKEN=$(cat /run/secrets/npm_token) npm ci
 
 # Stage 2: Build
 FROM node:22-alpine AS builder

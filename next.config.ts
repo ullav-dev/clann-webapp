@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   // API proxying (/api/* and /auth-api/*) is handled in src/middleware.ts so
   // that API_URL / AUTH_URL are read at request time from process.env rather
   // than being baked into routes-manifest.json at build time.
+  transpilePackages: ["@ullav/dam-picker"],
 };
 
 export default withNextIntl(nextConfig);
