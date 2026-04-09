@@ -18,6 +18,7 @@ import {
 import { toJpeg } from "html-to-image";
 import type { FamilyTreeNode } from "@/lib/types";
 import { rawId, personImageUrl, listPersons, getRelationships } from "@/lib/api";
+import { exportToGedcom } from "@/lib/gedcom-export";
 import { useTree } from "@/contexts/TreeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { personIcon } from "@/components/PersonCard";
@@ -307,6 +308,7 @@ export default function FamilyTreeView({ tree }: Props) {
   const [showSiblings, setShowSiblings] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportingJson, setExportingJson] = useState(false);
+  const [exportingGedcom, setExportingGedcom] = useState(false);
 
   const { nodes, edges } = useMemo(() => {
     const nodes: Node[] = [];
@@ -422,6 +424,59 @@ export default function FamilyTreeView({ tree }: Props) {
     }
   }, [activeTree, user]);
 
+  const exportGedcom = useCallback(async () => {
+    if (!activeTree || !user) return;
+    setExportingGedcom(true);
+    try {
+      const persons = await listPersons(user.username, activeTree.name);
+
+      const relResults: { id: string; r: Awaited<ReturnType<typeof getRelationships>> }[] = [];
+      for (const p of persons) {
+        const r = await getRelationships(p.id, user.username);
+        relResults.push({ id: p.id, r });
+      }
+
+      const relKeys = new Set<string>();
+      const relationships: { type: string; person_id: string; related_id: string; spouse_from?: string | null; spouse_to?: string | null }[] = [];
+      function addRel(type: string, personId: string, relatedId: string, extra?: { spouse_from?: string | null; spouse_to?: string | null }) {
+        const key =
+          type === "Spouse" || type === "Sibling"
+            ? `${type}:${[personId, relatedId].sort().join(":")}`
+            : `${type}:${personId}:${relatedId}`;
+        if (!relKeys.has(key)) {
+          relKeys.add(key);
+          relationships.push({ type, person_id: personId, related_id: relatedId, ...extra });
+        }
+      }
+
+      for (const { id, r } of relResults) {
+        for (const p of r.father)   addRel("Father",  id, p.id);
+        for (const p of r.mother)   addRel("Mother",  id, p.id);
+        for (const p of r.siblings) addRel("Sibling", id, p.id);
+        for (const p of r.spouse)   addRel("Spouse",  id, p.id, { spouse_from: p.spouse_from ?? null, spouse_to: p.spouse_to ?? null });
+      }
+
+      const exportPersons = persons.map(({ id, first_name, family_name, middle_name, sex,
+        date_of_birth, date_of_death, place_of_birth, place_of_death,
+        nickname, biography }) => ({
+        id, first_name, family_name, middle_name, sex,
+        date_of_birth, date_of_death, place_of_birth, place_of_death,
+        nickname, biography,
+      }));
+
+      const gedcom = exportToGedcom(exportPersons, relationships, activeTree.name);
+      const blob = new Blob([gedcom], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${activeTree.name}.ged`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportingGedcom(false);
+    }
+  }, [activeTree, user]);
+
   const exportJpeg = useCallback(async () => {
     if (!containerRef.current) return;
     setExporting(true);
@@ -507,6 +562,23 @@ export default function FamilyTreeView({ tree }: Props) {
             </svg>
           )}
           {t("exportJson")}
+        </button>
+        <button
+          onClick={exportGedcom}
+          disabled={exportingGedcom}
+          className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors disabled:opacity-50"
+        >
+          {exportingGedcom ? (
+            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+            </svg>
+          ) : (
+            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          )}
+          {t("exportGedcom")}
         </button>
         <button
           onClick={exportJpeg}

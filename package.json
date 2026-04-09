@@ -8,9 +8,12 @@
     "start": "node node_modules/next/dist/bin/next start --port 3001",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "docker": "docker build --secret id=npm_token,env=NODE_AUTH_TOKEN -t clann-webapp .",
+    "predocker": "docker run --rm -v \"$(pwd)\":/app -w /app -e NODE_AUTH_TOKEN=$NODE_AUTH_TOKEN node:22-alpine sh -c 'apk add --no-cache git && npm install --package-lock-only'"
   },
   "dependencies": {
+    "@ullav/dam-picker": "file:../ullav-dam-browser/packages/dam-picker",
     "@tailwindcss/typography": "^0.5.19",
     "@uiw/react-md-editor": "^4.0.11",
     "@xyflow/react": "^12.10.1",

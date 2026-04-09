@@ -221,7 +221,8 @@
     "biographyPlaceholder": "Write a biography… (markdown supported)",
     "saving": "Saving…",
     "sexRequired": "Sex is required",
-    "unknownError": "Unknown error"
+    "unknownError": "Unknown error",
+    "forgetChanges": "Forget Changes"
   },
   "addRelationship": {
     "title": "Add Relationship",
@@ -278,12 +279,13 @@
     "cancel": "Cancel",
     "importTree": "Import tree…",
     "importTitle": "Import Family Tree",
-    "importInstructions": "Upload a JSON file exported from Clann to import a family tree.",
-    "importDropZone": "Drop your JSON file here, or click to browse",
-    "importInvalidFile": "Please select a valid .json file",
-    "importParseFailed": "Could not parse the file — make sure it was exported from Clann",
+    "importInstructions": "Upload a Clann JSON export or a GEDCOM (.ged) file to import a family tree.",
+    "importDropZone": "Drop your JSON or GEDCOM file here, or click to browse",
+    "importInvalidFile": "Please select a valid .json or .ged file",
+    "importParseFailed": "Could not parse the file — make sure it is a Clann JSON export or a valid GEDCOM file",
     "importPreview": "{persons} people and {relationships} relationships found",
-    "importWarning": "Photos are not included in the export and will need to be re-uploaded after import.",
+    "importWarningsTitle": "{count} item(s) could not be fully resolved — you can fix these after import:",
+    "importWarning": "Photos are not included in exports and will need to be re-uploaded after import.",
     "importDisplayName": "Tree display name",
     "importUniqueName": "Unique tree name",
     "importBack": "Back",
@@ -377,9 +379,24 @@
       "primaryTitle": "Primary tree",
       "primaryBody": "One tree per account is marked as primary (shown with a gold badge in the dropdown). Promote any other tree to primary using the star icon. The primary tree cannot be deleted — promote another tree first if you need to remove it.",
       "exportTitle": "Exporting a tree",
-      "exportBody": "Open any person's profile, go to the Family Tree tab, and use the toolbar buttons. Export as JPEG saves a snapshot image of the visible tree. Export as JSON downloads a structured file containing all people and relationships — useful for sharing, archiving, or re-importing.",
+      "exportBody": "Open any person's profile, go to the Family Tree tab, and use the toolbar buttons. Export as JPEG saves a snapshot image of the visible tree. Export as JSON downloads all people and relationships in Clann's own format. Export as GEDCOM downloads a .ged file compatible with other genealogy apps.",
       "importTitle": "Importing a tree",
-      "importBody": "Click the tree selector in the nav bar and choose 'Import tree…'. Upload a JSON file previously exported from Clann. You will see a preview showing how many people and relationships were found. Give the new tree a name and click Start import — all people and relationships are reconstructed automatically."
+      "importBody": "Click the tree selector in the nav bar and choose 'Import tree…'. Upload a Clann JSON export or a GEDCOM (.ged) file. You will see a preview of the people and relationships found. Give the new tree a name and click Start import."
+    },
+    "gedcom": {
+      "title": "GEDCOM Exchange",
+      "whatTitle": "What is GEDCOM?",
+      "whatBody": "GEDCOM (Genealogical Data Communication) is the standard file format used by genealogy applications worldwide — including Ancestry, FamilySearch, Gramps, MacFamilyTree, and many others. Clann supports GEDCOM 5.5.1 for both export and import, letting you move data between tools freely.",
+      "exportTitle": "Exporting as GEDCOM",
+      "exportBody": "Open any person's profile, go to the Family Tree tab, and click 'Export as GEDCOM'. Clann fetches all people and relationships in the active tree, converts them to GEDCOM format, and downloads a .ged file named after the tree. You can then open this file in any genealogy application.",
+      "importTitle": "Importing a GEDCOM file",
+      "importBody": "Click the tree selector in the nav bar and choose 'Import tree…'. Drop or browse to your .ged file. Clann reads all INDI (person) and FAM (family) records, derives parent, spouse, and sibling relationships automatically, and shows a preview before importing. The imported data becomes a new tree — your existing trees are untouched.",
+      "warningsTitle": "Import warnings and best fit",
+      "warningsBody": "If Clann cannot fully resolve a record — for example a person with no SEX field, or a FAM that references an unknown individual — it makes a best-fit decision (defaulting sex to Male, skipping the unresolvable link) and lists the issue in an amber warnings panel before you confirm the import. Review the list and fix anything that needs attention after the import completes.",
+      "includedTitle": "What is included",
+      "includedBody": "Exported: name (given, middle, surname, nickname), sex, birth and death dates and places, biography (as a GEDCOM NOTE), and all parent/spouse/sibling relationships including marriage dates. Not exported: profile photos, life story images, username, email, or identity-verified flag — these are Clann-specific fields with no GEDCOM equivalent.",
+      "compatTitle": "Compatibility notes",
+      "compatBody": "Clann writes GEDCOM 5.5.1 with UTF-8 encoding and CRLF line endings, which is accepted by all major genealogy apps. Date fields are stored as free-form text in Clann, so they are passed through as-is; standard GEDCOM date formats (e.g. '12 JUN 1950') will be interpreted correctly by other apps, while informal formats (e.g. 'around 1950') may appear as notes. When importing from other apps, ANSEL-encoded files may have character encoding issues — re-saving as UTF-8 in the source app first resolves this."
     }
   },
   "footer": {
@@ -405,6 +422,7 @@
     "legendSpouse": "Spouse",
     "legendSibling": "Sibling",
     "exportJson": "Export as JSON",
+    "exportGedcom": "Export as GEDCOM",
     "exportJpeg": "Export as JPEG",
     "exporting": "Exporting…",
     "bornPrefix": "b. {date}"

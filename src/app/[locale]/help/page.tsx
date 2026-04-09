@@ -76,6 +76,17 @@ export default async function HelpPage() {
         </Cards>
       </Section>
 
+      <Section title={t("gedcom.title")} icon="🔗">
+        <Cards>
+          <Card title={t("gedcom.whatTitle")} body={t("gedcom.whatBody")} />
+          <Card title={t("gedcom.exportTitle")} body={t("gedcom.exportBody")} />
+          <Card title={t("gedcom.importTitle")} body={t("gedcom.importBody")} />
+          <Card title={t("gedcom.warningsTitle")} body={t("gedcom.warningsBody")} />
+          <Card title={t("gedcom.includedTitle")} body={t("gedcom.includedBody")} />
+          <Card title={t("gedcom.compatTitle")} body={t("gedcom.compatBody")} />
+        </Cards>
+      </Section>
+
       <div className="rounded-2xl bg-emerald-50 border border-emerald-200 px-6 py-5 flex items-center justify-between gap-4">
         <p className="text-emerald-800 text-sm">{t("cta")}</p>
         <Link
