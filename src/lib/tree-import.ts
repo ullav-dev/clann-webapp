@@ -33,6 +33,16 @@ export interface ParsedImport {
   relationships: ImportRelationship[];
   suggestedName: string;
   suggestedDisplayName: string;
+  /** Human-readable warnings about data that could not be fully resolved. */
+  warnings?: string[];
+}
+
+export function slugify(val: string): string {
+  return val
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 /** Validate and parse the JSON export format into flat persons + relationships lists. */

@@ -15,12 +15,12 @@ A responsive, localised family tree management application built with Next.js, b
   - Click any node to navigate to that person's profile
   - Hover over any node to see a tooltip with date of birth, place of birth, and biography
 - **Multiple family trees** — create and manage multiple trees per account; one tree is designated **primary** (auto-selected on login); switch between trees from the nav bar dropdown; set any tree as primary; delete non-primary trees (cascade-deletes all their people and relationships; the primary tree is protected from deletion)
-- **Export** — download the tree as a **JPEG image** or a **flat JSON file** (`persons` array + `relationships` array, with full person fields and typed relationship entries including `sibling_type` and spouse dates)
-- **Import** — upload a previously exported Clann JSON file to create a new tree; 3-step modal (upload → name/preview → live progress) reconstructs all people and relationships
+- **Export** — download the tree as a **JPEG image**, a **flat JSON file** (Clann's own format), or a **GEDCOM 5.5.1 file** (`.ged`) compatible with Ancestry, FamilySearch, Gramps, MacFamilyTree, and other genealogy apps
+- **Import** — upload a Clann JSON export **or a GEDCOM (.ged) file** to create a new tree; the 3-step modal (upload → name/preview → live progress) auto-detects the format, derives parent/spouse/sibling relationships from FAM records, and shows a warnings panel for any data that could not be fully resolved so you can review before importing
 - **Family Members list** — card or list view with sort (family name, date of birth, place of birth), name search, and **pagination** (5–30 per page, default 10)
 - **Authentication** — sign in, registration (first name, surname, sex, email, password) with **email verification**, and **email-based password reset** via ullav-user-management; registration requires accepting both a **Disclaimer** and the **Terms & Conditions** (each opens a scrollable modal); on first login the initial family tree and person are created automatically from the registration details; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind sign-in; ownership filter enforced server-side; all password fields have a show/hide toggle; **idle session timeout** automatically signs out inactive users after 1 hour (configurable via `NEXT_PUBLIC_IDLE_TIMEOUT_MS`), with a localised 60-second warning modal before sign-out
 - **Life Story** — biography field accepts markdown (headings, bold, italic, lists, links); rendered as formatted prose in the dedicated **Life Story** tab on each person's profile page; edited using a toolbar-driven markdown editor in the edit form. Images from the **media library** can be inserted inline: click "Browse media library" to open an inline asset picker, then click an image to insert it at the cursor position, or drag it onto the drop zone below the editor — images are inserted as thumbnails at the current cursor position. An optional **life story image** (JPEG/PNG ≤ 2 MB) can be uploaded directly from the Life Story tab and is displayed top-left alongside the biography text. The tab includes an **Export as PDF** button that opens the browser print dialog; the output is named after the person and includes their name, birth details, life story image, and full biography
-- **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, list view, multiple trees including export/import), accessible from the nav bar (far-right item) without logging in
+- **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, list view, multiple trees, GEDCOM exchange), accessible from the nav bar (far-right item) without logging in
 - **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
 
 ## Prerequisites
@@ -156,7 +156,9 @@ src/
     api.ts                  # Typed fetch wrappers
     auth-api.ts             # Auth service fetch wrappers
     persons.ts              # Pure sort/filter/pagination helpers (tested)
-    tree-import.ts          # Parser for Clann JSON export format
+    tree-import.ts          # Parser for Clann JSON export format; exports ParsedImport, slugify
+    gedcom-export.ts        # Pure GEDCOM 5.5.1 serialiser (exportToGedcom)
+    gedcom-import.ts        # Pure GEDCOM 5.5.1 parser (parseGedcomFile) with warnings
   proxy.ts                  # API/auth rewrites + locale detection (Next.js 16 proxy convention)
 ```
 

@@ -289,11 +289,12 @@
     "cancel": "Abbrechen",
     "importTree": "Baum importieren…",
     "importTitle": "Stammbaum importieren",
-    "importInstructions": "Laden Sie eine aus Clann exportierte JSON-Datei hoch, um einen Stammbaum zu importieren.",
-    "importDropZone": "JSON-Datei hier ablegen oder klicken zum Durchsuchen",
-    "importInvalidFile": "Bitte wählen Sie eine gültige .json-Datei aus",
-    "importParseFailed": "Die Datei konnte nicht verarbeitet werden — stellen Sie sicher, dass sie aus Clann exportiert wurde",
+    "importInstructions": "Laden Sie einen Clann-JSON-Export oder eine GEDCOM-Datei (.ged) hoch, um einen Stammbaum zu importieren.",
+    "importDropZone": "JSON- oder GEDCOM-Datei hier ablegen oder klicken zum Durchsuchen",
+    "importInvalidFile": "Bitte wählen Sie eine gültige .json- oder .ged-Datei aus",
+    "importParseFailed": "Die Datei konnte nicht verarbeitet werden — stellen Sie sicher, dass es sich um einen Clann-JSON-Export oder eine gültige GEDCOM-Datei handelt",
     "importPreview": "{persons} Personen und {relationships} Beziehungen gefunden",
+    "importWarningsTitle": "{count} Element(e) konnten nicht vollständig aufgelöst werden — Sie können dies nach dem Import korrigieren:",
     "importWarning": "Fotos sind nicht im Export enthalten und müssen nach dem Import erneut hochgeladen werden.",
     "importDisplayName": "Anzeigename des Baums",
     "importUniqueName": "Eindeutiger Baumname",
@@ -388,9 +389,24 @@
       "primaryTitle": "Primärer Baum",
       "primaryBody": "Ein Baum pro Konto ist als primär markiert (im Dropdown mit einem goldenen Badge angezeigt). Verwenden Sie das Sternsymbol, um einen anderen Baum zum primären zu machen. Der primäre Baum kann nicht gelöscht werden — machen Sie zuerst einen anderen Baum zum primären, wenn Sie ihn entfernen möchten.",
       "exportTitle": "Baum exportieren",
-      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum und verwenden Sie die Schaltflächen in der Symbolleiste. Mit Als JPEG exportieren wird ein Schnappschuss des sichtbaren Baumes als Bild gespeichert. Als JSON exportieren lädt eine strukturierte Datei mit allen Personen und Beziehungen herunter — nützlich zum Teilen, Archivieren oder erneuten Importieren.",
+      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum und verwenden Sie die Schaltflächen in der Symbolleiste. Mit Als JPEG exportieren wird ein Schnappschuss des sichtbaren Baumes als Bild gespeichert. Als JSON exportieren lädt alle Personen und Beziehungen im Clann-eigenen Format herunter. Als GEDCOM exportieren lädt eine .ged-Datei herunter, die mit anderen Genealogie-Apps kompatibel ist.",
       "importTitle": "Baum importieren",
-      "importBody": "Klicken Sie auf den Baumwähler in der Navigationsleiste und wählen Sie 'Baum importieren…'. Laden Sie eine zuvor aus Clann exportierte JSON-Datei hoch. Sie sehen eine Vorschau, die zeigt, wie viele Personen und Beziehungen gefunden wurden. Geben Sie dem neuen Baum einen Namen und klicken Sie auf Import starten — alle Personen und Beziehungen werden automatisch wiederhergestellt."
+      "importBody": "Klicken Sie auf den Baumwähler in der Navigationsleiste und wählen Sie 'Baum importieren…'. Laden Sie einen Clann-JSON-Export oder eine GEDCOM-Datei (.ged) hoch. Sie sehen eine Vorschau der gefundenen Personen und Beziehungen. Geben Sie dem neuen Baum einen Namen und klicken Sie auf Import starten."
+    },
+    "gedcom": {
+      "title": "GEDCOM-Austausch",
+      "whatTitle": "Was ist GEDCOM?",
+      "whatBody": "GEDCOM (Genealogical Data Communication) ist das Standarddateiformat für Genealogie-Anwendungen weltweit — darunter Ancestry, FamilySearch, Gramps, MacFamilyTree und viele andere. Clann unterstützt GEDCOM 5.5.1 für Export und Import und ermöglicht so den freien Datenaustausch zwischen verschiedenen Tools.",
+      "exportTitle": "Als GEDCOM exportieren",
+      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum und klicken Sie auf 'Als GEDCOM exportieren'. Clann ruft alle Personen und Beziehungen des aktiven Baums ab, konvertiert sie ins GEDCOM-Format und lädt eine .ged-Datei herunter. Diese Datei kann in jeder Genealogie-Anwendung geöffnet werden.",
+      "importTitle": "Eine GEDCOM-Datei importieren",
+      "importBody": "Klicken Sie auf den Baumwähler in der Navigationsleiste und wählen Sie 'Baum importieren…'. Legen Sie Ihre .ged-Datei ab oder wählen Sie sie aus. Clann liest alle INDI- (Person) und FAM- (Familie) Datensätze, leitet Eltern-, Ehe- und Geschwisterbeziehungen automatisch ab und zeigt eine Vorschau vor dem Import. Die importierten Daten werden zu einem neuen Baum — Ihre vorhandenen Bäume bleiben unberührt.",
+      "warningsTitle": "Import-Hinweise und beste Annäherung",
+      "warningsBody": "Wenn Clann einen Datensatz nicht vollständig auflösen kann — z. B. eine Person ohne Geschlechtsangabe oder eine Familie, die auf eine unbekannte Person verweist — trifft es eine beste Schätzung (Standardgeschlecht: Männlich, nicht auflösbare Verknüpfungen werden übersprungen) und listet das Problem in einem Warnhinweis-Panel auf. Überprüfen Sie die Liste und korrigieren Sie nach dem Import, was nötig ist.",
+      "includedTitle": "Was ist enthalten",
+      "includedBody": "Exportiert: Name (Vor-, Mittel-, Nachname, Spitzname), Geschlecht, Geburts- und Sterbedaten und -orte, Biografie (als GEDCOM-NOTE) sowie alle Eltern-, Ehe- und Geschwisterbeziehungen einschließlich Heiratsdaten. Nicht exportiert: Profilfotos, Lebensgeschichte-Bilder, Benutzername, E-Mail oder Identitätsverifizierungsstatus — diese sind Clann-spezifische Felder ohne GEDCOM-Entsprechung.",
+      "compatTitle": "Kompatibilitätshinweise",
+      "compatBody": "Clann schreibt GEDCOM 5.5.1 mit UTF-8-Kodierung und CRLF-Zeilenenden, was von allen gängigen Genealogie-Apps akzeptiert wird. Datumsfelder werden als Freitext gespeichert und unverändert übertragen; Standard-GEDCOM-Datumsformate (z. B. '12 JUN 1950') werden von anderen Apps korrekt interpretiert. Beim Import von ANSEL-kodierten Dateien anderer Apps kann es zu Zeichenkodierungsproblemen kommen — speichern Sie die Datei in der Quell-App zuerst als UTF-8."
     }
   },
   "footer": {
@@ -416,6 +432,7 @@
     "legendSpouse": "Ehepartner",
     "legendSibling": "Geschwister",
     "exportJson": "Als JSON exportieren",
+    "exportGedcom": "Als GEDCOM exportieren",
     "exportJpeg": "Als JPEG exportieren",
     "exporting": "Exportieren…",
     "bornPrefix": "geb. {date}"
