@@ -279,11 +279,12 @@
     "cancel": "Cealaigh",
     "importTree": "Iompórtáil crann…",
     "importTitle": "Iompórtáil Crann Teaghlaigh",
-    "importInstructions": "Uaslódáil comhad JSON a onnmhairíodh ó Clann chun crann teaghlaigh a iompórtáil.",
-    "importDropZone": "Tóg do chomhad JSON anseo, nó cliceáil chun brabhsáil",
-    "importInvalidFile": "Roghnaigh comhad .json bailí le do thoil",
-    "importParseFailed": "Níorbh fhéidir an comhad a pharsáil — déan cinnte gur onnmhairíodh é ó Clann",
+    "importInstructions": "Uaslódáil onnmhairiú JSON ó Clann nó comhad GEDCOM (.ged) chun crann teaghlaigh a iompórtáil.",
+    "importDropZone": "Tóg do chomhad JSON nó GEDCOM anseo, nó cliceáil chun brabhsáil",
+    "importInvalidFile": "Roghnaigh comhad .json nó .ged bailí le do thoil",
+    "importParseFailed": "Níorbh fhéidir an comhad a pharsáil — déan cinnte gur onnmhairiú JSON ó Clann nó comhad GEDCOM bailí é",
     "importPreview": "Fuarthas {persons} duine agus {relationships} caidreamh",
+    "importWarningsTitle": "Níorbh fhéidir {count} mír(eanna) a réiteach go hiomlán — is féidir leat iad a dheisiú tar éis iompórtála:",
     "importWarning": "Ní áirítear grianghraif san onnmhairiú agus beidh gá iad a uaslódáil arís tar éis iompórtála.",
     "importDisplayName": "Ainm taispeána an chrainn",
     "importUniqueName": "Ainm uathúil an chrainn",
@@ -378,9 +379,24 @@
       "primaryTitle": "Crann príomhúil",
       "primaryBody": "Tá crann amháin in aghaidh an chuntais marcáilte mar phríomhúil (taispeántar le suaitheantas óir sa roghchlár é). Cuir aon chrann eile chun cinn mar phríomhúil ag baint úsáide as an deilbhín réaltóige. Ní féidir an crann príomhúil a scriosadh — cuir crann eile chun cinn ar dtús má theastaíonn uait é a bhaint.",
       "exportTitle": "Crann a easpórtáil",
-      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, agus úsáid na cnaipí sa bharra uirlisí. Le hEaspórtáil mar JPEG sábhálann tú íomhá den chrann infheicthe. Le hEaspórtáil mar JSON íoslódáiltear comhad struchtúrtha ina bhfuil gach duine agus caidreamh — úsáideach chun comhroinnt, cartlannú, nó athiompórtáil.",
+      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, agus úsáid na cnaipí sa bharra uirlisí. Le hEaspórtáil mar JPEG sábhálann tú íomhá den chrann infheicthe. Le hEaspórtáil mar JSON íoslódáiltear gach duine agus caidreamh i bhformáid Clann féin. Le hEaspórtáil mar GEDCOM íoslódáiltear comhad .ged atá comhoiriúnach le feidhlimí geineolaíochta eile.",
       "importTitle": "Crann a iompórtáil",
-      "importBody": "Cliceáil roghnóir an chrainn sa bharra nascleanúna agus roghnaigh 'Crann a iompórtáil...'. Uaslódáil comhad JSON a easpórtáladh roimhe seo ó Clann. Feicfidh tú réamhamharc a thaispeánann cé mhéad duine agus caidreamh a fuarthas. Tabhair ainm don chrann nua agus cliceáil Tosaigh iompórtáil — atógtar gach duine agus caidreamh go huathoibríoch."
+      "importBody": "Cliceáil roghnóir an chrainn sa bharra nascleanúna agus roghnaigh 'Crann a iompórtáil...'. Uaslódáil onnmhairiú JSON ó Clann nó comhad GEDCOM (.ged). Feicfidh tú réamhamharc de na daoine agus na caidrimh a fuarthas. Tabhair ainm don chrann nua agus cliceáil Tosaigh iompórtáil."
+    },
+    "gedcom": {
+      "title": "Malartú GEDCOM",
+      "whatTitle": "Cad is GEDCOM ann?",
+      "whatBody": "Is é GEDCOM (Genealogical Data Communication) an caighdeán comhaid a úsáideann feidhlimí geineolaíochta ar fud an domhain — lena n-áirítear Ancestry, FamilySearch, Gramps, MacFamilyTree, agus go leor eile. Tacaíonn Clann le GEDCOM 5.5.1 d'easpórtáil agus d'iompórtáil araon, rud a ligeann duit sonraí a bhogadh idir uirlisí go saor.",
+      "exportTitle": "Ag easpórtáil mar GEDCOM",
+      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, agus cliceáil 'Easpórtáil mar GEDCOM'. Faigheann Clann gach duine agus caidreamh sa chrann gníomhach, tiontaíonn siad go formáid GEDCOM iad, agus íoslódálann comhad .ged ainmnithe i ndiaidh an chrainn. Is féidir an comhad seo a oscailt in aon fheidhlim gheineolaíochta.",
+      "importTitle": "Comhad GEDCOM a iompórtáil",
+      "importBody": "Cliceáil roghnóir an chrainn sa bharra nascleanúna agus roghnaigh 'Crann a iompórtáil...'. Tóg nó brabhsáil go dtí do chomhad .ged. Léann Clann gach taifead INDI (duine) agus FAM (teaghlach), díorthaíonn sé caidrimh tuismitheora, céile agus deartháir/deirféar go huathoibríoch, agus taispeánann réamhamharc sula n-iompórtálann. Éiríonn na sonraí iompórtáilte ina gcrann nua — fanann do chrainnte atá ann cheana gan athrú.",
+      "warningsTitle": "Rabhaidh iompórtála agus an cur chuige is fearr",
+      "warningsBody": "Mura féidir le Clann taifead a réiteach go hiomlán — mar shampla duine gan réimse INSCNE, nó FAM a thagraíonn d'fhear anaithnid — déanann sé cinneadh is fearr (inscne réamhshocraithe: Fireann, naisc nach féidir a réiteach á léim) agus liostáil an fhadhb i bpainéal rabhaidh. Athbhreithnigh an liosta agus deisigh rud ar bith a dteastaíonn aird uaidh tar éis an iompórtála.",
+      "includedTitle": "Cad atá san áireamh",
+      "includedBody": "Easpórtáilte: ainm (tugainm, meáinainm, sloinne, leasainm), inscne, dátaí agus áiteanna breithe agus báis, beathaisnéis (mar GEDCOM NOTE), agus gach caidreamh tuismitheora/céile/deartháir-deirféar lena n-áirítear dátaí pósta. Gan easpórtáil: grianghraif phróifíle, íomhánna scéal beatha, ainm úsáideora, ríomhphost, nó bratach aitheantais deimhnithe.",
+      "compatTitle": "Nótaí comhoiriúnachta",
+      "compatBody": "Scríobhann Clann GEDCOM 5.5.1 le cóidíú UTF-8 agus críochanna líne CRLF, a nglactar leis ag gach príomhfheidhlim gheineolaíochta. Stóráiltear réimsí dáta mar théacs saor-foirm i gClann agus cuirtear tríd mar atá iad; léireoidh feidhlimí eile formáidí dáta caighdeánacha GEDCOM (m.sh. '12 MFÓ 1950') i gceart. Agus comhaid ANSEL-ionchódaithe á n-iompórtáil ó fheidhlimí eile, d'fhéadfadh fadhbanna cóidíthe carachtair teacht chun cinn — sábháil an comhad mar UTF-8 sa fheidhlim fhoinseach ar dtús."
     }
   },
   "footer": {
@@ -406,6 +422,7 @@
     "legendSpouse": "Céile",
     "legendSibling": "Deartháir/Deirfiúr",
     "exportJson": "Easpórtáil mar JSON",
+    "exportGedcom": "Easpórtáil mar GEDCOM",
     "exportJpeg": "Easpórtáil mar JPEG",
     "exporting": "Á easpórtáil…",
     "bornPrefix": "r. {date}"

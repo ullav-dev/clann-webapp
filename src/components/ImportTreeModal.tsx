@@ -7,7 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
 import type { FamilyTree } from "@/lib/types";
 import * as api from "@/lib/api";
-import { parseTreeExport, type ParsedImport } from "@/lib/tree-import";
+import { parseTreeExport, slugify, type ParsedImport } from "@/lib/tree-import";
+import { parseGedcomFile } from "@/lib/gedcom-import";
 
 type Step = "upload" | "name" | "importing" | "done";
 
@@ -18,13 +19,6 @@ interface Progress {
   relsDone: number;
 }
 
-function slugify(val: string): string {
-  return val
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 interface Props {
   onClose: () => void;
@@ -59,15 +53,27 @@ export default function ImportTreeModal({ onClose }: Props) {
 
   function processFile(file: File) {
     setParseError(null);
-    if (!file.name.endsWith(".json") && file.type !== "application/json") {
+    const isGed  = file.name.endsWith(".ged") || file.name.endsWith(".gedcom");
+    const isJson = file.name.endsWith(".json") || file.type === "application/json";
+    if (!isGed && !isJson) {
       setParseError(t("importInvalidFile"));
       return;
     }
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const raw = JSON.parse(e.target?.result as string);
-        const result = parseTreeExport(raw);
+        const content = e.target?.result as string;
+        let result: ParsedImport;
+        if (isGed) {
+          result = parseGedcomFile(content);
+          // If GEDCOM had no FILE tag, derive the suggested name from the filename
+          if (!result.suggestedName) {
+            const base = file.name.replace(/\.[^.]+$/, "");
+            result = { ...result, suggestedName: slugify(base), suggestedDisplayName: base };
+          }
+        } else {
+          result = parseTreeExport(JSON.parse(content));
+        }
         setParsed(result);
         const dn = result.suggestedDisplayName || "";
         setDisplayName(dn);
@@ -78,7 +84,7 @@ export default function ImportTreeModal({ onClose }: Props) {
         setParseError(err instanceof Error ? err.message : t("importParseFailed"));
       }
     };
-    reader.readAsText(file);
+    reader.readAsText(file, "UTF-8");
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -201,9 +207,9 @@ export default function ImportTreeModal({ onClose }: Props) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
                 <p className="text-sm text-stone-500">{t("importDropZone")}</p>
-                <span className="text-xs text-stone-400">.json</span>
+                <span className="text-xs text-stone-400">.json · .ged</span>
               </div>
-              <input ref={fileRef} type="file" accept=".json,application/json" className="hidden" onChange={handleFileChange} />
+              <input ref={fileRef} type="file" accept=".json,application/json,.ged,.gedcom" className="hidden" onChange={handleFileChange} />
             </div>
           )}
 
@@ -213,6 +219,21 @@ export default function ImportTreeModal({ onClose }: Props) {
               <p className="text-sm text-stone-500">
                 {t("importPreview", { persons: parsed.persons.length, relationships: parsed.relationships.length })}
               </p>
+              {parsed.warnings && parsed.warnings.length > 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 space-y-1">
+                  <p className="text-xs font-semibold text-amber-700">
+                    {t("importWarningsTitle", { count: parsed.warnings.length })}
+                  </p>
+                  <ul className="space-y-0.5 max-h-28 overflow-y-auto">
+                    {parsed.warnings.slice(0, 20).map((w, i) => (
+                      <li key={i} className="text-xs text-amber-600">· {w}</li>
+                    ))}
+                    {parsed.warnings.length > 20 && (
+                      <li className="text-xs text-amber-500 italic">…and {parsed.warnings.length - 20} more</li>
+                    )}
+                  </ul>
+                </div>
+              )}
               <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                 {t("importWarning")}
               </p>
