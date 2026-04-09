@@ -29,6 +29,7 @@ interface Props {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSubmit: (values: any) => Promise<void>;
   submitLabel?: string;
+  onCancel?: () => void;
 }
 
 const empty: FormValues = {
@@ -47,7 +48,7 @@ const empty: FormValues = {
   biography: "",
 };
 
-export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
+export default function PersonForm({ initial, onSubmit, submitLabel, onCancel }: Props) {
   const t = useTranslations("personForm");
   const { token, user } = useAuth();
   const [values, setValues] = useState<FormValues>({ ...empty, ...initial });
@@ -268,6 +269,7 @@ export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
             <DamPicker
               apiBase="/api/dam"
               token={token}
+              username={user?.username}
               onSelect={insertAssetMarkdown}
               filter={(a) => a.asset_type.startsWith("image/") && a.creator === (user?.username ?? "")}
             />
@@ -275,7 +277,17 @@ export default function PersonForm({ initial, onSubmit, submitLabel }: Props) {
         )}
       </fieldset>
 
-      <div className="flex justify-end pt-2">
+      <div className="flex justify-end gap-3 pt-2">
+        {onCancel && (
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => { setValues({ ...empty, ...initial }); onCancel(); }}
+            className="border border-stone-300 hover:border-stone-400 disabled:opacity-60 text-stone-600 font-medium px-6 py-2.5 rounded-lg transition-colors"
+          >
+            {t("forgetChanges")}
+          </button>
+        )}
         <button type="submit" disabled={loading} className="bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white font-medium px-6 py-2.5 rounded-lg transition-colors">
           {loading ? t("saving") : (submitLabel ?? t("saving"))}
         </button>

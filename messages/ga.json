@@ -221,7 +221,8 @@
     "biographyPlaceholder": "Beathaisnéis ghearr…",
     "saving": "Á shábháil…",
     "sexRequired": "Tá inscne riachtanach",
-    "unknownError": "Earráid anaithnid"
+    "unknownError": "Earráid anaithnid",
+    "forgetChanges": "Dearmad a dhéanamh ar Athruithe"
   },
   "addRelationship": {
     "title": "Caidreamh a Chur Leis",

@@ -221,7 +221,8 @@
     "biographyPlaceholder": "Eine kurze Biografie…",
     "saving": "Speichern…",
     "sexRequired": "Geschlecht ist erforderlich",
-    "unknownError": "Unbekannter Fehler"
+    "unknownError": "Unbekannter Fehler",
+    "forgetChanges": "Änderungen verwerfen"
   },
   "addRelationship": {
     "title": "Beziehung hinzufügen",

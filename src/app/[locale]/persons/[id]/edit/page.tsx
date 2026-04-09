@@ -39,6 +39,7 @@ export default function EditPersonPage() {
         <PersonForm
           initial={{ first_name: person.first_name, middle_name: person.middle_name ?? "", family_name: person.family_name, sex: person.sex, date_of_birth: person.date_of_birth ?? "", date_of_death: person.date_of_death ?? "", place_of_birth: person.place_of_birth ?? "", place_of_death: person.place_of_death ?? "", nickname: person.nickname ?? "", username: person.username ?? "", email: person.email ?? "", verified: person.verified ?? false, biography: person.biography ?? "" }}
           onSubmit={handleSubmit}
+          onCancel={() => router.push(`/persons/${id}`)}
           submitLabel={t("submitLabel")}
         />
       </div>

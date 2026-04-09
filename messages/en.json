@@ -221,7 +221,8 @@
     "biographyPlaceholder": "Write a biography… (markdown supported)",
     "saving": "Saving…",
     "sexRequired": "Sex is required",
-    "unknownError": "Unknown error"
+    "unknownError": "Unknown error",
+    "forgetChanges": "Forget Changes"
   },
   "addRelationship": {
     "title": "Add Relationship",
