@@ -103,9 +103,17 @@
     "sexHint": "Úsáidtear é chun d'iontráil crainn teaghlaigh tosaigh a chruthú.",
     "sexRequired": "Roghnaigh do ghnéas le do thoil"
   },
+  "limits": {
+    "treeLimitTitle": "Teorainn crann bainte amach",
+    "treeLimitMessage": "Ceadaíonn do phlean suas le {max} crann teaghlaigh. Uasghrádaigh chun tuilleadh a chruthú.",
+    "memberLimitTitle": "Teorainn ball bainte amach",
+    "memberLimitMessage": "Shroich tú an uaslíon ball teaghlaigh do do phlean. Uasghrádaigh chun tuilleadh a chur leis.",
+    "upgradeLink": "Féach ar phleananna"
+  },
   "family": {
     "title": "Baill Teaghlaigh",
     "loading": "Á lódáil…",
+    "memberLimitCta": "Uasghrádaigh chun tuilleadh a chur leis",
     "personCount": "{count, plural, one {# duine} other {# duine}} i do chrann",
     "addPerson": "+ Duine a Chur Leis",
     "searchPlaceholder": "Cuardaigh de réir ainm…",

@@ -2,12 +2,16 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useTree } from "@/contexts/TreeContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import ImportTreeModal from "./ImportTreeModal";
 
 export default function TreeSelector() {
   const { trees, activeTree, isLoading, setActiveTree, createTree, deleteTree, setPrimaryTree } = useTree();
+  const { atTreeLimit, maxTrees } = useSubscription();
+  const tLimits = useTranslations("limits");
   const t = useTranslations("trees");
   const router = useRouter();
   const pathname = usePathname();
@@ -173,6 +177,28 @@ export default function TreeSelector() {
 
           <div className="border-t border-stone-100">
             {showCreate ? (
+              atTreeLimit(trees.length) ? (
+                <div className="p-3 space-y-1.5">
+                  <p className="text-xs font-semibold text-amber-700">⚡ {tLimits("treeLimitTitle")}</p>
+                  <p className="text-xs text-amber-600">
+                    {tLimits("treeLimitMessage", { max: maxTrees })}
+                  </p>
+                  <Link
+                    href="/pricing"
+                    onClick={() => setOpen(false)}
+                    className="block text-xs font-medium text-amber-900 underline hover:text-amber-700 transition-colors"
+                  >
+                    {tLimits("upgradeLink")} →
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => { setShowCreate(false); setError(null); }}
+                    className="w-full border border-stone-200 text-stone-500 text-xs py-1.5 rounded-lg hover:bg-stone-50 transition-colors"
+                  >
+                    {t("cancel")}
+                  </button>
+                </div>
+              ) : (
               <form onSubmit={handleCreate} className="p-3 space-y-2">
                 {error && <p className="text-xs text-red-600">{error}</p>}
                 <div>
@@ -216,6 +242,7 @@ export default function TreeSelector() {
                   </button>
                 </div>
               </form>
+              )
             ) : (
               <div className="divide-y divide-stone-100">
                 <button

@@ -103,9 +103,17 @@
     "sexHint": "Wird verwendet, um Ihren ersten Familienbaumeintrag zu erstellen.",
     "sexRequired": "Bitte wählen Sie Ihr Geschlecht"
   },
+  "limits": {
+    "treeLimitTitle": "Limit für Stammbäume erreicht",
+    "treeLimitMessage": "Ihr Tarif erlaubt bis zu {max} Stammbäume. Führen Sie ein Upgrade durch, um weitere zu erstellen.",
+    "memberLimitTitle": "Mitgliederlimit erreicht",
+    "memberLimitMessage": "Sie haben die maximale Anzahl an Familienmitgliedern für Ihren Tarif erreicht. Führen Sie ein Upgrade durch, um weitere hinzuzufügen.",
+    "upgradeLink": "Tarife anzeigen"
+  },
   "family": {
     "title": "Familienmitglieder",
     "loading": "Laden…",
+    "memberLimitCta": "Upgrade für mehr Mitglieder",
     "personCount": "{count, plural, one {# Person} other {# Personen}} in Ihrem Stammbaum",
     "addPerson": "+ Person hinzufügen",
     "searchPlaceholder": "Nach Name suchen…",

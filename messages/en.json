@@ -103,9 +103,17 @@
     "sexHint": "Used to create your initial family tree entry.",
     "sexRequired": "Please select your sex"
   },
+  "limits": {
+    "treeLimitTitle": "Tree limit reached",
+    "treeLimitMessage": "Your plan allows up to {max} family trees. Upgrade to create more.",
+    "memberLimitTitle": "Member limit reached",
+    "memberLimitMessage": "You have reached the maximum number of family members for your plan. Upgrade to add more.",
+    "upgradeLink": "View plans"
+  },
   "family": {
     "title": "Family Members",
     "loading": "Loading…",
+    "memberLimitCta": "Upgrade to add more",
     "personCount": "{count, plural, one {# person} other {# persons}} in your tree",
     "addPerson": "+ Add Person",
     "searchPlaceholder": "Search by name…",
