@@ -4,7 +4,9 @@
     "addPerson": "Add Person",
     "logout": "Sign Out",
     "login": "Sign In",
-    "help": "Help"
+    "help": "Help",
+    "pricing": "Pricing",
+    "account": "Account"
   },
   "idleWarning": {
     "title": "Session Expiring",
@@ -409,5 +411,111 @@
     "exportJpeg": "Export as JPEG",
     "exporting": "Exporting…",
     "bornPrefix": "b. {date}"
+  },
+  "pricing": {
+    "heading": "Choose your Clann plan",
+    "subheading": "Start free and upgrade when your family grows. 7-day trial included on paid plans.",
+    "perMonth": "/ mo",
+    "familyPriceNote": "Base: 2 seats. +€2/mo per extra seat.",
+    "comingSoon": "Coming Soon",
+    "trialNote": "Family and Professional plans include a 7-day free trial — no charge until the trial ends.",
+    "learnMore": "Learn more",
+    "checkoutTitle": "Subscribe",
+    "checkoutError": "Could not start checkout. Please try again.",
+    "seatCount": "Number of seats",
+    "seatHint": "Minimum 2, maximum 10. Each seat is one family member account.",
+    "paymentProvider": "Pay with",
+    "proceedToPayment": "Proceed to Payment →",
+    "redirecting": "Redirecting…",
+    "cancel": "Cancel",
+    "plans": {
+      "individual": {
+        "name": "Individual",
+        "price": "Free",
+        "description": "Perfect for getting started with your family history.",
+        "cta": "Get Started",
+        "features": [
+          "1 user seat",
+          "2 family trees",
+          "Up to 100 family members",
+          "100 MB media storage",
+          "100 media assets",
+          "GEDCOM import & export",
+          "Interactive family tree graph"
+        ]
+      },
+      "family": {
+        "name": "Family / Team",
+        "price": "€5",
+        "description": "For families building their history together.",
+        "cta": "Subscribe",
+        "features": [
+          "2 – 10 user seats",
+          "10 family trees",
+          "Up to 1,000 family members",
+          "5 GB media storage",
+          "1,000 media assets",
+          "Images in media library",
+          "7-day free trial"
+        ]
+      },
+      "professional": {
+        "name": "Professional",
+        "price": "€15",
+        "description": "Unlimited access for serious researchers.",
+        "cta": "Coming Soon",
+        "features": [
+          "Unlimited seats",
+          "Unlimited family trees",
+          "Unlimited family members",
+          "50 GB media storage",
+          "10,000 media assets",
+          "Full media library (all types)",
+          "Historical research tools",
+          "7-day free trial"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Custom",
+        "description": "Tailored for institutions and large organisations.",
+        "cta": "Contact Us",
+        "features": [
+          "Unlimited everything",
+          "All asset types including RAW",
+          "Historical research tools",
+          "SSO integration",
+          "On-site / hybrid deployment",
+          "By agreement support",
+          "Custom onboarding"
+        ]
+      }
+    }
+  },
+  "subscriptionSuccess": {
+    "heading": "You are all set!",
+    "message": "Your subscription is being activated. This usually takes just a moment. Check your account page for the updated status.",
+    "viewSubscription": "View Subscription",
+    "goToFamily": "Family Home"
+  },
+  "subscription": {
+    "heading": "Your Subscription",
+    "subheading": "Manage your Clann plan and billing.",
+    "backToFamily": "Family Home",
+    "currentPlan": "Current Plan",
+    "product": "Product",
+    "seats": "Seats",
+    "periodStart": "Period Start",
+    "periodEnd": "Period End",
+    "memberSince": "Member Since",
+    "trialEnds": "Free trial ends {date}",
+    "upgradePlan": "Upgrade Plan",
+    "manageBilling": "Manage Billing",
+    "changePlan": "Change Plan",
+    "redirecting": "Redirecting…",
+    "loadError": "Could not load subscription details.",
+    "portalError": "Could not open billing portal. Please try again.",
+    "helpText": "Questions about billing?",
+    "helpLink": "View help"
   }
 }

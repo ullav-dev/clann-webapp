@@ -88,3 +88,45 @@ export const changePassword = (
     headers: { Authorization: `Bearer ${bearerToken}` },
     body: JSON.stringify({ new_password: newPassword, current_password: currentPassword }),
   });
+
+// ── Subscription API ──────────────────────────────────────────────────────────
+
+export interface SubscriptionInfo {
+  id: string;
+  product: string;
+  plan: string;
+  status: string;
+  seat_count: number;
+  trial_end?: string;
+  current_period_start?: string;
+  current_period_end?: string;
+  created_at: string;
+}
+
+export interface CheckoutResponse {
+  url: string;
+}
+
+export const getSubscription = (product: string, token: string): Promise<SubscriptionInfo> =>
+  authRequest(`/subscriptions/current?product=${encodeURIComponent(product)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const createCheckoutSession = (
+  provider: string,
+  product: string,
+  plan: string,
+  seatCount: number,
+  token: string
+): Promise<CheckoutResponse> =>
+  authRequest("/subscriptions/checkout", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ provider, product, plan, seat_count: seatCount }),
+  });
+
+export const createPortalSession = (token: string): Promise<CheckoutResponse> =>
+  authRequest("/subscriptions/portal", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });

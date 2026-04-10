@@ -4,7 +4,9 @@
     "addPerson": "Person hinzufügen",
     "logout": "Abmelden",
     "login": "Anmelden",
-    "help": "Hilfe"
+    "help": "Hilfe",
+    "pricing": "Preise",
+    "account": "Konto"
   },
   "idleWarning": {
     "title": "Sitzung läuft ab",
@@ -409,5 +411,111 @@
     "exportJpeg": "Als JPEG exportieren",
     "exporting": "Exportieren…",
     "bornPrefix": "geb. {date}"
+  },
+  "pricing": {
+    "heading": "Clann-Tarif wählen",
+    "subheading": "Starten Sie kostenlos und wechseln Sie, wenn Ihre Familie wächst. Bezahlte Tarife mit 7-Tage-Testzeitraum.",
+    "perMonth": "/ Monat",
+    "familyPriceNote": "Basis: 2 Plätze. +2 €/Monat je zusätzlichem Platz.",
+    "comingSoon": "Demnächst",
+    "trialNote": "Familien- und Professional-Tarife enthalten eine 7-tägige kostenlose Testphase.",
+    "learnMore": "Mehr erfahren",
+    "checkoutTitle": "Abonnieren",
+    "checkoutError": "Checkout konnte nicht gestartet werden. Bitte erneut versuchen.",
+    "seatCount": "Anzahl der Plätze",
+    "seatHint": "Mindestens 2, höchstens 10.",
+    "paymentProvider": "Zahlen mit",
+    "proceedToPayment": "Weiter zur Zahlung →",
+    "redirecting": "Weiterleitung…",
+    "cancel": "Abbrechen",
+    "plans": {
+      "individual": {
+        "name": "Einzelperson",
+        "price": "Kostenlos",
+        "description": "Perfekt für den Einstieg in die Familiengeschichte.",
+        "cta": "Loslegen",
+        "features": [
+          "1 Nutzerplatz",
+          "2 Stammbäume",
+          "Bis zu 100 Familienmitglieder",
+          "100 MB Medienspeicher",
+          "100 Medienobjekte",
+          "GEDCOM-Import & -Export",
+          "Interaktiver Stammbaum"
+        ]
+      },
+      "family": {
+        "name": "Familie / Team",
+        "price": "5 €",
+        "description": "Für Familien, die ihre Geschichte gemeinsam aufbauen.",
+        "cta": "Abonnieren",
+        "features": [
+          "2 – 10 Nutzerplätze",
+          "10 Stammbäume",
+          "Bis zu 1.000 Familienmitglieder",
+          "5 GB Medienspeicher",
+          "1.000 Medienobjekte",
+          "Bilder in der Medienbibliothek",
+          "7-Tage-Testphase"
+        ]
+      },
+      "professional": {
+        "name": "Professional",
+        "price": "15 €",
+        "description": "Unbegrenzter Zugang für ernsthafte Forscher.",
+        "cta": "Demnächst verfügbar",
+        "features": [
+          "Unbegrenzte Plätze",
+          "Unbegrenzte Stammbäume",
+          "Unbegrenzte Familienmitglieder",
+          "50 GB Medienspeicher",
+          "10.000 Medienobjekte",
+          "Vollständige Medienbibliothek",
+          "Historische Forschungstools",
+          "7-Tage-Testphase"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Individuell",
+        "description": "Maßgeschneidert für Institutionen und Großorganisationen.",
+        "cta": "Kontakt aufnehmen",
+        "features": [
+          "Alles unbegrenzt",
+          "Alle Medientypen inkl. RAW",
+          "Historische Forschungstools",
+          "SSO-Integration",
+          "On-Site-/Hybridbereitstellung",
+          "Support nach Vereinbarung",
+          "Individuelles Onboarding"
+        ]
+      }
+    }
+  },
+  "subscriptionSuccess": {
+    "heading": "Alles bereit!",
+    "message": "Ihr Abonnement wird gerade aktiviert. Das dauert in der Regel nur einen Moment. Prüfen Sie Ihre Kontoseite für den aktuellen Status.",
+    "viewSubscription": "Abonnement anzeigen",
+    "goToFamily": "Familien-Startseite"
+  },
+  "subscription": {
+    "heading": "Ihr Abonnement",
+    "subheading": "Verwalten Sie Ihren Clann-Tarif und Ihre Abrechnung.",
+    "backToFamily": "Familien-Startseite",
+    "currentPlan": "Aktueller Tarif",
+    "product": "Produkt",
+    "seats": "Plätze",
+    "periodStart": "Beginn des Zeitraums",
+    "periodEnd": "Ende des Zeitraums",
+    "memberSince": "Mitglied seit",
+    "trialEnds": "Kostenlose Testphase endet {date}",
+    "upgradePlan": "Tarif upgraden",
+    "manageBilling": "Abrechnung verwalten",
+    "changePlan": "Tarif wechseln",
+    "redirecting": "Weiterleitung…",
+    "loadError": "Abonnementdetails konnten nicht geladen werden.",
+    "portalError": "Abrechnungsportal konnte nicht geöffnet werden.",
+    "helpText": "Fragen zur Abrechnung?",
+    "helpLink": "Hilfe anzeigen"
   }
 }

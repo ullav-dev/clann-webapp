@@ -4,7 +4,9 @@
     "addPerson": "Duine a Chur Leis",
     "logout": "Logáil Amach",
     "login": "Logáil Isteach",
-    "help": "Cabhair"
+    "help": "Cabhair",
+    "pricing": "Praghsanna",
+    "account": "Cuntas"
   },
   "idleWarning": {
     "title": "Seisiún ag Dul in Éag",
@@ -409,5 +411,111 @@
     "exportJpeg": "Easpórtáil mar JPEG",
     "exporting": "Á easpórtáil…",
     "bornPrefix": "r. {date}"
+  },
+  "pricing": {
+    "heading": "Roghnaigh do phlean Clann",
+    "subheading": "Tosaigh saor in aisce agus uasghrádaigh de réir mar a fhásann do theaghlach. Triail 7 lá san áireamh le pleananna íoctha.",
+    "perMonth": "/ mí",
+    "familyPriceNote": "Bunús: 2 shuíochán. +€2/mí in aghaidh an tsuíocháin bhreise.",
+    "comingSoon": "Ag teacht go luath",
+    "trialNote": "Áirítear triail 7 lá saor in aisce le pleananna Teaghlaigh agus Gairmiúil.",
+    "learnMore": "Foghlaim tuilleadh",
+    "checkoutTitle": "Liostáil",
+    "checkoutError": "Níorbh fhéidir an t-íocaíocht a thosú. Bain triail eile as.",
+    "seatCount": "Líon suíochán",
+    "seatHint": "2 ar a laghad, 10 ar a mhéid.",
+    "paymentProvider": "Íoc le",
+    "proceedToPayment": "Lean ar aghaidh chuig Íocaíocht →",
+    "redirecting": "Ag atreorú…",
+    "cancel": "Cealaigh",
+    "plans": {
+      "individual": {
+        "name": "Aonair",
+        "price": "Saor",
+        "description": "Foirfe chun tosú le stair do theaghlaigh.",
+        "cta": "Tosaigh",
+        "features": [
+          "1 suíochán úsáideora",
+          "2 chrann teaghlaigh",
+          "Suas le 100 ball teaghlaigh",
+          "100 MB stórála meáin",
+          "100 sócmhainn meáin",
+          "Iompórtáil & easpórtáil GEDCOM",
+          "Graf crann teaghlaigh idirghníomhach"
+        ]
+      },
+      "family": {
+        "name": "Teaghlach / Foireann",
+        "price": "€5",
+        "description": "Do theaghlaigh ag tógáil a staire le chéile.",
+        "cta": "Liostáil",
+        "features": [
+          "2 – 10 suíochán úsáideora",
+          "10 crann teaghlaigh",
+          "Suas le 1,000 ball teaghlaigh",
+          "5 GB stórála meáin",
+          "1,000 sócmhainn meáin",
+          "Íomhánna i leabharlann na meán",
+          "Triail saor 7 lá"
+        ]
+      },
+      "professional": {
+        "name": "Gairmiúil",
+        "price": "€15",
+        "description": "Rochtain gan teorainn do thaighdeoirí dáiríre.",
+        "cta": "Ag teacht go luath",
+        "features": [
+          "Suíocháin gan teorainn",
+          "Crainn teaghlaigh gan teorainn",
+          "Baill teaghlaigh gan teorainn",
+          "50 GB stórála meáin",
+          "10,000 sócmhainn meáin",
+          "Leabharlann mheáin iomlán",
+          "Uirlisí taighde stairiúil",
+          "Triail saor 7 lá"
+        ]
+      },
+      "enterprise": {
+        "name": "Fiontar",
+        "price": "Saincheaptha",
+        "description": "Curtha in oiriúint d'institiúidí agus eagraíochtaí móra.",
+        "cta": "Déan Teagmháil",
+        "features": [
+          "Gach rud gan teorainn",
+          "Gach cineál sócmhainne lena n-áirítear RAW",
+          "Uirlisí taighde stairiúil",
+          "Comhtháthú SSO",
+          "Imscaradh ar shuíomh / hibrideach",
+          "Tacaíocht de réir comhaontú",
+          "Onbordú saincheaptha"
+        ]
+      }
+    }
+  },
+  "subscriptionSuccess": {
+    "heading": "Tá tú réidh!",
+    "message": "Tá do liostáil á ghníomhachtú. De ghnáth ní thógann sé ach nóiméad. Seiceáil do leathanach cuntais le haghaidh an stádas nuashonraithe.",
+    "viewSubscription": "Féach ar Liostáil",
+    "goToFamily": "Baile Teaghlaigh"
+  },
+  "subscription": {
+    "heading": "Do Liostáil",
+    "subheading": "Bainistigh do phlean Clann agus do bhilleáil.",
+    "backToFamily": "Baile Teaghlaigh",
+    "currentPlan": "Plean Reatha",
+    "product": "Táirge",
+    "seats": "Suíocháin",
+    "periodStart": "Tús na Tréimhse",
+    "periodEnd": "Deireadh na Tréimhse",
+    "memberSince": "Ball ó",
+    "trialEnds": "Críochnaíonn an triail saor {date}",
+    "upgradePlan": "Uasghrádaigh Plean",
+    "manageBilling": "Bainistigh Billeáil",
+    "changePlan": "Athraigh Plean",
+    "redirecting": "Ag atreorú…",
+    "loadError": "Níorbh fhéidir sonraí liostála a luchtú.",
+    "portalError": "Níorbh fhéidir an tairseach billeála a oscailt.",
+    "helpText": "Ceisteanna faoin mbilleáil?",
+    "helpLink": "Féach ar chabhrú"
   }
 }
