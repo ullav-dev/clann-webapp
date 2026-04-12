@@ -1,18 +1,23 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
+import { DamPicker } from "@ullav/dam-picker";
+import type { PickedAsset } from "@ullav/dam-picker";
 import * as api from "@/lib/api";
-import type { LifeEvent, EventType, CreateLifeEvent } from "@/lib/types";
+import type { LifeEvent, EventType, CreateLifeEvent, UpdateLifeEvent } from "@/lib/types";
+
+const MarkdownEditor = dynamic(() => import("@/components/MarkdownEditor"), { ssr: false });
 
 // ─── event type styles ────────────────────────────────────────────────────────
 
 interface EventStyle {
   icon: string;
-  dotBg: string;   // Tailwind bg class for the icon circle
-  dotRing: string; // Tailwind ring/border class
-  badge: string;   // Tailwind classes for the type badge pill
+  dotBg: string;
+  dotRing: string;
+  badge: string;
 }
 
 const DEFAULT_STYLE: EventStyle = {
@@ -40,18 +45,15 @@ function styleFor(eventType: string): EventStyle {
 
 // ─── date sorting ─────────────────────────────────────────────────────────────
 
-/** Extract a numeric sort key from a fuzzy date string. Undated events sort last. */
 function dateSortKey(date: string | null | undefined): number {
   if (!date) return Infinity;
   const yearMatch = date.match(/\d{4}/);
   if (!yearMatch) return Infinity;
   const year = parseInt(yearMatch[0]);
-  // Try to resolve month for secondary sort
   const months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
   const lower = date.toLowerCase();
   const monthIdx = months.findIndex((m) => lower.includes(m));
   const month = monthIdx >= 0 ? monthIdx + 1 : 0;
-  // Try to resolve day
   const dayMatch = date.match(/\b([1-9]|[12]\d|3[01])\b/);
   const day = dayMatch ? parseInt(dayMatch[1]) : 0;
   return year * 10000 + month * 100 + day;
@@ -61,7 +63,7 @@ function sortedEvents(events: LifeEvent[]): LifeEvent[] {
   return [...events].sort((a, b) => dateSortKey(a.date) - dateSortKey(b.date));
 }
 
-// ─── known event types for the create form ───────────────────────────────────
+// ─── known event types ────────────────────────────────────────────────────────
 
 const KNOWN_EVENT_TYPES: EventType[] = [
   "Birth", "Death", "Marriage", "Divorce", "Graduation",
@@ -77,6 +79,324 @@ function SourceIcons({ event }: { event: LifeEvent }) {
       {event.source_image && <span title="Source image in media library">🖼️</span>}
       {event.source_doc   && <span title="Source document in media library">📄</span>}
     </span>
+  );
+}
+
+// ─── asset picker button + preview ───────────────────────────────────────────
+
+interface AssetPickerFieldProps {
+  label: string;
+  value: string | null | undefined;
+  onChange: (url: string | null) => void;
+  token: string;
+  username: string;
+  filterType: "image" | "document";
+}
+
+function AssetPickerField({ label, value, onChange, token, username, filterType }: AssetPickerFieldProps) {
+  const t = useTranslations("lifeEvents");
+  const [showPicker, setShowPicker] = useState(false);
+
+  function handlePick(asset: PickedAsset) {
+    onChange(asset.url);
+    setShowPicker(false);
+  }
+
+  return (
+    <div>
+      <label className="block text-xs text-stone-500 mb-1">{label}</label>
+      <div className="flex items-center gap-2 flex-wrap">
+        {value ? (
+          <>
+            <span className="text-xs text-stone-600 truncate max-w-xs border border-stone-200 bg-stone-50 rounded px-2 py-1">
+              {value.split("/").pop()}
+            </span>
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              className="text-xs text-red-500 hover:text-red-700 transition-colors"
+            >
+              {t("clear")}
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowPicker((s) => !s)}
+            className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          >
+            {showPicker ? t("hidePicker") : (filterType === "image" ? t("browseImageAsset") : t("browseDocAsset"))}
+          </button>
+        )}
+        {value && (
+          <button
+            type="button"
+            onClick={() => setShowPicker((s) => !s)}
+            className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            {showPicker ? t("hidePicker") : t("changePicker")}
+          </button>
+        )}
+      </div>
+      {showPicker && (
+        <div className="mt-2 h-72 border border-stone-200 rounded-lg overflow-hidden">
+          <DamPicker
+            apiBase="/api/dam"
+            token={token}
+            username={username}
+            onSelect={handlePick}
+            filter={(a) =>
+              filterType === "image"
+                ? a.asset_type.startsWith("image/")
+                : !a.asset_type.startsWith("image/")
+            }
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── edit event panel ─────────────────────────────────────────────────────────
+
+interface EditEventPanelProps {
+  event: LifeEvent;
+  token: string;
+  username: string;
+  onSaved: (updated: LifeEvent) => void;
+  onCancel: () => void;
+}
+
+function EditEventPanel({ event, token, username, onSaved, onCancel }: EditEventPanelProps) {
+  const t = useTranslations("lifeEvents");
+  const cursorPosRef = useRef<number | null>(null);
+  const [showStoryPicker, setShowStoryPicker] = useState(false);
+
+  const [name, setName] = useState(event.name);
+  const [date, setDate] = useState(event.date ?? "");
+  const [eventType, setEventType] = useState<EventType>(
+    KNOWN_EVENT_TYPES.includes(event.event_type as EventType) ? event.event_type : "_custom"
+  );
+  const [customType, setCustomType] = useState(
+    KNOWN_EVENT_TYPES.includes(event.event_type as EventType) ? "" : event.event_type
+  );
+  const [description, setDescription] = useState(event.description ?? "");
+  const [story, setStory] = useState(event.story ?? "");
+  const [sourceLink, setSourceLink] = useState(event.source_link ?? "");
+  const [sourceImage, setSourceImage] = useState<string | null>(event.source_image ?? null);
+  const [sourceDoc, setSourceDoc] = useState<string | null>(event.source_doc ?? null);
+  const [verified, setVerified] = useState(event.verified ?? false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const resolvedType = eventType === "_custom" && customType.trim()
+    ? customType.trim()
+    : eventType === "_custom"
+    ? "Other"
+    : eventType;
+
+  function insertAssetMarkdown(asset: PickedAsset) {
+    const url = asset.url.replace(/\/?$/, "/thumbnail");
+    const snippet = `![${asset.name}](${url})`;
+    setStory((prev) => {
+      const pos = cursorPosRef.current ?? prev.length;
+      const before = prev.slice(0, pos);
+      const after = prev.slice(pos);
+      const prefix = before.length > 0 && !before.endsWith("\n") ? "\n\n" : "";
+      const suffix = after.length > 0 && !after.startsWith("\n") ? "\n\n" : "";
+      return before + prefix + snippet + suffix + after;
+    });
+    setShowStoryPicker(false);
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const payload: UpdateLifeEvent = {
+        name: name.trim(),
+        event_type: resolvedType,
+        date: date.trim() || null,
+        description: description.trim() || null,
+        story: story.trim() || null,
+        source_link: sourceLink.trim() || null,
+        source_image: sourceImage,
+        source_doc: sourceDoc,
+        verified,
+      };
+      const updated = await api.updateLifeEvent(event.id, payload);
+      onSaved(updated);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("saveFailed"));
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSave} className="mt-3 pt-3 border-t border-stone-100 space-y-3">
+      {error && <p className="text-xs text-red-600">{error}</p>}
+
+      {/* Name + Date */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-stone-500 mb-1">{t("fieldName")} *</label>
+          <input
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={t("fieldNamePlaceholder")}
+            className="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-stone-500 mb-1">{t("fieldDate")}</label>
+          <input
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            placeholder={t("fieldDatePlaceholder")}
+            className="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </div>
+      </div>
+
+      {/* Event type */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-stone-500 mb-1">{t("fieldType")}</label>
+          <select
+            value={eventType}
+            onChange={(e) => setEventType(e.target.value as EventType)}
+            className="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          >
+            {KNOWN_EVENT_TYPES.map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+            <option value="_custom">{t("customType")}</option>
+          </select>
+        </div>
+        {eventType === "_custom" && (
+          <div>
+            <label className="block text-xs text-stone-500 mb-1">{t("fieldCustomType")}</label>
+            <input
+              value={customType}
+              onChange={(e) => setCustomType(e.target.value)}
+              placeholder={t("fieldCustomTypePlaceholder")}
+              className="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Description */}
+      <div>
+        <label className="block text-xs text-stone-500 mb-1">{t("fieldDescription")}</label>
+        <input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder={t("fieldDescriptionPlaceholder")}
+          className="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        />
+      </div>
+
+      {/* Story */}
+      <div>
+        <label className="block text-xs text-stone-500 mb-1">{t("fieldStory")}</label>
+        <MarkdownEditor
+          value={story}
+          onChange={setStory}
+          height={200}
+          placeholder={t("fieldStoryPlaceholder")}
+          textareaProps={{
+            onSelect: (e: React.SyntheticEvent<HTMLTextAreaElement>) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+            onKeyUp:  (e: React.KeyboardEvent<HTMLTextAreaElement>)  => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+            onMouseUp:(e: React.MouseEvent<HTMLTextAreaElement>)      => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+          }}
+        />
+        <div className="mt-1">
+          <button
+            type="button"
+            onClick={() => setShowStoryPicker((s) => !s)}
+            className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          >
+            {showStoryPicker ? t("hidePicker") : t("browseStoryImages")}
+          </button>
+        </div>
+        {showStoryPicker && (
+          <div className="mt-2 h-72 border border-stone-200 rounded-lg overflow-hidden">
+            <DamPicker
+              apiBase="/api/dam"
+              token={token}
+              username={username}
+              onSelect={insertAssetMarkdown}
+              filter={(a) => a.asset_type.startsWith("image/")}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Source link */}
+      <div>
+        <label className="block text-xs text-stone-500 mb-1">{t("fieldSourceLink")}</label>
+        <input
+          type="url"
+          value={sourceLink}
+          onChange={(e) => setSourceLink(e.target.value)}
+          placeholder="https://…"
+          className="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        />
+      </div>
+
+      {/* Source image + source doc */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <AssetPickerField
+          label={t("fieldSourceImage")}
+          value={sourceImage}
+          onChange={setSourceImage}
+          token={token}
+          username={username}
+          filterType="image"
+        />
+        <AssetPickerField
+          label={t("fieldSourceDoc")}
+          value={sourceDoc}
+          onChange={setSourceDoc}
+          token={token}
+          username={username}
+          filterType="document"
+        />
+      </div>
+
+      {/* Verified */}
+      <label className="flex items-center gap-2 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={verified}
+          onChange={(e) => setVerified(e.target.checked)}
+          className="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+        />
+        <span className="text-sm text-stone-600">{t("fieldVerified")}</span>
+      </label>
+
+      {/* Actions */}
+      <div className="flex gap-2 justify-end pt-1">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="border border-stone-300 text-stone-600 hover:bg-stone-50 text-sm px-4 py-1.5 rounded-lg transition-colors"
+        >
+          {t("cancel")}
+        </button>
+        <button
+          type="submit"
+          disabled={saving || !name.trim()}
+          className="bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
+        >
+          {saving ? t("saving") : t("saveChanges")}
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -208,7 +528,7 @@ interface Props {
 
 export default function LifeTimeline({ personId, personCreatedBy }: Props) {
   const t = useTranslations("lifeEvents");
-  const { user, roles } = useAuth();
+  const { user, roles, token } = useAuth();
 
   const isAdmin = roles.includes("admin");
   const isOwner = !!user && user.username === personCreatedBy;
@@ -218,7 +538,8 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
-  const [deleting, setDeleting] = useState<string | null>(null); // event id being deleted
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -246,6 +567,11 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
     } finally {
       setDeleting(null);
     }
+  }
+
+  function handleSaved(updated: LifeEvent) {
+    setEvents((prev) => sortedEvents(prev.map((e) => e.id === updated.id ? updated : e)));
+    setEditingId(null);
   }
 
   if (loading) {
@@ -312,6 +638,7 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
             {events.map((event, idx) => {
               const style = styleFor(event.event_type);
               const isLast = idx === events.length - 1;
+              const isEditing = editingId === event.id;
 
               return (
                 <li key={event.id} className={`relative flex gap-4 ${isLast ? "pb-2" : "pb-6"}`}>
@@ -350,31 +677,51 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
                           <p className="text-sm text-stone-600 mt-1.5 line-clamp-2">{event.description}</p>
                         )}
 
-                        {/* Story snippet */}
-                        {event.story && !event.description && (
+                        {/* Story snippet (only when not editing and no description) */}
+                        {event.story && !event.description && !isEditing && (
                           <p className="text-sm text-stone-500 mt-1.5 line-clamp-2 italic">{event.story.replace(/[#*`_[\]]/g, "")}</p>
                         )}
                       </div>
 
                       {/* Actions */}
                       {canEdit && (
-                        <button
-                          onClick={() => handleDelete(event.id, event.name)}
-                          disabled={deleting === event.id}
-                          className="flex-shrink-0 text-stone-300 hover:text-red-500 disabled:opacity-40 transition-colors text-xl leading-none opacity-0 group-hover:opacity-100"
-                          title={t("deleteEvent")}
-                        >
-                          ×
-                        </button>
+                        <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => setEditingId(isEditing ? null : event.id)}
+                            className={`text-xs px-2 py-1 rounded transition-colors ${isEditing ? "bg-stone-100 text-stone-600" : "text-stone-400 hover:text-emerald-700 hover:bg-emerald-50"}`}
+                            title={t("editEvent")}
+                          >
+                            {isEditing ? t("cancel") : "✏️"}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(event.id, event.name)}
+                            disabled={deleting === event.id}
+                            className="text-stone-300 hover:text-red-500 disabled:opacity-40 transition-colors text-xl leading-none"
+                            title={t("deleteEvent")}
+                          >
+                            ×
+                          </button>
+                        </div>
                       )}
                     </div>
 
-                    {/* Source indicators */}
-                    {(event.source_link || event.source_image || event.source_doc) && (
+                    {/* Source indicators (only when not editing) */}
+                    {!isEditing && (event.source_link || event.source_image || event.source_doc) && (
                       <div className="mt-2 pt-2 border-t border-stone-100 flex items-center gap-2">
                         <span className="text-xs text-stone-400">{t("sources")}:</span>
                         <SourceIcons event={event} />
                       </div>
+                    )}
+
+                    {/* Edit panel */}
+                    {isEditing && token && user && (
+                      <EditEventPanel
+                        event={event}
+                        token={token}
+                        username={user.username}
+                        onSaved={handleSaved}
+                        onCancel={() => setEditingId(null)}
+                      />
                     )}
                   </div>
                 </li>
@@ -385,7 +732,10 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
           {/* Add more button at bottom of timeline */}
           {canEdit && !showAdd && events.length > 0 && (
             <div className="relative flex items-center gap-4 pt-2">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full border-2 border-dashed border-stone-300 flex items-center justify-center text-stone-400 hover:border-emerald-400 hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => setShowAdd(true)}>
+              <div
+                className="flex-shrink-0 w-10 h-10 rounded-full border-2 border-dashed border-stone-300 flex items-center justify-center text-stone-400 hover:border-emerald-400 hover:text-emerald-600 transition-colors cursor-pointer"
+                onClick={() => setShowAdd(true)}
+              >
                 +
               </div>
               <button onClick={() => setShowAdd(true)} className="text-sm text-stone-400 hover:text-emerald-700 transition-colors">

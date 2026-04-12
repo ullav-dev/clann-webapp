@@ -551,6 +551,20 @@
     "fieldDescriptionPlaceholder": "Nóta gearr, m.sh. áit nó comhthéacs",
     "customType": "Cineál saincheaptha…",
     "fieldCustomType": "Ainm an chineáil saincheaptha",
-    "fieldCustomTypePlaceholder": "m.sh. Baisteadh"
+    "fieldCustomTypePlaceholder": "m.sh. Baisteadh",
+    "editEvent": "Eagraigh imeacht",
+    "saveChanges": "Sábháil athruithe",
+    "fieldStory": "Scéal",
+    "fieldStoryPlaceholder": "Scríobh cuntas ar an imeacht seo…",
+    "fieldSourceLink": "URL foinse seachtrach",
+    "fieldSourceImage": "Íomhá foinse",
+    "fieldSourceDoc": "Doiciméad foinse",
+    "fieldVerified": "Fíoraithe",
+    "browseStoryImages": "Brabhsáil leabharlann na meán…",
+    "browseImageAsset": "Brabhsáil íomhánna…",
+    "browseDocAsset": "Brabhsáil doiciméid…",
+    "hidePicker": "Folaigh leabharlann na meán",
+    "changePicker": "Athraigh",
+    "clear": "Glan"
   }
 }

@@ -551,6 +551,20 @@
     "fieldDescriptionPlaceholder": "Short note, e.g. place or context",
     "customType": "Custom type…",
     "fieldCustomType": "Custom type name",
-    "fieldCustomTypePlaceholder": "e.g. Baptism"
+    "fieldCustomTypePlaceholder": "e.g. Baptism",
+    "editEvent": "Edit event",
+    "saveChanges": "Save Changes",
+    "fieldStory": "Story",
+    "fieldStoryPlaceholder": "Write a narrative account of this event…",
+    "fieldSourceLink": "External source URL",
+    "fieldSourceImage": "Source image",
+    "fieldSourceDoc": "Source document",
+    "fieldVerified": "Verified",
+    "browseStoryImages": "Browse media library…",
+    "browseImageAsset": "Browse image assets…",
+    "browseDocAsset": "Browse document assets…",
+    "hidePicker": "Hide media library",
+    "changePicker": "Change",
+    "clear": "Clear"
   }
 }

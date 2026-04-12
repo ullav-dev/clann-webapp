@@ -551,6 +551,20 @@
     "fieldDescriptionPlaceholder": "Kurze Notiz, z. B. Ort oder Kontext",
     "customType": "Benutzerdefinierter Typ…",
     "fieldCustomType": "Name des benutzerdefinierten Typs",
-    "fieldCustomTypePlaceholder": "z. B. Taufe"
+    "fieldCustomTypePlaceholder": "z. B. Taufe",
+    "editEvent": "Ereignis bearbeiten",
+    "saveChanges": "Änderungen speichern",
+    "fieldStory": "Erzählung",
+    "fieldStoryPlaceholder": "Schreiben Sie eine ausführliche Beschreibung dieses Ereignisses…",
+    "fieldSourceLink": "Externe Quell-URL",
+    "fieldSourceImage": "Quellbild",
+    "fieldSourceDoc": "Quelldokument",
+    "fieldVerified": "Verifiziert",
+    "browseStoryImages": "Medienbibliothek durchsuchen…",
+    "browseImageAsset": "Bildmaterial durchsuchen…",
+    "browseDocAsset": "Dokumente durchsuchen…",
+    "hidePicker": "Medienbibliothek ausblenden",
+    "changePicker": "Ändern",
+    "clear": "Entfernen"
   }
 }
