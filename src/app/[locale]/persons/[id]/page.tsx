@@ -16,6 +16,7 @@ import PersonAvatar from "@/components/PersonAvatar";
 import ImageUpload from "@/components/ImageUpload";
 import AddRelationshipModal from "@/components/AddRelationshipModal";
 import LifeStoryPrintView from "@/components/LifeStoryPrintView";
+import LifeTimeline from "@/components/LifeTimeline";
 
 const FamilyTreeView = dynamic(() => import("@/components/FamilyTreeView"), { ssr: false });
 
@@ -32,6 +33,7 @@ export default function PersonDetailPage() {
   const api = useApi();
   const { trees: allTrees } = useTree();
   const t = useTranslations("personDetail");
+  const tEvents = useTranslations("lifeEvents");
 
   const [person, setPerson] = useState<Person | null>(null);
   const [rels, setRels] = useState<RelationshipsResponse | null>(null);
@@ -42,7 +44,7 @@ export default function PersonDetailPage() {
   const [showUpload, setShowUpload] = useState(false);
   const [showLifeUpload, setShowLifeUpload] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [tab, setTab] = useState<"tree" | "relationships" | "lifestory">("tree");
+  const [tab, setTab] = useState<"tree" | "relationships" | "lifestory" | "lifeevents">("tree");
   const [editingSpouseId, setEditingSpouseId] = useState<string | null>(null);
   const [spouseFromEdit, setSpouseFromEdit] = useState("");
   const [spouseToEdit, setSpouseToEdit] = useState("");
@@ -161,11 +163,11 @@ export default function PersonDetailPage() {
         </div>
       )}
 
-      <div className="flex gap-1 mb-6 border-b border-stone-200">
-        {(["tree", "relationships", "lifestory"] as const).map((tabKey) => (
+      <div className="flex gap-1 mb-6 border-b border-stone-200 overflow-x-auto">
+        {(["tree", "relationships", "lifestory", "lifeevents"] as const).map((tabKey) => (
           <button key={tabKey} onClick={() => setTab(tabKey)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${tab === tabKey ? "border-emerald-600 text-emerald-700" : "border-transparent text-stone-500 hover:text-stone-700"}`}>
-            {tabKey === "tree" ? t("tabFamilyTree") : tabKey === "relationships" ? t("tabRelationships") : t("tabLifeStory")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px whitespace-nowrap ${tab === tabKey ? "border-emerald-600 text-emerald-700" : "border-transparent text-stone-500 hover:text-stone-700"}`}>
+            {tabKey === "tree" ? t("tabFamilyTree") : tabKey === "relationships" ? t("tabRelationships") : tabKey === "lifestory" ? t("tabLifeStory") : tEvents("tabLabel")}
           </button>
         ))}
       </div>
@@ -373,6 +375,10 @@ export default function PersonDetailPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {tab === "lifeevents" && (
+        <LifeTimeline personId={id} personCreatedBy={person.created_by} />
       )}
 
       {showAddRel && (<AddRelationshipModal personId={id} onDone={() => { setShowAddRel(false); load(); }} onClose={() => setShowAddRel(false)} />)}

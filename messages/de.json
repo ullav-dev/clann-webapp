@@ -525,5 +525,32 @@
     "portalError": "Abrechnungsportal konnte nicht geöffnet werden.",
     "helpText": "Fragen zur Abrechnung?",
     "helpLink": "Hilfe anzeigen"
+  },
+  "lifeEvents": {
+    "tabLabel": "📅 Lebensereignisse",
+    "loading": "Lebensereignisse werden geladen…",
+    "loadFailed": "Lebensereignisse konnten nicht geladen werden.",
+    "empty": "Noch keine Lebensereignisse eingetragen.",
+    "addFirstEvent": "Erstes Ereignis hinzufügen",
+    "addEvent": "Ereignis hinzufügen",
+    "addEventTitle": "Neues Lebensereignis",
+    "sources": "Quellen",
+    "verified": "Verifiziert",
+    "deleteEvent": "Ereignis löschen",
+    "deleteConfirm": "Ereignis '{name}' löschen? Dies kann nicht rückgängig gemacht werden.",
+    "deleteFailed": "Löschen fehlgeschlagen",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "saving": "Wird gespeichert…",
+    "cancel": "Abbrechen",
+    "fieldName": "Ereignisname",
+    "fieldNamePlaceholder": "z. B. Geburt, Abschluss an der Universität",
+    "fieldDate": "Datum",
+    "fieldDatePlaceholder": "z. B. 1920, ca. 1920, Juni 1920",
+    "fieldType": "Ereignistyp",
+    "fieldDescription": "Beschreibung",
+    "fieldDescriptionPlaceholder": "Kurze Notiz, z. B. Ort oder Kontext",
+    "customType": "Benutzerdefinierter Typ…",
+    "fieldCustomType": "Name des benutzerdefinierten Typs",
+    "fieldCustomTypePlaceholder": "z. B. Taufe"
   }
 }

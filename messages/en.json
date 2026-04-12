@@ -525,5 +525,32 @@
     "portalError": "Could not open billing portal. Please try again.",
     "helpText": "Questions about billing?",
     "helpLink": "View help"
+  },
+  "lifeEvents": {
+    "tabLabel": "📅 Life Events",
+    "loading": "Loading life events…",
+    "loadFailed": "Could not load life events.",
+    "empty": "No life events recorded yet.",
+    "addFirstEvent": "Add the first event",
+    "addEvent": "Add Event",
+    "addEventTitle": "New Life Event",
+    "sources": "Sources",
+    "verified": "Verified",
+    "deleteEvent": "Delete event",
+    "deleteConfirm": "Delete event '{name}'? This cannot be undone.",
+    "deleteFailed": "Delete failed",
+    "saveFailed": "Save failed",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "fieldName": "Event name",
+    "fieldNamePlaceholder": "e.g. Birth, Graduated from UCD",
+    "fieldDate": "Date",
+    "fieldDatePlaceholder": "e.g. 1920, circa 1920, June 1920",
+    "fieldType": "Event type",
+    "fieldDescription": "Description",
+    "fieldDescriptionPlaceholder": "Short note, e.g. place or context",
+    "customType": "Custom type…",
+    "fieldCustomType": "Custom type name",
+    "fieldCustomTypePlaceholder": "e.g. Baptism"
   }
 }

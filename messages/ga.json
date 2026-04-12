@@ -525,5 +525,32 @@
     "portalError": "Níorbh fhéidir an tairseach billeála a oscailt.",
     "helpText": "Ceisteanna faoin mbilleáil?",
     "helpLink": "Féach ar chabhrú"
+  },
+  "lifeEvents": {
+    "tabLabel": "📅 Imeachtaí Saoil",
+    "loading": "Imeachtaí saoil á luchtú…",
+    "loadFailed": "Níorbh fhéidir imeachtaí saoil a luchtú.",
+    "empty": "Níl aon imeachtaí saoil taifeadta fós.",
+    "addFirstEvent": "Cuir an chéad imeacht leis",
+    "addEvent": "Cuir Imeacht Leis",
+    "addEventTitle": "Imeacht Saoil Nua",
+    "sources": "Foinsí",
+    "verified": "Fíoraithe",
+    "deleteEvent": "Scrios imeacht",
+    "deleteConfirm": "Scrios imeacht '{name}'? Ní féidir é seo a chur ar ceal.",
+    "deleteFailed": "Theip ar scriosadh",
+    "saveFailed": "Theip ar shábháil",
+    "saving": "Á shábháil…",
+    "cancel": "Cealaigh",
+    "fieldName": "Ainm imeachta",
+    "fieldNamePlaceholder": "m.sh. Breith, Céim ón gColáiste",
+    "fieldDate": "Dáta",
+    "fieldDatePlaceholder": "m.sh. 1920, thart ar 1920, Meitheamh 1920",
+    "fieldType": "Cineál imeachta",
+    "fieldDescription": "Cur síos",
+    "fieldDescriptionPlaceholder": "Nóta gearr, m.sh. áit nó comhthéacs",
+    "customType": "Cineál saincheaptha…",
+    "fieldCustomType": "Ainm an chineáil saincheaptha",
+    "fieldCustomTypePlaceholder": "m.sh. Baisteadh"
   }
 }
