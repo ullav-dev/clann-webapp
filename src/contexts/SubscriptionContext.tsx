@@ -58,13 +58,17 @@ const SubscriptionContext = createContext<SubscriptionState>({
 
 // ── Provider ──────────────────────────────────────────────────────────────────
 
+const ADMIN_SPEC: PlanSpec = { maxTrees: Infinity, maxMembers: Infinity, dam: "full" };
+
 export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
-  const { token } = useAuth();
+  const { token, roles } = useAuth();
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const isAdmin = roles.includes("admin");
+
   useEffect(() => {
-    if (!token) {
+    if (!token || isAdmin) {
       setSubscription(null);
       setIsLoading(false);
       return;
@@ -74,9 +78,11 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       .then(setSubscription)
       .catch(() => setSubscription(null))
       .finally(() => setIsLoading(false));
-  }, [token]);
+  }, [token, isAdmin]);
 
-  const spec = subscription
+  const spec = isAdmin
+    ? ADMIN_SPEC
+    : subscription
     ? (PLAN_LIMITS[subscription.plan] ?? FREE_SPEC)
     : FREE_SPEC;
 
