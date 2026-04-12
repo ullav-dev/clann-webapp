@@ -102,7 +102,7 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 | `/[locale]/auth/sso` | SSO handoff from ullav-portal (`?t=<encoded-session>`); writes session to localStorage and redirects to `/family` |
 | `/[locale]/family` | List all persons — card/list toggle, sort, search, **pagination** |
 | `/[locale]/persons/new` | Create person |
-| `/[locale]/persons/[id]` | Person detail: family tree tab · relationships tab · life story tab |
+| `/[locale]/persons/[id]` | Person detail: family tree tab · relationships tab · life story tab · life events tab |
 | `/[locale]/persons/[id]/edit` | Edit person |
 
 **ID handling:** The backend stores IDs as `person:<ulid>` (e.g. `person:01jd4a8xyz`). URLs use just the ULID (no prefix, no encoding). `api.ts` exposes a `rawId()` helper that strips the `person:` prefix before building request paths. **Always use `rawId(person.id)` when constructing links or `router.push` calls** — never `encodeURIComponent(person.id)`, which embeds the prefix in the URL and causes 404s.
@@ -171,6 +171,30 @@ The biography field is edited via `MarkdownEditor` (a dynamic-import wrapper aro
 **Life story image (`life_image_path`):** A separate, typically larger image for the Life Story panel. Stored as `{ulid}_life.{ext}` in the same upload directory as profile images (to avoid filename collisions with `{ulid}.{ext}`). Uploaded via `POST /api/persons/{id}/life-image`, served via `GET /api/persons/{id}/life-image`. When present, the image is displayed top-left in the tab with the biography flowing to its right (stacks vertically on mobile). Clicking the image or the "+ Add Life Story Image" button toggles an inline `ImageUpload` panel (same pattern as the profile photo). The `ImageUpload` component's `uploadFn` prop is used to target the life-image endpoint rather than the default profile-image endpoint.
 
 **PDF export:** The Life Story tab has an "Export as PDF" button that calls `window.print()`. `document.title` is swapped to the person's full name before printing and restored on the `afterprint` event so the browser uses it as the suggested filename. The print layout is handled by `LifeStoryPrintView` (in `src/components/LifeStoryPrintView.tsx`), which uses `createPortal` to mount the print container as a direct child of `<body>`. This is necessary because the component is otherwise nested inside React provider divs and `<main>`, and CSS `display: none` on those ancestors would suppress the print view even with `display: block !important` on the child. By portalling to `<body>`, the print CSS rule `body > *:not(.life-story-print) { display: none !important }` can hide all other direct children of `<body>` while leaving the print container visible. The component uses a `mounted` state guard (`useEffect(() => setMounted(true), [])`) to avoid calling `document.body` during SSR.
+
+## Life Events tab
+
+`src/components/LifeTimeline.tsx` renders the **📅 Life Events** tab on the person detail page.
+
+**Data:** `api.listLifeEvents(personId)` / `createLifeEvent` / `updateLifeEvent` / `deleteLifeEvent`. The API uses `rawEventId()` (strips `"life_event:"` prefix) mirroring the `rawId()` helper used for persons.
+
+**Timeline layout:** left-spine design — a vertical line on the left, an icon-badge circle per event, and a card to the right. Events are sorted chronologically using a fuzzy date parser (`dateSortKey`) that extracts year/month/day from free-form strings and sorts undated events last.
+
+**Event type styles:** `EVENT_STYLES` map drives icon emoji, dot background/ring colour, and badge colour per event type (Birth=🌱 emerald, Death=🕊️ stone, Marriage=💍 violet, Divorce=⚖️ amber, Graduation=🎓 blue, Military=⚔️ red, Immigration/Emigration=✈️ sky, Other=📌 stone).
+
+**Edit access:** `canEdit = roles.includes("admin") || user.username === personCreatedBy`. Edit/delete actions are only rendered for owners and admins.
+
+**Add event form (`AddEventForm`):** name, date, type dropdown (with custom type option), description. Appears above the timeline.
+
+**Edit event panel (`EditEventPanel`):** slides in inside the card when the ✏️ button is clicked (on hover). Contains:
+- Name, date, event type + custom type
+- Description (short text)
+- Story: `MarkdownEditor` (dynamic import, `ssr: false`) with cursor-position tracking and an inline `DamPicker` for inserting image thumbnails at the cursor
+- External source URL (text input)
+- Source image / source document: `AssetPickerField` sub-component — each shows a `DamPicker` (filtered to images or non-images); stores `asset.url`; displays filename with Clear/Change controls
+- Verified checkbox
+
+On save the event is patched in-place via `updateLifeEvent` and the list is re-sorted without a full reload.
 
 ## Family Tree graph
 

@@ -382,6 +382,19 @@
       "mediaLibraryTitle": "Íomhánna a chur isteach ón leabharlann meán",
       "mediaLibraryBody": "Agus beathaisnéis á heagar agat, cliceáil 'Leabharlann meán a bhrabhsáil' faoin eagarthóir chun roghnóir meán ionsuite a oscailt. Cliceáil ar aon íomhá chun í a chur isteach ag suíomh reatha do chúrsóra, nó tarraing í ón roghnóir go dtí an crios scaoilte faoin eagarthóir. Cuirtear íomhánna isteach mar mhionsamhlacha. Feictear teachtaireacht dheimhnithe ghlais go gairid chun an iontráil a dheimhniú."
     },
+    "lifeEvents": {
+      "title": "Imeachtaí Saoil",
+      "overviewTitle": "Cad iad Imeachtaí Saoil?",
+      "overviewBody": "Tá cluaisín Imeachtaí Saoil ag gach duine ar a leathanach próifíle. Taispeánann sé amlíne chróineolaíoch de mhóimintí suntasacha — breith, pósadh, céim, inimirce, seirbhís mhíleata, agus tuilleadh. Sórtáiltear imeachtaí de réir dáta; taispeántar imeachtaí gan dáta ag an deireadh.",
+      "timelineTitle": "An amlíne a léamh",
+      "timelineBody": "Taispeántar imeachtaí mar chártaí ar amlíne clé-cholúin, gach ceann le suaitheantas datha-íomhá a léiríonn cineál an imeachta. Roghnaítear an íomhá agus an dath go huathoibríoch: emerald do Bhreith, corcairghorm do Phósadh, gorm do Chéim, dearg do Sheirbhís Mhíleata, gormspéir d'Inimirce agus d'Eisimirce, ómra do Cholscaradh, agus liath do Bhás nó do chineálacha eile nó saincheaptha.",
+      "addingTitle": "Imeacht a chur leis",
+      "addingBody": "Ar an gcluaisín Imeachtaí Saoil, cliceáil 'Cuir Imeacht Leis'. Cuir isteach ainm an imeachta, dáta roghnach (glactar le téacs saor: '1920', 'thart ar 1920', 'Meitheamh 1920'), agus roghnaigh cineál imeachta. Roghnaigh 'Cineál saincheaptha…' chun do lipéad féin a chur isteach. Cliceáil Sábháil.",
+      "editingTitle": "Eagarthóireacht agus scriosadh",
+      "editingBody": "Bog an luch thar cárta imeachta ar bith agus cliceáil an deilbhín peann luaidhe chun an painéal eagarthóireachta ionsuite a oscailt. Nuashonraigh an t-ainm, an dáta, an cineál, agus an cur síos gearr, nó scríobh scéal níos faide sa réimse Scéal (tacaítear le Markdown, le híomhánna ón leabharlann meán). Cliceáil 'Sábháil Athruithe'. Bainfidh an cnaipe scriosadh an t-imeacht go buan. Níl eagarthóireacht agus scriosadh ar fáil ach don úinéir agus d'riarthóirí.",
+      "sourcesTitle": "Foinsí agus fíorú",
+      "sourcesBody": "Is féidir URL foinse seachtrach, íomhá foinse, agus doiciméad foinse — nasctha ón leabharlann meán — a bheith ag gach imeacht. Tic an bosca seiceála 'Fíoraithe' nuair atá an t-imeacht deimhnithe agat ó fhoinse iontaofa. Cabhraíonn na réimsí seo le fianaise do stair theaghlaigh a dhoiciméadú."
+    },
     "multipleTrees": {
       "title": "Crainnte Teaghlaigh Iolracha",
       "manageTitle": "Crainnte a bhainistiú",

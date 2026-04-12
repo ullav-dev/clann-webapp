@@ -382,6 +382,19 @@
       "mediaLibraryTitle": "Inserting images from the media library",
       "mediaLibraryBody": "While editing a biography, click 'Browse media library' below the editor to open an inline media picker. Click any image to insert it at your current cursor position, or drag it from the picker onto the drop zone below the editor. Images are inserted as thumbnails. A green confirmation message appears briefly to confirm the insertion."
     },
+    "lifeEvents": {
+      "title": "Life Events",
+      "overviewTitle": "What are Life Events?",
+      "overviewBody": "Each person has a Life Events tab on their profile page. It shows a chronological timeline of significant moments — birth, marriage, graduation, immigration, military service, and more. Events are sorted by date; undated events appear at the end.",
+      "timelineTitle": "Reading the timeline",
+      "timelineBody": "Events appear as cards on a left-spine timeline, each with a coloured icon badge that reflects the event type. The icon and colour are chosen automatically: emerald for Birth, violet for Marriage, blue for Graduation, red for Military service, sky for Immigration and Emigration, amber for Divorce, stone for Death, and grey for Other or custom types.",
+      "addingTitle": "Adding an event",
+      "addingBody": "On the Life Events tab, click 'Add Event'. Enter the event name, an optional date (free-form text is accepted: '1920', 'circa 1920', 'June 1920'), and choose an event type. Select 'Custom type…' to enter your own label. Click Save when done.",
+      "editingTitle": "Editing and deleting",
+      "editingBody": "Hover over any event card and click the pencil icon to open the inline edit panel. Update the name, date, type, and short description, or write a longer narrative in the Story field (markdown is supported, with media library image insertion). Click 'Save Changes' to apply. The delete button removes the event permanently. Edit and delete are only available to the person's owner and admins.",
+      "sourcesTitle": "Sources and verification",
+      "sourcesBody": "Each event can have an external source URL, a source image, and a source document — all linked from your media library. Tick the Verified checkbox once you have confirmed the event against a reliable source. These fields help document the evidence behind your family history."
+    },
     "multipleTrees": {
       "title": "Multiple Family Trees",
       "manageTitle": "Managing trees",

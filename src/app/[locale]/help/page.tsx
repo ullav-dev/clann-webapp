@@ -67,6 +67,16 @@ export default async function HelpPage() {
         </Cards>
       </Section>
 
+      <Section title={t("lifeEvents.title")} icon="📅">
+        <Cards>
+          <Card title={t("lifeEvents.overviewTitle")} body={t("lifeEvents.overviewBody")} />
+          <Card title={t("lifeEvents.timelineTitle")} body={t("lifeEvents.timelineBody")} />
+          <Card title={t("lifeEvents.addingTitle")} body={t("lifeEvents.addingBody")} />
+          <Card title={t("lifeEvents.editingTitle")} body={t("lifeEvents.editingBody")} />
+          <Card title={t("lifeEvents.sourcesTitle")} body={t("lifeEvents.sourcesBody")} />
+        </Cards>
+      </Section>
+
       <Section title={t("multipleTrees.title")} icon="🌲">
         <Cards>
           <Card title={t("multipleTrees.manageTitle")} body={t("multipleTrees.manageBody")} />
