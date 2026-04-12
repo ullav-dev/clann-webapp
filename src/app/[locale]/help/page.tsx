@@ -72,6 +72,7 @@ export default async function HelpPage() {
           <Card title={t("lifeEvents.overviewTitle")} body={t("lifeEvents.overviewBody")} />
           <Card title={t("lifeEvents.timelineTitle")} body={t("lifeEvents.timelineBody")} />
           <Card title={t("lifeEvents.addingTitle")} body={t("lifeEvents.addingBody")} />
+          <Card title={t("lifeEvents.viewingTitle")} body={t("lifeEvents.viewingBody")} />
           <Card title={t("lifeEvents.editingTitle")} body={t("lifeEvents.editingBody")} />
           <Card title={t("lifeEvents.sourcesTitle")} body={t("lifeEvents.sourcesBody")} />
         </Cards>

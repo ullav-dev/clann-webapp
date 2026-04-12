@@ -186,6 +186,8 @@ The biography field is edited via `MarkdownEditor` (a dynamic-import wrapper aro
 
 **Add event form (`AddEventForm`):** name, date, type dropdown (with custom type option), description. Appears above the timeline.
 
+**Details pill (`ViewEventPanel`):** events that have a story, source link, source image, or source document show a "Details" pill in the top-right of their card (always visible, not hover-gated). Clicking it expands an inline read-only panel showing the full story rendered as markdown (prose/GFM) and any sources as clickable links. The pill label toggles to "Close" while open. Opening the view panel closes any open edit panel and vice versa. The source icon row (🔗 🖼️ 📄) and the story snippet are hidden while the view panel is open.
+
 **Edit event panel (`EditEventPanel`):** slides in inside the card when the ✏️ button is clicked (on hover). Contains:
 - Name, date, event type + custom type
 - Description (short text)

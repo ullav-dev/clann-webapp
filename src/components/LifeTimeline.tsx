@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { DamPicker } from "@ullav/dam-picker";
@@ -79,6 +81,67 @@ function SourceIcons({ event }: { event: LifeEvent }) {
       {event.source_image && <span title="Source image in media library">🖼️</span>}
       {event.source_doc   && <span title="Source document in media library">📄</span>}
     </span>
+  );
+}
+
+// ─── view event panel ─────────────────────────────────────────────────────────
+
+function ViewEventPanel({ event }: { event: LifeEvent }) {
+  const t = useTranslations("lifeEvents");
+  const hasSources = !!(event.source_link || event.source_image || event.source_doc);
+
+  return (
+    <div className="mt-3 pt-3 border-t border-stone-100 space-y-3">
+      {/* Full story rendered as markdown */}
+      {event.story && (
+        <div className="prose prose-stone prose-sm max-w-none">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{event.story}</ReactMarkdown>
+        </div>
+      )}
+
+      {/* Sources */}
+      {hasSources && (
+        <div className={`space-y-1.5 ${event.story ? "pt-2 border-t border-stone-100" : ""}`}>
+          <p className="text-xs font-medium text-stone-400 uppercase tracking-wide">{t("sources")}</p>
+          {event.source_link && (
+            <a
+              href={event.source_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-800 break-all"
+            >
+              🔗 <span>{event.source_link}</span>
+            </a>
+          )}
+          {event.source_image && (
+            <div className="flex items-center gap-1.5 text-xs text-stone-500">
+              <span>🖼️ {t("fieldSourceImage")}:</span>
+              <a
+                href={event.source_image}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 truncate"
+              >
+                {event.source_image.split("/").pop()}
+              </a>
+            </div>
+          )}
+          {event.source_doc && (
+            <div className="flex items-center gap-1.5 text-xs text-stone-500">
+              <span>📄 {t("fieldSourceDoc")}:</span>
+              <a
+                href={event.source_doc}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 truncate"
+              >
+                {event.source_doc.split("/").pop()}
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -539,6 +602,7 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [viewingId, setViewingId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -572,6 +636,7 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
   function handleSaved(updated: LifeEvent) {
     setEvents((prev) => sortedEvents(prev.map((e) => e.id === updated.id ? updated : e)));
     setEditingId(null);
+    setViewingId(null);
   }
 
   if (loading) {
@@ -639,6 +704,8 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
               const style = styleFor(event.event_type);
               const isLast = idx === events.length - 1;
               const isEditing = editingId === event.id;
+              const isViewing = viewingId === event.id;
+              const hasDetails = !!(event.story || event.source_link || event.source_image || event.source_doc);
 
               return (
                 <li key={event.id} className={`relative flex gap-4 ${isLast ? "pb-2" : "pb-6"}`}>
@@ -677,41 +744,75 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
                           <p className="text-sm text-stone-600 mt-1.5 line-clamp-2">{event.description}</p>
                         )}
 
-                        {/* Story snippet (only when not editing and no description) */}
-                        {event.story && !event.description && !isEditing && (
+                        {/* Story snippet (only when collapsed and no description) */}
+                        {event.story && !event.description && !isViewing && !isEditing && (
                           <p className="text-sm text-stone-500 mt-1.5 line-clamp-2 italic">{event.story.replace(/[#*`_[\]]/g, "")}</p>
                         )}
                       </div>
 
                       {/* Actions */}
-                      {canEdit && (
-                        <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex-shrink-0 flex items-center gap-1.5">
+                        {/* Details pill — always visible when there is extra content */}
+                        {hasDetails && (
                           <button
-                            onClick={() => setEditingId(isEditing ? null : event.id)}
-                            className={`text-xs px-2 py-1 rounded transition-colors ${isEditing ? "bg-stone-100 text-stone-600" : "text-stone-400 hover:text-emerald-700 hover:bg-emerald-50"}`}
-                            title={t("editEvent")}
+                            onClick={() => {
+                              if (isViewing) {
+                                setViewingId(null);
+                              } else {
+                                setViewingId(event.id);
+                                setEditingId(null);
+                              }
+                            }}
+                            className={`text-xs font-medium px-2.5 py-0.5 rounded-full border transition-colors ${
+                              isViewing
+                                ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                                : "border-stone-200 text-stone-500 hover:border-emerald-400 hover:text-emerald-700"
+                            }`}
                           >
-                            {isEditing ? t("cancel") : "✏️"}
+                            {isViewing ? t("closeDetails") : t("viewDetails")}
                           </button>
-                          <button
-                            onClick={() => handleDelete(event.id, event.name)}
-                            disabled={deleting === event.id}
-                            className="text-stone-300 hover:text-red-500 disabled:opacity-40 transition-colors text-xl leading-none"
-                            title={t("deleteEvent")}
-                          >
-                            ×
-                          </button>
-                        </div>
-                      )}
+                        )}
+
+                        {/* Edit / delete — hover only for owners/admins */}
+                        {canEdit && (
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => {
+                                if (isEditing) {
+                                  setEditingId(null);
+                                } else {
+                                  setEditingId(event.id);
+                                  setViewingId(null);
+                                }
+                              }}
+                              className={`text-xs px-2 py-1 rounded transition-colors ${isEditing ? "bg-stone-100 text-stone-600" : "text-stone-400 hover:text-emerald-700 hover:bg-emerald-50"}`}
+                              title={t("editEvent")}
+                            >
+                              {isEditing ? t("cancel") : "✏️"}
+                            </button>
+                            <button
+                              onClick={() => handleDelete(event.id, event.name)}
+                              disabled={deleting === event.id}
+                              className="text-stone-300 hover:text-red-500 disabled:opacity-40 transition-colors text-xl leading-none"
+                              title={t("deleteEvent")}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Source indicators (only when not editing) */}
-                    {!isEditing && (event.source_link || event.source_image || event.source_doc) && (
+                    {/* Source indicators (only when both panels are closed) */}
+                    {!isEditing && !isViewing && (event.source_link || event.source_image || event.source_doc) && (
                       <div className="mt-2 pt-2 border-t border-stone-100 flex items-center gap-2">
                         <span className="text-xs text-stone-400">{t("sources")}:</span>
                         <SourceIcons event={event} />
                       </div>
                     )}
+
+                    {/* View panel */}
+                    {isViewing && <ViewEventPanel event={event} />}
 
                     {/* Edit panel */}
                     {isEditing && token && user && (
