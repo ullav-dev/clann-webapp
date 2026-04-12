@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useRef, useState, useCallback } f
 import { useTranslations } from "next-intl";
 import type { AuthUser, LoginResponse } from "@/lib/auth-api";
 import { login as apiLogin } from "@/lib/auth-api";
+import { setApiToken } from "@/lib/api";
 
 interface AuthState {
   user: AuthUser | null;
@@ -119,6 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(parsed.user);
           setToken(parsed.token);
           setRoles(parsed.roles);
+          setApiToken(parsed.token);
         }
       }
     } catch {
@@ -134,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setToken(null);
     setRoles([]);
+    setApiToken(null);
     setIdleWarning(false);
     localStorage.removeItem(STORAGE_KEY);
   }, []);
@@ -142,6 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(session.user);
     setToken(session.token);
     setRoles(session.roles);
+    setApiToken(session.token);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   }, []);
 
@@ -150,6 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(resp.user);
     setToken(resp.token);
     setRoles(resp.roles);
+    setApiToken(resp.token);
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ user: resp.user, token: resp.token, roles: resp.roles }));
     return resp;
   }, []);
