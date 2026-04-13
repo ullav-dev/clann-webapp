@@ -93,7 +93,9 @@ function AuthImage({ url, token, alt }: { url: string; token: string; alt: strin
 
   useEffect(() => {
     let objectUrl: string | null = null;
-    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+    // Fetch the thumbnail variant — smaller payload, same auth pattern
+    const thumbnailUrl = url.endsWith("/thumbnail") ? url : `${url}/thumbnail`;
+    fetch(thumbnailUrl, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.blob();
@@ -111,8 +113,23 @@ function AuthImage({ url, token, alt }: { url: string; token: string; alt: strin
   return <img src={src} alt={alt} className="max-h-64 rounded-lg border border-stone-200 object-contain" />;
 }
 
-function AuthDocLink({ url, token, filename }: { url: string; token: string; filename: string }) {
+/** Resolves the human-readable name of a DAM asset from its URL. */
+function useAssetName(url: string | null | undefined, token: string): string | null {
+  const [name, setName] = useState<string | null>(null);
+  useEffect(() => {
+    if (!url || !token) return;
+    fetch(url, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { name?: string } | null) => { if (data?.name) setName(data.name); })
+      .catch(() => {});
+  }, [url, token]);
+  return name;
+}
+
+function AuthDocLink({ url, token }: { url: string; token: string }) {
   const [busy, setBusy] = useState(false);
+  const assetName = useAssetName(url, token);
+  const displayName = assetName ?? "document";
 
   async function handleDownload() {
     setBusy(true);
@@ -123,7 +140,7 @@ function AuthDocLink({ url, token, filename }: { url: string; token: string; fil
       const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = objectUrl;
-      a.download = filename;
+      a.download = displayName;
       a.click();
       URL.revokeObjectURL(objectUrl);
     } catch {
@@ -140,7 +157,7 @@ function AuthDocLink({ url, token, filename }: { url: string; token: string; fil
       disabled={busy}
       className="text-blue-600 hover:text-blue-800 disabled:opacity-50 truncate transition-colors"
     >
-      {busy ? "Downloading…" : filename}
+      {busy ? "Downloading…" : displayName}
     </button>
   );
 }
@@ -189,7 +206,7 @@ function ViewEventPanel({ event, token }: ViewEventPanelProps) {
               <AuthImage
                 url={event.source_image}
                 token={token}
-                alt={event.source_image.split("/").pop() ?? "source image"}
+                alt="source image"
               />
             </div>
           )}
@@ -201,7 +218,6 @@ function ViewEventPanel({ event, token }: ViewEventPanelProps) {
               <AuthDocLink
                 url={event.source_doc}
                 token={token}
-                filename={event.source_doc.split("/").pop() ?? "document"}
               />
             </div>
           )}
@@ -225,9 +241,13 @@ interface AssetPickerFieldProps {
 function AssetPickerField({ label, value, onChange, token, username, filterType }: AssetPickerFieldProps) {
   const t = useTranslations("lifeEvents");
   const [showPicker, setShowPicker] = useState(false);
+  const [pickedName, setPickedName] = useState<string | null>(null);
+  const resolvedName = useAssetName(pickedName === null ? value : null, token);
+  const displayName = pickedName ?? resolvedName ?? value?.split("/").pop() ?? "";
 
   function handlePick(asset: PickedAsset) {
     onChange(asset.url);
+    setPickedName(asset.name);
     setShowPicker(false);
   }
 
@@ -238,11 +258,11 @@ function AssetPickerField({ label, value, onChange, token, username, filterType 
         {value ? (
           <>
             <span className="text-xs text-stone-600 truncate max-w-xs border border-stone-200 bg-stone-50 rounded px-2 py-1">
-              {value.split("/").pop()}
+              {displayName}
             </span>
             <button
               type="button"
-              onClick={() => onChange(null)}
+              onClick={() => { onChange(null); setPickedName(null); }}
               className="text-xs text-red-500 hover:text-red-700 transition-colors"
             >
               {t("clear")}
