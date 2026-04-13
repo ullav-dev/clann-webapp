@@ -38,6 +38,7 @@ type NodeData = {
   placeOfBirth?: string | null;
   biography?: string | null;
   imagePath?: string | null;
+  imageVersion?: number;
   orientation: Orientation;
 };
 
@@ -58,6 +59,7 @@ function PersonNode({ data }: NodeProps) {
   const d = data as NodeData;
   const [imgError, setImgError] = useState(false);
   const showImage = !!d.imagePath && !imgError;
+  const imgSrc = `${personImageUrl(d.id)}${d.imageVersion ? `?v=${d.imageVersion}` : ""}`;
 
   const style = ROLE_STYLES[d.role];
   const isH = d.orientation === "horizontal";
@@ -83,7 +85,7 @@ function PersonNode({ data }: NodeProps) {
               d.role === "father" ? "ring-blue-200" : d.role === "mother" ? "ring-rose-200" : "ring-emerald-200"
             }`}>
               <Image
-                src={personImageUrl(d.id)}
+                src={imgSrc}
                 alt=""
                 fill
                 className="object-cover"
@@ -162,6 +164,7 @@ function buildGraph(
       placeOfBirth: node.place_of_birth ?? null,
       biography: node.biography ?? null,
       imagePath: node.image_path ?? null,
+      imageVersion: photoVersions?.[rawId(node.id)],
       orientation,
     } satisfies NodeData,
   });
@@ -315,9 +318,10 @@ function hasDamAccess(token: string | null): boolean {
 
 interface Props {
   tree: FamilyTreeNode;
+  photoVersions?: Record<string, number>;
 }
 
-export default function FamilyTreeView({ tree }: Props) {
+export default function FamilyTreeView({ tree, photoVersions }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("familyTree");
   const locale = useLocale();
@@ -373,6 +377,7 @@ export default function FamilyTreeView({ tree }: Props) {
             placeOfBirth: sib.place_of_birth ?? null,
             biography: sib.biography ?? null,
             imagePath: sib.image_path ?? null,
+            imageVersion: photoVersions?.[rawId(sib.id)],
             orientation,
           } satisfies NodeData,
         });
@@ -390,7 +395,7 @@ export default function FamilyTreeView({ tree }: Props) {
     }
 
     return { nodes, edges };
-  }, [tree, orientation, showSiblings]);
+  }, [tree, orientation, showSiblings, photoVersions]);
 
   const onNodeClick = useCallback(() => {
     // future: open edit panel

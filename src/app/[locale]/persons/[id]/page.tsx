@@ -42,6 +42,7 @@ export default function PersonDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAddRel, setShowAddRel] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
+  const [photoVersions, setPhotoVersions] = useState<Record<string, number>>({});
   const [showLifeUpload, setShowLifeUpload] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [tab, setTab] = useState<"tree" | "relationships" | "lifestory" | "lifeevents">("tree");
@@ -159,7 +160,11 @@ export default function PersonDetailPage() {
             <p className="text-sm font-medium text-stone-700">{person.image_path ? t("replacePhoto") : t("addPhoto")}</p>
             <button onClick={() => setShowUpload(false)} className="text-stone-400 hover:text-stone-600 text-xl leading-none">×</button>
           </div>
-          <ImageUpload personId={id} onUploaded={() => { setShowUpload(false); load(); }} />
+          <ImageUpload personId={id} onUploaded={() => {
+            setShowUpload(false);
+            load();
+            setPhotoVersions((v) => ({ ...v, [id]: Date.now() }));
+          }} />
         </div>
       )}
 
@@ -174,7 +179,7 @@ export default function PersonDetailPage() {
 
       {tab === "tree" && tree && (
         <div>
-          <FamilyTreeView tree={tree} />
+          <FamilyTreeView tree={tree} photoVersions={photoVersions} />
           <p className="text-xs text-stone-400 mt-2 text-center">{t("treeHelpText")}</p>
         </div>
       )}
