@@ -398,6 +398,16 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
     return { nodes, edges };
   }, [tree, orientation, showSiblings, photoVersions]);
 
+  // Elevate the hovered node so its tooltip stacks above all other nodes.
+  // Each React Flow node wrapper has a CSS transform that creates a stacking
+  // context, so z-index inside the node only works within that context.
+  // Setting zIndex on the node object itself lifts the whole wrapper.
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const displayNodes = useMemo(
+    () => nodes.map((n) => n.id === hoveredNodeId ? { ...n, zIndex: 1000 } : n),
+    [nodes, hoveredNodeId],
+  );
+
   const onNodeClick = useCallback(() => {
     // future: open edit panel
   }, []);
@@ -656,10 +666,12 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
 
       <div ref={containerRef} className="w-full h-[560px] rounded-xl border border-stone-200 overflow-hidden shadow-inner bg-stone-50">
         <ReactFlow
-          nodes={nodes}
+          nodes={displayNodes}
           edges={edges}
           nodeTypes={nodeTypes}
           onNodeClick={onNodeClick}
+          onNodeMouseEnter={(_, node) => setHoveredNodeId(node.id)}
+          onNodeMouseLeave={() => setHoveredNodeId(null)}
           fitView
           fitViewOptions={{ padding: 0.3 }}
           minZoom={0.3}
