@@ -298,7 +298,7 @@ function EditEventPanel({ event, token, username, onSaved, onCancel }: EditEvent
   }
 
   return (
-    <form onSubmit={handleSave} className="mt-3 pt-3 border-t border-stone-100 space-y-3">
+    <form onSubmit={handleSave} className="space-y-3">
       {error && <p className="text-xs text-red-600">{error}</p>}
 
       {/* Name + Date */}
@@ -620,6 +620,15 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    if (!editingId) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setEditingId(null);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [editingId]);
+
   async function handleDelete(eventId: string, eventName: string) {
     if (!confirm(t("deleteConfirm", { name: eventName }))) return;
     setDeleting(eventId);
@@ -703,7 +712,6 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
             {events.map((event, idx) => {
               const style = styleFor(event.event_type);
               const isLast = idx === events.length - 1;
-              const isEditing = editingId === event.id;
               const isViewing = viewingId === event.id;
               const hasDetails = !!(event.story || event.source_link || event.source_image || event.source_doc);
 
@@ -745,7 +753,7 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
                         )}
 
                         {/* Story snippet (only when collapsed and no description) */}
-                        {event.story && !event.description && !isViewing && !isEditing && (
+                        {event.story && !event.description && !isViewing && (
                           <p className="text-sm text-stone-500 mt-1.5 line-clamp-2 italic">{event.story.replace(/[#*`_[\]]/g, "")}</p>
                         )}
                       </div>
@@ -777,18 +785,11 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
                         {canEdit && (
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
-                              onClick={() => {
-                                if (isEditing) {
-                                  setEditingId(null);
-                                } else {
-                                  setEditingId(event.id);
-                                  setViewingId(null);
-                                }
-                              }}
-                              className={`text-xs px-2 py-1 rounded transition-colors ${isEditing ? "bg-stone-100 text-stone-600" : "text-stone-400 hover:text-emerald-700 hover:bg-emerald-50"}`}
+                              onClick={() => { setEditingId(event.id); setViewingId(null); }}
+                              className="text-xs px-2 py-1 rounded transition-colors text-stone-400 hover:text-emerald-700 hover:bg-emerald-50"
                               title={t("editEvent")}
                             >
-                              {isEditing ? t("cancel") : "✏️"}
+                              ✏️
                             </button>
                             <button
                               onClick={() => handleDelete(event.id, event.name)}
@@ -803,8 +804,8 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
                       </div>
                     </div>
 
-                    {/* Source indicators (only when both panels are closed) */}
-                    {!isEditing && !isViewing && (event.source_link || event.source_image || event.source_doc) && (
+                    {/* Source indicators (hidden while view panel is open) */}
+                    {!isViewing && (event.source_link || event.source_image || event.source_doc) && (
                       <div className="mt-2 pt-2 border-t border-stone-100 flex items-center gap-2">
                         <span className="text-xs text-stone-400">{t("sources")}:</span>
                         <SourceIcons event={event} />
@@ -813,17 +814,6 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
 
                     {/* View panel */}
                     {isViewing && <ViewEventPanel event={event} />}
-
-                    {/* Edit panel */}
-                    {isEditing && token && user && (
-                      <EditEventPanel
-                        event={event}
-                        token={token}
-                        username={user.username}
-                        onSaved={handleSaved}
-                        onCancel={() => setEditingId(null)}
-                      />
-                    )}
                   </div>
                 </li>
               );
@@ -846,6 +836,41 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
           )}
         </div>
       )}
+
+      {/* Edit modal */}
+      {editingId && token && user && (() => {
+        const event = events.find((e) => e.id === editingId);
+        if (!event) return null;
+        return (
+          <div
+            className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center p-4 pt-16 overflow-y-auto"
+            onClick={(e) => { if (e.target === e.currentTarget) setEditingId(null); }}
+          >
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mb-8">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
+                <h2 className="font-semibold text-stone-800 truncate pr-4">{event.name}</h2>
+                <button
+                  type="button"
+                  onClick={() => setEditingId(null)}
+                  className="flex-shrink-0 text-stone-400 hover:text-stone-600 text-2xl leading-none transition-colors"
+                  aria-label={t("cancel")}
+                >
+                  ×
+                </button>
+              </div>
+              <div className="px-5 py-5">
+                <EditEventPanel
+                  event={event}
+                  token={token}
+                  username={user.username}
+                  onSaved={handleSaved}
+                  onCancel={() => setEditingId(null)}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
