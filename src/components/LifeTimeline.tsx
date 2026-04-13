@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -412,7 +413,7 @@ function EditEventPanel({ event, token, username, onSaved, onCancel }: EditEvent
       </div>
 
       {/* Source image + source doc */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         <AssetPickerField
           label={t("fieldSourceImage")}
           value={sourceImage}
@@ -600,6 +601,7 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
   const [events, setEvents] = useState<LifeEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [viewingId, setViewingId] = useState<string | null>(null);
@@ -618,6 +620,7 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
     }
   }, [personId]);
 
+  useEffect(() => { setMounted(true); }, []);
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
@@ -647,6 +650,8 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
     setEditingId(null);
     setViewingId(null);
   }
+
+  const editingEvent = editingId ? (events.find((e) => e.id === editingId) ?? null) : null;
 
   if (loading) {
     return (
@@ -837,40 +842,38 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
         </div>
       )}
 
-      {/* Edit modal */}
-      {editingId && token && user && (() => {
-        const event = events.find((e) => e.id === editingId);
-        if (!event) return null;
-        return (
-          <div
-            className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center p-4 pt-16 overflow-y-auto"
-            onClick={(e) => { if (e.target === e.currentTarget) setEditingId(null); }}
-          >
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mb-8">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
-                <h2 className="font-semibold text-stone-800 truncate pr-4">{event.name}</h2>
-                <button
-                  type="button"
-                  onClick={() => setEditingId(null)}
-                  className="flex-shrink-0 text-stone-400 hover:text-stone-600 text-2xl leading-none transition-colors"
-                  aria-label={t("cancel")}
-                >
-                  ×
-                </button>
-              </div>
-              <div className="px-5 py-5">
-                <EditEventPanel
-                  event={event}
-                  token={token}
-                  username={user.username}
-                  onSaved={handleSaved}
-                  onCancel={() => setEditingId(null)}
-                />
-              </div>
+      {/* Edit modal — portalled to document.body to escape any CSS transform on ancestors */}
+      {mounted && editingEvent && token && user && createPortal(
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center p-4 pt-16 overflow-y-auto"
+          onClick={(e) => { if (e.target === e.currentTarget) setEditingId(null); }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mb-8">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100">
+              <h2 className="font-semibold text-stone-800 truncate pr-4">{editingEvent.name}</h2>
+              <button
+                type="button"
+                onClick={() => setEditingId(null)}
+                className="flex-shrink-0 text-stone-400 hover:text-stone-600 text-2xl leading-none transition-colors"
+                aria-label={t("cancel")}
+              >
+                ×
+              </button>
+            </div>
+            <div className="px-5 py-5">
+              <EditEventPanel
+                key={editingEvent.id}
+                event={editingEvent}
+                token={token}
+                username={user.username}
+                onSaved={handleSaved}
+                onCancel={() => setEditingId(null)}
+              />
             </div>
           </div>
-        );
-      })()}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
