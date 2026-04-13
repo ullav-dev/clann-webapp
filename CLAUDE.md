@@ -66,7 +66,7 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 - `src/components/MarkdownEditor.tsx` — thin wrapper around `@uiw/react-md-editor`; dynamically imported (`ssr: false`); wraps output in `data-color-mode="light"` to prevent dark-mode flicker; always yields a plain markdown string; accepts a `textareaProps` passthrough for attaching handlers to the underlying textarea
 - `src/components/AddRelationshipModal.tsx` — modal for linking Father / Mother / Sibling / Spouse. The person list is filtered by sex: Father/Brother → males only, Mother/Sister → females only. Sibling mode supports **multi-select** (click to toggle; submit links all selected siblings at once and inherits the root person's parents to each). Setting a Father or Mother also triggers **auto-sibling discovery**: fetches the parent's existing children via `getFamilyTree` and links any that are not already siblings — deduplication uses `rawId()` to normalise the `person:<ulid>` IDs returned by the API against the bare ULID in `personId` from `useParams`.
 - `src/components/PersonCard.tsx` — card used on the list page; includes inline delete
-- `src/components/PersonAvatar.tsx` — circular photo with emoji fallback
+- `src/components/PersonAvatar.tsx` — circular photo with emoji fallback; accepts an optional `imageVersion` prop (number) that is appended as `?v={imageVersion}` to the image URL to bust the browser cache after a photo upload
 - `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 2 MB); accepts an optional `uploadFn` prop to override the default profile-image endpoint, making it reusable for the life story image
 - `src/components/PasswordInput.tsx` — password field with show/hide toggle (eye icon button); used on all password inputs in the app
 - `src/components/LocaleSwitcher.tsx` — language selector dropdown in the nav
@@ -210,6 +210,7 @@ On save the event is patched in-place via `updateLifeEvent` and the list is re-s
 - **Hover tooltip:** each node shows a dark tooltip above it on hover with `date_of_birth`, `place_of_birth`, and `biography` (biography capped at 4 lines). Only rendered when at least one field is non-null.
 - **Export dropdown:** a single Export button opens a menu with three options (JPEG / JSON / GEDCOM); the button is disabled and shows a spinner while any export is in progress. Click-outside closes the menu via a `mousedown` listener on `document`.
 - **Media Library button:** shown only when `hasDamAccess(token)` returns true (admin role or active Comad subscription in JWT payload). Opens `NEXT_PUBLIC_DAM_BROWSER_URL/${locale}/auth/sso?t=<encoded-session>` in a new tab.
+- **Image cache-busting:** `buildGraph` accepts an optional `photoVersions: Record<string, number>` parameter (passed from the `useMemo` call in the component). Each node's `NodeData` includes `imageVersion` (looked up by `rawId`). `PersonNode` appends `?v={imageVersion}` to the image URL when set. The person detail page tracks `photoVersions` state, increments the entry for the uploaded person's ID on successful upload, and passes it to both `FamilyTreeView` and `PersonAvatar` (header) so the new photo is shown immediately without a page reload.
 
 ## Tests
 
