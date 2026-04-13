@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import {
   ReactFlow,
@@ -293,6 +293,24 @@ function Legend({ t }: { t: TranslateFn }) {
   );
 }
 
+// ── DAM access check ─────────────────────────────────────────────────────────
+
+/** Returns true if the JWT contains an admin role or an active DAM subscription. */
+function hasDamAccess(token: string | null): boolean {
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))) as Record<string, unknown>;
+    const roles = (payload.roles ?? []) as string[];
+    if (roles.includes("admin")) return true;
+    const subs = (payload.subscriptions ?? {}) as Record<string, { tier?: string; status?: string }>;
+    const comad = subs["comad"];
+    if (comad && ["active", "trialing"].includes(comad.status ?? "")) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -302,8 +320,10 @@ interface Props {
 export default function FamilyTreeView({ tree }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("familyTree");
+  const locale = useLocale();
   const { activeTree } = useTree();
-  const { user } = useAuth();
+  const { user, token, roles } = useAuth();
+  const canOpenDam = hasDamAccess(token);
   const [orientation, setOrientation] = useState<Orientation>("vertical");
   const [showSiblings, setShowSiblings] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -608,6 +628,24 @@ export default function FamilyTreeView({ tree }: Props) {
             </div>
           )}
         </div>
+
+        {/* Open DAM browser */}
+        {canOpenDam && user && token && (
+          <button
+            onClick={() => {
+              const damUrl = process.env.NEXT_PUBLIC_DAM_BROWSER_URL ?? "http://localhost:3002";
+              const session = encodeURIComponent(JSON.stringify({ token, user, roles }));
+              window.open(`${damUrl}/${locale}/auth/sso?t=${session}`, "_blank", "noopener,noreferrer");
+            }}
+            className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors"
+            title={t("openDam")}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 5.5 2-3.5 3 6z" clipRule="evenodd" />
+            </svg>
+            {t("openDam")}
+          </button>
+        )}
       </div>
 
       <div ref={containerRef} className="w-full h-[560px] rounded-xl border border-stone-200 overflow-hidden shadow-inner bg-stone-50">
