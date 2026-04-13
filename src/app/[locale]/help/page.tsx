@@ -45,6 +45,7 @@ export default async function HelpPage() {
           <Card title={t("familyTree.navigationTitle")} body={t("familyTree.navigationBody")} />
           <Card title={t("familyTree.orientationTitle")} body={t("familyTree.orientationBody")} />
           <Card title={t("familyTree.exportTitle")} body={t("familyTree.exportBody")} />
+          <Card title={t("familyTree.mediaLibraryTitle")} body={t("familyTree.mediaLibraryBody")} />
         </Cards>
       </Section>
 

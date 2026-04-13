@@ -356,7 +356,9 @@
       "orientationTitle": "Changing orientation",
       "orientationBody": "Use the Vertical / Horizontal buttons in the tree toolbar to toggle the layout. Vertical places ancestors above and children below. Horizontal places ancestors to the right and children to the left.",
       "exportTitle": "Exporting the tree",
-      "exportBody": "Click Export as JPEG to download the visible tree as an image you can share. Click Export as JSON to download the raw tree data for archiving or use in other tools."
+      "exportBody": "Click the Export button in the toolbar to choose a format: JPEG downloads a snapshot image of the visible tree, JSON downloads all people and relationships in Clann's own format, and GEDCOM downloads a .ged file compatible with other genealogy apps such as Ancestry, FamilySearch, and Gramps.",
+      "mediaLibraryTitle": "Opening the Media Library",
+      "mediaLibraryBody": "If your account includes access to the Ullav Digital Asset Management system, a Media Library button appears in the tree toolbar. Clicking it opens the DAM browser in a new tab and signs you in automatically — no second login needed."
     },
     "familyList": {
       "title": "Family Members List",
@@ -404,7 +406,7 @@
       "primaryTitle": "Primary tree",
       "primaryBody": "One tree per account is marked as primary (shown with a gold badge in the dropdown). Promote any other tree to primary using the star icon. The primary tree cannot be deleted — promote another tree first if you need to remove it.",
       "exportTitle": "Exporting a tree",
-      "exportBody": "Open any person's profile, go to the Family Tree tab, and use the toolbar buttons. Export as JPEG saves a snapshot image of the visible tree. Export as JSON downloads all people and relationships in Clann's own format. Export as GEDCOM downloads a .ged file compatible with other genealogy apps.",
+      "exportBody": "Open any person's profile, go to the Family Tree tab, and click the Export button in the toolbar to choose a format — JPEG, JSON, or GEDCOM.",
       "importTitle": "Importing a tree",
       "importBody": "Click the tree selector in the nav bar and choose 'Import tree…'. Upload a Clann JSON export or a GEDCOM (.ged) file. You will see a preview of the people and relationships found. Give the new tree a name and click Start import."
     },
@@ -413,7 +415,7 @@
       "whatTitle": "What is GEDCOM?",
       "whatBody": "GEDCOM (Genealogical Data Communication) is the standard file format used by genealogy applications worldwide — including Ancestry, FamilySearch, Gramps, MacFamilyTree, and many others. Clann supports GEDCOM 5.5.1 for both export and import, letting you move data between tools freely.",
       "exportTitle": "Exporting as GEDCOM",
-      "exportBody": "Open any person's profile, go to the Family Tree tab, and click 'Export as GEDCOM'. Clann fetches all people and relationships in the active tree, converts them to GEDCOM format, and downloads a .ged file named after the tree. You can then open this file in any genealogy application.",
+      "exportBody": "Open any person's profile, go to the Family Tree tab, and click the Export button, then choose 'Export as GEDCOM'. Clann fetches all people and relationships in the active tree, converts them to GEDCOM format, and downloads a .ged file named after the tree. You can then open this file in any genealogy application.",
       "importTitle": "Importing a GEDCOM file",
       "importBody": "Click the tree selector in the nav bar and choose 'Import tree…'. Drop or browse to your .ged file. Clann reads all INDI (person) and FAM (family) records, derives parent, spouse, and sibling relationships automatically, and shows a preview before importing. The imported data becomes a new tree — your existing trees are untouched.",
       "warningsTitle": "Import warnings and best fit",

@@ -356,7 +356,9 @@
       "orientationTitle": "Ausrichtung ändern",
       "orientationBody": "Verwenden Sie die Schaltflächen Vertikal / Horizontal in der Baumleiste, um das Layout zu wechseln. Vertikal platziert Vorfahren oben und Kinder unten. Horizontal platziert Vorfahren rechts und Kinder links.",
       "exportTitle": "Baum exportieren",
-      "exportBody": "Klicken Sie auf Als JPEG exportieren, um den sichtbaren Baum als Bild herunterzuladen. Klicken Sie auf Als JSON exportieren, um die Rohdaten des Baumes zur Archivierung oder Nutzung in anderen Tools herunterzuladen."
+      "exportBody": "Klicken Sie in der Symbolleiste auf die Schaltfläche Exportieren, um ein Format zu wählen: JPEG lädt ein Schnappschussbild des sichtbaren Baumes herunter, JSON lädt alle Personen und Beziehungen im Clann-eigenen Format herunter, und GEDCOM lädt eine .ged-Datei herunter, die mit anderen Genealogie-Apps wie Ancestry, FamilySearch und Gramps kompatibel ist.",
+      "mediaLibraryTitle": "Medienbibliothek öffnen",
+      "mediaLibraryBody": "Wenn Ihr Konto Zugang zum Ullav Digital Asset Management System hat, erscheint in der Baumleiste eine Schaltfläche Medienbibliothek. Ein Klick darauf öffnet den DAM-Browser in einem neuen Tab und meldet Sie automatisch an — kein zweites Login erforderlich."
     },
     "familyList": {
       "title": "Familienmitglieder-Liste",
@@ -404,7 +406,7 @@
       "primaryTitle": "Primärer Baum",
       "primaryBody": "Ein Baum pro Konto ist als primär markiert (im Dropdown mit einem goldenen Badge angezeigt). Verwenden Sie das Sternsymbol, um einen anderen Baum zum primären zu machen. Der primäre Baum kann nicht gelöscht werden — machen Sie zuerst einen anderen Baum zum primären, wenn Sie ihn entfernen möchten.",
       "exportTitle": "Baum exportieren",
-      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum und verwenden Sie die Schaltflächen in der Symbolleiste. Mit Als JPEG exportieren wird ein Schnappschuss des sichtbaren Baumes als Bild gespeichert. Als JSON exportieren lädt alle Personen und Beziehungen im Clann-eigenen Format herunter. Als GEDCOM exportieren lädt eine .ged-Datei herunter, die mit anderen Genealogie-Apps kompatibel ist.",
+      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum und klicken Sie auf die Schaltfläche Exportieren in der Symbolleiste, um ein Format zu wählen — JPEG, JSON oder GEDCOM.",
       "importTitle": "Baum importieren",
       "importBody": "Klicken Sie auf den Baumwähler in der Navigationsleiste und wählen Sie 'Baum importieren…'. Laden Sie einen Clann-JSON-Export oder eine GEDCOM-Datei (.ged) hoch. Sie sehen eine Vorschau der gefundenen Personen und Beziehungen. Geben Sie dem neuen Baum einen Namen und klicken Sie auf Import starten."
     },
@@ -413,7 +415,7 @@
       "whatTitle": "Was ist GEDCOM?",
       "whatBody": "GEDCOM (Genealogical Data Communication) ist das Standarddateiformat für Genealogie-Anwendungen weltweit — darunter Ancestry, FamilySearch, Gramps, MacFamilyTree und viele andere. Clann unterstützt GEDCOM 5.5.1 für Export und Import und ermöglicht so den freien Datenaustausch zwischen verschiedenen Tools.",
       "exportTitle": "Als GEDCOM exportieren",
-      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum und klicken Sie auf 'Als GEDCOM exportieren'. Clann ruft alle Personen und Beziehungen des aktiven Baums ab, konvertiert sie ins GEDCOM-Format und lädt eine .ged-Datei herunter. Diese Datei kann in jeder Genealogie-Anwendung geöffnet werden.",
+      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum, klicken Sie auf die Schaltfläche Exportieren und wählen Sie 'Als GEDCOM exportieren'. Clann ruft alle Personen und Beziehungen des aktiven Baums ab, konvertiert sie ins GEDCOM-Format und lädt eine .ged-Datei herunter. Diese Datei kann in jeder Genealogie-Anwendung geöffnet werden.",
       "importTitle": "Eine GEDCOM-Datei importieren",
       "importBody": "Klicken Sie auf den Baumwähler in der Navigationsleiste und wählen Sie 'Baum importieren…'. Legen Sie Ihre .ged-Datei ab oder wählen Sie sie aus. Clann liest alle INDI- (Person) und FAM- (Familie) Datensätze, leitet Eltern-, Ehe- und Geschwisterbeziehungen automatisch ab und zeigt eine Vorschau vor dem Import. Die importierten Daten werden zu einem neuen Baum — Ihre vorhandenen Bäume bleiben unberührt.",
       "warningsTitle": "Import-Hinweise und beste Annäherung",

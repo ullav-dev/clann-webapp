@@ -356,7 +356,9 @@
       "orientationTitle": "Leagan amach a athrú",
       "orientationBody": "Úsáid na cnaipí Ingearach / Cothrománach sa bharra chrainn chun an leagan amach a scoránú. Cuireann Ingearach sinsir os cionn agus leanaí thíos. Cuireann Cothrománach sinsir ar dheis agus leanaí ar chlé.",
       "exportTitle": "An crann a easpórtáil",
-      "exportBody": "Cliceáil Easpórtáil mar JPEG chun an crann infheicthe a íoslódáil mar íomhá. Cliceáil Easpórtáil mar JSON chun sonraí amh an chrainn a íoslódáil le haghaidh cartlannaithe nó úsáide in uirlisí eile."
+      "exportBody": "Cliceáil an cnaipe Easpórtáil sa bharra uirlisí chun formáid a roghnú: íoslódálann JPEG íomhá den chrann infheicthe, íoslódálann JSON gach duine agus caidreamh i bhformáid Clann féin, agus íoslódálann GEDCOM comhad .ged atá comhoiriúnach le feidhlimí geineolaíochta eile mar Ancestry, FamilySearch agus Gramps.",
+      "mediaLibraryTitle": "An Leabharlann Meán a oscailt",
+      "mediaLibraryBody": "Má tá rochtain ag do chuntas ar Chóras Bainistíochta Sócmhainní Digiteacha Ullav, beidh cnaipe Leabharlann Meán le feiceáil sa bharra chrainn. Trí chliceáil air, osclaítear brabhsálaí DAM i gcluaisín nua agus síníonn tú isteach go huathoibríoch — níl aon logáil isteach eile ag teastáil."
     },
     "familyList": {
       "title": "Liosta Baill Teaghlaigh",
@@ -404,7 +406,7 @@
       "primaryTitle": "Crann príomhúil",
       "primaryBody": "Tá crann amháin in aghaidh an chuntais marcáilte mar phríomhúil (taispeántar le suaitheantas óir sa roghchlár é). Cuir aon chrann eile chun cinn mar phríomhúil ag baint úsáide as an deilbhín réaltóige. Ní féidir an crann príomhúil a scriosadh — cuir crann eile chun cinn ar dtús má theastaíonn uait é a bhaint.",
       "exportTitle": "Crann a easpórtáil",
-      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, agus úsáid na cnaipí sa bharra uirlisí. Le hEaspórtáil mar JPEG sábhálann tú íomhá den chrann infheicthe. Le hEaspórtáil mar JSON íoslódáiltear gach duine agus caidreamh i bhformáid Clann féin. Le hEaspórtáil mar GEDCOM íoslódáiltear comhad .ged atá comhoiriúnach le feidhlimí geineolaíochta eile.",
+      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, agus cliceáil an cnaipe Easpórtáil sa bharra uirlisí chun formáid a roghnú — JPEG, JSON nó GEDCOM.",
       "importTitle": "Crann a iompórtáil",
       "importBody": "Cliceáil roghnóir an chrainn sa bharra nascleanúna agus roghnaigh 'Crann a iompórtáil...'. Uaslódáil onnmhairiú JSON ó Clann nó comhad GEDCOM (.ged). Feicfidh tú réamhamharc de na daoine agus na caidrimh a fuarthas. Tabhair ainm don chrann nua agus cliceáil Tosaigh iompórtáil."
     },
@@ -413,7 +415,7 @@
       "whatTitle": "Cad is GEDCOM ann?",
       "whatBody": "Is é GEDCOM (Genealogical Data Communication) an caighdeán comhaid a úsáideann feidhlimí geineolaíochta ar fud an domhain — lena n-áirítear Ancestry, FamilySearch, Gramps, MacFamilyTree, agus go leor eile. Tacaíonn Clann le GEDCOM 5.5.1 d'easpórtáil agus d'iompórtáil araon, rud a ligeann duit sonraí a bhogadh idir uirlisí go saor.",
       "exportTitle": "Ag easpórtáil mar GEDCOM",
-      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, agus cliceáil 'Easpórtáil mar GEDCOM'. Faigheann Clann gach duine agus caidreamh sa chrann gníomhach, tiontaíonn siad go formáid GEDCOM iad, agus íoslódálann comhad .ged ainmnithe i ndiaidh an chrainn. Is féidir an comhad seo a oscailt in aon fheidhlim gheineolaíochta.",
+      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, cliceáil an cnaipe Easpórtáil agus roghnaigh 'Easpórtáil mar GEDCOM'. Faigheann Clann gach duine agus caidreamh sa chrann gníomhach, tiontaíonn siad go formáid GEDCOM iad, agus íoslódálann comhad .ged ainmnithe i ndiaidh an chrainn. Is féidir an comhad seo a oscailt in aon fheidhlim gheineolaíochta.",
       "importTitle": "Comhad GEDCOM a iompórtáil",
       "importBody": "Cliceáil roghnóir an chrainn sa bharra nascleanúna agus roghnaigh 'Crann a iompórtáil...'. Tóg nó brabhsáil go dtí do chomhad .ged. Léann Clann gach taifead INDI (duine) agus FAM (teaghlach), díorthaíonn sé caidrimh tuismitheora, céile agus deartháir/deirféar go huathoibríoch, agus taispeánann réamhamharc sula n-iompórtálann. Éiríonn na sonraí iompórtáilte ina gcrann nua — fanann do chrainnte atá ann cheana gan athrú.",
       "warningsTitle": "Rabhaidh iompórtála agus an cur chuige is fearr",
