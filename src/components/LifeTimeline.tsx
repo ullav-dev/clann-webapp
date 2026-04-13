@@ -85,9 +85,74 @@ function SourceIcons({ event }: { event: LifeEvent }) {
   );
 }
 
+// ─── authenticated asset helpers ──────────────────────────────────────────────
+
+function AuthImage({ url, token, alt }: { url: string; token: string; alt: string }) {
+  const [src, setSrc] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.blob();
+      })
+      .then((blob) => {
+        objectUrl = URL.createObjectURL(blob);
+        setSrc(objectUrl);
+      })
+      .catch(() => setFailed(true));
+    return () => { if (objectUrl) URL.revokeObjectURL(objectUrl); };
+  }, [url, token]);
+
+  if (failed) return <span className="text-xs text-red-500">Could not load image</span>;
+  if (!src)   return <span className="text-xs text-stone-400 animate-pulse">Loading…</span>;
+  return <img src={src} alt={alt} className="max-h-64 rounded-lg border border-stone-200 object-contain" />;
+}
+
+function AuthDocLink({ url, token, filename }: { url: string; token: string; filename: string }) {
+  const [busy, setBusy] = useState(false);
+
+  async function handleDownload() {
+    setBusy(true);
+    try {
+      const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      if (!r.ok) throw new Error();
+      const blob = await r.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      alert("Could not download file");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleDownload}
+      disabled={busy}
+      className="text-blue-600 hover:text-blue-800 disabled:opacity-50 truncate transition-colors"
+    >
+      {busy ? "Downloading…" : filename}
+    </button>
+  );
+}
+
 // ─── view event panel ─────────────────────────────────────────────────────────
 
-function ViewEventPanel({ event }: { event: LifeEvent }) {
+interface ViewEventPanelProps {
+  event: LifeEvent;
+  token: string;
+}
+
+function ViewEventPanel({ event, token }: ViewEventPanelProps) {
   const t = useTranslations("lifeEvents");
   const hasSources = !!(event.source_link || event.source_image || event.source_doc);
 
@@ -102,8 +167,10 @@ function ViewEventPanel({ event }: { event: LifeEvent }) {
 
       {/* Sources */}
       {hasSources && (
-        <div className={`space-y-1.5 ${event.story ? "pt-2 border-t border-stone-100" : ""}`}>
+        <div className={`space-y-2 ${event.story ? "pt-2 border-t border-stone-100" : ""}`}>
           <p className="text-xs font-medium text-stone-400 uppercase tracking-wide">{t("sources")}</p>
+
+          {/* External link — plain URL entered by the user, no auth needed */}
           {event.source_link && (
             <a
               href={event.source_link}
@@ -114,30 +181,28 @@ function ViewEventPanel({ event }: { event: LifeEvent }) {
               🔗 <span>{event.source_link}</span>
             </a>
           )}
+
+          {/* Source image — DAM asset, must be fetched with Bearer token */}
           {event.source_image && (
-            <div className="flex items-center gap-1.5 text-xs text-stone-500">
-              <span>🖼️ {t("fieldSourceImage")}:</span>
-              <a
-                href={event.source_image}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 truncate"
-              >
-                {event.source_image.split("/").pop()}
-              </a>
+            <div className="space-y-1">
+              <p className="text-xs text-stone-400">🖼️ {t("fieldSourceImage")}</p>
+              <AuthImage
+                url={event.source_image}
+                token={token}
+                alt={event.source_image.split("/").pop() ?? "source image"}
+              />
             </div>
           )}
+
+          {/* Source document — DAM asset, download with Bearer token */}
           {event.source_doc && (
             <div className="flex items-center gap-1.5 text-xs text-stone-500">
               <span>📄 {t("fieldSourceDoc")}:</span>
-              <a
-                href={event.source_doc}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 truncate"
-              >
-                {event.source_doc.split("/").pop()}
-              </a>
+              <AuthDocLink
+                url={event.source_doc}
+                token={token}
+                filename={event.source_doc.split("/").pop() ?? "document"}
+              />
             </div>
           )}
         </div>
@@ -818,7 +883,7 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
                     )}
 
                     {/* View panel */}
-                    {isViewing && <ViewEventPanel event={event} />}
+                    {isViewing && token && <ViewEventPanel event={event} token={token} />}
                   </div>
                 </li>
               );
