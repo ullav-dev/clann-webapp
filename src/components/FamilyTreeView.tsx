@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import {
@@ -309,6 +309,19 @@ export default function FamilyTreeView({ tree }: Props) {
   const [exporting, setExporting] = useState(false);
   const [exportingJson, setExportingJson] = useState(false);
   const [exportingGedcom, setExportingGedcom] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showExportMenu) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as globalThis.Node)) {
+        setShowExportMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showExportMenu]);
 
   const { nodes, edges } = useMemo(() => {
     const nodes: Node[] = [];
@@ -544,64 +557,56 @@ export default function FamilyTreeView({ tree }: Props) {
 
         <Legend t={t} />
 
-        {/* Export buttons */}
-        <div className="inline-flex items-center gap-2">
-        <button
-          onClick={exportJson}
-          disabled={exportingJson}
-          className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors disabled:opacity-50"
-        >
-          {exportingJson ? (
-            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-          ) : (
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          )}
-          {t("exportJson")}
-        </button>
-        <button
-          onClick={exportGedcom}
-          disabled={exportingGedcom}
-          className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors disabled:opacity-50"
-        >
-          {exportingGedcom ? (
-            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-          ) : (
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          )}
-          {t("exportGedcom")}
-        </button>
-        <button
-          onClick={exportJpeg}
-          disabled={exporting}
-          className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors disabled:opacity-50"
-        >
-          {exporting ? (
-            <>
+        {/* Export dropdown */}
+        <div className="relative" ref={exportMenuRef}>
+          <button
+            onClick={() => setShowExportMenu((v) => !v)}
+            disabled={exporting || exportingJson || exportingGedcom}
+            className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors disabled:opacity-50"
+          >
+            {(exporting || exportingJson || exportingGedcom) ? (
               <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
               </svg>
-              {t("exporting")}
-            </>
-          ) : (
-            <>
+            ) : (
               <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
-              {t("exportJpeg")}
-            </>
+            )}
+            {(exporting || exportingJson || exportingGedcom) ? t("exporting") : t("export")}
+            <svg className="h-3.5 w-3.5 text-stone-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+          {showExportMenu && (
+            <div className="absolute right-0 mt-1 w-44 rounded-lg border border-stone-200 bg-white shadow-lg z-10 overflow-hidden">
+              <button
+                onClick={() => { setShowExportMenu(false); exportJson(); }}
+                disabled={exportingJson}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50"
+              >
+                <span className="text-base">📋</span>
+                {t("exportJson")}
+              </button>
+              <button
+                onClick={() => { setShowExportMenu(false); exportGedcom(); }}
+                disabled={exportingGedcom}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50"
+              >
+                <span className="text-base">🔗</span>
+                {t("exportGedcom")}
+              </button>
+              <button
+                onClick={() => { setShowExportMenu(false); exportJpeg(); }}
+                disabled={exporting}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50"
+              >
+                <span className="text-base">🖼️</span>
+                {t("exportJpeg")}
+              </button>
+            </div>
           )}
-        </button>
         </div>
       </div>
 

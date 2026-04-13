@@ -446,6 +446,7 @@
     "legendChild": "Kind",
     "legendSpouse": "Ehepartner",
     "legendSibling": "Geschwister",
+    "export": "Exportieren",
     "exportJson": "Als JSON exportieren",
     "exportGedcom": "Als GEDCOM exportieren",
     "exportJpeg": "Als JPEG exportieren",
