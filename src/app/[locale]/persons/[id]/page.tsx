@@ -127,7 +127,7 @@ export default function PersonDetailPage() {
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <button onClick={() => setShowUpload((v) => !v)} title={t("changePhoto")} className="relative group/avatar flex-shrink-0">
-            <PersonAvatar person={person} size={72} className="ring-2 ring-stone-200" />
+            <PersonAvatar person={person} size={72} className="ring-2 ring-stone-200" imageVersion={photoVersions[id]} />
             <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 text-white text-xs font-medium opacity-0 group-hover/avatar:opacity-100 transition-opacity">
               {person.image_path ? t("changePhotoHover") : t("addPhoto")}
             </span>

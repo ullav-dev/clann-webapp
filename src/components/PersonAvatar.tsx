@@ -10,11 +10,13 @@ interface Props {
   person: Pick<Person, "id" | "sex" | "image_path">;
   size: number; // px — used for both width/height and font-size fallback
   className?: string;
+  imageVersion?: number;
 }
 
-export default function PersonAvatar({ person, size, className = "" }: Props) {
+export default function PersonAvatar({ person, size, className = "", imageVersion }: Props) {
   const [imgError, setImgError] = useState(false);
   const hasImage = !!person.image_path && !imgError;
+  const imgSrc = `${personImageUrl(person.id)}${imageVersion ? `?v=${imageVersion}` : ""}`;
 
   if (hasImage) {
     return (
@@ -23,7 +25,7 @@ export default function PersonAvatar({ person, size, className = "" }: Props) {
         style={{ width: size, height: size }}
       >
         <Image
-          src={personImageUrl(person.id)}
+          src={imgSrc}
           alt=""
           fill
           className="object-cover"
