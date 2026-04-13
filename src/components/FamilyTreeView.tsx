@@ -145,6 +145,7 @@ function buildGraph(
   orientation: Orientation,
   role: Role,
   visited = new Set<string>(),
+  photoVersions?: Record<string, number>,
 ) {
   if (visited.has(node.id)) return;
   visited.add(node.id);
@@ -192,7 +193,7 @@ function buildGraph(
       py = startY + i * Y_GAP;
     }
 
-    buildGraph(p, px, py, nodes, edges, orientation, parentRole, visited);
+    buildGraph(p, px, py, nodes, edges, orientation, parentRole, visited, photoVersions);
 
     const edgeColor = parentRole === "father" ? "#93c5fd" : "#fda4af"; // blue-300 / rose-300
     edges.push({
@@ -220,7 +221,7 @@ function buildGraph(
       py = startY + i * Y_GAP;
     }
 
-    buildGraph(child, px, py, nodes, edges, orientation, "child", visited);
+    buildGraph(child, px, py, nodes, edges, orientation, "child", visited, photoVersions);
 
     const edgeColor = "#fcd34d"; // amber-300
     edges.push({
@@ -248,7 +249,7 @@ function buildGraph(
       py = y + (i + 1) * Y_GAP;
     }
 
-    buildGraph(sp, px, py, nodes, edges, orientation, "spouse", visited);
+    buildGraph(sp, px, py, nodes, edges, orientation, "spouse", visited, photoVersions);
 
     const edgeColor = "#c4b5fd"; // violet-300
     edges.push({
@@ -351,7 +352,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
     const visited = new Set<string>();
-    buildGraph(tree, 0, 0, nodes, edges, orientation, "root", visited);
+    buildGraph(tree, 0, 0, nodes, edges, orientation, "root", visited, photoVersions);
 
     if (showSiblings) {
       (tree.siblings ?? []).forEach((sib, i) => {
