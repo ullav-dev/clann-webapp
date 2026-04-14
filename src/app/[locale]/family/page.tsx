@@ -14,6 +14,8 @@ import PersonAvatar from "@/components/PersonAvatar";
 import { fullName } from "@/components/PersonCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import UpgradePrompt from "@/components/UpgradePrompt";
 
 type ViewMode = "card" | "list";
 
@@ -105,6 +107,7 @@ function ListIcon() { return (<svg className="w-4 h-4" viewBox="0 0 20 20" fill=
 export default function FamilyPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { activeTree, isLoading: treeLoading, initError } = useTree();
+  const { atMemberLimit } = useSubscription();
   const api = useApi();
   const router = useRouter();
   const t = useTranslations("family");
@@ -180,10 +183,27 @@ export default function FamilyPage() {
             {loading ? t("loading") : t("personCount", { count: persons.length })}
           </p>
         </div>
-        <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto">
-          <span>+</span> {t("addPerson")}
-        </Link>
+        {atMemberLimit(persons.length) ? (
+          <Link
+            href="/pricing"
+            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto text-sm"
+          >
+            ⚡ {t("memberLimitCta")}
+          </Link>
+        ) : (
+          <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto">
+            <span>+</span> {t("addPerson")}
+          </Link>
+        )}
       </div>
+
+      {!loading && atMemberLimit(persons.length) && (
+        <UpgradePrompt
+          titleKey="memberLimitTitle"
+          messageKey="memberLimitMessage"
+          className="mb-6"
+        />
+      )}
 
       <div className="flex items-center gap-3 mb-6">
         {persons.length > 4 && (

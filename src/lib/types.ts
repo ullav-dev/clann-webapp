@@ -119,3 +119,56 @@ export interface FamilyTreeNode {
 export interface ErrorResponse {
   error: string;
 }
+
+// Life Events
+export type EventType =
+  | "Birth"
+  | "Death"
+  | "Marriage"
+  | "Divorce"
+  | "Graduation"
+  | "Immigration"
+  | "Emigration"
+  | "Military"
+  | "Other"
+  | string; // open to custom values
+
+export interface LifeEvent {
+  id: string; // "life_event:<ulid>"
+  person_id: string; // "person:<ulid>"
+  name: string;
+  date?: string | null;
+  event_type: EventType;
+  description?: string | null;
+  story?: string | null;
+  verified?: boolean;
+  source_link?: string | null;
+  source_image?: string | null;
+  source_doc?: string | null;
+  created_by?: string | null;
+}
+
+export interface CreateLifeEvent {
+  name: string;
+  event_type: EventType;
+  date?: string | null;
+  description?: string | null;
+  story?: string | null;
+  verified?: boolean;
+  source_link?: string | null;
+  source_image?: string | null;
+  source_doc?: string | null;
+  created_by?: string | null;
+}
+
+export interface UpdateLifeEvent {
+  name?: string | null;
+  event_type?: EventType | null;
+  date?: string | null;
+  description?: string | null;
+  story?: string | null;
+  verified?: boolean | null;
+  source_link?: string | null;
+  source_image?: string | null;
+  source_doc?: string | null;
+}

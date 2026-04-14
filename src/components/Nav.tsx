@@ -48,7 +48,13 @@ export default function Nav() {
                   <span>+</span> {t("addPerson")}
                 </Link>
                 <div className="flex items-center gap-2 pl-2 border-l border-stone-200">
-                  <span className="text-sm text-stone-500 hidden sm:block">{user.username}</span>
+                  <Link
+                    href="/account/subscription"
+                    className="text-sm text-stone-500 hover:text-stone-700 hidden sm:block transition-colors"
+                    title={t("account")}
+                  >
+                    {user.username}
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
@@ -62,6 +68,9 @@ export default function Nav() {
               </>
             ) : !isLoading ? (
               <>
+                <Link href="/pricing" className={activeLink("/pricing")}>
+                  {t("pricing")}
+                </Link>
                 <Link
                   href="/login"
                   className={`text-sm font-medium px-4 py-2 rounded-lg border transition-colors ${

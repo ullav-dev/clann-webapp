@@ -8,6 +8,9 @@ import type {
   FamilyTreeNode,
   FamilyTree,
   CreateFamilyTree,
+  LifeEvent,
+  CreateLifeEvent,
+  UpdateLifeEvent,
 } from "./types";
 
 // In the browser, use relative paths so Next.js proxies to the backend (avoids CORS).
@@ -17,6 +20,15 @@ const BASE_URL =
     ? (process.env.API_URL ?? "http://localhost:3000")
     : "";
 
+// Module-level auth token — set once by AuthContext after login/restore.
+// Safe for browser-only use (all API call sites are "use client" components).
+let _apiToken: string | null = null;
+
+/** Called by AuthContext to register the current JWT for all subsequent API requests. */
+export function setApiToken(token: string | null): void {
+  _apiToken = token;
+}
+
 /** Append ?created_by=<username> to a path when the caller supplies one. */
 function withCreatedBy(path: string, createdBy?: string): string {
   if (!createdBy) return path;
@@ -25,9 +37,15 @@ function withCreatedBy(path: string, createdBy?: string): string {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(init?.headers as Record<string, string>),
+  };
+  if (_apiToken) headers["Authorization"] = `Bearer ${_apiToken}`;
+
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json", ...init?.headers },
     ...init,
+    headers,
   });
   const contentType = res.headers.get("content-type") ?? "";
   const hasBody = contentType.includes("application/json");
@@ -134,7 +152,9 @@ export async function uploadPersonImage(id: string, file: File, createdBy?: stri
   const form = new FormData();
   form.append("image", file);
   const path = withCreatedBy(`/api/persons/${rawId(id)}/image`, createdBy);
-  const res = await fetch(`${BASE_URL}${path}`, { method: "POST", body: form });
+  const headers: Record<string, string> = {};
+  if (_apiToken) headers["Authorization"] = `Bearer ${_apiToken}`;
+  const res = await fetch(`${BASE_URL}${path}`, { method: "POST", body: form, headers });
   if (res.ok) return;
   const ct = res.headers.get("content-type") ?? "";
   if (ct.includes("application/json")) {
@@ -153,7 +173,9 @@ export async function uploadPersonLifeImage(id: string, file: File, createdBy?: 
   const form = new FormData();
   form.append("image", file);
   const path = withCreatedBy(`/api/persons/${rawId(id)}/life-image`, createdBy);
-  const res = await fetch(`${BASE_URL}${path}`, { method: "POST", body: form });
+  const headers: Record<string, string> = {};
+  if (_apiToken) headers["Authorization"] = `Bearer ${_apiToken}`;
+  const res = await fetch(`${BASE_URL}${path}`, { method: "POST", body: form, headers });
   if (res.ok) return;
   const ct = res.headers.get("content-type") ?? "";
   if (ct.includes("application/json")) {
@@ -172,3 +194,30 @@ export function personLifeImageUrl(id: string): string {
 export function rawId(id: string): string {
   return id.startsWith("person:") ? id.slice(7) : id;
 }
+
+/** Strip the "life_event:" prefix, returning just the ULID part. */
+export function rawEventId(id: string): string {
+  return id.startsWith("life_event:") ? id.slice(11) : id;
+}
+
+// Life Events
+export const listLifeEvents = (personId: string, createdBy?: string): Promise<LifeEvent[]> =>
+  request(withCreatedBy(`/api/persons/${rawId(personId)}/life-events`, createdBy));
+
+export const createLifeEvent = (personId: string, body: CreateLifeEvent): Promise<LifeEvent> =>
+  request(`/api/persons/${rawId(personId)}/life-events`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const getLifeEvent = (eventId: string): Promise<LifeEvent> =>
+  request(`/api/life-events/${rawEventId(eventId)}`);
+
+export const updateLifeEvent = (eventId: string, body: UpdateLifeEvent): Promise<LifeEvent> =>
+  request(`/api/life-events/${rawEventId(eventId)}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+
+export const deleteLifeEvent = (eventId: string): Promise<void> =>
+  request(`/api/life-events/${rawEventId(eventId)}`, { method: "DELETE" });

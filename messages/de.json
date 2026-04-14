@@ -4,7 +4,9 @@
     "addPerson": "Person hinzufügen",
     "logout": "Abmelden",
     "login": "Anmelden",
-    "help": "Hilfe"
+    "help": "Hilfe",
+    "pricing": "Preise",
+    "account": "Konto"
   },
   "idleWarning": {
     "title": "Sitzung läuft ab",
@@ -101,9 +103,17 @@
     "sexHint": "Wird verwendet, um Ihren ersten Familienbaumeintrag zu erstellen.",
     "sexRequired": "Bitte wählen Sie Ihr Geschlecht"
   },
+  "limits": {
+    "treeLimitTitle": "Limit für Stammbäume erreicht",
+    "treeLimitMessage": "Ihr Tarif erlaubt bis zu {max} Stammbäume. Führen Sie ein Upgrade durch, um weitere zu erstellen.",
+    "memberLimitTitle": "Mitgliederlimit erreicht",
+    "memberLimitMessage": "Sie haben die maximale Anzahl an Familienmitgliedern für Ihren Tarif erreicht. Führen Sie ein Upgrade durch, um weitere hinzuzufügen.",
+    "upgradeLink": "Tarife anzeigen"
+  },
   "family": {
     "title": "Familienmitglieder",
     "loading": "Laden…",
+    "memberLimitCta": "Upgrade für mehr Mitglieder",
     "personCount": "{count, plural, one {# Person} other {# Personen}} in Ihrem Stammbaum",
     "addPerson": "+ Person hinzufügen",
     "searchPlaceholder": "Nach Name suchen…",
@@ -346,7 +356,9 @@
       "orientationTitle": "Ausrichtung ändern",
       "orientationBody": "Verwenden Sie die Schaltflächen Vertikal / Horizontal in der Baumleiste, um das Layout zu wechseln. Vertikal platziert Vorfahren oben und Kinder unten. Horizontal platziert Vorfahren rechts und Kinder links.",
       "exportTitle": "Baum exportieren",
-      "exportBody": "Klicken Sie auf Als JPEG exportieren, um den sichtbaren Baum als Bild herunterzuladen. Klicken Sie auf Als JSON exportieren, um die Rohdaten des Baumes zur Archivierung oder Nutzung in anderen Tools herunterzuladen."
+      "exportBody": "Klicken Sie in der Symbolleiste auf die Schaltfläche Exportieren, um ein Format zu wählen: JPEG lädt ein Schnappschussbild des sichtbaren Baumes herunter, JSON lädt alle Personen und Beziehungen im Clann-eigenen Format herunter, und GEDCOM lädt eine .ged-Datei herunter, die mit anderen Genealogie-Apps wie Ancestry, FamilySearch und Gramps kompatibel ist.",
+      "mediaLibraryTitle": "Medienbibliothek öffnen",
+      "mediaLibraryBody": "Wenn Ihr Konto Zugang zum Ullav Digital Asset Management System hat, erscheint in der Baumleiste eine Schaltfläche Medienbibliothek. Ein Klick darauf öffnet den DAM-Browser in einem neuen Tab und meldet Sie automatisch an — kein zweites Login erforderlich."
     },
     "familyList": {
       "title": "Familienmitglieder-Liste",
@@ -372,6 +384,21 @@
       "mediaLibraryTitle": "Bilder aus der Medienbibliothek einfügen",
       "mediaLibraryBody": "Klicken Sie beim Bearbeiten einer Biografie auf 'Medienbibliothek durchsuchen' unterhalb des Editors, um eine integrierte Medienauswahl zu öffnen. Klicken Sie auf ein Bild, um es an der aktuellen Cursorposition einzufügen, oder ziehen Sie es aus der Auswahl auf die Ablagezone unterhalb des Editors. Bilder werden als Miniaturansichten eingefügt. Eine grüne Bestätigungsmeldung erscheint kurz, um die Einfügung zu bestätigen."
     },
+    "lifeEvents": {
+      "title": "Lebensereignisse",
+      "overviewTitle": "Was sind Lebensereignisse?",
+      "overviewBody": "Jede Person hat auf ihrer Profilseite eine Registerkarte 'Lebensereignisse'. Sie zeigt eine chronologische Zeitleiste bedeutsamer Momente — Geburt, Heirat, Schulabschluss, Einwanderung, Militärdienst und mehr. Ereignisse werden nach Datum sortiert; Ereignisse ohne Datum erscheinen am Ende.",
+      "timelineTitle": "Die Zeitleiste lesen",
+      "timelineBody": "Ereignisse erscheinen als Karten auf einer linksseitigen Zeitleiste, jede mit einem farbigen Symbolabzeichen, das den Ereignistyp anzeigt. Symbol und Farbe werden automatisch gewählt: Smaragd für Geburt, Violett für Heirat, Blau für Abschluss, Rot für Militär, Himmelblau für Ein- und Auswanderung, Bernstein für Scheidung, Grau für Tod und Grau für Sonstiges oder benutzerdefinierte Typen.",
+      "addingTitle": "Ein Ereignis hinzufügen",
+      "addingBody": "Klicken Sie auf der Registerkarte 'Lebensereignisse' auf 'Ereignis hinzufügen'. Geben Sie den Ereignisnamen, ein optionales Datum (Freitext wird akzeptiert: '1920', 'ca. 1920', 'Juni 1920') und einen Ereignistyp ein. Wählen Sie 'Benutzerdefinierter Typ…', um eine eigene Bezeichnung einzugeben. Klicken Sie auf Speichern.",
+      "viewingTitle": "Vollständige Details anzeigen",
+      "viewingBody": "Ereignisse mit einer Geschichte, einem Quellenlink oder Quelldateien zeigen eine 'Details'-Schaltfläche in der oberen rechten Ecke der Karte. Klicken Sie darauf, um ein integriertes Fenster zu öffnen, das die vollständige Geschichte als formatierten Text, einen anklickbaren externen Quellenlink und Links zu Quellenbild oder -dokument anzeigt. Klicken Sie auf 'Schließen', um das Fenster zu schließen.",
+      "editingTitle": "Bearbeiten und Löschen",
+      "editingBody": "Fahren Sie mit der Maus über eine Ereigniskarte und klicken Sie auf das Stiftsymbol, um das integrierte Bearbeitungsfenster zu öffnen. Aktualisieren Sie Name, Datum, Typ und Kurzbeschreibung, oder schreiben Sie eine längere Erzählung im Feld 'Geschichte' (Markdown wird unterstützt, mit Bildern aus der Medienbibliothek). Klicken Sie auf 'Änderungen speichern'. Die Schaltfläche 'Löschen' entfernt das Ereignis dauerhaft. Bearbeiten und Löschen sind nur für den Eigentümer der Person und Administratoren verfügbar.",
+      "sourcesTitle": "Quellen und Verifizierung",
+      "sourcesBody": "Jedes Ereignis kann eine externe Quellen-URL, ein Quellenbild und ein Quelldokument — alle aus der Medienbibliothek verknüpft — enthalten. Aktivieren Sie das Kontrollkästchen 'Verifiziert', sobald Sie das Ereignis anhand einer zuverlässigen Quelle bestätigt haben. Diese Felder helfen dabei, die Belege für Ihre Familiengeschichte zu dokumentieren."
+    },
     "multipleTrees": {
       "title": "Mehrere Stammbäume",
       "manageTitle": "Bäume verwalten",
@@ -379,7 +406,7 @@
       "primaryTitle": "Primärer Baum",
       "primaryBody": "Ein Baum pro Konto ist als primär markiert (im Dropdown mit einem goldenen Badge angezeigt). Verwenden Sie das Sternsymbol, um einen anderen Baum zum primären zu machen. Der primäre Baum kann nicht gelöscht werden — machen Sie zuerst einen anderen Baum zum primären, wenn Sie ihn entfernen möchten.",
       "exportTitle": "Baum exportieren",
-      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum und verwenden Sie die Schaltflächen in der Symbolleiste. Mit Als JPEG exportieren wird ein Schnappschuss des sichtbaren Baumes als Bild gespeichert. Als JSON exportieren lädt alle Personen und Beziehungen im Clann-eigenen Format herunter. Als GEDCOM exportieren lädt eine .ged-Datei herunter, die mit anderen Genealogie-Apps kompatibel ist.",
+      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum und klicken Sie auf die Schaltfläche Exportieren in der Symbolleiste, um ein Format zu wählen — JPEG, JSON oder GEDCOM.",
       "importTitle": "Baum importieren",
       "importBody": "Klicken Sie auf den Baumwähler in der Navigationsleiste und wählen Sie 'Baum importieren…'. Laden Sie einen Clann-JSON-Export oder eine GEDCOM-Datei (.ged) hoch. Sie sehen eine Vorschau der gefundenen Personen und Beziehungen. Geben Sie dem neuen Baum einen Namen und klicken Sie auf Import starten."
     },
@@ -388,7 +415,7 @@
       "whatTitle": "Was ist GEDCOM?",
       "whatBody": "GEDCOM (Genealogical Data Communication) ist das Standarddateiformat für Genealogie-Anwendungen weltweit — darunter Ancestry, FamilySearch, Gramps, MacFamilyTree und viele andere. Clann unterstützt GEDCOM 5.5.1 für Export und Import und ermöglicht so den freien Datenaustausch zwischen verschiedenen Tools.",
       "exportTitle": "Als GEDCOM exportieren",
-      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum und klicken Sie auf 'Als GEDCOM exportieren'. Clann ruft alle Personen und Beziehungen des aktiven Baums ab, konvertiert sie ins GEDCOM-Format und lädt eine .ged-Datei herunter. Diese Datei kann in jeder Genealogie-Anwendung geöffnet werden.",
+      "exportBody": "Öffnen Sie das Profil einer Person, gehen Sie zum Tab Stammbaum, klicken Sie auf die Schaltfläche Exportieren und wählen Sie 'Als GEDCOM exportieren'. Clann ruft alle Personen und Beziehungen des aktiven Baums ab, konvertiert sie ins GEDCOM-Format und lädt eine .ged-Datei herunter. Diese Datei kann in jeder Genealogie-Anwendung geöffnet werden.",
       "importTitle": "Eine GEDCOM-Datei importieren",
       "importBody": "Klicken Sie auf den Baumwähler in der Navigationsleiste und wählen Sie 'Baum importieren…'. Legen Sie Ihre .ged-Datei ab oder wählen Sie sie aus. Clann liest alle INDI- (Person) und FAM- (Familie) Datensätze, leitet Eltern-, Ehe- und Geschwisterbeziehungen automatisch ab und zeigt eine Vorschau vor dem Import. Die importierten Daten werden zu einem neuen Baum — Ihre vorhandenen Bäume bleiben unberührt.",
       "warningsTitle": "Import-Hinweise und beste Annäherung",
@@ -421,10 +448,161 @@
     "legendChild": "Kind",
     "legendSpouse": "Ehepartner",
     "legendSibling": "Geschwister",
+    "export": "Exportieren",
     "exportJson": "Als JSON exportieren",
     "exportGedcom": "Als GEDCOM exportieren",
     "exportJpeg": "Als JPEG exportieren",
     "exporting": "Exportieren…",
+    "openDam": "Medienbibliothek",
     "bornPrefix": "geb. {date}"
+  },
+  "pricing": {
+    "heading": "Clann-Tarif wählen",
+    "subheading": "Starten Sie kostenlos und wechseln Sie, wenn Ihre Familie wächst. Bezahlte Tarife mit 7-Tage-Testzeitraum.",
+    "perMonth": "/ Monat",
+    "familyPriceNote": "Basis: 2 Plätze. +2 €/Monat je zusätzlichem Platz.",
+    "comingSoon": "Demnächst",
+    "trialNote": "Familien- und Professional-Tarife enthalten eine 7-tägige kostenlose Testphase.",
+    "learnMore": "Mehr erfahren",
+    "checkoutTitle": "Abonnieren",
+    "checkoutError": "Checkout konnte nicht gestartet werden. Bitte erneut versuchen.",
+    "seatCount": "Anzahl der Plätze",
+    "seatHint": "Mindestens 2, höchstens 10.",
+    "paymentProvider": "Zahlen mit",
+    "proceedToPayment": "Weiter zur Zahlung →",
+    "redirecting": "Weiterleitung…",
+    "cancel": "Abbrechen",
+    "plans": {
+      "individual": {
+        "name": "Einzelperson",
+        "price": "Kostenlos",
+        "description": "Perfekt für den Einstieg in die Familiengeschichte.",
+        "cta": "Loslegen",
+        "features": [
+          "1 Nutzerplatz",
+          "2 Stammbäume",
+          "Bis zu 100 Familienmitglieder",
+          "100 MB Medienspeicher",
+          "100 Medienobjekte",
+          "GEDCOM-Import & -Export",
+          "Interaktiver Stammbaum"
+        ]
+      },
+      "family": {
+        "name": "Familie / Team",
+        "price": "5 €",
+        "description": "Für Familien, die ihre Geschichte gemeinsam aufbauen.",
+        "cta": "Abonnieren",
+        "features": [
+          "2 – 10 Nutzerplätze",
+          "10 Stammbäume",
+          "Bis zu 1.000 Familienmitglieder",
+          "5 GB Medienspeicher",
+          "1.000 Medienobjekte",
+          "Bilder in der Medienbibliothek",
+          "7-Tage-Testphase"
+        ]
+      },
+      "professional": {
+        "name": "Professional",
+        "price": "15 €",
+        "description": "Unbegrenzter Zugang für ernsthafte Forscher.",
+        "cta": "Demnächst verfügbar",
+        "features": [
+          "Unbegrenzte Plätze",
+          "Unbegrenzte Stammbäume",
+          "Unbegrenzte Familienmitglieder",
+          "50 GB Medienspeicher",
+          "10.000 Medienobjekte",
+          "Vollständige Medienbibliothek",
+          "Historische Forschungstools",
+          "7-Tage-Testphase"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Individuell",
+        "description": "Maßgeschneidert für Institutionen und Großorganisationen.",
+        "cta": "Kontakt aufnehmen",
+        "features": [
+          "Alles unbegrenzt",
+          "Alle Medientypen inkl. RAW",
+          "Historische Forschungstools",
+          "SSO-Integration",
+          "On-Site-/Hybridbereitstellung",
+          "Support nach Vereinbarung",
+          "Individuelles Onboarding"
+        ]
+      }
+    }
+  },
+  "subscriptionSuccess": {
+    "heading": "Alles bereit!",
+    "message": "Ihr Abonnement wird gerade aktiviert. Das dauert in der Regel nur einen Moment. Prüfen Sie Ihre Kontoseite für den aktuellen Status.",
+    "viewSubscription": "Abonnement anzeigen",
+    "goToFamily": "Familien-Startseite"
+  },
+  "subscription": {
+    "heading": "Ihr Abonnement",
+    "subheading": "Verwalten Sie Ihren Clann-Tarif und Ihre Abrechnung.",
+    "backToFamily": "Familien-Startseite",
+    "currentPlan": "Aktueller Tarif",
+    "product": "Produkt",
+    "seats": "Plätze",
+    "periodStart": "Beginn des Zeitraums",
+    "periodEnd": "Ende des Zeitraums",
+    "memberSince": "Mitglied seit",
+    "trialEnds": "Kostenlose Testphase endet {date}",
+    "upgradePlan": "Tarif upgraden",
+    "manageBilling": "Abrechnung verwalten",
+    "changePlan": "Tarif wechseln",
+    "redirecting": "Weiterleitung…",
+    "loadError": "Abonnementdetails konnten nicht geladen werden.",
+    "portalError": "Abrechnungsportal konnte nicht geöffnet werden.",
+    "helpText": "Fragen zur Abrechnung?",
+    "helpLink": "Hilfe anzeigen"
+  },
+  "lifeEvents": {
+    "tabLabel": "📅 Lebensereignisse",
+    "loading": "Lebensereignisse werden geladen…",
+    "loadFailed": "Lebensereignisse konnten nicht geladen werden.",
+    "empty": "Noch keine Lebensereignisse eingetragen.",
+    "addFirstEvent": "Erstes Ereignis hinzufügen",
+    "addEvent": "Ereignis hinzufügen",
+    "addEventTitle": "Neues Lebensereignis",
+    "sources": "Quellen",
+    "verified": "Verifiziert",
+    "deleteEvent": "Ereignis löschen",
+    "deleteConfirm": "Ereignis '{name}' löschen? Dies kann nicht rückgängig gemacht werden.",
+    "deleteFailed": "Löschen fehlgeschlagen",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "saving": "Wird gespeichert…",
+    "cancel": "Abbrechen",
+    "fieldName": "Ereignisname",
+    "fieldNamePlaceholder": "z. B. Geburt, Abschluss an der Universität",
+    "fieldDate": "Datum",
+    "fieldDatePlaceholder": "z. B. 1920, ca. 1920, Juni 1920",
+    "fieldType": "Ereignistyp",
+    "fieldDescription": "Beschreibung",
+    "fieldDescriptionPlaceholder": "Kurze Notiz, z. B. Ort oder Kontext",
+    "customType": "Benutzerdefinierter Typ…",
+    "fieldCustomType": "Name des benutzerdefinierten Typs",
+    "fieldCustomTypePlaceholder": "z. B. Taufe",
+    "editEvent": "Ereignis bearbeiten",
+    "saveChanges": "Änderungen speichern",
+    "fieldStory": "Erzählung",
+    "fieldStoryPlaceholder": "Schreiben Sie eine ausführliche Beschreibung dieses Ereignisses…",
+    "fieldSourceLink": "Externe Quell-URL",
+    "fieldSourceImage": "Quellbild",
+    "fieldSourceDoc": "Quelldokument",
+    "fieldVerified": "Verifiziert",
+    "viewDetails": "Details",
+    "closeDetails": "Schließen",
+    "browseStoryImages": "Medienbibliothek durchsuchen…",
+    "browseImageAsset": "Bildmaterial durchsuchen…",
+    "browseDocAsset": "Dokumente durchsuchen…",
+    "hidePicker": "Medienbibliothek ausblenden",
+    "changePicker": "Ändern",
+    "clear": "Entfernen"
   }
 }

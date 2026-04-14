@@ -16,6 +16,7 @@ import PersonAvatar from "@/components/PersonAvatar";
 import ImageUpload from "@/components/ImageUpload";
 import AddRelationshipModal from "@/components/AddRelationshipModal";
 import LifeStoryPrintView from "@/components/LifeStoryPrintView";
+import LifeTimeline from "@/components/LifeTimeline";
 
 const FamilyTreeView = dynamic(() => import("@/components/FamilyTreeView"), { ssr: false });
 
@@ -32,6 +33,7 @@ export default function PersonDetailPage() {
   const api = useApi();
   const { trees: allTrees } = useTree();
   const t = useTranslations("personDetail");
+  const tEvents = useTranslations("lifeEvents");
 
   const [person, setPerson] = useState<Person | null>(null);
   const [rels, setRels] = useState<RelationshipsResponse | null>(null);
@@ -40,9 +42,10 @@ export default function PersonDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAddRel, setShowAddRel] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
+  const [photoVersions, setPhotoVersions] = useState<Record<string, number>>({});
   const [showLifeUpload, setShowLifeUpload] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [tab, setTab] = useState<"tree" | "relationships" | "lifestory">("tree");
+  const [tab, setTab] = useState<"tree" | "relationships" | "lifestory" | "lifeevents">("tree");
   const [editingSpouseId, setEditingSpouseId] = useState<string | null>(null);
   const [spouseFromEdit, setSpouseFromEdit] = useState("");
   const [spouseToEdit, setSpouseToEdit] = useState("");
@@ -124,7 +127,7 @@ export default function PersonDetailPage() {
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
           <button onClick={() => setShowUpload((v) => !v)} title={t("changePhoto")} className="relative group/avatar flex-shrink-0">
-            <PersonAvatar person={person} size={72} className="ring-2 ring-stone-200" />
+            <PersonAvatar person={person} size={72} className="ring-2 ring-stone-200" imageVersion={photoVersions[id]} />
             <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 text-white text-xs font-medium opacity-0 group-hover/avatar:opacity-100 transition-opacity">
               {person.image_path ? t("changePhotoHover") : t("addPhoto")}
             </span>
@@ -157,22 +160,26 @@ export default function PersonDetailPage() {
             <p className="text-sm font-medium text-stone-700">{person.image_path ? t("replacePhoto") : t("addPhoto")}</p>
             <button onClick={() => setShowUpload(false)} className="text-stone-400 hover:text-stone-600 text-xl leading-none">×</button>
           </div>
-          <ImageUpload personId={id} onUploaded={() => { setShowUpload(false); load(); }} />
+          <ImageUpload personId={id} onUploaded={() => {
+            setShowUpload(false);
+            load();
+            setPhotoVersions((v) => ({ ...v, [id]: Date.now() }));
+          }} />
         </div>
       )}
 
-      <div className="flex gap-1 mb-6 border-b border-stone-200">
-        {(["tree", "relationships", "lifestory"] as const).map((tabKey) => (
+      <div className="flex gap-1 mb-6 border-b border-stone-200 overflow-x-auto">
+        {(["tree", "relationships", "lifestory", "lifeevents"] as const).map((tabKey) => (
           <button key={tabKey} onClick={() => setTab(tabKey)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px ${tab === tabKey ? "border-emerald-600 text-emerald-700" : "border-transparent text-stone-500 hover:text-stone-700"}`}>
-            {tabKey === "tree" ? t("tabFamilyTree") : tabKey === "relationships" ? t("tabRelationships") : t("tabLifeStory")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px whitespace-nowrap ${tab === tabKey ? "border-emerald-600 text-emerald-700" : "border-transparent text-stone-500 hover:text-stone-700"}`}>
+            {tabKey === "tree" ? t("tabFamilyTree") : tabKey === "relationships" ? t("tabRelationships") : tabKey === "lifestory" ? t("tabLifeStory") : tEvents("tabLabel")}
           </button>
         ))}
       </div>
 
       {tab === "tree" && tree && (
         <div>
-          <FamilyTreeView tree={tree} />
+          <FamilyTreeView tree={tree} photoVersions={photoVersions} />
           <p className="text-xs text-stone-400 mt-2 text-center">{t("treeHelpText")}</p>
         </div>
       )}
@@ -373,6 +380,10 @@ export default function PersonDetailPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {tab === "lifeevents" && (
+        <LifeTimeline personId={id} personCreatedBy={person.created_by} />
       )}
 
       {showAddRel && (<AddRelationshipModal personId={id} onDone={() => { setShowAddRel(false); load(); }} onClose={() => setShowAddRel(false)} />)}

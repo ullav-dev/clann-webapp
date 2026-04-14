@@ -4,7 +4,9 @@
     "addPerson": "Add Person",
     "logout": "Sign Out",
     "login": "Sign In",
-    "help": "Help"
+    "help": "Help",
+    "pricing": "Pricing",
+    "account": "Account"
   },
   "idleWarning": {
     "title": "Session Expiring",
@@ -101,9 +103,17 @@
     "sexHint": "Used to create your initial family tree entry.",
     "sexRequired": "Please select your sex"
   },
+  "limits": {
+    "treeLimitTitle": "Tree limit reached",
+    "treeLimitMessage": "Your plan allows up to {max} family trees. Upgrade to create more.",
+    "memberLimitTitle": "Member limit reached",
+    "memberLimitMessage": "You have reached the maximum number of family members for your plan. Upgrade to add more.",
+    "upgradeLink": "View plans"
+  },
   "family": {
     "title": "Family Members",
     "loading": "Loading…",
+    "memberLimitCta": "Upgrade to add more",
     "personCount": "{count, plural, one {# person} other {# persons}} in your tree",
     "addPerson": "+ Add Person",
     "searchPlaceholder": "Search by name…",
@@ -346,7 +356,9 @@
       "orientationTitle": "Changing orientation",
       "orientationBody": "Use the Vertical / Horizontal buttons in the tree toolbar to toggle the layout. Vertical places ancestors above and children below. Horizontal places ancestors to the right and children to the left.",
       "exportTitle": "Exporting the tree",
-      "exportBody": "Click Export as JPEG to download the visible tree as an image you can share. Click Export as JSON to download the raw tree data for archiving or use in other tools."
+      "exportBody": "Click the Export button in the toolbar to choose a format: JPEG downloads a snapshot image of the visible tree, JSON downloads all people and relationships in Clann's own format, and GEDCOM downloads a .ged file compatible with other genealogy apps such as Ancestry, FamilySearch, and Gramps.",
+      "mediaLibraryTitle": "Opening the Media Library",
+      "mediaLibraryBody": "If your account includes access to the Ullav Digital Asset Management system, a Media Library button appears in the tree toolbar. Clicking it opens the DAM browser in a new tab and signs you in automatically — no second login needed."
     },
     "familyList": {
       "title": "Family Members List",
@@ -372,6 +384,21 @@
       "mediaLibraryTitle": "Inserting images from the media library",
       "mediaLibraryBody": "While editing a biography, click 'Browse media library' below the editor to open an inline media picker. Click any image to insert it at your current cursor position, or drag it from the picker onto the drop zone below the editor. Images are inserted as thumbnails. A green confirmation message appears briefly to confirm the insertion."
     },
+    "lifeEvents": {
+      "title": "Life Events",
+      "overviewTitle": "What are Life Events?",
+      "overviewBody": "Each person has a Life Events tab on their profile page. It shows a chronological timeline of significant moments — birth, marriage, graduation, immigration, military service, and more. Events are sorted by date; undated events appear at the end.",
+      "timelineTitle": "Reading the timeline",
+      "timelineBody": "Events appear as cards on a left-spine timeline, each with a coloured icon badge that reflects the event type. The icon and colour are chosen automatically: emerald for Birth, violet for Marriage, blue for Graduation, red for Military service, sky for Immigration and Emigration, amber for Divorce, stone for Death, and grey for Other or custom types.",
+      "addingTitle": "Adding an event",
+      "addingBody": "On the Life Events tab, click 'Add Event'. Enter the event name, an optional date (free-form text is accepted: '1920', 'circa 1920', 'June 1920'), and choose an event type. Select 'Custom type…' to enter your own label. Click Save when done.",
+      "viewingTitle": "Viewing full details",
+      "viewingBody": "Events that have a story, source link, or source assets show a 'Details' pill in the top-right corner of their card. Click it to expand an inline panel showing the full story rendered as formatted text, a clickable external source link, and links to any source image or document. Click 'Close' to collapse the panel.",
+      "editingTitle": "Editing and deleting",
+      "editingBody": "Hover over any event card and click the pencil icon to open the inline edit panel. Update the name, date, type, and short description, or write a longer narrative in the Story field (markdown is supported, with media library image insertion). Click 'Save Changes' to apply. The delete button removes the event permanently. Edit and delete are only available to the person's owner and admins.",
+      "sourcesTitle": "Sources and verification",
+      "sourcesBody": "Each event can have an external source URL, a source image, and a source document — all linked from your media library. Tick the Verified checkbox once you have confirmed the event against a reliable source. These fields help document the evidence behind your family history."
+    },
     "multipleTrees": {
       "title": "Multiple Family Trees",
       "manageTitle": "Managing trees",
@@ -379,7 +406,7 @@
       "primaryTitle": "Primary tree",
       "primaryBody": "One tree per account is marked as primary (shown with a gold badge in the dropdown). Promote any other tree to primary using the star icon. The primary tree cannot be deleted — promote another tree first if you need to remove it.",
       "exportTitle": "Exporting a tree",
-      "exportBody": "Open any person's profile, go to the Family Tree tab, and use the toolbar buttons. Export as JPEG saves a snapshot image of the visible tree. Export as JSON downloads all people and relationships in Clann's own format. Export as GEDCOM downloads a .ged file compatible with other genealogy apps.",
+      "exportBody": "Open any person's profile, go to the Family Tree tab, and click the Export button in the toolbar to choose a format — JPEG, JSON, or GEDCOM.",
       "importTitle": "Importing a tree",
       "importBody": "Click the tree selector in the nav bar and choose 'Import tree…'. Upload a Clann JSON export or a GEDCOM (.ged) file. You will see a preview of the people and relationships found. Give the new tree a name and click Start import."
     },
@@ -388,7 +415,7 @@
       "whatTitle": "What is GEDCOM?",
       "whatBody": "GEDCOM (Genealogical Data Communication) is the standard file format used by genealogy applications worldwide — including Ancestry, FamilySearch, Gramps, MacFamilyTree, and many others. Clann supports GEDCOM 5.5.1 for both export and import, letting you move data between tools freely.",
       "exportTitle": "Exporting as GEDCOM",
-      "exportBody": "Open any person's profile, go to the Family Tree tab, and click 'Export as GEDCOM'. Clann fetches all people and relationships in the active tree, converts them to GEDCOM format, and downloads a .ged file named after the tree. You can then open this file in any genealogy application.",
+      "exportBody": "Open any person's profile, go to the Family Tree tab, and click the Export button, then choose 'Export as GEDCOM'. Clann fetches all people and relationships in the active tree, converts them to GEDCOM format, and downloads a .ged file named after the tree. You can then open this file in any genealogy application.",
       "importTitle": "Importing a GEDCOM file",
       "importBody": "Click the tree selector in the nav bar and choose 'Import tree…'. Drop or browse to your .ged file. Clann reads all INDI (person) and FAM (family) records, derives parent, spouse, and sibling relationships automatically, and shows a preview before importing. The imported data becomes a new tree — your existing trees are untouched.",
       "warningsTitle": "Import warnings and best fit",
@@ -421,10 +448,161 @@
     "legendChild": "Child",
     "legendSpouse": "Spouse",
     "legendSibling": "Sibling",
+    "export": "Export",
     "exportJson": "Export as JSON",
     "exportGedcom": "Export as GEDCOM",
     "exportJpeg": "Export as JPEG",
     "exporting": "Exporting…",
+    "openDam": "Media Library",
     "bornPrefix": "b. {date}"
+  },
+  "pricing": {
+    "heading": "Choose your Clann plan",
+    "subheading": "Start free and upgrade when your family grows. 7-day trial included on paid plans.",
+    "perMonth": "/ mo",
+    "familyPriceNote": "Base: 2 seats. +€2/mo per extra seat.",
+    "comingSoon": "Coming Soon",
+    "trialNote": "Family and Professional plans include a 7-day free trial — no charge until the trial ends.",
+    "learnMore": "Learn more",
+    "checkoutTitle": "Subscribe",
+    "checkoutError": "Could not start checkout. Please try again.",
+    "seatCount": "Number of seats",
+    "seatHint": "Minimum 2, maximum 10. Each seat is one family member account.",
+    "paymentProvider": "Pay with",
+    "proceedToPayment": "Proceed to Payment →",
+    "redirecting": "Redirecting…",
+    "cancel": "Cancel",
+    "plans": {
+      "individual": {
+        "name": "Individual",
+        "price": "Free",
+        "description": "Perfect for getting started with your family history.",
+        "cta": "Get Started",
+        "features": [
+          "1 user seat",
+          "2 family trees",
+          "Up to 100 family members",
+          "100 MB media storage",
+          "100 media assets",
+          "GEDCOM import & export",
+          "Interactive family tree graph"
+        ]
+      },
+      "family": {
+        "name": "Family / Team",
+        "price": "€5",
+        "description": "For families building their history together.",
+        "cta": "Subscribe",
+        "features": [
+          "2 – 10 user seats",
+          "10 family trees",
+          "Up to 1,000 family members",
+          "5 GB media storage",
+          "1,000 media assets",
+          "Images in media library",
+          "7-day free trial"
+        ]
+      },
+      "professional": {
+        "name": "Professional",
+        "price": "€15",
+        "description": "Unlimited access for serious researchers.",
+        "cta": "Coming Soon",
+        "features": [
+          "Unlimited seats",
+          "Unlimited family trees",
+          "Unlimited family members",
+          "50 GB media storage",
+          "10,000 media assets",
+          "Full media library (all types)",
+          "Historical research tools",
+          "7-day free trial"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Custom",
+        "description": "Tailored for institutions and large organisations.",
+        "cta": "Contact Us",
+        "features": [
+          "Unlimited everything",
+          "All asset types including RAW",
+          "Historical research tools",
+          "SSO integration",
+          "On-site / hybrid deployment",
+          "By agreement support",
+          "Custom onboarding"
+        ]
+      }
+    }
+  },
+  "subscriptionSuccess": {
+    "heading": "You are all set!",
+    "message": "Your subscription is being activated. This usually takes just a moment. Check your account page for the updated status.",
+    "viewSubscription": "View Subscription",
+    "goToFamily": "Family Home"
+  },
+  "subscription": {
+    "heading": "Your Subscription",
+    "subheading": "Manage your Clann plan and billing.",
+    "backToFamily": "Family Home",
+    "currentPlan": "Current Plan",
+    "product": "Product",
+    "seats": "Seats",
+    "periodStart": "Period Start",
+    "periodEnd": "Period End",
+    "memberSince": "Member Since",
+    "trialEnds": "Free trial ends {date}",
+    "upgradePlan": "Upgrade Plan",
+    "manageBilling": "Manage Billing",
+    "changePlan": "Change Plan",
+    "redirecting": "Redirecting…",
+    "loadError": "Could not load subscription details.",
+    "portalError": "Could not open billing portal. Please try again.",
+    "helpText": "Questions about billing?",
+    "helpLink": "View help"
+  },
+  "lifeEvents": {
+    "tabLabel": "📅 Life Events",
+    "loading": "Loading life events…",
+    "loadFailed": "Could not load life events.",
+    "empty": "No life events recorded yet.",
+    "addFirstEvent": "Add the first event",
+    "addEvent": "Add Event",
+    "addEventTitle": "New Life Event",
+    "sources": "Sources",
+    "verified": "Verified",
+    "deleteEvent": "Delete event",
+    "deleteConfirm": "Delete event '{name}'? This cannot be undone.",
+    "deleteFailed": "Delete failed",
+    "saveFailed": "Save failed",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "fieldName": "Event name",
+    "fieldNamePlaceholder": "e.g. Birth, Graduated from UCD",
+    "fieldDate": "Date",
+    "fieldDatePlaceholder": "e.g. 1920, circa 1920, June 1920",
+    "fieldType": "Event type",
+    "fieldDescription": "Description",
+    "fieldDescriptionPlaceholder": "Short note, e.g. place or context",
+    "customType": "Custom type…",
+    "fieldCustomType": "Custom type name",
+    "fieldCustomTypePlaceholder": "e.g. Baptism",
+    "editEvent": "Edit event",
+    "saveChanges": "Save Changes",
+    "fieldStory": "Story",
+    "fieldStoryPlaceholder": "Write a narrative account of this event…",
+    "fieldSourceLink": "External source URL",
+    "fieldSourceImage": "Source image",
+    "fieldSourceDoc": "Source document",
+    "fieldVerified": "Verified",
+    "viewDetails": "Details",
+    "closeDetails": "Close",
+    "browseStoryImages": "Browse media library…",
+    "browseImageAsset": "Browse image assets…",
+    "browseDocAsset": "Browse document assets…",
+    "hidePicker": "Hide media library",
+    "changePicker": "Change",
+    "clear": "Clear"
   }
 }

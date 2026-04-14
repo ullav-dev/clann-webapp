@@ -4,7 +4,9 @@
     "addPerson": "Duine a Chur Leis",
     "logout": "Logáil Amach",
     "login": "Logáil Isteach",
-    "help": "Cabhair"
+    "help": "Cabhair",
+    "pricing": "Praghsanna",
+    "account": "Cuntas"
   },
   "idleWarning": {
     "title": "Seisiún ag Dul in Éag",
@@ -101,9 +103,17 @@
     "sexHint": "Úsáidtear é chun d'iontráil crainn teaghlaigh tosaigh a chruthú.",
     "sexRequired": "Roghnaigh do ghnéas le do thoil"
   },
+  "limits": {
+    "treeLimitTitle": "Teorainn crann bainte amach",
+    "treeLimitMessage": "Ceadaíonn do phlean suas le {max} crann teaghlaigh. Uasghrádaigh chun tuilleadh a chruthú.",
+    "memberLimitTitle": "Teorainn ball bainte amach",
+    "memberLimitMessage": "Shroich tú an uaslíon ball teaghlaigh do do phlean. Uasghrádaigh chun tuilleadh a chur leis.",
+    "upgradeLink": "Féach ar phleananna"
+  },
   "family": {
     "title": "Baill Teaghlaigh",
     "loading": "Á lódáil…",
+    "memberLimitCta": "Uasghrádaigh chun tuilleadh a chur leis",
     "personCount": "{count, plural, one {# duine} other {# duine}} i do chrann",
     "addPerson": "+ Duine a Chur Leis",
     "searchPlaceholder": "Cuardaigh de réir ainm…",
@@ -346,7 +356,9 @@
       "orientationTitle": "Leagan amach a athrú",
       "orientationBody": "Úsáid na cnaipí Ingearach / Cothrománach sa bharra chrainn chun an leagan amach a scoránú. Cuireann Ingearach sinsir os cionn agus leanaí thíos. Cuireann Cothrománach sinsir ar dheis agus leanaí ar chlé.",
       "exportTitle": "An crann a easpórtáil",
-      "exportBody": "Cliceáil Easpórtáil mar JPEG chun an crann infheicthe a íoslódáil mar íomhá. Cliceáil Easpórtáil mar JSON chun sonraí amh an chrainn a íoslódáil le haghaidh cartlannaithe nó úsáide in uirlisí eile."
+      "exportBody": "Cliceáil an cnaipe Easpórtáil sa bharra uirlisí chun formáid a roghnú: íoslódálann JPEG íomhá den chrann infheicthe, íoslódálann JSON gach duine agus caidreamh i bhformáid Clann féin, agus íoslódálann GEDCOM comhad .ged atá comhoiriúnach le feidhlimí geineolaíochta eile mar Ancestry, FamilySearch agus Gramps.",
+      "mediaLibraryTitle": "An Leabharlann Meán a oscailt",
+      "mediaLibraryBody": "Má tá rochtain ag do chuntas ar Chóras Bainistíochta Sócmhainní Digiteacha Ullav, beidh cnaipe Leabharlann Meán le feiceáil sa bharra chrainn. Trí chliceáil air, osclaítear brabhsálaí DAM i gcluaisín nua agus síníonn tú isteach go huathoibríoch — níl aon logáil isteach eile ag teastáil."
     },
     "familyList": {
       "title": "Liosta Baill Teaghlaigh",
@@ -372,6 +384,21 @@
       "mediaLibraryTitle": "Íomhánna a chur isteach ón leabharlann meán",
       "mediaLibraryBody": "Agus beathaisnéis á heagar agat, cliceáil 'Leabharlann meán a bhrabhsáil' faoin eagarthóir chun roghnóir meán ionsuite a oscailt. Cliceáil ar aon íomhá chun í a chur isteach ag suíomh reatha do chúrsóra, nó tarraing í ón roghnóir go dtí an crios scaoilte faoin eagarthóir. Cuirtear íomhánna isteach mar mhionsamhlacha. Feictear teachtaireacht dheimhnithe ghlais go gairid chun an iontráil a dheimhniú."
     },
+    "lifeEvents": {
+      "title": "Imeachtaí Saoil",
+      "overviewTitle": "Cad iad Imeachtaí Saoil?",
+      "overviewBody": "Tá cluaisín Imeachtaí Saoil ag gach duine ar a leathanach próifíle. Taispeánann sé amlíne chróineolaíoch de mhóimintí suntasacha — breith, pósadh, céim, inimirce, seirbhís mhíleata, agus tuilleadh. Sórtáiltear imeachtaí de réir dáta; taispeántar imeachtaí gan dáta ag an deireadh.",
+      "timelineTitle": "An amlíne a léamh",
+      "timelineBody": "Taispeántar imeachtaí mar chártaí ar amlíne clé-cholúin, gach ceann le suaitheantas datha-íomhá a léiríonn cineál an imeachta. Roghnaítear an íomhá agus an dath go huathoibríoch: emerald do Bhreith, corcairghorm do Phósadh, gorm do Chéim, dearg do Sheirbhís Mhíleata, gormspéir d'Inimirce agus d'Eisimirce, ómra do Cholscaradh, agus liath do Bhás nó do chineálacha eile nó saincheaptha.",
+      "addingTitle": "Imeacht a chur leis",
+      "addingBody": "Ar an gcluaisín Imeachtaí Saoil, cliceáil 'Cuir Imeacht Leis'. Cuir isteach ainm an imeachta, dáta roghnach (glactar le téacs saor: '1920', 'thart ar 1920', 'Meitheamh 1920'), agus roghnaigh cineál imeachta. Roghnaigh 'Cineál saincheaptha…' chun do lipéad féin a chur isteach. Cliceáil Sábháil.",
+      "viewingTitle": "Sonraí iomlána a fheiceáil",
+      "viewingBody": "Taispeánann imeachtaí a bhfuil scéal, nasc foinse, nó comhaid foinse acu cnaipe 'Sonraí' i gcúinne uachtarach deas an chárta. Cliceáil air chun painéal ionsuite a oscailt a thaispeánann an scéal iomlán mar théacs formáidithe, nasc foinse seachtrach in-chliceáilte, agus naisc chuig íomhá foinse nó doiciméad ar bith. Cliceáil 'Dún' chun an painéal a dhúnadh.",
+      "editingTitle": "Eagarthóireacht agus scriosadh",
+      "editingBody": "Bog an luch thar cárta imeachta ar bith agus cliceáil an deilbhín peann luaidhe chun an painéal eagarthóireachta ionsuite a oscailt. Nuashonraigh an t-ainm, an dáta, an cineál, agus an cur síos gearr, nó scríobh scéal níos faide sa réimse Scéal (tacaítear le Markdown, le híomhánna ón leabharlann meán). Cliceáil 'Sábháil Athruithe'. Bainfidh an cnaipe scriosadh an t-imeacht go buan. Níl eagarthóireacht agus scriosadh ar fáil ach don úinéir agus d'riarthóirí.",
+      "sourcesTitle": "Foinsí agus fíorú",
+      "sourcesBody": "Is féidir URL foinse seachtrach, íomhá foinse, agus doiciméad foinse — nasctha ón leabharlann meán — a bheith ag gach imeacht. Tic an bosca seiceála 'Fíoraithe' nuair atá an t-imeacht deimhnithe agat ó fhoinse iontaofa. Cabhraíonn na réimsí seo le fianaise do stair theaghlaigh a dhoiciméadú."
+    },
     "multipleTrees": {
       "title": "Crainnte Teaghlaigh Iolracha",
       "manageTitle": "Crainnte a bhainistiú",
@@ -379,7 +406,7 @@
       "primaryTitle": "Crann príomhúil",
       "primaryBody": "Tá crann amháin in aghaidh an chuntais marcáilte mar phríomhúil (taispeántar le suaitheantas óir sa roghchlár é). Cuir aon chrann eile chun cinn mar phríomhúil ag baint úsáide as an deilbhín réaltóige. Ní féidir an crann príomhúil a scriosadh — cuir crann eile chun cinn ar dtús má theastaíonn uait é a bhaint.",
       "exportTitle": "Crann a easpórtáil",
-      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, agus úsáid na cnaipí sa bharra uirlisí. Le hEaspórtáil mar JPEG sábhálann tú íomhá den chrann infheicthe. Le hEaspórtáil mar JSON íoslódáiltear gach duine agus caidreamh i bhformáid Clann féin. Le hEaspórtáil mar GEDCOM íoslódáiltear comhad .ged atá comhoiriúnach le feidhlimí geineolaíochta eile.",
+      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, agus cliceáil an cnaipe Easpórtáil sa bharra uirlisí chun formáid a roghnú — JPEG, JSON nó GEDCOM.",
       "importTitle": "Crann a iompórtáil",
       "importBody": "Cliceáil roghnóir an chrainn sa bharra nascleanúna agus roghnaigh 'Crann a iompórtáil...'. Uaslódáil onnmhairiú JSON ó Clann nó comhad GEDCOM (.ged). Feicfidh tú réamhamharc de na daoine agus na caidrimh a fuarthas. Tabhair ainm don chrann nua agus cliceáil Tosaigh iompórtáil."
     },
@@ -388,7 +415,7 @@
       "whatTitle": "Cad is GEDCOM ann?",
       "whatBody": "Is é GEDCOM (Genealogical Data Communication) an caighdeán comhaid a úsáideann feidhlimí geineolaíochta ar fud an domhain — lena n-áirítear Ancestry, FamilySearch, Gramps, MacFamilyTree, agus go leor eile. Tacaíonn Clann le GEDCOM 5.5.1 d'easpórtáil agus d'iompórtáil araon, rud a ligeann duit sonraí a bhogadh idir uirlisí go saor.",
       "exportTitle": "Ag easpórtáil mar GEDCOM",
-      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, agus cliceáil 'Easpórtáil mar GEDCOM'. Faigheann Clann gach duine agus caidreamh sa chrann gníomhach, tiontaíonn siad go formáid GEDCOM iad, agus íoslódálann comhad .ged ainmnithe i ndiaidh an chrainn. Is féidir an comhad seo a oscailt in aon fheidhlim gheineolaíochta.",
+      "exportBody": "Oscail próifíl aon duine, téigh go dtí an tab Crann Teaghlaigh, cliceáil an cnaipe Easpórtáil agus roghnaigh 'Easpórtáil mar GEDCOM'. Faigheann Clann gach duine agus caidreamh sa chrann gníomhach, tiontaíonn siad go formáid GEDCOM iad, agus íoslódálann comhad .ged ainmnithe i ndiaidh an chrainn. Is féidir an comhad seo a oscailt in aon fheidhlim gheineolaíochta.",
       "importTitle": "Comhad GEDCOM a iompórtáil",
       "importBody": "Cliceáil roghnóir an chrainn sa bharra nascleanúna agus roghnaigh 'Crann a iompórtáil...'. Tóg nó brabhsáil go dtí do chomhad .ged. Léann Clann gach taifead INDI (duine) agus FAM (teaghlach), díorthaíonn sé caidrimh tuismitheora, céile agus deartháir/deirféar go huathoibríoch, agus taispeánann réamhamharc sula n-iompórtálann. Éiríonn na sonraí iompórtáilte ina gcrann nua — fanann do chrainnte atá ann cheana gan athrú.",
       "warningsTitle": "Rabhaidh iompórtála agus an cur chuige is fearr",
@@ -421,10 +448,161 @@
     "legendChild": "Leanbh",
     "legendSpouse": "Céile",
     "legendSibling": "Deartháir/Deirfiúr",
+    "export": "Easpórtáil",
     "exportJson": "Easpórtáil mar JSON",
     "exportGedcom": "Easpórtáil mar GEDCOM",
     "exportJpeg": "Easpórtáil mar JPEG",
     "exporting": "Á easpórtáil…",
+    "openDam": "Leabharlann Meán",
     "bornPrefix": "r. {date}"
+  },
+  "pricing": {
+    "heading": "Roghnaigh do phlean Clann",
+    "subheading": "Tosaigh saor in aisce agus uasghrádaigh de réir mar a fhásann do theaghlach. Triail 7 lá san áireamh le pleananna íoctha.",
+    "perMonth": "/ mí",
+    "familyPriceNote": "Bunús: 2 shuíochán. +€2/mí in aghaidh an tsuíocháin bhreise.",
+    "comingSoon": "Ag teacht go luath",
+    "trialNote": "Áirítear triail 7 lá saor in aisce le pleananna Teaghlaigh agus Gairmiúil.",
+    "learnMore": "Foghlaim tuilleadh",
+    "checkoutTitle": "Liostáil",
+    "checkoutError": "Níorbh fhéidir an t-íocaíocht a thosú. Bain triail eile as.",
+    "seatCount": "Líon suíochán",
+    "seatHint": "2 ar a laghad, 10 ar a mhéid.",
+    "paymentProvider": "Íoc le",
+    "proceedToPayment": "Lean ar aghaidh chuig Íocaíocht →",
+    "redirecting": "Ag atreorú…",
+    "cancel": "Cealaigh",
+    "plans": {
+      "individual": {
+        "name": "Aonair",
+        "price": "Saor",
+        "description": "Foirfe chun tosú le stair do theaghlaigh.",
+        "cta": "Tosaigh",
+        "features": [
+          "1 suíochán úsáideora",
+          "2 chrann teaghlaigh",
+          "Suas le 100 ball teaghlaigh",
+          "100 MB stórála meáin",
+          "100 sócmhainn meáin",
+          "Iompórtáil & easpórtáil GEDCOM",
+          "Graf crann teaghlaigh idirghníomhach"
+        ]
+      },
+      "family": {
+        "name": "Teaghlach / Foireann",
+        "price": "€5",
+        "description": "Do theaghlaigh ag tógáil a staire le chéile.",
+        "cta": "Liostáil",
+        "features": [
+          "2 – 10 suíochán úsáideora",
+          "10 crann teaghlaigh",
+          "Suas le 1,000 ball teaghlaigh",
+          "5 GB stórála meáin",
+          "1,000 sócmhainn meáin",
+          "Íomhánna i leabharlann na meán",
+          "Triail saor 7 lá"
+        ]
+      },
+      "professional": {
+        "name": "Gairmiúil",
+        "price": "€15",
+        "description": "Rochtain gan teorainn do thaighdeoirí dáiríre.",
+        "cta": "Ag teacht go luath",
+        "features": [
+          "Suíocháin gan teorainn",
+          "Crainn teaghlaigh gan teorainn",
+          "Baill teaghlaigh gan teorainn",
+          "50 GB stórála meáin",
+          "10,000 sócmhainn meáin",
+          "Leabharlann mheáin iomlán",
+          "Uirlisí taighde stairiúil",
+          "Triail saor 7 lá"
+        ]
+      },
+      "enterprise": {
+        "name": "Fiontar",
+        "price": "Saincheaptha",
+        "description": "Curtha in oiriúint d'institiúidí agus eagraíochtaí móra.",
+        "cta": "Déan Teagmháil",
+        "features": [
+          "Gach rud gan teorainn",
+          "Gach cineál sócmhainne lena n-áirítear RAW",
+          "Uirlisí taighde stairiúil",
+          "Comhtháthú SSO",
+          "Imscaradh ar shuíomh / hibrideach",
+          "Tacaíocht de réir comhaontú",
+          "Onbordú saincheaptha"
+        ]
+      }
+    }
+  },
+  "subscriptionSuccess": {
+    "heading": "Tá tú réidh!",
+    "message": "Tá do liostáil á ghníomhachtú. De ghnáth ní thógann sé ach nóiméad. Seiceáil do leathanach cuntais le haghaidh an stádas nuashonraithe.",
+    "viewSubscription": "Féach ar Liostáil",
+    "goToFamily": "Baile Teaghlaigh"
+  },
+  "subscription": {
+    "heading": "Do Liostáil",
+    "subheading": "Bainistigh do phlean Clann agus do bhilleáil.",
+    "backToFamily": "Baile Teaghlaigh",
+    "currentPlan": "Plean Reatha",
+    "product": "Táirge",
+    "seats": "Suíocháin",
+    "periodStart": "Tús na Tréimhse",
+    "periodEnd": "Deireadh na Tréimhse",
+    "memberSince": "Ball ó",
+    "trialEnds": "Críochnaíonn an triail saor {date}",
+    "upgradePlan": "Uasghrádaigh Plean",
+    "manageBilling": "Bainistigh Billeáil",
+    "changePlan": "Athraigh Plean",
+    "redirecting": "Ag atreorú…",
+    "loadError": "Níorbh fhéidir sonraí liostála a luchtú.",
+    "portalError": "Níorbh fhéidir an tairseach billeála a oscailt.",
+    "helpText": "Ceisteanna faoin mbilleáil?",
+    "helpLink": "Féach ar chabhrú"
+  },
+  "lifeEvents": {
+    "tabLabel": "📅 Imeachtaí Saoil",
+    "loading": "Imeachtaí saoil á luchtú…",
+    "loadFailed": "Níorbh fhéidir imeachtaí saoil a luchtú.",
+    "empty": "Níl aon imeachtaí saoil taifeadta fós.",
+    "addFirstEvent": "Cuir an chéad imeacht leis",
+    "addEvent": "Cuir Imeacht Leis",
+    "addEventTitle": "Imeacht Saoil Nua",
+    "sources": "Foinsí",
+    "verified": "Fíoraithe",
+    "deleteEvent": "Scrios imeacht",
+    "deleteConfirm": "Scrios imeacht '{name}'? Ní féidir é seo a chur ar ceal.",
+    "deleteFailed": "Theip ar scriosadh",
+    "saveFailed": "Theip ar shábháil",
+    "saving": "Á shábháil…",
+    "cancel": "Cealaigh",
+    "fieldName": "Ainm imeachta",
+    "fieldNamePlaceholder": "m.sh. Breith, Céim ón gColáiste",
+    "fieldDate": "Dáta",
+    "fieldDatePlaceholder": "m.sh. 1920, thart ar 1920, Meitheamh 1920",
+    "fieldType": "Cineál imeachta",
+    "fieldDescription": "Cur síos",
+    "fieldDescriptionPlaceholder": "Nóta gearr, m.sh. áit nó comhthéacs",
+    "customType": "Cineál saincheaptha…",
+    "fieldCustomType": "Ainm an chineáil saincheaptha",
+    "fieldCustomTypePlaceholder": "m.sh. Baisteadh",
+    "editEvent": "Eagraigh imeacht",
+    "saveChanges": "Sábháil athruithe",
+    "fieldStory": "Scéal",
+    "fieldStoryPlaceholder": "Scríobh cuntas ar an imeacht seo…",
+    "fieldSourceLink": "URL foinse seachtrach",
+    "fieldSourceImage": "Íomhá foinse",
+    "fieldSourceDoc": "Doiciméad foinse",
+    "fieldVerified": "Fíoraithe",
+    "viewDetails": "Sonraí",
+    "closeDetails": "Dún",
+    "browseStoryImages": "Brabhsáil leabharlann na meán…",
+    "browseImageAsset": "Brabhsáil íomhánna…",
+    "browseDocAsset": "Brabhsáil doiciméid…",
+    "hidePicker": "Folaigh leabharlann na meán",
+    "changePicker": "Athraigh",
+    "clear": "Glan"
   }
 }

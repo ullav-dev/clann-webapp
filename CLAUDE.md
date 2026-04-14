@@ -66,7 +66,7 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 - `src/components/MarkdownEditor.tsx` — thin wrapper around `@uiw/react-md-editor`; dynamically imported (`ssr: false`); wraps output in `data-color-mode="light"` to prevent dark-mode flicker; always yields a plain markdown string; accepts a `textareaProps` passthrough for attaching handlers to the underlying textarea
 - `src/components/AddRelationshipModal.tsx` — modal for linking Father / Mother / Sibling / Spouse. The person list is filtered by sex: Father/Brother → males only, Mother/Sister → females only. Sibling mode supports **multi-select** (click to toggle; submit links all selected siblings at once and inherits the root person's parents to each). Setting a Father or Mother also triggers **auto-sibling discovery**: fetches the parent's existing children via `getFamilyTree` and links any that are not already siblings — deduplication uses `rawId()` to normalise the `person:<ulid>` IDs returned by the API against the bare ULID in `personId` from `useParams`.
 - `src/components/PersonCard.tsx` — card used on the list page; includes inline delete
-- `src/components/PersonAvatar.tsx` — circular photo with emoji fallback
+- `src/components/PersonAvatar.tsx` — circular photo with emoji fallback; accepts an optional `imageVersion` prop (number) that is appended as `?v={imageVersion}` to the image URL to bust the browser cache after a photo upload
 - `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 2 MB); accepts an optional `uploadFn` prop to override the default profile-image endpoint, making it reusable for the life story image
 - `src/components/PasswordInput.tsx` — password field with show/hide toggle (eye icon button); used on all password inputs in the app
 - `src/components/LocaleSwitcher.tsx` — language selector dropdown in the nav
@@ -102,7 +102,7 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 | `/[locale]/auth/sso` | SSO handoff from ullav-portal (`?t=<encoded-session>`); writes session to localStorage and redirects to `/family` |
 | `/[locale]/family` | List all persons — card/list toggle, sort, search, **pagination** |
 | `/[locale]/persons/new` | Create person |
-| `/[locale]/persons/[id]` | Person detail: family tree tab · relationships tab · life story tab |
+| `/[locale]/persons/[id]` | Person detail: family tree tab · relationships tab · life story tab · life events tab |
 | `/[locale]/persons/[id]/edit` | Edit person |
 
 **ID handling:** The backend stores IDs as `person:<ulid>` (e.g. `person:01jd4a8xyz`). URLs use just the ULID (no prefix, no encoding). `api.ts` exposes a `rawId()` helper that strips the `person:` prefix before building request paths. **Always use `rawId(person.id)` when constructing links or `router.push` calls** — never `encodeURIComponent(person.id)`, which embeds the prefix in the URL and causes 404s.
@@ -172,6 +172,32 @@ The biography field is edited via `MarkdownEditor` (a dynamic-import wrapper aro
 
 **PDF export:** The Life Story tab has an "Export as PDF" button that calls `window.print()`. `document.title` is swapped to the person's full name before printing and restored on the `afterprint` event so the browser uses it as the suggested filename. The print layout is handled by `LifeStoryPrintView` (in `src/components/LifeStoryPrintView.tsx`), which uses `createPortal` to mount the print container as a direct child of `<body>`. This is necessary because the component is otherwise nested inside React provider divs and `<main>`, and CSS `display: none` on those ancestors would suppress the print view even with `display: block !important` on the child. By portalling to `<body>`, the print CSS rule `body > *:not(.life-story-print) { display: none !important }` can hide all other direct children of `<body>` while leaving the print container visible. The component uses a `mounted` state guard (`useEffect(() => setMounted(true), [])`) to avoid calling `document.body` during SSR.
 
+## Life Events tab
+
+`src/components/LifeTimeline.tsx` renders the **📅 Life Events** tab on the person detail page.
+
+**Data:** `api.listLifeEvents(personId)` / `createLifeEvent` / `updateLifeEvent` / `deleteLifeEvent`. The API uses `rawEventId()` (strips `"life_event:"` prefix) mirroring the `rawId()` helper used for persons.
+
+**Timeline layout:** left-spine design — a vertical line on the left, an icon-badge circle per event, and a card to the right. Events are sorted chronologically using a fuzzy date parser (`dateSortKey`) that extracts year/month/day from free-form strings and sorts undated events last.
+
+**Event type styles:** `EVENT_STYLES` map drives icon emoji, dot background/ring colour, and badge colour per event type (Birth=🌱 emerald, Death=🕊️ stone, Marriage=💍 violet, Divorce=⚖️ amber, Graduation=🎓 blue, Military=⚔️ red, Immigration/Emigration=✈️ sky, Other=📌 stone).
+
+**Edit access:** `canEdit = roles.includes("admin") || user.username === personCreatedBy`. Edit/delete actions are only rendered for owners and admins.
+
+**Add event form (`AddEventForm`):** name, date, type dropdown (with custom type option), description. Appears above the timeline.
+
+**Details pill (`ViewEventPanel`):** events that have a story, source link, source image, or source document show a "Details" pill in the top-right of their card (always visible, not hover-gated). Clicking it expands an inline read-only panel showing: full story rendered as markdown (prose/GFM); source link as a plain `<a>`; source image fetched with Bearer token via `AuthImage` (renders the `/thumbnail` variant as an inline image); source document as a download button via `AuthDocLink` with the human-readable asset name resolved by `useAssetName` (fetches `GET /api/dam/assets/<id>` JSON metadata). The pill label toggles to "Close" while open. Opening the view panel closes any open edit panel and vice versa. The source icon row (🔗 🖼️ 📄) and the story snippet are hidden while the view panel is open.
+
+**Edit event panel (`EditEventPanel`):** slides in inside the card when the ✏️ button is clicked (on hover). Contains:
+- Name, date, event type + custom type
+- Description (short text)
+- Story: `MarkdownEditor` (dynamic import, `ssr: false`) with cursor-position tracking and an inline `DamPicker` for inserting image thumbnails at the cursor
+- External source URL (text input)
+- Source image / source document: `AssetPickerField` sub-component — each shows a `DamPicker` (filtered to images or non-images); stores `asset.url`; displays the asset name (from `PickedAsset.name` on fresh pick, or resolved via `useAssetName` for previously saved assets) with Clear/Change controls
+- Verified checkbox
+
+On save the event is patched in-place via `updateLifeEvent` and the list is re-sorted without a full reload.
+
 ## Family Tree graph
 
 `FamilyTreeView` uses React Flow with a custom `PersonNode` type. Key design decisions:
@@ -182,6 +208,9 @@ The biography field is edited via `MarkdownEditor` (a dynamic-import wrapper aro
 - **Node `width: 148, height: 120`** must be set on each node object so the MiniMap can render them before DOM measurement.
 - `nodeTypes` is defined outside the component to avoid React Flow re-renders.
 - **Hover tooltip:** each node shows a dark tooltip above it on hover with `date_of_birth`, `place_of_birth`, and `biography` (biography capped at 4 lines). Only rendered when at least one field is non-null.
+- **Export dropdown:** a single Export button opens a menu with three options (JPEG / JSON / GEDCOM); the button is disabled and shows a spinner while any export is in progress. Click-outside closes the menu via a `mousedown` listener on `document`.
+- **Media Library button:** shown only when `hasDamAccess(token)` returns true (admin role or active Comad subscription in JWT payload). Opens `NEXT_PUBLIC_DAM_BROWSER_URL/${locale}/auth/sso?t=<encoded-session>` in a new tab.
+- **Image cache-busting:** `buildGraph` accepts an optional `photoVersions: Record<string, number>` parameter (passed from the `useMemo` call in the component). Each node's `NodeData` includes `imageVersion` (looked up by `rawId`). `PersonNode` appends `?v={imageVersion}` to the image URL when set. The person detail page tracks `photoVersions` state, increments the entry for the uploaded person's ID on successful upload, and passes it to both `FamilyTreeView` and `PersonAvatar` (header) so the new photo is shown immediately without a page reload.
 
 ## Tests
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import {
   ReactFlow,
@@ -38,6 +38,7 @@ type NodeData = {
   placeOfBirth?: string | null;
   biography?: string | null;
   imagePath?: string | null;
+  imageVersion?: number;
   orientation: Orientation;
 };
 
@@ -58,6 +59,7 @@ function PersonNode({ data }: NodeProps) {
   const d = data as NodeData;
   const [imgError, setImgError] = useState(false);
   const showImage = !!d.imagePath && !imgError;
+  const imgSrc = `${personImageUrl(d.id)}${d.imageVersion ? `?v=${d.imageVersion}` : ""}`;
 
   const style = ROLE_STYLES[d.role];
   const isH = d.orientation === "horizontal";
@@ -83,7 +85,7 @@ function PersonNode({ data }: NodeProps) {
               d.role === "father" ? "ring-blue-200" : d.role === "mother" ? "ring-rose-200" : "ring-emerald-200"
             }`}>
               <Image
-                src={personImageUrl(d.id)}
+                src={imgSrc}
                 alt=""
                 fill
                 className="object-cover"
@@ -143,6 +145,7 @@ function buildGraph(
   orientation: Orientation,
   role: Role,
   visited = new Set<string>(),
+  photoVersions?: Record<string, number>,
 ) {
   if (visited.has(node.id)) return;
   visited.add(node.id);
@@ -162,6 +165,7 @@ function buildGraph(
       placeOfBirth: node.place_of_birth ?? null,
       biography: node.biography ?? null,
       imagePath: node.image_path ?? null,
+      imageVersion: photoVersions?.[rawId(node.id)],
       orientation,
     } satisfies NodeData,
   });
@@ -189,7 +193,7 @@ function buildGraph(
       py = startY + i * Y_GAP;
     }
 
-    buildGraph(p, px, py, nodes, edges, orientation, parentRole, visited);
+    buildGraph(p, px, py, nodes, edges, orientation, parentRole, visited, photoVersions);
 
     const edgeColor = parentRole === "father" ? "#93c5fd" : "#fda4af"; // blue-300 / rose-300
     edges.push({
@@ -217,7 +221,7 @@ function buildGraph(
       py = startY + i * Y_GAP;
     }
 
-    buildGraph(child, px, py, nodes, edges, orientation, "child", visited);
+    buildGraph(child, px, py, nodes, edges, orientation, "child", visited, photoVersions);
 
     const edgeColor = "#fcd34d"; // amber-300
     edges.push({
@@ -245,7 +249,7 @@ function buildGraph(
       py = y + (i + 1) * Y_GAP;
     }
 
-    buildGraph(sp, px, py, nodes, edges, orientation, "spouse", visited);
+    buildGraph(sp, px, py, nodes, edges, orientation, "spouse", visited, photoVersions);
 
     const edgeColor = "#c4b5fd"; // violet-300
     edges.push({
@@ -293,28 +297,62 @@ function Legend({ t }: { t: TranslateFn }) {
   );
 }
 
+// ── DAM access check ─────────────────────────────────────────────────────────
+
+/** Returns true if the JWT contains an admin role or an active DAM subscription. */
+function hasDamAccess(token: string | null): boolean {
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))) as Record<string, unknown>;
+    const roles = (payload.roles ?? []) as string[];
+    if (roles.includes("admin")) return true;
+    const subs = (payload.subscriptions ?? {}) as Record<string, { tier?: string; status?: string }>;
+    const comad = subs["comad"];
+    if (comad && ["active", "trialing"].includes(comad.status ?? "")) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
   tree: FamilyTreeNode;
+  photoVersions?: Record<string, number>;
 }
 
-export default function FamilyTreeView({ tree }: Props) {
+export default function FamilyTreeView({ tree, photoVersions }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("familyTree");
+  const locale = useLocale();
   const { activeTree } = useTree();
-  const { user } = useAuth();
+  const { user, token, roles } = useAuth();
+  const canOpenDam = hasDamAccess(token);
   const [orientation, setOrientation] = useState<Orientation>("vertical");
   const [showSiblings, setShowSiblings] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportingJson, setExportingJson] = useState(false);
   const [exportingGedcom, setExportingGedcom] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showExportMenu) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as globalThis.Node)) {
+        setShowExportMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showExportMenu]);
 
   const { nodes, edges } = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
     const visited = new Set<string>();
-    buildGraph(tree, 0, 0, nodes, edges, orientation, "root", visited);
+    buildGraph(tree, 0, 0, nodes, edges, orientation, "root", visited, photoVersions);
 
     if (showSiblings) {
       (tree.siblings ?? []).forEach((sib, i) => {
@@ -340,6 +378,7 @@ export default function FamilyTreeView({ tree }: Props) {
             placeOfBirth: sib.place_of_birth ?? null,
             biography: sib.biography ?? null,
             imagePath: sib.image_path ?? null,
+            imageVersion: photoVersions?.[rawId(sib.id)],
             orientation,
           } satisfies NodeData,
         });
@@ -357,7 +396,17 @@ export default function FamilyTreeView({ tree }: Props) {
     }
 
     return { nodes, edges };
-  }, [tree, orientation, showSiblings]);
+  }, [tree, orientation, showSiblings, photoVersions]);
+
+  // Elevate the hovered node so its tooltip stacks above all other nodes.
+  // Each React Flow node wrapper has a CSS transform that creates a stacking
+  // context, so z-index inside the node only works within that context.
+  // Setting zIndex on the node object itself lifts the whole wrapper.
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const displayNodes = useMemo(
+    () => nodes.map((n) => n.id === hoveredNodeId ? { ...n, zIndex: 1000 } : n),
+    [nodes, hoveredNodeId],
+  );
 
   const onNodeClick = useCallback(() => {
     // future: open edit panel
@@ -544,73 +593,85 @@ export default function FamilyTreeView({ tree }: Props) {
 
         <Legend t={t} />
 
-        {/* Export buttons */}
-        <div className="inline-flex items-center gap-2">
-        <button
-          onClick={exportJson}
-          disabled={exportingJson}
-          className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors disabled:opacity-50"
-        >
-          {exportingJson ? (
-            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-          ) : (
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          )}
-          {t("exportJson")}
-        </button>
-        <button
-          onClick={exportGedcom}
-          disabled={exportingGedcom}
-          className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors disabled:opacity-50"
-        >
-          {exportingGedcom ? (
-            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-          ) : (
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          )}
-          {t("exportGedcom")}
-        </button>
-        <button
-          onClick={exportJpeg}
-          disabled={exporting}
-          className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors disabled:opacity-50"
-        >
-          {exporting ? (
-            <>
+        {/* Export dropdown */}
+        <div className="relative" ref={exportMenuRef}>
+          <button
+            onClick={() => setShowExportMenu((v) => !v)}
+            disabled={exporting || exportingJson || exportingGedcom}
+            className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors disabled:opacity-50"
+          >
+            {(exporting || exportingJson || exportingGedcom) ? (
               <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
               </svg>
-              {t("exporting")}
-            </>
-          ) : (
-            <>
+            ) : (
               <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
-              {t("exportJpeg")}
-            </>
+            )}
+            {(exporting || exportingJson || exportingGedcom) ? t("exporting") : t("export")}
+            <svg className="h-3.5 w-3.5 text-stone-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+          {showExportMenu && (
+            <div className="absolute right-0 mt-1 w-44 rounded-lg border border-stone-200 bg-white shadow-lg z-10 overflow-hidden">
+              <button
+                onClick={() => { setShowExportMenu(false); exportJson(); }}
+                disabled={exportingJson}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50"
+              >
+                <span className="text-base">📋</span>
+                {t("exportJson")}
+              </button>
+              <button
+                onClick={() => { setShowExportMenu(false); exportGedcom(); }}
+                disabled={exportingGedcom}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50"
+              >
+                <span className="text-base">🔗</span>
+                {t("exportGedcom")}
+              </button>
+              <button
+                onClick={() => { setShowExportMenu(false); exportJpeg(); }}
+                disabled={exporting}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-stone-700 hover:bg-stone-50 transition-colors disabled:opacity-50"
+              >
+                <span className="text-base">🖼️</span>
+                {t("exportJpeg")}
+              </button>
+            </div>
           )}
-        </button>
         </div>
+
+        {/* Open DAM browser */}
+        {canOpenDam && user && token && (
+          <button
+            onClick={() => {
+              const damUrl = process.env.NEXT_PUBLIC_DAM_BROWSER_URL ?? "http://localhost:3002";
+              const session = encodeURIComponent(JSON.stringify({ token, user, roles }));
+              window.open(`${damUrl}/${locale}/auth/sso?t=${session}`, "_blank", "noopener,noreferrer");
+            }}
+            className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors"
+            title={t("openDam")}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 5.5 2-3.5 3 6z" clipRule="evenodd" />
+            </svg>
+            {t("openDam")}
+          </button>
+        )}
       </div>
 
       <div ref={containerRef} className="w-full h-[560px] rounded-xl border border-stone-200 overflow-hidden shadow-inner bg-stone-50">
         <ReactFlow
-          nodes={nodes}
+          nodes={displayNodes}
           edges={edges}
           nodeTypes={nodeTypes}
           onNodeClick={onNodeClick}
+          onNodeMouseEnter={(_, node) => setHoveredNodeId(node.id)}
+          onNodeMouseLeave={() => setHoveredNodeId(null)}
           fitView
           fitViewOptions={{ padding: 0.3 }}
           minZoom={0.3}

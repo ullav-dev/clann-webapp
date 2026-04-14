@@ -45,6 +45,7 @@ export default async function HelpPage() {
           <Card title={t("familyTree.navigationTitle")} body={t("familyTree.navigationBody")} />
           <Card title={t("familyTree.orientationTitle")} body={t("familyTree.orientationBody")} />
           <Card title={t("familyTree.exportTitle")} body={t("familyTree.exportBody")} />
+          <Card title={t("familyTree.mediaLibraryTitle")} body={t("familyTree.mediaLibraryBody")} />
         </Cards>
       </Section>
 
@@ -64,6 +65,17 @@ export default async function HelpPage() {
           <Card title={t("lifeStory.lifeImageTitle")} body={t("lifeStory.lifeImageBody")} />
           <Card title={t("lifeStory.exportPdfTitle")} body={t("lifeStory.exportPdfBody")} />
           <Card title={t("lifeStory.mediaLibraryTitle")} body={t("lifeStory.mediaLibraryBody")} />
+        </Cards>
+      </Section>
+
+      <Section title={t("lifeEvents.title")} icon="📅">
+        <Cards>
+          <Card title={t("lifeEvents.overviewTitle")} body={t("lifeEvents.overviewBody")} />
+          <Card title={t("lifeEvents.timelineTitle")} body={t("lifeEvents.timelineBody")} />
+          <Card title={t("lifeEvents.addingTitle")} body={t("lifeEvents.addingBody")} />
+          <Card title={t("lifeEvents.viewingTitle")} body={t("lifeEvents.viewingBody")} />
+          <Card title={t("lifeEvents.editingTitle")} body={t("lifeEvents.editingBody")} />
+          <Card title={t("lifeEvents.sourcesTitle")} body={t("lifeEvents.sourcesBody")} />
         </Cards>
       </Section>
 
