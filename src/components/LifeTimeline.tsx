@@ -841,11 +841,6 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
                         {event.description && (
                           <p className="text-sm text-stone-600 mt-1.5 line-clamp-2">{event.description}</p>
                         )}
-
-                        {/* Story snippet (only when collapsed and no description) */}
-                        {event.story && !event.description && !isViewing && (
-                          <p className="text-sm text-stone-500 mt-1.5 line-clamp-2 italic">{event.story.replace(/[#*`_[\]]/g, "")}</p>
-                        )}
                       </div>
 
                       {/* Actions */}
