@@ -21,6 +21,7 @@ import { rawId, personImageUrl, listPersons, getRelationships } from "@/lib/api"
 import { exportToGedcom } from "@/lib/gedcom-export";
 import { useTree } from "@/contexts/TreeContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { personIcon } from "@/components/PersonCard";
 import { useRouter } from "next/navigation";
 
@@ -297,24 +298,6 @@ function Legend({ t }: { t: TranslateFn }) {
   );
 }
 
-// ── DAM access check ─────────────────────────────────────────────────────────
-
-/** Returns true if the JWT contains an admin role or an active DAM subscription. */
-function hasDamAccess(token: string | null): boolean {
-  if (!token) return false;
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))) as Record<string, unknown>;
-    const roles = (payload.roles ?? []) as string[];
-    if (roles.includes("admin")) return true;
-    const subs = (payload.subscriptions ?? {}) as Record<string, { tier?: string; status?: string }>;
-    const comad = subs["comad"];
-    if (comad && ["active", "trialing"].includes(comad.status ?? "")) return true;
-    return false;
-  } catch {
-    return false;
-  }
-}
-
 // ── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -328,7 +311,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
   const locale = useLocale();
   const { activeTree } = useTree();
   const { user, token, roles } = useAuth();
-  const canOpenDam = hasDamAccess(token);
+  const { canUseDam } = useSubscription();
   const [orientation, setOrientation] = useState<Orientation>("vertical");
   const [showSiblings, setShowSiblings] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -646,7 +629,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
         </div>
 
         {/* Open DAM browser */}
-        {canOpenDam && user && token && (
+        {canUseDam && user && token && (
           <button
             onClick={() => {
               const damUrl = process.env.NEXT_PUBLIC_DAM_BROWSER_URL ?? "http://localhost:3002";
