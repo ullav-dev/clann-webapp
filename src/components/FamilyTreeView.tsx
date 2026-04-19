@@ -21,7 +21,6 @@ import { rawId, personImageUrl, listPersons, getRelationships } from "@/lib/api"
 import { exportToGedcom } from "@/lib/gedcom-export";
 import { useTree } from "@/contexts/TreeContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSubscription } from "@/contexts/SubscriptionContext";
 import { personIcon } from "@/components/PersonCard";
 import { useRouter } from "next/navigation";
 
@@ -298,6 +297,24 @@ function Legend({ t }: { t: TranslateFn }) {
   );
 }
 
+// ── DAM access check ─────────────────────────────────────────────────────────
+
+/** Returns true if the JWT payload grants admin role or an active DAM subscription. */
+function hasDamAccess(token: string | null): boolean {
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))) as Record<string, unknown>;
+    const roles = (payload.roles ?? []) as string[];
+    if (roles.includes("admin")) return true;
+    const subs = (payload.subscriptions ?? {}) as Record<string, { status?: string }>;
+    const comad = subs["comad"];
+    if (comad && ["active", "trialing"].includes(comad.status ?? "")) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -311,7 +328,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
   const locale = useLocale();
   const { activeTree } = useTree();
   const { user, token, roles } = useAuth();
-  const { canUseDam } = useSubscription();
+  const canUseDam = hasDamAccess(token);
   const [orientation, setOrientation] = useState<Orientation>("vertical");
   const [showSiblings, setShowSiblings] = useState(false);
   const [exporting, setExporting] = useState(false);
