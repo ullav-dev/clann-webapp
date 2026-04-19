@@ -116,6 +116,7 @@ export default function CensusSearch({ initialSurname = "", initialForename = ""
           {hasQuery ? t("searchWithFields") : t("searchBrowse")}
           <span>↗</span>
         </a>
+        <p className="text-xs text-stone-400 text-center">{t("opensInNewTab")}</p>
       </div>
 
       {/* Attribution */}
