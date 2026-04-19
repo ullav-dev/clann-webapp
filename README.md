@@ -26,7 +26,7 @@ A responsive, localised family tree management application built with Next.js, b
 - **Research workspace** — dedicated `/research` page (tree-scoped) for capturing genealogical research:
   - **Research notes** — create, edit, and delete markdown notes with a title and short description; notes support inline media library image insertion at the cursor position
   - **Wikipedia search** — inline panel using the Wikipedia REST API; search by name, place, or event; select a result to read the article summary; **Save as Note** pre-fills a new note with the article title, URL, and extract. Searches the Wikipedia edition matching the current language setting
-  - **1926 Irish Census** — embedded search panel loading the [National Archives of Ireland](https://nationalarchives.ie/collections/search-the-1926-census/) census interface; pre-populate surname, forename, and county fields; falls back gracefully to "Open in new tab" if the iframe is blocked. Census data published under **CC BY 4.0**
+  - **1926 Irish Census** — hero panel with a census image, description of record contents, and a pre-populated search form (surname, forename, county). The search button opens the [National Archives of Ireland](https://nationalarchives.ie/collections/search-the-1926-census/) in a new tab with terms pre-filled. Census data published under **CC BY 4.0**
 - **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, life events, research, list view, multiple trees, GEDCOM exchange), accessible from the nav bar without logging in
 - **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
 
@@ -142,7 +142,7 @@ src/
     LifeTimeline.tsx        # Life Events tab: left-spine timeline, add/edit/delete events
     ResearchPage.tsx        # Research workspace: notes list + editor, Wikipedia/Census panels
     WikipediaSearch.tsx     # Debounced Wikipedia search (w/rest.php/v1); Save as Note
-    CensusSearch.tsx        # 1926 Irish Census embedded iframe + pre-populated deep-link search
+    CensusSearch.tsx        # 1926 Irish Census hero panel + pre-populated deep-link search (new tab)
     AddRelationshipModal.tsx # Link relationships
     PersonCard.tsx          # Card on list page
     PersonAvatar.tsx        # Circular photo with fallback emoji

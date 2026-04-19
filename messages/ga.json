@@ -664,19 +664,22 @@
     "toggle": "Daonáireamh 1926",
     "toggleTooltip": "Daonáireamh na hÉireann 1926 le caoinchead Chartlann Náisiúnta na hÉireann",
     "title": "Daonáireamh na hÉireann 1926",
+    "heroTitle": "Daonáireamh na hÉireann 1926 a chuardach",
+    "heroSubtitle": "Teaghlaigh iomlána, slite beatha, reiligiún, áit bhreithe, Gaeilge agus tuilleadh",
+    "contentsItems": [
+      "Ainm & aois", "Slí bheatha", "Reiligiún", "Áit bhreithe",
+      "Gaeilge", "Stádas pósta", "Baill teaghlaigh", "Contae & baile fearainn"
+    ],
+    "searchPrompt": "Líon isteach do chuardach, ansin oscail cuardach na Cartlainne Náisiúnta i gcluaisín nua:",
     "fieldSurname": "Sloinne",
     "fieldSurnamePlaceholder": "m.sh. Ó Murchú",
     "fieldForename": "Céad ainm",
     "fieldForenamePlaceholder": "m.sh. Pádraig",
     "fieldCounty": "Contae",
     "allCounties": "Gach contae",
-    "search": "Cuardaigh",
-    "reset": "Glan",
-    "openInTab": "Oscail i gcluaisín nua",
+    "searchWithFields": "Daonáireamh 1926 a chuardach",
+    "searchBrowse": "Daonáireamh 1926 a bhrabhsáil",
     "attribution": "Taifid daonáirimh curtha ar fáil ag",
-    "attributionLink": "Cartlann Náisiúnta na hÉireann",
-    "iframeHint": "Mura léirítear an cuardach, úsáid 'Oscail i gcluaisín nua'.",
-    "iframeBlocked": "Cosc curtha ar an radharc leabaithe ag suíomh na Cartlainne Náisiúnta.",
-    "iframeBlockedHint": "Úsáid an cnaipe thíos chun cuardach a dhéanamh i gcluaisín nua."
+    "attributionLink": "Cartlann Náisiúnta na hÉireann"
   }
 }

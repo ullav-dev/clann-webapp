@@ -411,7 +411,7 @@
       "wikiTitle": "Wikipedia search",
       "wikiBody": "Click the '🌐 Wikipedia' button in the header to open an inline Wikipedia search panel. Type a name, place, or event to see results. Select a result to read the article summary. Click 'Save as Note' to create a new research note pre-filled with the article title and extract, including a citation link back to Wikipedia. The search uses the Wikipedia edition matching your current language setting.",
       "censusTitle": "1926 Irish Census search",
-      "censusBody": "Click the '📜 1926 Census' button to open the National Archives of Ireland census search panel. Enter a surname, first name, and optionally a county, then click Search. The full census search interface loads directly in the panel — you can browse records, view household members, and download individual records without leaving the app. If the embedded view is blocked by your browser or network, use 'Open in new tab' to continue the search on the National Archives website.",
+      "censusBody": "Click the '📜 1926 Census' button to open the census panel. Enter a surname, first name, and county to pre-fill your search, then click the search button to open the National Archives of Ireland website in a new tab with your terms already entered. The panel shows what the census records contain — name, age, occupation, religion, birthplace, Irish language ability, household members, and location.",
       "censusAttributionTitle": "Census data licence",
       "censusAttributionBody": "The 1926 Census records are published by the National Archives of Ireland under the Creative Commons Attribution 4.0 International licence (CC BY 4.0). Records may be freely used with attribution. The census is being released in phases — not all counties or households may be available yet."
     },
@@ -664,19 +664,22 @@
     "toggle": "1926 Census",
     "toggleTooltip": "Irish 1926 Census courtesy of the National Archives of Ireland",
     "title": "1926 Irish Census",
+    "heroTitle": "Search the 1926 Irish Census",
+    "heroSubtitle": "Full households, occupations, religion, birthplace, Irish language ability and more",
+    "contentsItems": [
+      "Name & age", "Occupation", "Religion", "Birthplace",
+      "Irish language", "Marital status", "Household members", "County & townland"
+    ],
+    "searchPrompt": "Pre-fill your search, then open the National Archives search in a new tab:",
     "fieldSurname": "Surname",
     "fieldSurnamePlaceholder": "e.g. Murphy",
     "fieldForename": "First name",
     "fieldForenamePlaceholder": "e.g. Patrick",
     "fieldCounty": "County",
     "allCounties": "All counties",
-    "search": "Search",
-    "reset": "Clear",
-    "openInTab": "Open in new tab",
+    "searchWithFields": "Search the 1926 Census",
+    "searchBrowse": "Browse the 1926 Census",
     "attribution": "Census records provided by the",
-    "attributionLink": "National Archives of Ireland",
-    "iframeHint": "If the search does not appear, use 'Open in new tab'.",
-    "iframeBlocked": "Embedded view blocked by the National Archives website.",
-    "iframeBlockedHint": "Use the button below to search in a new tab instead."
+    "attributionLink": "National Archives of Ireland"
   }
 }

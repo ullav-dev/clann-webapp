@@ -664,19 +664,22 @@
     "toggle": "Volkszählung 1926",
     "toggleTooltip": "Irische Volkszählung 1926 mit freundlicher Genehmigung der Nationalarchive Irlands",
     "title": "Irische Volkszählung 1926",
+    "heroTitle": "Irische Volkszählung 1926 durchsuchen",
+    "heroSubtitle": "Vollständige Haushalte, Berufe, Religion, Geburtsort, Irischkenntnisse und mehr",
+    "contentsItems": [
+      "Name & Alter", "Beruf", "Religion", "Geburtsort",
+      "Irischkenntnisse", "Familienstand", "Haushaltsmitglieder", "Grafschaft & Ortschaft"
+    ],
+    "searchPrompt": "Suche vorausfüllen und die Suche der Nationalarchive in einem neuen Tab öffnen:",
     "fieldSurname": "Nachname",
     "fieldSurnamePlaceholder": "z.B. Murphy",
     "fieldForename": "Vorname",
     "fieldForenamePlaceholder": "z.B. Patrick",
     "fieldCounty": "Grafschaft",
     "allCounties": "Alle Grafschaften",
-    "search": "Suchen",
-    "reset": "Zurücksetzen",
-    "openInTab": "In neuem Tab öffnen",
+    "searchWithFields": "Volkszählung 1926 durchsuchen",
+    "searchBrowse": "Volkszählung 1926 durchstöbern",
     "attribution": "Volkszählungsunterlagen bereitgestellt von den",
-    "attributionLink": "Nationalarchiven Irlands",
-    "iframeHint": "Falls die Suche nicht erscheint, 'In neuem Tab öffnen' verwenden.",
-    "iframeBlocked": "Eingebettete Ansicht durch die Website der Nationalarchive blockiert.",
-    "iframeBlockedHint": "Verwenden Sie die Schaltfläche unten, um in einem neuen Tab zu suchen."
+    "attributionLink": "Nationalarchiven Irlands"
   }
 }
