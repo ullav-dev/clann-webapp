@@ -1,0 +1,531 @@
+"use client";
+
+import { useEffect, useState, useCallback, useRef } from "react";
+import dynamic from "next/dynamic";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useTranslations } from "next-intl";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTree } from "@/contexts/TreeContext";
+import { useApi } from "@/hooks/useApi";
+import { DamPicker } from "@ullav/dam-picker";
+import type { PickedAsset } from "@ullav/dam-picker";
+import type { ResearchNote, CreateResearchNote, UpdateResearchNote } from "@/lib/types";
+import WikipediaSearch from "@/components/WikipediaSearch";
+import CensusSearch from "@/components/CensusSearch";
+
+const MarkdownEditor = dynamic(() => import("@/components/MarkdownEditor"), { ssr: false });
+
+// ─── helpers ─────────────────────────────────────────────────────────────────
+
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      year: "numeric", month: "short", day: "numeric",
+      hour: "2-digit", minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+// ─── note editor form ─────────────────────────────────────────────────────────
+
+interface EditorProps {
+  initial?: ResearchNote;
+  token: string;
+  username: string;
+  onSaved: (note: ResearchNote) => void;
+  onCancel: () => void;
+  saving: boolean;
+  setSaving: (v: boolean) => void;
+  onSubmit: (title: string, description: string, body: string) => Promise<void>;
+}
+
+function NoteEditor({ initial, token, username, onSaved, onCancel, saving, onSubmit }: EditorProps) {
+  const t = useTranslations("research");
+  const cursorPosRef = useRef<number | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
+
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [body, setBody] = useState(initial?.body ?? "");
+  const [error, setError] = useState<string | null>(null);
+
+  function insertAssetMarkdown(asset: PickedAsset) {
+    const url = asset.url.replace(/\/?$/, "/thumbnail");
+    const snippet = `![${asset.name}](${url})`;
+    setBody((prev) => {
+      const pos = cursorPosRef.current ?? prev.length;
+      const before = prev.slice(0, pos);
+      const after = prev.slice(pos);
+      const prefix = before.length > 0 && !before.endsWith("\n") ? "\n\n" : "";
+      const suffix = after.length > 0 && !after.startsWith("\n") ? "\n\n" : "";
+      return before + prefix + snippet + suffix + after;
+    });
+    setShowPicker(false);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim()) return;
+    setError(null);
+    try {
+      await onSubmit(title.trim(), description.trim(), body.trim());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("saveFailed"));
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && <p className="text-xs text-red-600">{error}</p>}
+
+      <div>
+        <label className="block text-xs text-stone-500 mb-1">{t("fieldTitle")} *</label>
+        <input
+          required
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder={t("fieldTitlePlaceholder")}
+          className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs text-stone-500 mb-1">{t("fieldDescription")}</label>
+        <input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder={t("fieldDescriptionPlaceholder")}
+          className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        />
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-xs text-stone-500">{t("fieldBody")}</label>
+          <button
+            type="button"
+            onClick={() => setShowPicker((v) => !v)}
+            className="text-xs text-emerald-700 hover:text-emerald-800 transition-colors"
+          >
+            {showPicker ? t("hidePicker") : t("browsePicker")}
+          </button>
+        </div>
+
+        {showPicker && (
+          <div className="mb-3 rounded-lg border border-stone-200 overflow-hidden max-h-64 overflow-y-auto">
+            <DamPicker
+              apiBase="/api/dam"
+              token={token}
+              username={username}
+              filter={(a) => a.asset_type.startsWith("image/")}
+              onSelect={(asset) => { insertAssetMarkdown(asset); }}
+            />
+          </div>
+        )}
+
+        <MarkdownEditor
+          value={body}
+          onChange={(val) => setBody(val ?? "")}
+          textareaProps={{
+            onSelect: (e: React.SyntheticEvent<HTMLTextAreaElement>) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+            onKeyUp:  (e: React.KeyboardEvent<HTMLTextAreaElement>) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+            onMouseUp:(e: React.MouseEvent<HTMLTextAreaElement>) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+          }}
+        />
+      </div>
+
+      <div className="flex gap-2 justify-end">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="border border-stone-300 text-stone-600 hover:bg-stone-50 text-sm px-4 py-2 rounded-lg transition-colors"
+        >
+          {t("cancel")}
+        </button>
+        <button
+          type="submit"
+          disabled={saving || !title.trim()}
+          className="bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        >
+          {saving ? t("saving") : t("save")}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// ─── note card ────────────────────────────────────────────────────────────────
+
+interface NoteCardProps {
+  note: ResearchNote;
+  selected: boolean;
+  canEdit: boolean;
+  onSelect: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  deleting: boolean;
+}
+
+function NoteCard({ note, selected, canEdit, onSelect, onEdit, onDelete, deleting }: NoteCardProps) {
+  const t = useTranslations("research");
+  return (
+    <div
+      onClick={onSelect}
+      className={`cursor-pointer rounded-lg border p-4 transition-colors ${
+        selected
+          ? "border-emerald-400 bg-emerald-50"
+          : "border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="font-medium text-stone-800 text-sm leading-snug flex-1 min-w-0 truncate">
+          {note.title}
+        </h3>
+        {canEdit && (
+          <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={onEdit}
+              className="p-1 text-stone-400 hover:text-stone-700 transition-colors rounded"
+              title={t("editNote")}
+            >
+              ✏️
+            </button>
+            <button
+              onClick={onDelete}
+              disabled={deleting}
+              className="p-1 text-stone-400 hover:text-red-500 transition-colors rounded disabled:opacity-40"
+              title={t("deleteNote")}
+            >
+              🗑️
+            </button>
+          </div>
+        )}
+      </div>
+      {note.description && (
+        <p className="text-xs text-stone-500 mt-1 line-clamp-2">{note.description}</p>
+      )}
+      {note.updated_at && (
+        <p className="text-xs text-stone-400 mt-2">{formatDate(note.updated_at)}</p>
+      )}
+    </div>
+  );
+}
+
+// ─── main component ───────────────────────────────────────────────────────────
+
+export default function ResearchPage() {
+  const t = useTranslations("research");
+  const tCensus = useTranslations("census");
+  const { user, roles, token } = useAuth();
+  const { activeTree, isLoading: treeLoading } = useTree();
+  const apiHook = useApi();
+
+  const [notes, setNotes] = useState<ResearchNote[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [mode, setMode] = useState<"view" | "create" | "edit" | "wikipedia" | "census" | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  // Pre-fill state for "Save as Note" from Wikipedia
+  const [prefill, setPrefill] = useState<{ title: string; description: string; body: string } | null>(null);
+
+  const isAdmin = roles.includes("admin");
+  const selectedNote = notes.find((n) => n.id === selectedId) ?? null;
+
+  const canEditNote = (note: ResearchNote) =>
+    isAdmin || (!!user && user.username === note.created_by);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await apiHook.listResearchNotes();
+      setNotes(data);
+    } catch {
+      setError(t("loadFailed"));
+    } finally {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTree?.name, user?.username]);
+
+  useEffect(() => { load(); }, [load]);
+
+  function handleSelect(id: string) {
+    if (mode === "create") return;
+    if (selectedId === id && mode === "view") {
+      setSelectedId(null);
+      setMode(null);
+    } else {
+      setSelectedId(id);
+      setMode("view");
+    }
+  }
+
+  function handleNewNote() {
+    setSelectedId(null);
+    setPrefill(null);
+    setMode("create");
+  }
+
+  function handleSaveAsNote(title: string, description: string, body: string) {
+    setSelectedId(null);
+    setPrefill({ title, description, body });
+    setMode("create");
+  }
+
+  function handleEdit(note: ResearchNote) {
+    setSelectedId(note.id);
+    setMode("edit");
+  }
+
+  async function handleDelete(note: ResearchNote) {
+    if (!confirm(t("deleteConfirm", { title: note.title }))) return;
+    setDeletingId(note.id);
+    try {
+      await apiHook.deleteResearchNote(note.id);
+      setNotes((prev) => prev.filter((n) => n.id !== note.id));
+      if (selectedId === note.id) { setSelectedId(null); setMode(null); }
+    } catch {
+      alert(t("deleteFailed"));
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function handleCreate(title: string, description: string, body: string) {
+    setSaving(true);
+    try {
+      const payload: CreateResearchNote = {
+        title,
+        description: description || null,
+        body: body || null,
+        trees: activeTree ? [activeTree.name] : [],
+        created_by: user?.username ?? null,
+      };
+      const created = await apiHook.createResearchNote(payload);
+      setNotes((prev) => [created, ...prev]);
+      setSelectedId(created.id);
+      setMode("view");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleUpdate(title: string, description: string, body: string) {
+    if (!selectedNote) return;
+    setSaving(true);
+    try {
+      const payload: UpdateResearchNote = {
+        title,
+        description: description || null,
+        body: body || null,
+      };
+      const updated = await apiHook.updateResearchNote(selectedNote.id, payload);
+      setNotes((prev) => prev.map((n) => n.id === updated.id ? updated : n));
+      setMode("view");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (treeLoading || !user) return null;
+
+  if (!activeTree) {
+    return (
+      <div className="text-center py-20 text-stone-400">
+        <div className="text-5xl mb-4">📝</div>
+        <p className="text-lg font-medium text-stone-600">{t("noTreeTitle")}</p>
+        <p className="text-sm mt-1">{t("noTreeDescription")}</p>
+      </div>
+    );
+  }
+
+  const rightPanel = () => {
+    if (mode === "wikipedia") {
+      return (
+        <div className="bg-white rounded-xl border border-stone-200 p-6">
+          <WikipediaSearch onSaveAsNote={handleSaveAsNote} />
+        </div>
+      );
+    }
+
+    if (mode === "census") {
+      return (
+        <div className="bg-white rounded-xl border border-stone-200 p-6 flex flex-col gap-4">
+          <h2 className="text-base font-semibold text-stone-800">{tCensus("title")}</h2>
+          <CensusSearch />
+        </div>
+      );
+    }
+
+    if (mode === "create") {
+      return (
+        <div className="bg-white rounded-xl border border-stone-200 p-6">
+          <h2 className="text-base font-semibold text-stone-800 mb-4">{t("newNote")}</h2>
+          <NoteEditor
+            initial={prefill ? { title: prefill.title, description: prefill.description, body: prefill.body } as ResearchNote : undefined}
+            token={token ?? ""}
+            username={user.username}
+            saving={saving}
+            setSaving={setSaving}
+            onSubmit={handleCreate}
+            onSaved={() => {}}
+            onCancel={() => { setPrefill(null); setMode(null); }}
+          />
+        </div>
+      );
+    }
+
+    if (mode === "edit" && selectedNote) {
+      return (
+        <div className="bg-white rounded-xl border border-stone-200 p-6">
+          <h2 className="text-base font-semibold text-stone-800 mb-4">{t("editNote")}</h2>
+          <NoteEditor
+            initial={selectedNote}
+            token={token ?? ""}
+            username={user.username}
+            saving={saving}
+            setSaving={setSaving}
+            onSubmit={handleUpdate}
+            onSaved={() => {}}
+            onCancel={() => setMode("view")}
+          />
+        </div>
+      );
+    }
+
+    if (mode === "view" && selectedNote) {
+      return (
+        <div className="bg-white rounded-xl border border-stone-200 p-6 space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold text-stone-800">{selectedNote.title}</h2>
+              {selectedNote.description && (
+                <p className="text-sm text-stone-500 mt-0.5">{selectedNote.description}</p>
+              )}
+            </div>
+            {canEditNote(selectedNote) && (
+              <button
+                onClick={() => handleEdit(selectedNote)}
+                className="shrink-0 text-sm text-emerald-700 hover:text-emerald-800 font-medium transition-colors"
+              >
+                {t("editNote")}
+              </button>
+            )}
+          </div>
+
+          {selectedNote.updated_at && (
+            <p className="text-xs text-stone-400">{t("lastEdited")}: {formatDate(selectedNote.updated_at)}</p>
+          )}
+
+          {selectedNote.body ? (
+            <div className="prose prose-stone prose-sm max-w-none border-t border-stone-100 pt-4">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{selectedNote.body}</ReactMarkdown>
+            </div>
+          ) : (
+            <p className="text-sm text-stone-400 italic border-t border-stone-100 pt-4">{t("emptyBody")}</p>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-48 text-stone-400 rounded-xl border-2 border-dashed border-stone-200">
+        <span className="text-4xl mb-3">📝</span>
+        <p className="text-sm">{t("selectOrCreate")}</p>
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-stone-800">{t("title")}</h1>
+          <p className="text-stone-500 mt-1 text-sm">
+            {loading ? t("loading") : t("noteCount", { count: notes.length })}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <button
+            onClick={() => setMode(mode === "census" ? null : "census")}
+            title={tCensus("toggleTooltip")}
+            className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
+              mode === "census"
+                ? "bg-amber-600 text-white border-amber-600 hover:bg-amber-700"
+                : "bg-white text-stone-700 border-stone-300 hover:bg-stone-50"
+            }`}
+          >
+            📜 {tCensus("toggle")}
+          </button>
+          <button
+            onClick={() => setMode(mode === "wikipedia" ? null : "wikipedia")}
+            className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
+              mode === "wikipedia"
+                ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
+                : "bg-white text-stone-700 border-stone-300 hover:bg-stone-50"
+            }`}
+          >
+            🌐 {t("wikiToggle")}
+          </button>
+          <button
+            onClick={handleNewNote}
+            className="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors text-sm"
+          >
+            <span>+</span> {t("newNote")}
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Note list */}
+        <div className="lg:w-80 shrink-0 space-y-2">
+          {loading ? (
+            <div className="text-sm text-stone-400 py-8 text-center">{t("loading")}</div>
+          ) : notes.length === 0 ? (
+            <div className="text-center py-10 text-stone-400">
+              <p className="text-sm">{t("empty")}</p>
+              <button
+                onClick={handleNewNote}
+                className="mt-3 text-sm text-emerald-700 hover:text-emerald-800 font-medium transition-colors"
+              >
+                {t("addFirstNote")}
+              </button>
+            </div>
+          ) : (
+            notes.map((note) => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                selected={selectedId === note.id}
+                canEdit={canEditNote(note)}
+                onSelect={() => handleSelect(note.id)}
+                onEdit={() => handleEdit(note)}
+                onDelete={() => handleDelete(note)}
+                deleting={deletingId === note.id}
+              />
+            ))
+          )}
+        </div>
+
+        {/* Editor / viewer panel */}
+        <div className="flex-1 min-w-0">
+          {rightPanel()}
+        </div>
+      </div>
+    </div>
+  );
+}

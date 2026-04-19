@@ -11,6 +11,9 @@ import type {
   LifeEvent,
   CreateLifeEvent,
   UpdateLifeEvent,
+  ResearchNote,
+  CreateResearchNote,
+  UpdateResearchNote,
 } from "./types";
 
 // In the browser, use relative paths so Next.js proxies to the backend (avoids CORS).
@@ -221,3 +224,29 @@ export const updateLifeEvent = (eventId: string, body: UpdateLifeEvent): Promise
 
 export const deleteLifeEvent = (eventId: string): Promise<void> =>
   request(`/api/life-events/${rawEventId(eventId)}`, { method: "DELETE" });
+
+/** Strip the "research_note:" prefix, returning just the ULID part. */
+export function rawNoteId(id: string): string {
+  return id.startsWith("research_note:") ? id.slice(14) : id;
+}
+
+// Research Notes
+export const listResearchNotes = (tree?: string, createdBy?: string): Promise<ResearchNote[]> => {
+  const params = new URLSearchParams();
+  if (tree) params.set("tree", tree);
+  if (createdBy) params.set("created_by", createdBy);
+  const qs = params.toString();
+  return request(`/api/notes${qs ? `?${qs}` : ""}`);
+};
+
+export const createResearchNote = (body: CreateResearchNote): Promise<ResearchNote> =>
+  request("/api/notes", { method: "POST", body: JSON.stringify(body) });
+
+export const getResearchNote = (noteId: string): Promise<ResearchNote> =>
+  request(`/api/notes/${rawNoteId(noteId)}`);
+
+export const updateResearchNote = (noteId: string, body: UpdateResearchNote): Promise<ResearchNote> =>
+  request(`/api/notes/${rawNoteId(noteId)}`, { method: "PUT", body: JSON.stringify(body) });
+
+export const deleteResearchNote = (noteId: string): Promise<void> =>
+  request(`/api/notes/${rawNoteId(noteId)}`, { method: "DELETE" });

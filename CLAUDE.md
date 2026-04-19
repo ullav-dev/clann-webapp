@@ -79,6 +79,9 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 - `src/lib/tree-import.ts` — pure parser for the Clann JSON export format; deduplicates persons and relationships. Exports the shared `ParsedImport` interface (includes optional `warnings?: string[]`) and the `slugify` helper used by both importers.
 - `src/lib/gedcom-export.ts` — pure function `exportToGedcom(persons, relationships, treeName)` → GEDCOM 5.5.1 string. Maps persons to INDI records (NAME with GIVN/SURN/NICK, SEX, BIRT/DEAT, NOTE for biography) and derives FAM records from spouse pairs and parent–child relationships; siblings are listed as CHIL in shared FAM records. Output uses UTF-8 and CRLF line endings.
 - `src/lib/gedcom-import.ts` — pure function `parseGedcomFile(content)` → `ParsedImport`. Groups GEDCOM lines into INDI/FAM records; extracts given name, middle name, surname, nickname (prefers explicit GIVN/SURN/NICK subfields), SEX, BIRT/DEAT events, NOTE → biography (with CONT/CONC continuation). FAM records → Spouse (with marriage date as `spouse_from`), Father/Mother (derived from sex of HUSB/WIFE), and Sibling relationships for all children sharing a FAM. Unresolvable references and missing fields are collected as human-readable warnings returned in `ParsedImport.warnings`.
+- `src/components/ResearchPage.tsx` — full-page Research workspace at `/research`. Two-panel layout: scrollable note list (left, `lg:w-80`) and a right panel that switches between view/create/edit/wikipedia/census modes. Header has three action buttons: **📜 1926 Census** (amber, toggles `CensusSearch`), **🌐 Wikipedia** (blue, toggles `WikipediaSearch`), and **+ New Note**. "Save as Note" from Wikipedia pre-fills the create form via `prefill` state. Notes are tree-scoped via `useApi.listResearchNotes()`.
+- `src/components/WikipediaSearch.tsx` — Wikipedia search panel. Debounced search (350 ms) against `https://{locale}.wikipedia.org/w/rest.php/v1/search/page` (current REST API; the old `api/rest_v1/page/search` endpoint was deprecated). Selecting a result fetches the full summary from `api/rest_v1/page/summary/{key}`. "Save as Note" callback passes title, Wikipedia URL (as description), and a markdown body (extract + citation link) back to `ResearchPage`.
+- `src/components/CensusSearch.tsx` — 1926 Irish Census search panel. Fields: Surname, First Name, County (all 26 Irish counties). Constructs a URL using `surname__icontains` / `forename__icontains` / `county` query params (Django-style, matching the NAI search backend) and loads it in a sandboxed `<iframe>`. `onError` detects iframe failure and shows a fallback "Open in new tab" button. Attribution to the National Archives of Ireland (CC BY 4.0) is always displayed.
 
 **Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token). The context also implements **idle session timeout**: after `NEXT_PUBLIC_IDLE_TIMEOUT_MS` ms of inactivity (default 1 hour) the user is automatically signed out; a warning modal appears 60 s beforehand with "Stay Signed In" / "Sign Out Now" buttons. Activity events (`mousemove`, `keydown`, `pointerdown`, `scroll`, `touchstart`) reset the timer; events are ignored while the modal is open so the user must make an explicit choice. The `IdleWarningModal` component lives inside `AuthContext.tsx`.
 
@@ -95,7 +98,8 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 | Route | Description |
 |---|---|
 | `/[locale]` | Landing page (hero + feature cards) |
-| `/[locale]/help` | In-app documentation (getting started, people, relationships, family tree, life story, family list, multiple trees, GEDCOM exchange) |
+| `/[locale]/help` | In-app documentation (getting started, people, relationships, family tree, life story, family list, research, multiple trees, GEDCOM exchange) |
+| `/[locale]/research` | Research workspace — note list + editor, Wikipedia search, 1926 Irish Census search |
 | `/[locale]/login` | Sign in / create account / forgot password |
 | `/[locale]/auth/confirm-email` | Handles email verification link clicks (`?token=`); activates account |
 | `/[locale]/auth/password-reset` | Handles password reset link clicks (`?token=`); new-password form |
@@ -147,7 +151,7 @@ After parsing, the modal creates a new tree via `TreeContext.createTree(..., { s
 
 **Library:** next-intl v4. Supported locales: `en` (default), `de`, `ga`. Defined in `src/i18n/routing.ts`.
 
-- Translation files live in `messages/{locale}.json`, organised by namespace (`nav`, `family`, `personDetail`, `personForm`, `addRelationship`, `imageUpload`, `familyTree`, `disclaimer`, `footer`, `help`, `idleWarning`, etc.)
+- Translation files live in `messages/{locale}.json`, organised by namespace (`nav`, `family`, `personDetail`, `personForm`, `addRelationship`, `imageUpload`, `familyTree`, `disclaimer`, `footer`, `help`, `idleWarning`, `research`, `census`, etc.)
 - Server components use `await getTranslations("namespace")` (from `next-intl/server`)
 - Client components use `useTranslations("namespace")` (React hook)
 - Do **not** use `t.rich(...)` with `{placeholder}` syntax — use separate keys or XML-style tags (`<b>text</b>`) instead. The `{br}` self-closing placeholder is not supported; split into two keys and insert `<br />` manually.
@@ -197,6 +201,31 @@ The biography field is edited via `MarkdownEditor` (a dynamic-import wrapper aro
 - Verified checkbox
 
 On save the event is patched in-place via `updateLifeEvent` and the list is re-sorted without a full reload.
+
+## Research page
+
+`src/components/ResearchPage.tsx` renders the **📝 Research** page at `/[locale]/research`.
+
+**Data:** `api.listResearchNotes(tree?, createdBy?)` / `createResearchNote` / `updateResearchNote` / `deleteResearchNote`. The API uses `rawNoteId()` (strips `"research_note:"` prefix). Notes are scoped to the active tree via `useApi.listResearchNotes()` which injects `tree=activeTree.name` and `created_by=username` automatically.
+
+**Note fields:** `title` (required), `description` (short text), `body` (markdown), `trees` (array of tree names — M2M-ready schema), `created_by`, `created_at`, `updated_at` (set by SurrealDB `DEFAULT <string>time::now()`; `updated_at` refreshed via `<string>time::now()` in every UPDATE query).
+
+**Backend endpoints:**
+| Method | Path | Notes |
+|---|---|---|
+| `POST` | `/api/notes` | Create note; `trees` array in body |
+| `GET` | `/api/notes?tree=<name>&created_by=<user>` | List notes for a tree |
+| `GET` | `/api/notes/{id}` | Single note |
+| `PUT` | `/api/notes/{id}` | Full update; sets `updated_at = <string>time::now()` |
+| `DELETE` | `/api/notes/{id}` | Delete |
+
+**Layout:** left column (`lg:w-80`) lists note cards with title, description, and last-edited date; right panel switches between modes: `view` (read-only markdown), `create` / `edit` (editor form), `wikipedia` (`WikipediaSearch`), `census` (`CensusSearch`), or null (empty state prompt).
+
+**Wikipedia search:** Uses `https://{lang}.wikipedia.org/w/rest.php/v1/search/page` for search (note: the old `api/rest_v1/page/search` endpoint is deprecated) and `api/rest_v1/page/summary/{key}` for article detail. Language derived from `useLocale()`. "Save as Note" pre-fills the create form with the article title, Wikipedia URL as description, and a markdown body containing the extract plus a citation link.
+
+**1926 Irish Census:** Embeds `https://nationalarchives.ie/collections/search-the-1926-census/` (and its `/search-results/` sub-path) in a sandboxed iframe. Search fields pre-populate the URL with `surname__icontains`, `forename__icontains`, `county` params. Data is published by the National Archives of Ireland under CC BY 4.0 — attribution is always displayed in the UI.
+
+**Edit access:** `canEdit = roles.includes("admin") || user.username === note.created_by`.
 
 ## Family Tree graph
 

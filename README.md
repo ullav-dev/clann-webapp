@@ -23,7 +23,11 @@ A responsive, localised family tree management application built with Next.js, b
 - **Authentication** — sign in, registration (first name, surname, sex, email, password) with **email verification**, and **email-based password reset** via ullav-user-management; registration requires accepting both a **Disclaimer** and the **Terms & Conditions** (each opens a scrollable modal); on first login the initial family tree and person are created automatically from the registration details; the webapp passes the correct locale-aware callback URL (`app_url`) directly in each auth API request so no static `APP_BASE_URL` is needed in the auth service config; family data is gated behind sign-in; ownership filter enforced server-side; all password fields have a show/hide toggle; **idle session timeout** automatically signs out inactive users after 1 hour (configurable via `NEXT_PUBLIC_IDLE_TIMEOUT_MS`), with a localised 60-second warning modal before sign-out
 - **Life Story** — biography field accepts markdown (headings, bold, italic, lists, links); rendered as formatted prose in the dedicated **Life Story** tab on each person's profile page; edited using a toolbar-driven markdown editor in the edit form. Images from the **media library** can be inserted inline: click "Browse media library" to open an inline asset picker, then click an image to insert it at the cursor position, or drag it onto the drop zone below the editor — images are inserted as thumbnails at the current cursor position. An optional **life story image** (JPEG/PNG ≤ 2 MB) can be uploaded directly from the Life Story tab and is displayed top-left alongside the biography text. The tab includes an **Export as PDF** button that opens the browser print dialog; the output is named after the person and includes their name, birth details, life story image, and full biography
 - **Life Events** — chronological timeline on each person's profile (📅 Life Events tab); events have a name, date, type (Birth, Death, Marriage, Divorce, Graduation, Military, Immigration, Emigration, Other — or a custom label), a short description, a long-form story (markdown with media library image insertion), an external source URL, source image and source document (each picked from the media library), and a verified flag; events are sorted by date using a fuzzy date parser (undated events sort last); each event type has a distinct icon and colour; a **Details pill** (always visible on cards with story or source content) expands an inline read-only panel showing the full story rendered as formatted markdown, source image as an authenticated inline thumbnail, and source document as a named download link (asset name resolved from DAM metadata); editing opens in a modal without a page reload; edit and delete actions are restricted to the person's owner and admins
-- **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, life events, list view, multiple trees, GEDCOM exchange), accessible from the nav bar (far-right item) without logging in
+- **Research workspace** — dedicated `/research` page (tree-scoped) for capturing genealogical research:
+  - **Research notes** — create, edit, and delete markdown notes with a title and short description; notes support inline media library image insertion at the cursor position
+  - **Wikipedia search** — inline panel using the Wikipedia REST API; search by name, place, or event; select a result to read the article summary; **Save as Note** pre-fills a new note with the article title, URL, and extract. Searches the Wikipedia edition matching the current language setting
+  - **1926 Irish Census** — embedded search panel loading the [National Archives of Ireland](https://nationalarchives.ie/collections/search-the-1926-census/) census interface; pre-populate surname, forename, and county fields; falls back gracefully to "Open in new tab" if the iframe is blocked. Census data published under **CC BY 4.0**
+- **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, life events, research, list view, multiple trees, GEDCOM exchange), accessible from the nav bar without logging in
 - **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
 
 ## Prerequisites
@@ -125,6 +129,7 @@ src/
           page.tsx          # Handles password reset link (?token=)
       help/page.tsx         # In-app documentation (server component)
       family/page.tsx       # Person list (card/list, sort, search, pagination)
+      research/page.tsx     # Research workspace (notes, Wikipedia, 1926 Census)
       persons/
         new/page.tsx        # Create person
         [id]/
@@ -135,6 +140,9 @@ src/
     PersonForm.tsx          # Shared create/edit form (biography uses MarkdownEditor)
     MarkdownEditor.tsx      # Dynamically-imported @uiw/react-md-editor wrapper (SSR-safe)
     LifeTimeline.tsx        # Life Events tab: left-spine timeline, add/edit/delete events
+    ResearchPage.tsx        # Research workspace: notes list + editor, Wikipedia/Census panels
+    WikipediaSearch.tsx     # Debounced Wikipedia search (w/rest.php/v1); Save as Note
+    CensusSearch.tsx        # 1926 Irish Census embedded iframe + pre-populated deep-link search
     AddRelationshipModal.tsx # Link relationships
     PersonCard.tsx          # Card on list page
     PersonAvatar.tsx        # Circular photo with fallback emoji
@@ -164,6 +172,8 @@ src/
     tree-import.ts          # Parser for Clann JSON export format; exports ParsedImport, slugify
     gedcom-export.ts        # Pure GEDCOM 5.5.1 serialiser (exportToGedcom)
     gedcom-import.ts        # Pure GEDCOM 5.5.1 parser (parseGedcomFile) with warnings
+    # Research Notes API: listResearchNotes / createResearchNote / updateResearchNote /
+    # deleteResearchNote / rawNoteId — all in api.ts; types in types.ts
   proxy.ts                  # API/auth rewrites + locale detection (Next.js 16 proxy convention)
 ```
 
@@ -187,3 +197,19 @@ npm run test:watch # Watch mode
 All browser requests go through the Next.js proxy (`src/proxy.ts`): `/api/*` is rewritten to clann-server, `/auth-api/*` to ullav-user-management, and `/api/dam/*` to ullav-dam-server (with the `/api/dam` prefix stripped), so there are no CORS issues. The backend URLs are configured via `API_URL`, `AUTH_URL`, and `DAM_URL` in `.env.local` (runtime env vars, not `NEXT_PUBLIC_*`).
 
 Every API call includes `created_by=<username>` (applied automatically by `useApi`). The backend enforces ownership server-side and grants admin access when the username matches the `ADMIN_USERNAME` environment variable.
+
+### Research Notes API
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/api/notes` | Create a research note |
+| `GET` | `/api/notes?tree=<name>&created_by=<user>` | List notes for the active tree |
+| `GET` | `/api/notes/{id}` | Get a single note |
+| `PUT` | `/api/notes/{id}` | Update title, description, or body |
+| `DELETE` | `/api/notes/{id}` | Delete a note |
+
+Notes are stored in the `research_note` SurrealDB table with a `trees: array<string>` field, making the schema M2M-ready for future cross-tree note sharing.
+
+## Third-party data
+
+The 1926 Irish Census records displayed via the Research page are published by the **National Archives of Ireland** under the [Creative Commons Attribution 4.0 International licence](https://creativecommons.org/licenses/by/4.0/). Attribution is displayed in the Census search panel. Census data is being released in phases — not all counties or households are available yet.

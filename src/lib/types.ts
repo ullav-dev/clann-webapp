@@ -172,3 +172,30 @@ export interface UpdateLifeEvent {
   source_image?: string | null;
   source_doc?: string | null;
 }
+
+// Research Notes
+export interface ResearchNote {
+  id: string; // "research_note:<ulid>"
+  title: string;
+  description?: string | null;
+  body?: string | null;
+  trees: string[];
+  created_by?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface CreateResearchNote {
+  title: string;
+  description?: string | null;
+  body?: string | null;
+  trees: string[];
+  created_by?: string | null;
+}
+
+export interface UpdateResearchNote {
+  title?: string | null;
+  description?: string | null;
+  body?: string | null;
+  trees?: string[] | null;
+}
