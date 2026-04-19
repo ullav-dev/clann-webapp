@@ -427,7 +427,10 @@ export default function ResearchPage() {
 
           {selectedNote.body ? (
             <div className="prose prose-stone prose-sm max-w-none border-t border-stone-100 pt-4">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{selectedNote.body}</ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{ a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}
+              >{selectedNote.body}</ReactMarkdown>
             </div>
           ) : (
             <p className="text-sm text-stone-400 italic border-t border-stone-100 pt-4">{t("emptyBody")}</p>
