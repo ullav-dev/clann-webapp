@@ -15,7 +15,7 @@ interface PlanSpec {
 }
 
 const PLAN_LIMITS: Record<string, PlanSpec> = {
-  individual:   { maxTrees: 2,        maxMembers: 100,      dam: "none" },
+  individual:   { maxTrees: 2,        maxMembers: 100,      dam: "images" },
   family:       { maxTrees: 10,       maxMembers: 1_000,    dam: "images" },
   professional: { maxTrees: Infinity, maxMembers: Infinity, dam: "full" },
   enterprise:   { maxTrees: Infinity, maxMembers: Infinity, dam: "full" },

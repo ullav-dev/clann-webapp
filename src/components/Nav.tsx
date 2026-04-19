@@ -40,6 +40,9 @@ export default function Nav() {
                 <Link href="/family" className={activeLink("/family")}>
                   {t("myFamily")}
                 </Link>
+                <Link href="/research" className={activeLink("/research")}>
+                  {t("research")}
+                </Link>
                 <TreeSelector />
                 <Link
                   href="/persons/new"

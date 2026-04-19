@@ -79,6 +79,17 @@ export default async function HelpPage() {
         </Cards>
       </Section>
 
+      <Section title={t("research.title")} icon="📝">
+        <Cards>
+          <Card title={t("research.overviewTitle")} body={t("research.overviewBody")} />
+          <Card title={t("research.notesTitle")} body={t("research.notesBody")} />
+          <Card title={t("research.editingTitle")} body={t("research.editingBody")} />
+          <Card title={t("research.wikiTitle")} body={t("research.wikiBody")} />
+          <Card title={t("research.censusTitle")} body={t("research.censusBody")} />
+          <Card title={t("research.censusAttributionTitle")} body={t("research.censusAttributionBody")} />
+        </Cards>
+      </Section>
+
       <Section title={t("multipleTrees.title")} icon="🌲">
         <Cards>
           <Card title={t("multipleTrees.manageTitle")} body={t("multipleTrees.manageBody")} />

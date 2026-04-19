@@ -8,6 +8,8 @@ import type {
   UpdatePerson,
   AddRelationshipRequest,
   UpdateSpouseDatesRequest,
+  CreateResearchNote,
+  UpdateResearchNote,
 } from "@/lib/types";
 
 /**
@@ -43,5 +45,11 @@ export function useApi() {
     rawId: api.rawId,
     personImageUrl: api.personImageUrl,
     personLifeImageUrl: api.personLifeImageUrl,
+    listResearchNotes: () => api.listResearchNotes(tree, createdBy),
+    createResearchNote: (body: CreateResearchNote) =>
+      api.createResearchNote({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),
+    updateResearchNote: (id: string, body: UpdateResearchNote) => api.updateResearchNote(id, body),
+    deleteResearchNote: (id: string) => api.deleteResearchNote(id),
+    rawNoteId: api.rawNoteId,
   };
 }

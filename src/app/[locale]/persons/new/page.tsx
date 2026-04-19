@@ -35,6 +35,29 @@ export default function NewPersonPage() {
 
   async function handleSubmit(values: CreatePerson) {
     const person = await apiHook.createPerson(values);
+    const createdBy = user?.username ?? null;
+    const eventPromises = [];
+    if (values.date_of_birth) {
+      eventPromises.push(
+        api.createLifeEvent(person.id, {
+          name: "Birth",
+          event_type: "Birth",
+          date: values.date_of_birth,
+          created_by: createdBy,
+        })
+      );
+    }
+    if (values.date_of_death) {
+      eventPromises.push(
+        api.createLifeEvent(person.id, {
+          name: "Death",
+          event_type: "Death",
+          date: values.date_of_death,
+          created_by: createdBy,
+        })
+      );
+    }
+    await Promise.all(eventPromises);
     router.push(`/persons/${apiHook.rawId(person.id)}`);
   }
 
