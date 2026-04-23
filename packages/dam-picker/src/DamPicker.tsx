@@ -37,6 +37,8 @@ export default function DamPicker({ apiBase, token, username, onSelect, onDragSt
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const loadedAssetIds = useRef(new Set<string>());
@@ -77,28 +79,36 @@ export default function DamPicker({ apiBase, token, username, onSelect, onDragSt
     [categories, username]
   );
 
-  // ── Initial data load ────────────────────────────────────────────────────────
+  // ── Data load (initial + refresh) ────────────────────────────────────────────
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    if (refreshKey === 0) {
+      setLoading(true);
+    } else {
+      setRefreshing(true);
+      loadedAssetIds.current = new Set();
+    }
     setError(null);
 
     Promise.all([client.listAssets(), client.listCategories()])
       .then(([a, c]) => {
         if (cancelled) return;
         setAssets(a);
+        setAssetCategories(new Map());
         setCategories(c);
         setLoading(false);
+        setRefreshing(false);
       })
       .catch((err) => {
         if (cancelled) return;
         setError(err instanceof Error ? err.message : "Failed to load assets.");
         setLoading(false);
+        setRefreshing(false);
       });
 
     return () => { cancelled = true; };
-  }, [client]);
+  }, [client, refreshKey]);
 
   // ── Background lazy-load asset→category mappings ─────────────────────────────
 
@@ -203,14 +213,31 @@ export default function DamPicker({ apiBase, token, username, onSelect, onDragSt
 
       {/* Search + grid */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="shrink-0 px-4 py-3 border-b border-slate-200 bg-white">
+        <div className="shrink-0 px-4 py-3 border-b border-slate-200 bg-white flex items-center gap-2">
           <input
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search assets…"
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
+          <button
+            type="button"
+            onClick={() => setRefreshKey((k) => k + 1)}
+            disabled={refreshing}
+            title="Refresh"
+            className="shrink-0 p-1.5 rounded-lg border border-slate-300 text-slate-500 hover:text-blue-600 hover:border-blue-400 disabled:opacity-40 transition-colors bg-white"
+          >
+            <svg
+              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
         </div>
 
         <PickerGrid
