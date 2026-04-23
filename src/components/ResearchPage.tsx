@@ -326,6 +326,7 @@ export default function ResearchPage() {
         title,
         description: description || null,
         body: body || null,
+        trees: selectedNote.trees,
       };
       const updated = await apiHook.updateResearchNote(selectedNote.id, payload);
       setNotes((prev) => prev.map((n) => n.id === updated.id ? updated : n));
