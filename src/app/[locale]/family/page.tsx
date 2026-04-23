@@ -191,7 +191,7 @@ export default function FamilyPage() {
             ⚡ {t("memberLimitCta")}
           </Link>
         ) : (
-          <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto">
+          <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto">
             <span>+</span> {t("addPerson")}
           </Link>
         )}

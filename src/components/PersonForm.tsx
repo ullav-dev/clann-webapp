@@ -174,7 +174,7 @@ export default function PersonForm({ initial, onSubmit, submitLabel, onCancel }:
         </legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label={t("dateOfBirthLabel")} htmlFor="date_of_birth">
-            <input id="date_of_birth" type="date" value={values.date_of_birth} max={new Date().toISOString().split("T")[0]} onChange={(e) => set("date_of_birth", e.target.value)} className={input} />
+            <input id="date_of_birth" type="text" value={values.date_of_birth} placeholder={t("datePlaceholder")} onChange={(e) => set("date_of_birth", e.target.value)} className={input} />
           </Field>
           <Field label={t("placeOfBirthLabel")} htmlFor="place_of_birth">
             <input id="place_of_birth" value={values.place_of_birth} placeholder={t("placeOfBirthPlaceholder")} onChange={(e) => set("place_of_birth", e.target.value)} className={input} />
@@ -188,7 +188,7 @@ export default function PersonForm({ initial, onSubmit, submitLabel, onCancel }:
         </legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label={t("dateOfDeathLabel")} htmlFor="date_of_death">
-            <input id="date_of_death" type="date" value={values.date_of_death} min={values.date_of_birth || undefined} max={new Date().toISOString().split("T")[0]} onChange={(e) => set("date_of_death", e.target.value)} className={input} />
+            <input id="date_of_death" type="text" value={values.date_of_death} placeholder={t("datePlaceholder")} onChange={(e) => set("date_of_death", e.target.value)} className={input} />
           </Field>
           <Field label={t("placeOfDeathLabel")} htmlFor="place_of_death">
             <input id="place_of_death" value={values.place_of_death} placeholder={t("placeOfDeathPlaceholder")} onChange={(e) => set("place_of_death", e.target.value)} className={input} />
