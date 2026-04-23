@@ -215,6 +215,7 @@
     "birthSection": "Birth",
     "optional": "(optional)",
     "dateOfBirthLabel": "Date of Birth",
+    "datePlaceholder": "e.g. 1 Jan 1950 or 1950",
     "placeOfBirthLabel": "Place of Birth",
     "placeOfBirthPlaceholder": "e.g. Dublin, Ireland",
     "deathSection": "Death",

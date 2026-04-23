@@ -215,6 +215,7 @@
     "birthSection": "Breith",
     "optional": "(roghnach)",
     "dateOfBirthLabel": "Dáta Breithe",
+    "datePlaceholder": "m.sh. 1 Ean 1950 nó 1950",
     "placeOfBirthLabel": "Áit Breithe",
     "placeOfBirthPlaceholder": "m.sh. Baile Átha Cliath, Éire",
     "deathSection": "Bás",

@@ -215,6 +215,7 @@
     "birthSection": "Geburt",
     "optional": "(optional)",
     "dateOfBirthLabel": "Geburtsdatum",
+    "datePlaceholder": "z. B. 1. Jan. 1950 oder 1950",
     "placeOfBirthLabel": "Geburtsort",
     "placeOfBirthPlaceholder": "z. B. Berlin, Deutschland",
     "deathSection": "Tod",
