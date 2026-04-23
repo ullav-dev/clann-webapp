@@ -117,7 +117,7 @@
     "loading": "Laden…",
     "memberLimitCta": "Upgrade für mehr Mitglieder",
     "personCount": "{count, plural, one {# Person} other {# Personen}} in Ihrem Stammbaum",
-    "addPerson": "+ Person hinzufügen",
+    "addPerson": "Person hinzufügen",
     "searchPlaceholder": "Nach Name suchen…",
     "perPage": "Pro Seite",
     "cardView": "Kartenansicht",

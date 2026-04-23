@@ -117,7 +117,7 @@
     "loading": "Loading…",
     "memberLimitCta": "Upgrade to add more",
     "personCount": "{count, plural, one {# person} other {# persons}} in your tree",
-    "addPerson": "+ Add Person",
+    "addPerson": "Add Person",
     "searchPlaceholder": "Search by name…",
     "perPage": "Per page",
     "cardView": "Card view",
