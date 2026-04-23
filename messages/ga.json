@@ -7,7 +7,8 @@
     "login": "Logáil Isteach",
     "help": "Cabhair",
     "pricing": "Praghsanna",
-    "account": "Cuntas"
+    "account": "Cuntas",
+    "activeTree": "Crann Gníomhach"
   },
   "idleWarning": {
     "title": "Seisiún ag Dul in Éag",
