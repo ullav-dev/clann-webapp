@@ -8,7 +8,20 @@
     "help": "Help",
     "pricing": "Pricing",
     "account": "Account",
+    "about": "About Clann",
     "activeTree": "Active Tree"
+  },
+  "about": {
+    "tagline": "Family History & Genealogy",
+    "version": "Version",
+    "build": "Build",
+    "user": "Signed in as",
+    "role": "Role",
+    "roleAdmin": "Administrator",
+    "roleMember": "Member",
+    "helpLink": "Help",
+    "accountLink": "Manage subscription",
+    "close": "Close"
   },
   "idleWarning": {
     "title": "Session Expiring",

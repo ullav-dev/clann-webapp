@@ -8,7 +8,20 @@
     "help": "Cabhair",
     "pricing": "Praghsanna",
     "account": "Cuntas",
+    "about": "Faoi Clann",
     "activeTree": "Crann Gníomhach"
+  },
+  "about": {
+    "tagline": "Stair Teaghlaigh & Gineolaíocht",
+    "version": "Leagan",
+    "build": "Tógáil",
+    "user": "Sínithe isteach mar",
+    "role": "Ról",
+    "roleAdmin": "Riarthóir",
+    "roleMember": "Ball",
+    "helpLink": "Cabhair",
+    "accountLink": "Suibscríbhinn a bhainistiú",
+    "close": "Dún"
   },
   "idleWarning": {
     "title": "Seisiún ag Dul in Éag",

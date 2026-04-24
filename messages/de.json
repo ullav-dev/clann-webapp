@@ -8,7 +8,20 @@
     "help": "Hilfe",
     "pricing": "Preise",
     "account": "Konto",
+    "about": "Über Clann",
     "activeTree": "Aktiver Baum"
+  },
+  "about": {
+    "tagline": "Familiengeschichte & Genealogie",
+    "version": "Version",
+    "build": "Build",
+    "user": "Angemeldet als",
+    "role": "Rolle",
+    "roleAdmin": "Administrator",
+    "roleMember": "Mitglied",
+    "helpLink": "Hilfe",
+    "accountLink": "Abonnement verwalten",
+    "close": "Schließen"
   },
   "idleWarning": {
     "title": "Sitzung läuft ab",
