@@ -46,6 +46,8 @@ export default function AboutModal({ user, roles, onClose }: Props) {
                 <Row label={t("role")} value={roleLabel} mono={false} />
               </>
             )}
+            <EmailRow label={t("support")} email="support@ullav.com" color="text-emerald-700" />
+            <EmailRow label={t("contact")} email="info@ullav.com" color="text-emerald-700" />
           </dl>
         </div>
 
@@ -90,6 +92,17 @@ function Row({ label, value, mono }: { label: string; value: string; mono: boole
       <dt className="text-sm text-stone-500 shrink-0">{label}</dt>
       <dd className={`text-sm font-medium text-stone-800 truncate text-right ${mono ? "font-mono text-xs" : ""}`}>
         {value}
+      </dd>
+    </div>
+  );
+}
+
+function EmailRow({ label, email, color }: { label: string; email: string; color: string }) {
+  return (
+    <div className="flex items-center justify-between py-2.5 gap-4">
+      <dt className="text-sm text-stone-500 shrink-0">{label}</dt>
+      <dd className="text-sm text-right">
+        <a href={`mailto:${email}`} className={`font-medium ${color} hover:underline`}>{email}</a>
       </dd>
     </div>
   );

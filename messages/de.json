@@ -21,6 +21,8 @@
     "roleMember": "Mitglied",
     "helpLink": "Hilfe",
     "accountLink": "Abonnement verwalten",
+    "support": "Support",
+    "contact": "Kontakt",
     "close": "Schließen"
   },
   "idleWarning": {
@@ -455,6 +457,15 @@
       "includedBody": "Exportiert: Name (Vor-, Mittel-, Nachname, Spitzname), Geschlecht, Geburts- und Sterbedaten und -orte, Biografie (als GEDCOM-NOTE) sowie alle Eltern-, Ehe- und Geschwisterbeziehungen einschließlich Heiratsdaten. Nicht exportiert: Profilfotos, Lebensgeschichte-Bilder, Benutzername, E-Mail oder Identitätsverifizierungsstatus — diese sind Clann-spezifische Felder ohne GEDCOM-Entsprechung.",
       "compatTitle": "Kompatibilitätshinweise",
       "compatBody": "Clann schreibt GEDCOM 5.5.1 mit UTF-8-Kodierung und CRLF-Zeilenenden, was von allen gängigen Genealogie-Apps akzeptiert wird. Datumsfelder werden als Freitext gespeichert und unverändert übertragen; Standard-GEDCOM-Datumsformate (z. B. '12 JUN 1950') werden von anderen Apps korrekt interpretiert. Beim Import von ANSEL-kodierten Dateien anderer Apps kann es zu Zeichenkodierungsproblemen kommen — speichern Sie die Datei in der Quell-App zuerst als UTF-8."
+    },
+    "contactUs": {
+      "title": "Kontakt",
+      "supportTitle": "Support",
+      "supportBody": "Bei technischen Problemen, Fragen zu Ihrem Konto oder wenn etwas nicht wie erwartet funktioniert, schreiben Sie uns an support@ullav.com. Bitte beschreiben Sie die Schritte zur Reproduktion des Problems, was Sie erwartet haben, was tatsächlich passiert ist, und fügen Sie Screenshots bei, die das Problem veranschaulichen.",
+      "contactTitle": "Allgemeine Anfragen",
+      "contactBody": "Für allgemeine Fragen, Partnerschaften oder Presseanfragen wenden Sie sich an info@ullav.com.",
+      "accountTitle": "Kontolöschung & Feature-Anfragen",
+      "accountBody": "Um die Löschung Ihres Kontos und aller zugehörigen Daten zu beantragen oder um ein neues Feature vorzuschlagen, schreiben Sie an support@ullav.com. Bitte geben Sie Ihren Benutzernamen bei kontobezogenen Anfragen an."
     }
   },
   "footer": {
