@@ -21,6 +21,8 @@
     "roleMember": "Ball",
     "helpLink": "Cabhair",
     "accountLink": "Suibscríbhinn a bhainistiú",
+    "support": "Tacaíocht",
+    "contact": "Teagmháil",
     "close": "Dún"
   },
   "idleWarning": {
@@ -455,6 +457,15 @@
       "includedBody": "Easpórtáilte: ainm (tugainm, meáinainm, sloinne, leasainm), inscne, dátaí agus áiteanna breithe agus báis, beathaisnéis (mar GEDCOM NOTE), agus gach caidreamh tuismitheora/céile/deartháir-deirféar lena n-áirítear dátaí pósta. Gan easpórtáil: grianghraif phróifíle, íomhánna scéal beatha, ainm úsáideora, ríomhphost, nó bratach aitheantais deimhnithe.",
       "compatTitle": "Nótaí comhoiriúnachta",
       "compatBody": "Scríobhann Clann GEDCOM 5.5.1 le cóidíú UTF-8 agus críochanna líne CRLF, a nglactar leis ag gach príomhfheidhlim gheineolaíochta. Stóráiltear réimsí dáta mar théacs saor-foirm i gClann agus cuirtear tríd mar atá iad; léireoidh feidhlimí eile formáidí dáta caighdeánacha GEDCOM (m.sh. '12 MFÓ 1950') i gceart. Agus comhaid ANSEL-ionchódaithe á n-iompórtáil ó fheidhlimí eile, d'fhéadfadh fadhbanna cóidíthe carachtair teacht chun cinn — sábháil an comhad mar UTF-8 sa fheidhlim fhoinseach ar dtús."
+    },
+    "contactUs": {
+      "title": "Déan Teagmháil Linn",
+      "supportTitle": "Tacaíocht",
+      "supportBody": "Le haghaidh fadhbanna teicniúla, ceisteanna cuntais, nó aon rud nach bhfuil ag obair mar a bhíothas ag súil leis, seol ríomhphost chugainn ag support@ullav.com. Le do thoil, áirigh na céimeanna chun an fhadhb a atáirgeadh, cad a bhí súil agat a tharlódh, cad a tharla i ndáiríre, agus aon gabhálacha scáileáin a chabhraíonn leis an bhfadhb a mhíniú.",
+      "contactTitle": "Fiosrúcháin Ghinearálta",
+      "contactBody": "Le haghaidh ceisteanna ginearálta, comhpháirtíochtaí, nó fiosrúcháin preasa, déan teagmháil linn ag info@ullav.com.",
+      "accountTitle": "Scriosadh Cuntais & Moltaí Gnéithe",
+      "accountBody": "Chun scriosadh do chuntais agus na sonraí go léir a bhaineann leis a iarraidh, nó chun gné nua a mholadh, seol ríomhphost chuig support@ullav.com. Le do thoil, áirigh d'ainm úsáideora in iarratais a bhaineann le do chuntas."
     }
   },
   "footer": {
