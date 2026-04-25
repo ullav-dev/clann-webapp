@@ -175,6 +175,7 @@
     "diedPrefix": "d. {date}",
     "fromPlace": "As {place}",
     "diedInPlace": "Fuair bás i {place}",
+    "researchWithAI": "🤖 Taighde",
     "edit": "Eagar",
     "delete": "Scrios",
     "deleting": "Á scriosadh…",
@@ -711,7 +712,14 @@
     "savedConversationDescription": "Comhrá iomlán sábháilte ón gcúntóir AI",
     "noSettings": "Cúntóir AI gan chumrú fós",
     "noSettingsHint": "Cuir d'eochair API leis sna Socruithe.",
-    "goToSettings": "Cumraigh sna Socruithe"
+    "goToSettings": "Cumraigh sna Socruithe",
+    "personContextBadge": "Ag taighde: {name}",
+    "personContextReady": "Réidh chun taighde a dhéanamh ar {name}",
+    "personContextHint": "Cuir ceist orm faoi thaifid, comhthéacs stairiúil nó straitéisí taighde.",
+    "inputPlaceholderPerson": "Ceist faoi {name}…",
+    "treeContextToggle": "Crann a áireamh",
+    "treeContextBadge": "{count} duine",
+    "treeContextLoading": "Á lódáil…"
   },
   "settings": {
     "title": "Socruithe",

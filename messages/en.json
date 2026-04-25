@@ -175,6 +175,7 @@
     "diedPrefix": "d. {date}",
     "fromPlace": "From {place}",
     "diedInPlace": "Died in {place}",
+    "researchWithAI": "🤖 Research",
     "edit": "Edit",
     "delete": "Delete",
     "deleting": "Deleting…",
@@ -711,7 +712,14 @@
     "savedConversationDescription": "Full conversation saved from AI assistant",
     "noSettings": "AI assistant not configured yet",
     "noSettingsHint": "Add your API key in Settings to start chatting.",
-    "goToSettings": "Configure in Settings"
+    "goToSettings": "Configure in Settings",
+    "personContextBadge": "Researching: {name}",
+    "personContextReady": "Ready to research {name}",
+    "personContextHint": "Ask me about their records, historical context, or research strategies.",
+    "inputPlaceholderPerson": "Ask about {name}…",
+    "treeContextToggle": "Include tree",
+    "treeContextBadge": "{count} people",
+    "treeContextLoading": "Loading tree…"
   },
   "settings": {
     "title": "Settings",

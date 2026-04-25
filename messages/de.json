@@ -175,6 +175,7 @@
     "diedPrefix": "gest. {date}",
     "fromPlace": "Aus {place}",
     "diedInPlace": "Gestorben in {place}",
+    "researchWithAI": "🤖 Recherche",
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "deleting": "Löschen…",
@@ -711,7 +712,14 @@
     "savedConversationDescription": "Vollständiges Gespräch vom KI-Assistenten gespeichert",
     "noSettings": "KI-Assistent noch nicht konfiguriert",
     "noSettingsHint": "Fügen Sie Ihren API-Schlüssel in den Einstellungen hinzu.",
-    "goToSettings": "In Einstellungen konfigurieren"
+    "goToSettings": "In Einstellungen konfigurieren",
+    "personContextBadge": "Recherche: {name}",
+    "personContextReady": "Bereit für Recherche zu {name}",
+    "personContextHint": "Fragen Sie mich nach Quellen, historischem Kontext oder Recherchestrategien.",
+    "inputPlaceholderPerson": "Fragen Sie zu {name}…",
+    "treeContextToggle": "Stammbaum einbeziehen",
+    "treeContextBadge": "{count} Personen",
+    "treeContextLoading": "Lade Stammbaum…"
   },
   "settings": {
     "title": "Einstellungen",

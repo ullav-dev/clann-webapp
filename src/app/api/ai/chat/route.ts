@@ -43,7 +43,24 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { messages } = (await req.json()) as { messages: UIMessage[] };
+  const {
+    messages,
+    personContext,
+    treeContext,
+  } = (await req.json()) as {
+    messages: UIMessage[];
+    personContext?: string;
+    treeContext?: string;
+  };
+
+  // Build enriched system prompt when the client provides context.
+  let systemPrompt = GENEALOGY_SYSTEM_PROMPT;
+  if (personContext) {
+    systemPrompt += `\n\n---\nCURRENT RESEARCH SUBJECT:\n${personContext}\n---`;
+  }
+  if (treeContext) {
+    systemPrompt += `\n\n---\nFAMILY TREE DATA:\n${treeContext}\n---`;
+  }
 
   try {
     let model;
@@ -65,7 +82,7 @@ export async function POST(req: NextRequest) {
 
     const result = streamText({
       model,
-      system: GENEALOGY_SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: await convertToModelMessages(messages),
     });
 

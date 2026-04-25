@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -225,6 +226,10 @@ export default function ResearchPage() {
   const { user, roles, token } = useAuth();
   const { activeTree, isLoading: treeLoading } = useTree();
   const apiHook = useApi();
+  const searchParams = useSearchParams();
+
+  // When navigating from a person's detail page, personId is provided as a query param.
+  const aiPersonId = searchParams.get("personId") ?? undefined;
 
   const [notes, setNotes] = useState<ResearchNote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -258,6 +263,11 @@ export default function ResearchPage() {
   }, [activeTree?.name, user?.username]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Auto-open AI panel when arriving from a person's detail page.
+  useEffect(() => {
+    if (aiPersonId) setMode("ai");
+  }, [aiPersonId]);
 
   function handleSelect(id: string) {
     if (mode === "create") return;
@@ -354,7 +364,7 @@ export default function ResearchPage() {
     if (mode === "ai") {
       return (
         <div className="bg-white rounded-xl border border-stone-200 p-6 h-full">
-          <AiChat onSaveAsNote={handleSaveAsNote} />
+          <AiChat onSaveAsNote={handleSaveAsNote} personId={aiPersonId} />
         </div>
       );
     }
