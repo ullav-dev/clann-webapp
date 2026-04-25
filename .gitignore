@@ -25,6 +25,9 @@
 resources
 memory
 
+# AI settings (encrypted API keys — never commit)
+.ai-settings.json
+
 # misc
 *.pem
 
