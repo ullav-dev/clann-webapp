@@ -13,6 +13,7 @@ import type { PickedAsset } from "@ullav/dam-picker";
 import type { ResearchNote, CreateResearchNote, UpdateResearchNote } from "@/lib/types";
 import WikipediaSearch from "@/components/WikipediaSearch";
 import CensusSearch from "@/components/CensusSearch";
+import AiChat from "@/components/AiChat";
 
 const MarkdownEditor = dynamic(() => import("@/components/MarkdownEditor"), { ssr: false });
 
@@ -220,6 +221,7 @@ function NoteCard({ note, selected, canEdit, onSelect, onEdit, onDelete, deletin
 export default function ResearchPage() {
   const t = useTranslations("research");
   const tCensus = useTranslations("census");
+  const tAi = useTranslations("aiChat");
   const { user, roles, token } = useAuth();
   const { activeTree, isLoading: treeLoading } = useTree();
   const apiHook = useApi();
@@ -229,7 +231,7 @@ export default function ResearchPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [mode, setMode] = useState<"view" | "create" | "edit" | "wikipedia" | "census" | null>(null);
+  const [mode, setMode] = useState<"view" | "create" | "edit" | "wikipedia" | "census" | "ai" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   // Pre-fill state for "Save as Note" from Wikipedia
@@ -349,6 +351,14 @@ export default function ResearchPage() {
   }
 
   const rightPanel = () => {
+    if (mode === "ai") {
+      return (
+        <div className="bg-white rounded-xl border border-stone-200 p-6 h-full">
+          <AiChat onSaveAsNote={handleSaveAsNote} />
+        </div>
+      );
+    }
+
     if (mode === "wikipedia") {
       return (
         <div className="bg-white rounded-xl border border-stone-200 p-6">
@@ -458,6 +468,17 @@ export default function ResearchPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-end">
+          <button
+            onClick={() => setMode(mode === "ai" ? null : "ai")}
+            title={tAi("toggleTooltip")}
+            className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
+              mode === "ai"
+                ? "bg-violet-600 text-white border-violet-600 hover:bg-violet-700"
+                : "bg-white text-stone-700 border-stone-300 hover:bg-stone-50"
+            }`}
+          >
+            🤖 {tAi("toggle")}
+          </button>
           <button
             onClick={() => setMode(mode === "census" ? null : "census")}
             title={tCensus("toggleTooltip")}
