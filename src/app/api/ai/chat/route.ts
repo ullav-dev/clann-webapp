@@ -3,8 +3,10 @@ import { streamText, convertToModelMessages } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { getSettings, getDecryptedApiKey, usernameFromBearer } from "@/lib/ai-settings";
+import { decryptKey, usernameFromBearer, type AiProvider, type AiSettings } from "@/lib/ai-settings";
 import type { UIMessage } from "@ai-sdk/react";
+
+const API_BASE = process.env.API_URL ?? "http://localhost:3000";
 
 const GENEALOGY_SYSTEM_PROMPT = `You are a genealogy research assistant helping users research their family history.
 
@@ -31,11 +33,38 @@ function errorResponse(message: string, status: number) {
   });
 }
 
-export async function POST(req: NextRequest) {
-  const username = usernameFromBearer(req.headers.get("authorization"));
-  if (!username) return errorResponse("Unauthorized", 401);
+async function getRemoteSettings(authHeader: string): Promise<AiSettings | null> {
+  const res = await fetch(`${API_BASE}/api/ai-settings`, {
+    headers: { Authorization: authHeader },
+    cache: "no-store",
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) return null;
+  const data = await res.json();
+  return {
+    provider: data.provider as AiProvider,
+    model: data.model,
+    ollamaUrl: data.ollama_url ?? undefined,
+    encryptedKey: data.encrypted_key ?? undefined,
+    iv: data.iv ?? undefined,
+    authTag: data.auth_tag ?? undefined,
+  };
+}
 
-  const settings = await getSettings(username);
+function getDecryptedApiKey(settings: AiSettings): string | null {
+  if (!settings.encryptedKey || !settings.iv || !settings.authTag) return null;
+  try {
+    return decryptKey(settings.encryptedKey, settings.iv, settings.authTag);
+  } catch {
+    return null;
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const authHeader = req.headers.get("authorization");
+  if (!usernameFromBearer(authHeader)) return errorResponse("Unauthorized", 401);
+
+  const settings = await getRemoteSettings(authHeader!);
   if (!settings) {
     return errorResponse(
       "No AI provider configured. Go to Settings to add your API key.",
@@ -43,17 +72,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const {
-    messages,
-    personContext,
-    treeContext,
-  } = (await req.json()) as {
+  const { messages, personContext, treeContext } = (await req.json()) as {
     messages: UIMessage[];
     personContext?: string;
     treeContext?: string;
   };
 
-  // Build enriched system prompt when the client provides context.
   let systemPrompt = GENEALOGY_SYSTEM_PROMPT;
   if (personContext) {
     systemPrompt += `\n\n---\nCURRENT RESEARCH SUBJECT:\n${personContext}\n---`;
@@ -66,11 +90,11 @@ export async function POST(req: NextRequest) {
     let model;
 
     if (settings.provider === "anthropic") {
-      const apiKey = await getDecryptedApiKey(username);
+      const apiKey = getDecryptedApiKey(settings);
       if (!apiKey) return errorResponse("No Anthropic API key configured.", 400);
       model = createAnthropic({ apiKey })(settings.model);
     } else if (settings.provider === "openai") {
-      const apiKey = await getDecryptedApiKey(username);
+      const apiKey = getDecryptedApiKey(settings);
       if (!apiKey) return errorResponse("No OpenAI API key configured.", 400);
       model = createOpenAI({ apiKey })(settings.model);
     } else if (settings.provider === "ollama") {

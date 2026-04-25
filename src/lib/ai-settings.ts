@@ -1,6 +1,4 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
-import { promises as fs } from "fs";
-import path from "path";
 
 export type AiProvider = "anthropic" | "openai" | "ollama";
 
@@ -13,32 +11,12 @@ export interface AiSettings {
   authTag?: string;
 }
 
-type SettingsStore = Record<string, AiSettings>;
-
-const SETTINGS_FILE =
-  process.env.AI_SETTINGS_FILE ?? path.join(process.cwd(), ".ai-settings.json");
-
 // AES-256-GCM requires a 32-byte key; pad/truncate the env var to fit.
 const ENC_KEY = Buffer.from(
   (process.env.SETTINGS_ENCRYPTION_KEY ?? "clann-dev-key-change-in-production!!")
     .padEnd(32, "0")
     .slice(0, 32),
 );
-
-async function readStore(): Promise<SettingsStore> {
-  try {
-    const raw = await fs.readFile(SETTINGS_FILE, "utf8");
-    return JSON.parse(raw) as SettingsStore;
-  } catch {
-    return {};
-  }
-}
-
-async function writeStore(store: SettingsStore): Promise<void> {
-  const dir = path.dirname(SETTINGS_FILE);
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(SETTINGS_FILE, JSON.stringify(store, null, 2), "utf8");
-}
 
 export function encryptKey(plaintext: string): { encryptedKey: string; iv: string; authTag: string } {
   const iv = randomBytes(12);
@@ -60,33 +38,6 @@ export function decryptKey(encryptedKey: string, iv: string, authTag: string): s
     decipher.final(),
   ]);
   return decrypted.toString("utf8");
-}
-
-export async function getSettings(username: string): Promise<AiSettings | null> {
-  const store = await readStore();
-  return store[username] ?? null;
-}
-
-export async function saveSettings(username: string, settings: AiSettings): Promise<void> {
-  const store = await readStore();
-  store[username] = settings;
-  await writeStore(store);
-}
-
-export async function deleteSettings(username: string): Promise<void> {
-  const store = await readStore();
-  delete store[username];
-  await writeStore(store);
-}
-
-export async function getDecryptedApiKey(username: string): Promise<string | null> {
-  const settings = await getSettings(username);
-  if (!settings?.encryptedKey || !settings.iv || !settings.authTag) return null;
-  try {
-    return decryptKey(settings.encryptedKey, settings.iv, settings.authTag);
-  } catch {
-    return null;
-  }
 }
 
 export function usernameFromBearer(authHeader: string | null): string | null {

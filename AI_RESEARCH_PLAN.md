@@ -22,9 +22,8 @@ to get help with genealogy research, then pull responses or full conversations i
 ### Per-User API Key Storage: BYOK (encrypted file-based, Phase 1)
 - User enters API key in `/settings` page
 - Key is encrypted server-side with AES-256-GCM (`SETTINGS_ENCRYPTION_KEY` env var)
-- Stored in JSON file at `AI_SETTINGS_FILE` env var (default `.ai-settings.json`)
-- Key is never returned to the browser; server decrypts at request time
-- **Phase 2:** migrate storage to clann-server SurrealDB via new `/api/user-settings` endpoint
+- Key is never returned to the browser; webapp decrypts at request time using `SETTINGS_ENCRYPTION_KEY`
+- **Phase 2b (done):** migrated to clann-server SurrealDB via `GET/PUT/DELETE /api/ai-settings`; webapp keeps `SETTINGS_ENCRYPTION_KEY` and sends opaque encrypted blobs — clann-server never sees the key
 
 ### Chat → Note Integration
 - Each AI response has a "📋 Save as Note" button (pre-fills create form)
@@ -79,13 +78,23 @@ Add `AI_SETTINGS_FILE=/data/ai-settings.json` to `docker-compose-prod.yaml` and 
 - "Save as Note" on messages + full conversation export
 - Supported providers: Anthropic, OpenAI, Ollama
 
-### Phase 2 — Tree-Aware (future)
-- Migrate API key storage to clann-server SurrealDB
+### Phase 2a — Tree-Aware ✅ (done)
 - "Include tree context" toggle (inject persons + relationships into prompt)
+- "Research this person" shortcut from person detail page
+
+### Phase 2b — SurrealDB Settings Storage ✅ (done)
+- Migrated API key storage to clann-server SurrealDB (`user_ai_settings` table)
+- Webapp encrypts keys with AES-256-GCM; clann-server stores opaque blobs
+- No shared filesystem needed — works cleanly in Kubernetes multi-pod deployments
+- Removed `AI_SETTINGS_FILE` volume from `docker-compose-prod.yaml`
+
+### Phase 2 remaining (future)
 - Prompt templates for common tasks (name research, record lookup)
 - Conversation history persistence
 
 ### Phase 3 — Enhanced (future)
-- Cross-reference suggestions ("this mentions Ó'Briain — link to person?")
+- Cross-reference suggestions ("this response mentions Ó'Briain — link to person?")
 - Streaming citations / source suggestions
 - Extended provider support (Google Gemini, Mistral)
+- Note-as-context: "Dig deeper" button on a research note that launches the AI chat with the note content pre-injected as context
+- Conversation history persistence: store chat sessions in SurrealDB via new clann-server endpoints (`chat_sessions`, `chat_messages` tables); allows resuming previous AI research sessions

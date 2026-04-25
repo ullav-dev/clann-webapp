@@ -4,20 +4,12 @@ services:
     container_name: clann-webapp
     init: true
     env_file: .env.prod
-    environment:
-      - AI_SETTINGS_FILE=/data/ai-settings.json
-    volumes:
-      - ai-settings:/data
     networks:
       - ullav-net
     restart: unless-stopped
     ports:
       - "3002:3002"
 
-volumes:
-  ai-settings:
-
 networks:
   ullav-net:
     external: true
-
