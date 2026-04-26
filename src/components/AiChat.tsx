@@ -77,6 +77,79 @@ function getTextFromMessage(msg: UIMessage): string {
   return msg.parts.filter(isTextUIPart).map((p) => p.text).join("");
 }
 
+// ─── prompt templates ─────────────────────────────────────────────────────────
+
+interface TemplateCategory {
+  key: string;
+  icon: string;
+  prompts: string[];
+}
+
+const TEMPLATE_CATEGORIES: TemplateCategory[] = [
+  {
+    key: "Records",
+    icon: "📜",
+    prompts: [
+      "What civil registration records exist in Ireland for births, deaths, and marriages, and from what year?",
+      "What Irish census records are available online and for which years?",
+      "What does the Griffith's Valuation record and how can I use it to find ancestors?",
+      "What records are held in the National Archives of Ireland and how do I access them?",
+      "Where can I find Catholic parish registers for pre-famine Ireland?",
+    ],
+  },
+  {
+    key: "Names",
+    icon: "🔤",
+    prompts: [
+      "What are common spelling variants and anglicisations of Irish surnames?",
+      "How were Irish children typically named in the 19th century?",
+      "What is the Irish language origin of common Irish surnames?",
+    ],
+  },
+  {
+    key: "Emigration",
+    icon: "🌍",
+    prompts: [
+      "What records exist for Irish emigrants to the USA in the 1840s–1880s?",
+      "What ships commonly carried Irish emigrants, and where can I find passenger lists?",
+      "How do I trace an Irish ancestor who emigrated to England or Scotland?",
+    ],
+  },
+  {
+    key: "Strategy",
+    icon: "🧭",
+    prompts: [
+      "How do I research an ancestor born before civil registration in Ireland (pre-1864)?",
+      "How do I break through a research brick wall when records are missing?",
+      "What is the best order to search records when starting Irish genealogy research?",
+    ],
+  },
+  {
+    key: "History",
+    icon: "🏺",
+    prompts: [
+      "What was life like for a rural Irish family in the mid-1800s?",
+      "How did the Great Famine of 1845–1852 affect Irish families and records?",
+      "What historical events most disrupted Irish records and genealogy?",
+    ],
+  },
+  {
+    key: "Dna",
+    icon: "🧬",
+    prompts: [
+      "How can I use DNA results to confirm an Irish ancestral connection?",
+      "What is a centimorgan and how much DNA should I share with a first or second cousin?",
+      "How do I use DNA matches to break through a brick wall in Irish research?",
+    ],
+  },
+];
+
+const PERSON_TEMPLATE_PROMPTS = [
+  "Suggest a research strategy for tracing {personName}'s ancestors",
+  "What records might document {personName}'s life and family?",
+  "What historical events would have shaped {personName}'s life?",
+];
+
 // ─── component ────────────────────────────────────────────────────────────────
 
 interface AiChatProps {
@@ -93,7 +166,9 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
   const { activeTree } = useTree();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [input, setInput] = useState("");
+  const [templatesOpen, setTemplatesOpen] = useState(false);
 
   // Settings check
   const [hasSettings, setHasSettings] = useState<boolean | null>(null);
@@ -186,6 +261,27 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  function categoryLabel(key: string): string {
+    const map: Record<string, string> = {
+      Records: t("templatesCategoryRecords"),
+      Names: t("templatesCategoryNames"),
+      Emigration: t("templatesCategoryEmigration"),
+      Strategy: t("templatesCategoryStrategy"),
+      History: t("templatesCategoryHistory"),
+      Dna: t("templatesCategoryDna"),
+    };
+    return map[key] ?? key;
+  }
+
+  function handleTemplateClick(prompt: string) {
+    const filled = personCtx
+      ? prompt.replace("{personName}", personName(personCtx.person))
+      : prompt.replace("{personName}", "this person");
+    setInput(filled);
+    setTemplatesOpen(false);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -396,9 +492,54 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Templates panel */}
+      {templatesOpen && (
+        <div className="shrink-0 mb-2 max-h-52 overflow-y-auto rounded-lg border border-stone-200 bg-stone-50">
+          <div className="p-2 space-y-3">
+            {personCtx && (
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-stone-400 px-1 mb-1">
+                  👤 {t("templatesCategoryPerson")}
+                </p>
+                <div className="space-y-0.5">
+                  {PERSON_TEMPLATE_PROMPTS.map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => handleTemplateClick(prompt)}
+                      className="w-full text-left text-xs px-2 py-1.5 rounded hover:bg-stone-200 text-stone-700 transition-colors"
+                    >
+                      {prompt.replace("{personName}", personName(personCtx.person))}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {TEMPLATE_CATEGORIES.map((cat) => (
+              <div key={cat.key}>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-stone-400 px-1 mb-1">
+                  {cat.icon} {categoryLabel(cat.key)}
+                </p>
+                <div className="space-y-0.5">
+                  {cat.prompts.map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => handleTemplateClick(prompt)}
+                      className="w-full text-left text-xs px-2 py-1.5 rounded hover:bg-stone-200 text-stone-700 transition-colors"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Input */}
       <form onSubmit={handleSend} className="flex gap-2 shrink-0">
         <input
+          ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={
@@ -417,6 +558,14 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
           {t("send")}
         </button>
       </form>
+      <div className="flex justify-start mt-1.5 shrink-0">
+        <button
+          onClick={() => setTemplatesOpen((o) => !o)}
+          className="text-xs text-stone-400 hover:text-stone-600 transition-colors flex items-center gap-1"
+        >
+          📋 {templatesOpen ? t("templatesHide") : t("templates")}
+        </button>
+      </div>
     </div>
   );
 }

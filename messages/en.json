@@ -719,7 +719,16 @@
     "inputPlaceholderPerson": "Ask about {name}…",
     "treeContextToggle": "Include tree",
     "treeContextBadge": "{count} people",
-    "treeContextLoading": "Loading tree…"
+    "treeContextLoading": "Loading tree…",
+    "templates": "Prompt templates",
+    "templatesHide": "Hide templates",
+    "templatesCategoryPerson": "This Person",
+    "templatesCategoryRecords": "Records & Archives",
+    "templatesCategoryNames": "Names & Origins",
+    "templatesCategoryEmigration": "Emigration",
+    "templatesCategoryStrategy": "Research Strategy",
+    "templatesCategoryHistory": "Historical Context",
+    "templatesCategoryDna": "DNA"
   },
   "settings": {
     "title": "Settings",

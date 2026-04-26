@@ -719,7 +719,16 @@
     "inputPlaceholderPerson": "Ceist faoi {name}…",
     "treeContextToggle": "Crann a áireamh",
     "treeContextBadge": "{count} duine",
-    "treeContextLoading": "Á lódáil…"
+    "treeContextLoading": "Á lódáil…",
+    "templates": "Teimpléid teachtaireachtaí",
+    "templatesHide": "Teimpléid a cheilt",
+    "templatesCategoryPerson": "An Duine Seo",
+    "templatesCategoryRecords": "Taifid & Cartlanna",
+    "templatesCategoryNames": "Ainmneacha & Bunús",
+    "templatesCategoryEmigration": "Eisimirce",
+    "templatesCategoryStrategy": "Straitéis Taighde",
+    "templatesCategoryHistory": "Comhthéacs Stairiúil",
+    "templatesCategoryDna": "DNA"
   },
   "settings": {
     "title": "Socruithe",

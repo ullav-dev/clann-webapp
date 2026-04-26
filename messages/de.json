@@ -719,7 +719,16 @@
     "inputPlaceholderPerson": "Fragen Sie zu {name}…",
     "treeContextToggle": "Stammbaum einbeziehen",
     "treeContextBadge": "{count} Personen",
-    "treeContextLoading": "Lade Stammbaum…"
+    "treeContextLoading": "Lade Stammbaum…",
+    "templates": "Vorlagenauswahl",
+    "templatesHide": "Vorlagen ausblenden",
+    "templatesCategoryPerson": "Diese Person",
+    "templatesCategoryRecords": "Unterlagen & Archive",
+    "templatesCategoryNames": "Namen & Herkunft",
+    "templatesCategoryEmigration": "Auswanderung",
+    "templatesCategoryStrategy": "Forschungsstrategie",
+    "templatesCategoryHistory": "Historischer Kontext",
+    "templatesCategoryDna": "DNA"
   },
   "settings": {
     "title": "Einstellungen",
