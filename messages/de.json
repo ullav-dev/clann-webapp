@@ -451,7 +451,11 @@
       "treeContextTitle": "Stammbaum als Kontext einbeziehen",
       "treeContextBody": "Klicken Sie auf das Badge '🌳 Stammbaum einbeziehen' über dem Chat, um alle Personen Ihres aktiven Stammbaums in den Kontext der KI einzubeziehen. Dies ermöglicht der KI, über Beziehungen nachzudenken, generationsübergreifende Muster zu erkennen und auf Ihren Stammbaum zugeschnittene Vorschläge zu machen. Ein Zähler-Badge zeigt, wie viele Personen geladen wurden. Klicken Sie erneut, um den Kontext zu entfernen.",
       "saveTitle": "Antworten als Notizen speichern",
-      "saveBody": "Jede KI-Antwort hat am Ende der Nachricht eine Schaltfläche '📋 Als Notiz speichern'. Durch Klicken wird eine neue Forschungsnotiz erstellt, die mit der Antwort der KI vorgefüllt ist. Um das gesamte Gespräch zu speichern, klicken Sie auf 'Gespräch speichern' im Chat-Header — es wird eine einzelne Notiz mit dem gesamten Dialog erstellt."
+      "saveBody": "Jede KI-Antwort hat am Ende der Nachricht eine Schaltfläche '📋 Als Notiz speichern'. Durch Klicken wird eine neue Forschungsnotiz erstellt, die mit der Antwort der KI vorgefüllt ist. Um das gesamte Gespräch zu speichern, klicken Sie auf 'Gespräch speichern' im Chat-Header — es wird eine einzelne Notiz mit dem gesamten Dialog erstellt.",
+      "historyTitle": "Gesprächsverlauf",
+      "historyBody": "Jedes Gespräch wird automatisch gespeichert und mit dem aktiven Stammbaum verknüpft. Klicken Sie auf '🕐 Verlauf' im Chat-Header, um alle vergangenen Sitzungen anzuzeigen, die jeweils nach der Eröffnungsfrage benannt sind. Klicken Sie auf eine Sitzung, um das vollständige Gespräch wiederherzustellen und dort weiterzumachen, wo Sie aufgehört haben. Löschen Sie nicht mehr benötigte Sitzungen mit der ✕-Schaltfläche.",
+      "digDeeperTitle": "Mit KI tiefer in eine Notiz eintauchen",
+      "digDeeperBody": "Wenn Sie eine Forschungsnotiz ansehen, klicken Sie auf die Schaltfläche '🤖 Mit KI vertiefen'. Der KI-Chat öffnet sich mit dem Titel und Inhalt der Notiz automatisch als Kontext — ein bernsteinfarbenes Abzeichen bestätigt, welche Notiz geladen ist. Nutzen Sie es, wenn Sie in einer Notiz auf eine Sackgasse stoßen und KI-Hilfe zu der von Ihnen identifizierten Lücke benötigen."
     },
     "multipleTrees": {
       "title": "Mehrere Stammbäume",

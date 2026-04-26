@@ -100,6 +100,8 @@ export default async function HelpPage() {
           <Card title={t("aiAssistant.personContextTitle")} body={t("aiAssistant.personContextBody")} />
           <Card title={t("aiAssistant.treeContextTitle")} body={t("aiAssistant.treeContextBody")} />
           <Card title={t("aiAssistant.saveTitle")} body={t("aiAssistant.saveBody")} />
+          <Card title={t("aiAssistant.historyTitle")} body={t("aiAssistant.historyBody")} />
+          <Card title={t("aiAssistant.digDeeperTitle")} body={t("aiAssistant.digDeeperBody")} />
         </Cards>
       </Section>
 

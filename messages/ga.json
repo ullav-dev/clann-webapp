@@ -451,7 +451,11 @@
       "treeContextTitle": "Crann teaghlaigh a áireamh mar chomhthéacs",
       "treeContextBody": "Cliceáil an bratach '🌳 Crann a áireamh' os cionn an chomhrá chun gach duine i do chrann teaghlaigh gníomhach a insteallagh i gcomhthéacs an AI. Ligeann sé seo don AI réasúnú faoi chaidrimh, patrúin a aithint thar ghlúnta, agus moltaí a dhéanamh atá oiriúnach do do chrann. Léiríonn bratach comhairimh cé mhéad duine a lódáladh. Cliceáil arís chun an comhthéacs a bhaint.",
       "saveTitle": "Freagraí a shábháil mar nótaí",
-      "saveBody": "Tá cnaipe '📋 Sábháil mar Nóta' ag bun gach freagra AI. Trí chliceáil air, cruthaítear nóta taighde nua réamh-líonta le freagra an AI. Chun an comhrá iomlán a shábháil, cliceáil 'Sábháil an Comhrá' i gceanntásc an chomhrá — cruthaíonn sé nóta amháin ina bhfuil an snáithe iomlán le formáid dialóige."
+      "saveBody": "Tá cnaipe '📋 Sábháil mar Nóta' ag bun gach freagra AI. Trí chliceáil air, cruthaítear nóta taighde nua réamh-líonta le freagra an AI. Chun an comhrá iomlán a shábháil, cliceáil 'Sábháil an Comhrá' i gceanntásc an chomhrá — cruthaíonn sé nóta amháin ina bhfuil an snáithe iomlán le formáid dialóige.",
+      "historyTitle": "Stair Comhrá",
+      "historyBody": "Sábháiltear gach comhrá go huathoibríoch agus nasctar é leis an gcrann teaghlaigh gníomhach. Cliceáil '🕐 Stair' i gceanntásc an chomhrá chun seisiúin roimhe seo go léir a fheiceáil. Cliceáil ar aon seisiún chun an comhrá iomlán a athchóiriú agus leanúint go díreach ón áit ar stop tú. Scrios seisiúin nach bhfuil ag teastáil a thuilleadh leis an gcnaipe ✕.",
+      "digDeeperTitle": "Tochailt níos doimhne le AI ó nóta",
+      "digDeeperBody": "Agus tú ag féachaint ar nóta taighde, cliceáil an cnaipe '🤖 Tochailt níos doimhne le AI'. Osclaítear an comhrá AI le teideal agus ábhar an nóta mar chomhthéacs go huathoibríoch — dearbhaíonn suaitheantas ómra cén nóta atá luchtaithe. Úsáid é nuair a bhuaileann tú balla i nóta agus nuair a theastaíonn cabhair AI uait ar an mbearna shonrach a d'aithin tú."
     },
     "multipleTrees": {
       "title": "Crainnte Teaghlaigh Iolracha",
