@@ -76,7 +76,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       const confirmUrl = `${window.location.origin}/${locale}`;
-      await register(regUsername, regEmail, regPassword, confirmUrl);
+      await register(regUsername, regEmail, regPassword, regFirstName, regSurname, confirmUrl);
       // Store the surname and locale-specific "Family" word so TreeContext can
       // auto-create the first family tree once the user's account is active.
       localStorage.setItem(

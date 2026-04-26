@@ -11,6 +11,8 @@ export interface AuthUser {
   email: string;
   username: string;
   is_active: boolean;
+  first_name: string | null;
+  last_name: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -52,11 +54,20 @@ export const register = (
   username: string,
   email: string,
   password: string,
+  firstName: string,
+  lastName: string,
   app_url?: string
 ): Promise<RegisterResponse> =>
   authRequest("/users", {
     method: "POST",
-    body: JSON.stringify({ username, email, password, ...(app_url ? { app_url } : {}) }),
+    body: JSON.stringify({
+      username,
+      email,
+      password,
+      first_name: firstName || undefined,
+      last_name: lastName || undefined,
+      ...(app_url ? { app_url } : {}),
+    }),
   });
 
 export const confirmEmail = (token: string): Promise<void> =>
