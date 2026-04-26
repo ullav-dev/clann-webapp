@@ -52,13 +52,16 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
         if (loaded.length === 0) {
           const raw = localStorage.getItem("clann_pending_tree");
           // Parse pending registration data when available (same-device verification).
-          // Fall back to username-derived values when absent (cross-device verification).
+          // Fall back to auth-service user fields for cross-device verification.
           const pending = raw
             ? (JSON.parse(raw) as { firstName?: string; surname: string; familyWord: string; email: string; sex: "Male" | "Female" })
             : null;
+          // Prefer registration form data; fall back to auth-service fields; last resort: username.
+          const firstName = pending?.firstName || user.first_name || user.username;
+          const lastName = pending?.surname || user.last_name || user.username;
           try {
             const slug = user.username.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-            const displayName = pending ? `${pending.surname} ${pending.familyWord}` : `${user.username} Family`;
+            const displayName = pending ? `${pending.surname} ${pending.familyWord}` : `${lastName} Family`;
             const tree = await api.createTree({
               name: `${slug}-family`,
               display_name: displayName,
@@ -85,8 +88,8 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
               }
             } else {
               await api.createPerson({
-                first_name: pending?.firstName || user.username,
-                family_name: pending?.surname || user.username,
+                first_name: firstName,
+                family_name: lastName,
                 sex: pending?.sex || "Male",
                 username: user.username,
                 email: pending?.email || user.email,
