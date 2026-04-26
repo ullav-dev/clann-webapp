@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { streamText, convertToModelMessages } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { decryptKey, usernameFromBearer, type AiProvider, type AiSettings } from "@/lib/ai-settings";
 import type { UIMessage } from "@ai-sdk/react";
@@ -103,6 +105,14 @@ export async function POST(req: NextRequest) {
       const apiKey = getDecryptedApiKey(settings);
       if (!apiKey) return errorResponse("No OpenAI API key configured.", 400);
       model = createOpenAI({ apiKey })(settings.model);
+    } else if (settings.provider === "google") {
+      const apiKey = getDecryptedApiKey(settings);
+      if (!apiKey) return errorResponse("No Google AI API key configured.", 400);
+      model = createGoogleGenerativeAI({ apiKey })(settings.model);
+    } else if (settings.provider === "mistral") {
+      const apiKey = getDecryptedApiKey(settings);
+      if (!apiKey) return errorResponse("No Mistral API key configured.", 400);
+      model = createMistral({ apiKey })(settings.model);
     } else if (settings.provider === "ollama") {
       const baseURL = (settings.ollamaUrl ?? "http://localhost:11434") + "/v1";
       model = createOpenAICompatible({ name: "ollama", baseURL })(settings.model);
