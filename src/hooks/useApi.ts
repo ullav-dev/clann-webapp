@@ -56,5 +56,13 @@ export function useApi() {
     createFolder: (name: string) => api.createFolder(name, createdBy ?? ""),
     renameFolder: (folderId: string, name: string) => api.renameFolder(folderId, name),
     deleteFolder: (folderId: string) => api.deleteFolder(folderId),
+    listChatSessions: () => api.listChatSessions(createdBy, tree ?? undefined),
+    createChatSession: (title: string) =>
+      api.createChatSession({ title, created_by: createdBy ?? "", tree: tree ?? null }),
+    deleteChatSession: (sessionId: string) => api.deleteChatSession(sessionId),
+    listSessionMessages: (sessionId: string) => api.listSessionMessages(sessionId),
+    appendSessionMessage: (sessionId: string, role: "user" | "assistant", content: string) =>
+      api.appendSessionMessage(sessionId, role, content),
+    rawSessionId: api.rawSessionId,
   };
 }

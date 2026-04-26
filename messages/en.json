@@ -759,7 +759,10 @@
     "templatesCategoryEmigration": "Emigration",
     "templatesCategoryStrategy": "Research Strategy",
     "templatesCategoryHistory": "Historical Context",
-    "templatesCategoryDna": "DNA"
+    "templatesCategoryDna": "DNA",
+    "history": "History",
+    "historyEmpty": "No past conversations",
+    "deleteSession": "Delete conversation"
   },
   "settings": {
     "title": "Settings",

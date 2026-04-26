@@ -12,7 +12,7 @@ import { useApi } from "@/hooks/useApi";
 import { useTree } from "@/contexts/TreeContext";
 import { fullName } from "@/components/PersonCard";
 import Link from "next/link";
-import type { Person, RelationshipsResponse, SpouseInfo } from "@/lib/types";
+import type { Person, RelationshipsResponse, SpouseInfo, ChatSession } from "@/lib/types";
 
 // ─── context formatting ───────────────────────────────────────────────────────
 
@@ -183,6 +183,13 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
   const [treePersons, setTreePersons] = useState<Person[] | null>(null);
   const [treeLoading, setTreeLoading] = useState(false);
 
+  // Session history
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const currentSessionIdRef = useRef<string | null>(null);
+  const persistedCountRef = useRef(0);
+
   // Refs so the transport body function always reads the latest context values.
   const tokenRef = useRef(token);
   const personContextStringRef = useRef<string | undefined>(undefined);
@@ -228,6 +235,55 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
       .finally(() => setSettingsLoading(false));
   }, [token]);
 
+  // Load session list.
+  const loadSessions = useCallback(async () => {
+    setSessionsLoading(true);
+    try {
+      const list = await api.listChatSessions();
+      setSessions(list);
+    } catch {
+      // non-critical
+    } finally {
+      setSessionsLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (hasSettings) loadSessions();
+  }, [hasSettings, loadSessions]);
+
+  // Auto-save messages to the current session when streaming completes.
+  useEffect(() => {
+    if (status !== "ready") return;
+    const allVisible = messages.filter((m) => m.role !== "system");
+    const unpersisted = allVisible.slice(persistedCountRef.current);
+    if (unpersisted.length === 0) return;
+
+    (async () => {
+      let sid = currentSessionIdRef.current;
+      if (!sid) {
+        const firstUser = unpersisted.find((m) => m.role === "user");
+        const title = firstUser
+          ? getTextFromMessage(firstUser).slice(0, 80)
+          : new Date().toLocaleDateString();
+        const session = await api.createChatSession(title);
+        sid = session.id;
+        currentSessionIdRef.current = sid;
+        setSessions((prev) => [session, ...prev]);
+      }
+      for (const msg of unpersisted) {
+        if (msg.role === "user" || msg.role === "assistant") {
+          await api.appendSessionMessage(sid!, msg.role, getTextFromMessage(msg));
+        }
+      }
+      persistedCountRef.current = allVisible.length;
+      // Refresh session list to update updated_at ordering.
+      loadSessions();
+    })().catch(console.error);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
+
   // Load person context when personId is provided.
   useEffect(() => {
     if (!personId) return;
@@ -241,7 +297,7 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
 
   // Load tree persons on first toggle.
   const loadTreePersons = useCallback(async () => {
-    if (treePersons !== null) return; // already loaded
+    if (treePersons !== null) return;
     setTreeLoading(true);
     try {
       const persons = await api.listPersons();
@@ -256,6 +312,37 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
     const next = !treeEnabled;
     setTreeEnabled(next);
     if (next) await loadTreePersons();
+  }
+
+  async function handleSelectSession(session: ChatSession) {
+    setHistoryOpen(false);
+    const msgs = await api.listSessionMessages(session.id);
+    const restored: UIMessage[] = msgs.map((m) => ({
+      id: crypto.randomUUID(),
+      role: m.role as "user" | "assistant",
+      parts: [{ type: "text" as const, text: m.content }],
+      content: m.content,
+    }));
+    setMessages(restored);
+    currentSessionIdRef.current = session.id;
+    persistedCountRef.current = restored.length;
+  }
+
+  async function handleDeleteSession(sessionId: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    await api.deleteChatSession(sessionId).catch(() => {});
+    setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+    if (currentSessionIdRef.current === sessionId) {
+      setMessages([]);
+      currentSessionIdRef.current = null;
+      persistedCountRef.current = 0;
+    }
+  }
+
+  function handleClearChat() {
+    setMessages([]);
+    currentSessionIdRef.current = null;
+    persistedCountRef.current = 0;
   }
 
   useEffect(() => {
@@ -354,11 +441,21 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
         <div className="flex items-center gap-2">
           <span className="text-lg">🤖</span>
           <h2 className="text-base font-semibold text-stone-800">{t("title")}</h2>
+          <button
+            onClick={() => setHistoryOpen((o) => !o)}
+            className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
+              historyOpen
+                ? "bg-stone-200 text-stone-700 border-stone-300"
+                : "text-stone-400 border-stone-200 hover:text-stone-600 hover:border-stone-300"
+            }`}
+          >
+            🕐 {t("history")}
+          </button>
         </div>
         {visibleMessages.length > 0 && (
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setMessages([])}
+              onClick={handleClearChat}
               className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
             >
               {t("clearChat")}
@@ -373,16 +470,51 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
         )}
       </div>
 
+      {/* History panel */}
+      {historyOpen && (
+        <div className="shrink-0 mb-3 rounded-lg border border-stone-200 bg-stone-50 max-h-48 overflow-y-auto">
+          {sessionsLoading ? (
+            <div className="p-3 text-xs text-stone-400 text-center">{t("loading")}</div>
+          ) : sessions.length === 0 ? (
+            <div className="p-3 text-xs text-stone-400 text-center">{t("historyEmpty")}</div>
+          ) : (
+            <ul className="divide-y divide-stone-100">
+              {sessions.map((s) => (
+                <li
+                  key={s.id}
+                  className="group flex items-center gap-2 px-3 py-2 hover:bg-stone-100 transition-colors cursor-pointer"
+                  onClick={() => handleSelectSession(s)}
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-stone-700 truncate">{s.title}</p>
+                    {s.updated_at && (
+                      <p className="text-[10px] text-stone-400">
+                        {new Date(s.updated_at).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={(e) => handleDeleteSession(s.id, e)}
+                    className="opacity-0 group-hover:opacity-100 text-stone-300 hover:text-red-400 transition-colors text-xs px-1"
+                    title={t("deleteSession")}
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       {/* Context badges */}
       <div className="flex items-center gap-2 mb-3 shrink-0 flex-wrap">
-        {/* Person context badge */}
         {personCtx && (
           <span className="inline-flex items-center gap-1.5 text-xs bg-violet-50 text-violet-700 border border-violet-200 rounded-full px-2.5 py-1">
             👤 {t("personContextBadge", { name: personName(personCtx.person) })}
           </span>
         )}
 
-        {/* Tree context toggle */}
         <button
           onClick={handleTreeToggle}
           disabled={treeLoading}

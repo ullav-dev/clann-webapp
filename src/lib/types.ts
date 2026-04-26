@@ -209,3 +209,27 @@ export interface UpdateResearchNote {
   body?: string | null;
   trees?: string[] | null;
 }
+
+// Chat Sessions
+export interface ChatSession {
+  id: string; // "chat_session:<ulid>"
+  title: string;
+  created_by: string;
+  tree?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface CreateChatSession {
+  title: string;
+  created_by: string;
+  tree?: string | null;
+}
+
+export interface ChatMessage {
+  id: string; // "chat_message:<ulid>"
+  session_id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at?: string | null;
+}

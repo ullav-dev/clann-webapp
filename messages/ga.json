@@ -759,7 +759,10 @@
     "templatesCategoryEmigration": "Eisimirce",
     "templatesCategoryStrategy": "Straitéis Taighde",
     "templatesCategoryHistory": "Comhthéacs Stairiúil",
-    "templatesCategoryDna": "DNA"
+    "templatesCategoryDna": "DNA",
+    "history": "Stair",
+    "historyEmpty": "Níl aon chomhrá roimhe seo",
+    "deleteSession": "Scrios comhrá"
   },
   "settings": {
     "title": "Socruithe",
