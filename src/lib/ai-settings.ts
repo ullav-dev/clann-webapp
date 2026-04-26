@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 
-export type AiProvider = "anthropic" | "openai" | "ollama";
+export type AiProvider = "anthropic" | "openai" | "google" | "mistral" | "ollama";
 
 export interface AiSettings {
   provider: AiProvider;

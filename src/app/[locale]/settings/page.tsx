@@ -18,12 +18,24 @@ const PROVIDER_MODELS: Record<AiProvider, { label: string; value: string }[]> = 
     { label: "GPT-4o Mini (fast)", value: "gpt-4o-mini" },
     { label: "GPT-4 Turbo", value: "gpt-4-turbo" },
   ],
+  google: [
+    { label: "Gemini 2.0 Flash (recommended)", value: "gemini-2.0-flash" },
+    { label: "Gemini 2.5 Pro (most capable)", value: "gemini-2.5-pro" },
+    { label: "Gemini 2.0 Flash Lite (fast)", value: "gemini-2.0-flash-lite" },
+  ],
+  mistral: [
+    { label: "Mistral Large (recommended)", value: "mistral-large-latest" },
+    { label: "Mistral Small (fast)", value: "mistral-small-latest" },
+    { label: "Mistral Nemo (open)", value: "open-mistral-nemo" },
+  ],
   ollama: [],
 };
 
 const PROVIDER_KEY_HINTS: Record<AiProvider, string> = {
   anthropic: "https://console.anthropic.com/settings/keys",
   openai: "https://platform.openai.com/api-keys",
+  google: "https://aistudio.google.com/apikey",
+  mistral: "https://console.mistral.ai/api-keys",
   ollama: "",
 };
 
@@ -147,7 +159,7 @@ export default function SettingsPage() {
                 {t("providerLabel")}
               </label>
               <div className="grid grid-cols-3 gap-2">
-                {(["anthropic", "openai", "ollama"] as AiProvider[]).map((p) => (
+                {(["anthropic", "openai", "google", "mistral", "ollama"] as AiProvider[]).map((p) => (
                   <button
                     key={p}
                     type="button"
@@ -158,7 +170,11 @@ export default function SettingsPage() {
                         : "border-stone-200 text-stone-600 hover:border-stone-300 hover:bg-stone-50"
                     }`}
                   >
-                    {p === "anthropic" ? "Anthropic" : p === "openai" ? "OpenAI" : "Ollama"}
+                    {p === "anthropic" ? "Anthropic"
+                      : p === "openai" ? "OpenAI"
+                      : p === "google" ? "Google"
+                      : p === "mistral" ? "Mistral"
+                      : "Ollama"}
                     {p === "ollama" && (
                       <span className="block text-xs font-normal text-stone-400 mt-0.5">
                         {t("ollamaLocalBadge")}
@@ -227,7 +243,7 @@ export default function SettingsPage() {
                   id="ai-api-key"
                   value={apiKey}
                   onChange={(val) => setApiKey(val)}
-                  placeholder={hasKey ? t("apiKeyChangePlaceholder") : "sk-..."}
+                  placeholder={hasKey ? t("apiKeyChangePlaceholder") : provider === "anthropic" ? "sk-ant-..." : provider === "google" ? "AIza..." : "sk-..."}
                 />
                 <div className="flex items-center justify-between mt-1">
                   <p className="text-xs text-stone-400">{t("apiKeyHint")}</p>
