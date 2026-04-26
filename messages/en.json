@@ -434,6 +434,25 @@
       "censusAttributionTitle": "Census data licence",
       "censusAttributionBody": "The 1926 Census records are published by the National Archives of Ireland under the Creative Commons Attribution 4.0 International licence (CC BY 4.0). Records may be freely used with attribution. The census is being released in phases — not all counties or households may be available yet."
     },
+    "aiAssistant": {
+      "title": "AI Research Assistant",
+      "overviewTitle": "What is the AI Research Assistant?",
+      "overviewBody": "The AI Research Assistant is a genealogy-focused chat panel on the Research page. It connects to your choice of AI provider using your own API key, so your data stays under your control. Use it to get help with record lookups, historical context, name research, DNA analysis, and research strategy.",
+      "setupTitle": "Setting up your API key",
+      "setupBody": "Go to Settings (your username in the navigation bar → Settings). Choose a provider, select a model, and paste your API key. The key is encrypted before being stored — Clann never keeps it in plain text. For Ollama (the local, free option), enter the URL of your running Ollama server instead of an API key.",
+      "providersTitle": "Supported providers",
+      "providersBody": "Anthropic (Claude Sonnet, Haiku, Opus), OpenAI (GPT-4o, GPT-4o mini), and Ollama (any locally running model, defaulting to llama3.2). Anthropic Claude gives the best reasoning for complex genealogy questions. OpenAI GPT-4o is broadly capable and widely familiar. Ollama runs entirely on your own machine — no API key needed and no data leaves your computer.",
+      "startingTitle": "Starting a chat",
+      "startingBody": "Open the Research page from the navigation bar and click the '🤖 AI Assistant' button in the header. The chat panel opens on the right. Type your question and press Send or hit Enter. Responses stream in real time. Click 'Clear' in the chat header to start a fresh conversation.",
+      "templatesTitle": "Prompt templates",
+      "templatesBody": "Click '📋 Prompt templates' below the input field to open a panel of ready-made genealogy prompts organised into six categories: Records & Archives, Names & Origins, Emigration, Research Strategy, Historical Context, and DNA. Click any template to fill the input — you can edit it before sending. When researching a specific person, additional person-specific prompts appear at the top of the panel.",
+      "personContextTitle": "Researching a specific person",
+      "personContextBody": "Open any person's profile and go to the Relationships, Life Story, or Life Events tab. Click 'Research with AI' to open the chat pre-loaded with that person's details — name, dates, places, biography, and known relationships. Their name appears as a badge above the chat and the input placeholder prompts you to ask about them directly.",
+      "treeContextTitle": "Including your family tree as context",
+      "treeContextBody": "Click the '🌳 Include tree' badge above the chat to inject everyone in your active family tree into the AI's context. This lets the AI reason about relationships, spot patterns across generations, and make suggestions tailored to your tree. A count badge shows how many people were loaded. Click again to remove the tree context.",
+      "saveTitle": "Saving responses as notes",
+      "saveBody": "Each AI response has a '📋 Save as Note' button at the bottom of the message. Clicking it creates a new Research Note pre-filled with the AI's response, ready to edit and save. To save the entire conversation, click 'Save Conversation' in the chat header — it creates a single note containing the full thread formatted as a dialogue."
+    },
     "multipleTrees": {
       "title": "Multiple Family Trees",
       "manageTitle": "Managing trees",

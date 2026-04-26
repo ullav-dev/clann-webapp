@@ -434,6 +434,25 @@
       "censusAttributionTitle": "Ceadúnas sonraí daonáirimh",
       "censusAttributionBody": "Foilsíonn Cartlann Náisiúnta na hÉireann taifid Dhaonáireamh 1926 faoi cheadúnas Creative Commons Attribution 4.0 International (CC BY 4.0). Is féidir na taifid a úsáid go saor le hainmniúchán. Tá an t-eisiúint á dhéanamh i gcéimeanna — is féidir nach bhfuil gach contae nó teaghlach ar fáil fós."
     },
+    "aiAssistant": {
+      "title": "Cúntóir Taighde AI",
+      "overviewTitle": "Cad é an Cúntóir Taighde AI?",
+      "overviewBody": "Is painéal comhrá dírithe ar ghinealachas é an Cúntóir Taighde AI ar leathanach an Taighde. Ceanglaíonn sé le do rogha soláthraí AI trí d'eochair API féin, ionas go bhfanann do chuid sonraí faod smacht. Úsáid é le cabhair a fháil le cuardaigh taifead, comhthéacs stairiúil, taighde ainmneacha, anailís DNA, agus straitéis taighde.",
+      "setupTitle": "D'eochair API a shocrú",
+      "setupBody": "Téigh go Socruithe (d'ainm úsáideora sa bharra nascleanúna → Socruithe). Roghnaigh soláthraí, roghnaigh samhail, agus greamaigh d'eochair API. Déantar an eochair a chriptiú roimh stóráil — ní stórálann Clann í in téacs soiléir riamh. Don Ollama (an rogha áitiúil saor), cuir isteach URL do fhreastalaí Ollama ina ionad.",
+      "providersTitle": "Soláthraithe tacaithe",
+      "providersBody": "Anthropic (Claude Sonnet, Haiku, Opus), OpenAI (GPT-4o, GPT-4o mini), agus Ollama (aon mhúnla a ritheann go háitiúil, réamhshocraithe go llama3.2). Tugann Anthropic Claude an réasúnaíocht is fearr do cheisteanna casta ginealachais. Tá OpenAI GPT-4o forleathan agus ard-inniúil. Ritheann Ollama ar do ríomhaire féin ar fad — níl gá le heochair API agus ní fhágann aon sonraí do ríomhaire.",
+      "startingTitle": "Comhrá a thosú",
+      "startingBody": "Oscail leathanach an Taighde ón mbarra nascleanúna agus cliceáil '🤖 Cúntóir AI' sa cheanntásc. Osclaíonn an painéal comhrá ar dheis. Clóscríobh do cheist agus brúigh Seol nó Enter. Sruthann freagraí i bhfíor-am. Cliceáil 'Glan' sa cheanntásc chun comhrá nua a thosú.",
+      "templatesTitle": "Teimpléid teachtaireachtaí",
+      "templatesBody": "Cliceáil '📋 Teimpléid teachtaireachtaí' faoin réimse ionchuir chun painéal de theimpléid taighde ginealachais réidh-déanta a oscailt, eagraithe i sé chatagóir: Taifid & Cartlanna, Ainmneacha & Bunús, Eisimirce, Straitéis Taighde, Comhthéacs Stairiúil, agus DNA. Cliceáil aon teimpléad chun an t-ionchur a líonadh — is féidir leat é a chur in eagar roimh seolta. Nuair a bhíonn tú ag taighde duine ar leith, bíonn teimpléid sonracha don duine sin ag barr an phainéil.",
+      "personContextTitle": "Duine ar leith a thaighde",
+      "personContextBody": "Oscail próifíl duine ar bith agus téigh go dtí na cluaisíní Caidrimh, Scéal Beatha, nó Imeachtaí Beatha. Cliceáil 'Taighde le AI' chun an comhrá a oscailt réamh-luchtaithe le sonraí an duine sin — ainm, dátaí, áiteanna, beathaisnéis, agus caidrimh aitheanta. Feictear ainm an duine mar bhratach os cionn an chomhrá.",
+      "treeContextTitle": "Crann teaghlaigh a áireamh mar chomhthéacs",
+      "treeContextBody": "Cliceáil an bratach '🌳 Crann a áireamh' os cionn an chomhrá chun gach duine i do chrann teaghlaigh gníomhach a insteallagh i gcomhthéacs an AI. Ligeann sé seo don AI réasúnú faoi chaidrimh, patrúin a aithint thar ghlúnta, agus moltaí a dhéanamh atá oiriúnach do do chrann. Léiríonn bratach comhairimh cé mhéad duine a lódáladh. Cliceáil arís chun an comhthéacs a bhaint.",
+      "saveTitle": "Freagraí a shábháil mar nótaí",
+      "saveBody": "Tá cnaipe '📋 Sábháil mar Nóta' ag bun gach freagra AI. Trí chliceáil air, cruthaítear nóta taighde nua réamh-líonta le freagra an AI. Chun an comhrá iomlán a shábháil, cliceáil 'Sábháil an Comhrá' i gceanntásc an chomhrá — cruthaíonn sé nóta amháin ina bhfuil an snáithe iomlán le formáid dialóige."
+    },
     "multipleTrees": {
       "title": "Crainnte Teaghlaigh Iolracha",
       "manageTitle": "Crainnte a bhainistiú",
