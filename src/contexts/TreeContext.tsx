@@ -12,6 +12,7 @@ interface TreeState {
   initError: string | null;
   setActiveTree: (tree: FamilyTree) => void;
   createTree: (name: string, displayName: string, options?: { select?: boolean }) => Promise<FamilyTree>;
+  renameTree: (name: string, displayName: string) => Promise<void>;
   deleteTree: (name: string) => Promise<void>;
   setPrimaryTree: (name: string) => Promise<void>;
 }
@@ -23,6 +24,7 @@ const TreeContext = createContext<TreeState>({
   initError: null,
   setActiveTree: () => {},
   createTree: async () => { throw new Error("TreeProvider not mounted"); },
+  renameTree: async () => { throw new Error("TreeProvider not mounted"); },
   deleteTree: async () => { throw new Error("TreeProvider not mounted"); },
   setPrimaryTree: async () => { throw new Error("TreeProvider not mounted"); },
 });
@@ -163,6 +165,14 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
     });
   }, [activeTree]);
 
+  const renameTree = useCallback(async (name: string, displayName: string): Promise<void> => {
+    const updated = await api.updateTree(name, { display_name: displayName });
+    setTrees((prev) => prev.map((t) => t.name === name ? { ...t, display_name: updated.display_name } : t));
+    if (activeTree?.name === name) {
+      setActiveTreeState((prev) => prev ? { ...prev, display_name: updated.display_name } : prev);
+    }
+  }, [activeTree]);
+
   const setPrimaryTree = useCallback(async (name: string): Promise<void> => {
     const updated = await api.setPrimaryTree(name);
     setTrees((prev) =>
@@ -171,7 +181,7 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <TreeContext.Provider value={{ trees, activeTree, isLoading, initError, setActiveTree, createTree, deleteTree, setPrimaryTree }}>
+    <TreeContext.Provider value={{ trees, activeTree, isLoading, initError, setActiveTree, createTree, renameTree, deleteTree, setPrimaryTree }}>
       {children}
     </TreeContext.Provider>
   );

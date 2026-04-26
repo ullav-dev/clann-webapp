@@ -83,6 +83,9 @@ export const getTree = (name: string): Promise<FamilyTree> =>
 export const deleteTree = (name: string): Promise<void> =>
   request(`/api/trees/${encodeURIComponent(name)}`, { method: "DELETE" });
 
+export const updateTree = (name: string, body: { display_name: string }): Promise<FamilyTree> =>
+  request(`/api/trees/${encodeURIComponent(name)}`, { method: "PATCH", body: JSON.stringify(body) });
+
 export const setPrimaryTree = (name: string): Promise<FamilyTree> =>
   request(`/api/trees/${encodeURIComponent(name)}/set-primary`, { method: "PATCH" });
 

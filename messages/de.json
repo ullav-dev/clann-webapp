@@ -293,6 +293,8 @@
     "primary": "Primär",
     "setPrimaryTitle": "Als primären Baum festlegen",
     "setPrimaryFailed": "Primären Baum konnte nicht festgelegt werden",
+    "renameTitle": "Diesen Baum umbenennen",
+    "renameFailed": "Umbenennen fehlgeschlagen",
     "deleteTitle": "Diesen Baum löschen",
     "deleteConfirmTitle": "Stammbaum löschen?",
     "deleteConfirmBody": "Hiermit wird {name} und alle darin enthaltenen Personen dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
