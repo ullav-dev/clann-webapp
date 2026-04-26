@@ -693,6 +693,7 @@
     "hidePicker": "Hide media library",
     "lastEdited": "Last edited",
     "emptyBody": "No content yet.",
+    "digDeeper": "Dig deeper with AI",
     "selectOrCreate": "Select a note or create a new one.",
     "noTreeTitle": "No family tree selected",
     "noTreeDescription": "Select a family tree to view research notes.",
@@ -762,7 +763,8 @@
     "templatesCategoryDna": "DNA",
     "history": "History",
     "historyEmpty": "No past conversations",
-    "deleteSession": "Delete conversation"
+    "deleteSession": "Delete conversation",
+    "noteContextBadge": "Note: {title}"
   },
   "settings": {
     "title": "Settings",

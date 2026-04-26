@@ -693,6 +693,7 @@
     "hidePicker": "Medienbibliothek ausblenden",
     "lastEdited": "Zuletzt bearbeitet",
     "emptyBody": "Noch kein Inhalt.",
+    "digDeeper": "Mit KI vertiefen",
     "selectOrCreate": "Notiz auswählen oder neue erstellen.",
     "noTreeTitle": "Kein Stammbaum ausgewählt",
     "noTreeDescription": "Wählen Sie einen Stammbaum, um Forschungsnotizen anzuzeigen.",
@@ -762,7 +763,8 @@
     "templatesCategoryDna": "DNA",
     "history": "Verlauf",
     "historyEmpty": "Keine früheren Gespräche",
-    "deleteSession": "Gespräch löschen"
+    "deleteSession": "Gespräch löschen",
+    "noteContextBadge": "Notiz: {title}"
   },
   "settings": {
     "title": "Einstellungen",

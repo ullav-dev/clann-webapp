@@ -156,9 +156,11 @@ interface AiChatProps {
   onSaveAsNote: (title: string, description: string, body: string) => void;
   /** rawId (no "person:" prefix) — when provided, auto-loads person context */
   personId?: string;
+  /** Research note to inject as context */
+  noteContext?: { title: string; body: string } | null;
 }
 
-export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
+export default function AiChat({ onSaveAsNote, personId, noteContext }: AiChatProps) {
   const { token } = useAuth();
   const t = useTranslations("aiChat");
   const locale = useLocale();
@@ -194,6 +196,7 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
   const tokenRef = useRef(token);
   const personContextStringRef = useRef<string | undefined>(undefined);
   const treeContextStringRef = useRef<string | undefined>(undefined);
+  const noteContextStringRef = useRef<string | undefined>(undefined);
 
   useEffect(() => { tokenRef.current = token; }, [token]);
 
@@ -210,6 +213,12 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
         : undefined;
   }, [treeEnabled, treePersons, activeTree]);
 
+  useEffect(() => {
+    noteContextStringRef.current = noteContext
+      ? `Title: ${noteContext.title}\n\n${noteContext.body}`
+      : undefined;
+  }, [noteContext]);
+
   // Created once — body function reads current ref values at send time.
   const transport = useRef(
     new DefaultChatTransport({
@@ -218,6 +227,7 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
       body: () => ({
         personContext: personContextStringRef.current,
         treeContext: treeContextStringRef.current,
+        noteContext: noteContextStringRef.current,
       }),
     }),
   ).current;
@@ -512,6 +522,12 @@ export default function AiChat({ onSaveAsNote, personId }: AiChatProps) {
         {personCtx && (
           <span className="inline-flex items-center gap-1.5 text-xs bg-violet-50 text-violet-700 border border-violet-200 rounded-full px-2.5 py-1">
             👤 {t("personContextBadge", { name: personName(personCtx.person) })}
+          </span>
+        )}
+
+        {noteContext && (
+          <span className="inline-flex items-center gap-1.5 text-xs bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2.5 py-1 max-w-[200px] truncate">
+            📝 {t("noteContextBadge", { title: noteContext.title })}
           </span>
         )}
 

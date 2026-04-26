@@ -72,10 +72,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { messages, personContext, treeContext } = (await req.json()) as {
+  const { messages, personContext, treeContext, noteContext } = (await req.json()) as {
     messages: UIMessage[];
     personContext?: string;
     treeContext?: string;
+    noteContext?: string;
   };
 
   let systemPrompt = GENEALOGY_SYSTEM_PROMPT;
@@ -84,6 +85,9 @@ export async function POST(req: NextRequest) {
   }
   if (treeContext) {
     systemPrompt += `\n\n---\nFAMILY TREE DATA:\n${treeContext}\n---`;
+  }
+  if (noteContext) {
+    systemPrompt += `\n\n---\nRESEARCH NOTE (use as context for the conversation):\n${noteContext}\n---`;
   }
 
   try {

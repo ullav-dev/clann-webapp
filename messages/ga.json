@@ -693,6 +693,7 @@
     "hidePicker": "Folaigh leabharlann na meán",
     "lastEdited": "Eagraithe go deireanach",
     "emptyBody": "Gan ábhar fós.",
+    "digDeeper": "Tochailt níos doimhne le AI",
     "selectOrCreate": "Roghnaigh nóta nó cruthaigh ceann nua.",
     "noTreeTitle": "Gan crann teaghlaigh roghnaithe",
     "noTreeDescription": "Roghnaigh crann teaghlaigh chun nótaí taighde a fheiceáil.",
@@ -762,7 +763,8 @@
     "templatesCategoryDna": "DNA",
     "history": "Stair",
     "historyEmpty": "Níl aon chomhrá roimhe seo",
-    "deleteSession": "Scrios comhrá"
+    "deleteSession": "Scrios comhrá",
+    "noteContextBadge": "Nóta: {title}"
   },
   "settings": {
     "title": "Socruithe",

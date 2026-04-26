@@ -247,6 +247,8 @@ export default function ResearchPage() {
   const [saving, setSaving] = useState(false);
   // Pre-fill state for "Save as Note" from Wikipedia
   const [prefill, setPrefill] = useState<{ title: string; description: string; body: string } | null>(null);
+  // Note context injected into AI chat via "Dig deeper"
+  const [aiNoteContext, setAiNoteContext] = useState<{ title: string; body: string } | null>(null);
 
   // Folder state — "all" | "unfiled" | folder ID string
   const [folders, setFolders] = useState<ResearchFolder[]>([]);
@@ -312,6 +314,11 @@ export default function ResearchPage() {
     setSelectedId(null);
     setPrefill({ title, description, body });
     setMode("create");
+  }
+
+  function handleDigDeeper(note: ResearchNote) {
+    setAiNoteContext({ title: note.title, body: note.body ?? "" });
+    setMode("ai");
   }
 
   function handleEdit(note: ResearchNote) {
@@ -436,7 +443,7 @@ export default function ResearchPage() {
     if (mode === "ai") {
       return (
         <div className="bg-white rounded-xl border border-stone-200 p-6 h-full">
-          <AiChat onSaveAsNote={handleSaveAsNote} personId={aiPersonId} />
+          <AiChat onSaveAsNote={handleSaveAsNote} personId={aiPersonId} noteContext={aiNoteContext} />
         </div>
       );
     }
@@ -504,14 +511,22 @@ export default function ResearchPage() {
                 <p className="text-sm text-stone-500 mt-0.5">{selectedNote.description}</p>
               )}
             </div>
-            {canEditNote(selectedNote) && (
+            <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={() => handleEdit(selectedNote)}
-                className="shrink-0 text-sm text-emerald-700 hover:text-emerald-800 font-medium transition-colors"
+                onClick={() => handleDigDeeper(selectedNote)}
+                className="text-sm text-violet-700 hover:text-violet-800 font-medium transition-colors"
               >
-                {t("editNote")}
+                🤖 {t("digDeeper")}
               </button>
-            )}
+              {canEditNote(selectedNote) && (
+                <button
+                  onClick={() => handleEdit(selectedNote)}
+                  className="text-sm text-emerald-700 hover:text-emerald-800 font-medium transition-colors"
+                >
+                  {t("editNote")}
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
@@ -566,7 +581,10 @@ export default function ResearchPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-end">
           <button
-            onClick={() => setMode(mode === "ai" ? null : "ai")}
+            onClick={() => {
+              if (mode === "ai") { setMode(null); setAiNoteContext(null); }
+              else setMode("ai");
+            }}
             title={tAi("toggleTooltip")}
             className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
               mode === "ai"
