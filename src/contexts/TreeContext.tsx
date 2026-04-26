@@ -51,55 +51,58 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
         // Auto-create the first tree for a brand-new user.
         if (loaded.length === 0) {
           const raw = localStorage.getItem("clann_pending_tree");
-          if (raw) {
-            try {
-              const { firstName, surname, familyWord, email, sex } = JSON.parse(raw) as { firstName?: string; surname: string; familyWord: string; email: string; sex: "Male" | "Female" };
-              const slug = user.username.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-              const tree = await api.createTree({
-                name: `${slug}-family`,
-                display_name: `${surname} ${familyWord}`,
-                owner: user.username,
-                is_primary: true,
-              });
+          // Parse pending registration data when available (same-device verification).
+          // Fall back to username-derived values when absent (cross-device verification).
+          const pending = raw
+            ? (JSON.parse(raw) as { firstName?: string; surname: string; familyWord: string; email: string; sex: "Male" | "Female" })
+            : null;
+          try {
+            const slug = user.username.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+            const displayName = pending ? `${pending.surname} ${pending.familyWord}` : `${user.username} Family`;
+            const tree = await api.createTree({
+              name: `${slug}-family`,
+              display_name: displayName,
+              owner: user.username,
+              is_primary: true,
+            });
 
-              // Check whether a person with this username already exists in the system
-              // before attempting to create a duplicate (which would return a 500).
-              const allPersons = await api.listPersons();
-              const existingPerson = allPersons.find((p) => p.username === user.username);
+            // Check whether a person with this username already exists in the system
+            // before attempting to create a duplicate (which would return a 500).
+            const allPersons = await api.listPersons();
+            const existingPerson = allPersons.find((p) => p.username === user.username);
 
-              if (existingPerson) {
-                if (existingPerson.created_by === user.username) {
-                  // Person belongs to this user (e.g. partial previous registration) — just
-                  // add them to the new tree instead of creating a duplicate.
-                  await api.addPersonToTree(existingPerson.id, tree.name, user.username);
-                } else {
-                  // Person is owned by a different account — we cannot link or duplicate it.
-                  setInitError(
-                    `A family member with the username "${user.username}" already exists in the system. ` +
-                    `Please contact an administrator to resolve this.`
-                  );
-                }
+            if (existingPerson) {
+              if (existingPerson.created_by === user.username) {
+                // Person belongs to this user (e.g. partial previous registration) — just
+                // add them to the new tree instead of creating a duplicate.
+                await api.addPersonToTree(existingPerson.id, tree.name, user.username);
               } else {
-                await api.createPerson({
-                  first_name: firstName || user.username,
-                  family_name: surname,
-                  sex,
-                  username: user.username,
-                  email,
-                  created_by: user.username,
-                  trees: [tree.name],
-                });
+                // Person is owned by a different account — we cannot link or duplicate it.
+                setInitError(
+                  `A family member with the username "${user.username}" already exists in the system. ` +
+                  `Please contact an administrator to resolve this.`
+                );
               }
-
-              localStorage.removeItem("clann_pending_tree");
-              setTrees([tree]);
-              setActiveTreeState(tree);
-              localStorage.setItem(STORAGE_KEY, tree.name);
-              return;
-            } catch (err) {
-              console.error("[TreeContext] Failed to auto-create initial tree/person:", err);
-              localStorage.removeItem("clann_pending_tree");
+            } else {
+              await api.createPerson({
+                first_name: pending?.firstName || user.username,
+                family_name: pending?.surname || user.username,
+                sex: pending?.sex || "Male",
+                username: user.username,
+                email: pending?.email || user.email,
+                created_by: user.username,
+                trees: [tree.name],
+              });
             }
+
+            if (raw) localStorage.removeItem("clann_pending_tree");
+            setTrees([tree]);
+            setActiveTreeState(tree);
+            localStorage.setItem(STORAGE_KEY, tree.name);
+            return;
+          } catch (err) {
+            console.error("[TreeContext] Failed to auto-create initial tree/person:", err);
+            if (raw) localStorage.removeItem("clann_pending_tree");
           }
         }
         setTrees(loaded);
