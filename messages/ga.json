@@ -705,7 +705,19 @@
     "wikiSelectResult": "Roghnaigh toradh chun an achoimre a léamh.",
     "wikiPrompt": "Cuardaigh duine, áit nó imeacht.",
     "wikiOpenInWikipedia": "Oscail ar Vicipéid",
-    "wikiSaveAsNote": "Sábháil mar Nóta"
+    "wikiSaveAsNote": "Sábháil mar Nóta",
+    "foldersTitle": "Fillteáin",
+    "allNotes": "Gach Nóta",
+    "unfiled": "Gan Comhad",
+    "newFolderPlaceholder": "Ainm an fhillteáin…",
+    "renameFolder": "Fillteán a athainmniú",
+    "deleteFolder": "Fillteán a scriosadh",
+    "deleteFolderConfirm": "Fillteán '{name}' a scriosadh? Beidh nótaí gan comhad.",
+    "noFolder": "Gan fillteán",
+    "createFolderFailed": "Theip ar chruthú fillteáin",
+    "renameFolderFailed": "Theip ar athainmniú fillteáin",
+    "deleteFolderFailed": "Theip ar scriosadh fillteáin",
+    "moveFailed": "Theip ar bhogadh nóta"
   },
   "aiChat": {
     "toggle": "Cúntóir AI",

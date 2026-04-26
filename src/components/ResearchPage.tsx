@@ -11,7 +11,7 @@ import { useTree } from "@/contexts/TreeContext";
 import { useApi } from "@/hooks/useApi";
 import { DamPicker } from "@ullav/dam-picker";
 import type { PickedAsset } from "@ullav/dam-picker";
-import type { ResearchNote, CreateResearchNote, UpdateResearchNote } from "@/lib/types";
+import type { ResearchFolder, ResearchNote, CreateResearchNote, UpdateResearchNote } from "@/lib/types";
 import WikipediaSearch from "@/components/WikipediaSearch";
 import CensusSearch from "@/components/CensusSearch";
 import AiChat from "@/components/AiChat";
@@ -166,13 +166,14 @@ interface NoteCardProps {
   note: ResearchNote;
   selected: boolean;
   canEdit: boolean;
+  folderName?: string;
   onSelect: () => void;
   onEdit: () => void;
   onDelete: () => void;
   deleting: boolean;
 }
 
-function NoteCard({ note, selected, canEdit, onSelect, onEdit, onDelete, deleting }: NoteCardProps) {
+function NoteCard({ note, selected, canEdit, folderName, onSelect, onEdit, onDelete, deleting }: NoteCardProps) {
   const t = useTranslations("research");
   return (
     <div
@@ -210,9 +211,14 @@ function NoteCard({ note, selected, canEdit, onSelect, onEdit, onDelete, deletin
       {note.description && (
         <p className="text-xs text-stone-500 mt-1 line-clamp-2">{note.description}</p>
       )}
-      {note.updated_at && (
-        <p className="text-xs text-stone-400 mt-2">{formatDate(note.updated_at)}</p>
-      )}
+      <div className="flex items-center justify-between mt-2 gap-2">
+        {note.updated_at && (
+          <p className="text-xs text-stone-400">{formatDate(note.updated_at)}</p>
+        )}
+        {folderName && (
+          <span className="text-[10px] text-stone-400 shrink-0">📁 {folderName}</span>
+        )}
+      </div>
     </div>
   );
 }
@@ -242,6 +248,14 @@ export default function ResearchPage() {
   // Pre-fill state for "Save as Note" from Wikipedia
   const [prefill, setPrefill] = useState<{ title: string; description: string; body: string } | null>(null);
 
+  // Folder state — "all" | "unfiled" | folder ID string
+  const [folders, setFolders] = useState<ResearchFolder[]>([]);
+  const [activeFolder, setActiveFolder] = useState<"all" | "unfiled" | string>("all");
+  const [creatingFolder, setCreatingFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null);
+  const [renameFolderName, setRenameFolderName] = useState("");
+
   const isAdmin = roles.includes("admin");
   const selectedNote = notes.find((n) => n.id === selectedId) ?? null;
 
@@ -262,7 +276,15 @@ export default function ResearchPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTree?.name, user?.username]);
 
-  useEffect(() => { load(); }, [load]);
+  const loadFolders = useCallback(async () => {
+    try {
+      const data = await apiHook.listFolders();
+      setFolders(data);
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.username]);
+
+  useEffect(() => { load(); loadFolders(); }, [load, loadFolders]);
 
   // Auto-open AI panel when arriving from a person's detail page.
   useEffect(() => {
@@ -311,14 +333,64 @@ export default function ResearchPage() {
     }
   }
 
+  async function handleCreateFolder() {
+    if (!newFolderName.trim()) return;
+    try {
+      const created = await apiHook.createFolder(newFolderName.trim());
+      setFolders((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+      setNewFolderName("");
+      setCreatingFolder(false);
+    } catch {
+      alert(t("createFolderFailed"));
+    }
+  }
+
+  async function handleRenameFolder(folderId: string, name: string) {
+    if (!name.trim()) { setRenamingFolderId(null); return; }
+    try {
+      const updated = await apiHook.renameFolder(folderId, name.trim());
+      setFolders((prev) => prev.map((f) => f.id === updated.id ? updated : f).sort((a, b) => a.name.localeCompare(b.name)));
+    } catch {
+      alert(t("renameFolderFailed"));
+    } finally {
+      setRenamingFolderId(null);
+    }
+  }
+
+  async function handleDeleteFolder(folderId: string) {
+    const folder = folders.find((f) => f.id === folderId);
+    if (!folder) return;
+    if (!confirm(t("deleteFolderConfirm", { name: folder.name }))) return;
+    try {
+      await apiHook.deleteFolder(folderId);
+      setFolders((prev) => prev.filter((f) => f.id !== folderId));
+      // Unfile notes that belonged to this folder in local state
+      setNotes((prev) => prev.map((n) => n.folder_id === folderId ? { ...n, folder_id: null } : n));
+      if (activeFolder === folderId) setActiveFolder("all");
+    } catch {
+      alert(t("deleteFolderFailed"));
+    }
+  }
+
+  async function handleMoveNote(noteId: string, folderId: string | null) {
+    try {
+      const updated = await apiHook.setNoteFolder(noteId, folderId);
+      setNotes((prev) => prev.map((n) => n.id === updated.id ? updated : n));
+    } catch {
+      alert(t("moveFailed"));
+    }
+  }
+
   async function handleCreate(title: string, description: string, body: string) {
     setSaving(true);
     try {
+      const folderId = activeFolder !== "all" && activeFolder !== "unfiled" ? activeFolder : null;
       const payload: CreateResearchNote = {
         title,
         description: description || null,
         body: body || null,
         trees: activeTree ? [activeTree.name] : [],
+        folder_id: folderId,
         created_by: user?.username ?? null,
       };
       const created = await apiHook.createResearchNote(payload);
@@ -442,9 +514,24 @@ export default function ResearchPage() {
             )}
           </div>
 
-          {selectedNote.updated_at && (
-            <p className="text-xs text-stone-400">{t("lastEdited")}: {formatDate(selectedNote.updated_at)}</p>
-          )}
+          <div className="flex items-center gap-3 flex-wrap">
+            {selectedNote.updated_at && (
+              <p className="text-xs text-stone-400">{t("lastEdited")}: {formatDate(selectedNote.updated_at)}</p>
+            )}
+            <div className="flex items-center gap-1.5 ml-auto">
+              <span className="text-xs text-stone-400">📁</span>
+              <select
+                value={selectedNote.folder_id ?? ""}
+                onChange={(e) => handleMoveNote(selectedNote.id, e.target.value || null)}
+                className="text-xs text-stone-600 border border-stone-200 rounded px-2 py-1 focus:border-emerald-500 focus:outline-none bg-white"
+              >
+                <option value="">{t("noFolder")}</option>
+                {folders.map((f) => (
+                  <option key={f.id} value={f.id}>{f.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           {selectedNote.body ? (
             <div className="prose prose-stone prose-sm max-w-none border-t border-stone-100 pt-4">
@@ -526,34 +613,148 @@ export default function ResearchPage() {
       )}
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Note list */}
-        <div className="lg:w-80 shrink-0 space-y-2">
-          {loading ? (
-            <div className="text-sm text-stone-400 py-8 text-center">{t("loading")}</div>
-          ) : notes.length === 0 ? (
-            <div className="text-center py-10 text-stone-400">
-              <p className="text-sm">{t("empty")}</p>
+        {/* Left panel: folder sidebar + note list */}
+        <div className="lg:w-80 shrink-0">
+          {/* Folder sidebar */}
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-stone-400">
+                {t("foldersTitle")}
+              </span>
               <button
-                onClick={handleNewNote}
-                className="mt-3 text-sm text-emerald-700 hover:text-emerald-800 font-medium transition-colors"
+                onClick={() => { setCreatingFolder(true); setNewFolderName(""); }}
+                className="text-stone-400 hover:text-emerald-700 transition-colors text-base leading-none px-1"
+                title={t("newFolderPlaceholder")}
               >
-                {t("addFirstNote")}
+                +
               </button>
             </div>
-          ) : (
-            notes.map((note) => (
-              <NoteCard
-                key={note.id}
-                note={note}
-                selected={selectedId === note.id}
-                canEdit={canEditNote(note)}
-                onSelect={() => handleSelect(note.id)}
-                onEdit={() => handleEdit(note)}
-                onDelete={() => handleDelete(note)}
-                deleting={deletingId === note.id}
-              />
-            ))
-          )}
+
+            {/* All Notes */}
+            {(["all", "unfiled"] as const).map((key) => (
+              <button
+                key={key}
+                onClick={() => setActiveFolder(key)}
+                className={`w-full text-left text-xs px-2 py-1.5 rounded-md transition-colors ${
+                  activeFolder === key
+                    ? "bg-emerald-50 text-emerald-700 font-medium"
+                    : "text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                {key === "all" ? t("allNotes") : t("unfiled")}
+              </button>
+            ))}
+
+            {/* User folders */}
+            {folders.map((folder) =>
+              renamingFolderId === folder.id ? (
+                <form
+                  key={folder.id}
+                  onSubmit={(e) => { e.preventDefault(); handleRenameFolder(folder.id, renameFolderName); }}
+                  className="px-1 py-0.5"
+                >
+                  <input
+                    autoFocus
+                    value={renameFolderName}
+                    onChange={(e) => setRenameFolderName(e.target.value)}
+                    onBlur={() => handleRenameFolder(folder.id, renameFolderName)}
+                    className="w-full text-xs border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                </form>
+              ) : (
+                <div
+                  key={folder.id}
+                  className={`group flex items-center gap-1 rounded-md transition-colors ${
+                    activeFolder === folder.id ? "bg-emerald-50" : "hover:bg-stone-100"
+                  }`}
+                >
+                  <button
+                    onClick={() => setActiveFolder(folder.id)}
+                    className={`flex-1 text-left text-xs px-2 py-1.5 truncate ${
+                      activeFolder === folder.id ? "text-emerald-700 font-medium" : "text-stone-600"
+                    }`}
+                  >
+                    📁 {folder.name}
+                  </button>
+                  <div className="hidden group-hover:flex items-center pr-1 gap-0.5">
+                    <button
+                      onClick={() => { setRenamingFolderId(folder.id); setRenameFolderName(folder.name); }}
+                      className="p-0.5 text-stone-300 hover:text-stone-600 transition-colors text-xs"
+                      title={t("renameFolder")}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => handleDeleteFolder(folder.id)}
+                      className="p-0.5 text-stone-300 hover:text-red-500 transition-colors text-xs"
+                      title={t("deleteFolder")}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              )
+            )}
+
+            {/* New folder inline input */}
+            {creatingFolder && (
+              <form
+                onSubmit={(e) => { e.preventDefault(); handleCreateFolder(); }}
+                className="px-1 py-0.5"
+              >
+                <input
+                  autoFocus
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  onBlur={() => { if (!newFolderName.trim()) setCreatingFolder(false); }}
+                  placeholder={t("newFolderPlaceholder")}
+                  className="w-full text-xs border border-emerald-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                />
+              </form>
+            )}
+
+            <div className="border-t border-stone-100 mt-2 mb-2" />
+          </div>
+
+          {/* Note list */}
+          <div className="space-y-2">
+            {loading ? (
+              <div className="text-sm text-stone-400 py-8 text-center">{t("loading")}</div>
+            ) : (() => {
+              const filteredNotes =
+                activeFolder === "unfiled" ? notes.filter((n) => !n.folder_id) :
+                activeFolder !== "all" ? notes.filter((n) => n.folder_id === activeFolder) :
+                notes;
+              return filteredNotes.length === 0 ? (
+                <div className="text-center py-10 text-stone-400">
+                  <p className="text-sm">{t("empty")}</p>
+                  <button
+                    onClick={handleNewNote}
+                    className="mt-3 text-sm text-emerald-700 hover:text-emerald-800 font-medium transition-colors"
+                  >
+                    {t("addFirstNote")}
+                  </button>
+                </div>
+              ) : (
+                filteredNotes.map((note) => {
+                  const folderName = folders.find((f) => f.id === note.folder_id)?.name;
+                  return (
+                    <NoteCard
+                      key={note.id}
+                      note={note}
+                      selected={selectedId === note.id}
+                      canEdit={canEditNote(note)}
+                      folderName={activeFolder === "all" ? folderName : undefined}
+                      onSelect={() => handleSelect(note.id)}
+                      onEdit={() => handleEdit(note)}
+                      onDelete={() => handleDelete(note)}
+                      deleting={deletingId === note.id}
+                    />
+                  );
+                })
+              );
+            })()}
+          </div>
         </div>
 
         {/* Editor / viewer panel */}

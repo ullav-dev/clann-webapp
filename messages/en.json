@@ -705,7 +705,19 @@
     "wikiSelectResult": "Select a result to read the summary.",
     "wikiPrompt": "Search for a person, place, or event.",
     "wikiOpenInWikipedia": "Open in Wikipedia",
-    "wikiSaveAsNote": "Save as Note"
+    "wikiSaveAsNote": "Save as Note",
+    "foldersTitle": "Folders",
+    "allNotes": "All Notes",
+    "unfiled": "Unfiled",
+    "newFolderPlaceholder": "Folder name…",
+    "renameFolder": "Rename folder",
+    "deleteFolder": "Delete folder",
+    "deleteFolderConfirm": "Delete folder '{name}'? Notes will become unfiled.",
+    "noFolder": "No folder",
+    "createFolderFailed": "Failed to create folder",
+    "renameFolderFailed": "Failed to rename folder",
+    "deleteFolderFailed": "Failed to delete folder",
+    "moveFailed": "Failed to move note"
   },
   "aiChat": {
     "toggle": "AI Assistant",
