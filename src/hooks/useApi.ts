@@ -50,6 +50,11 @@ export function useApi() {
       api.createResearchNote({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),
     updateResearchNote: (id: string, body: UpdateResearchNote) => api.updateResearchNote(id, body),
     deleteResearchNote: (id: string) => api.deleteResearchNote(id),
+    setNoteFolder: (noteId: string, folderId: string | null) => api.setNoteFolder(noteId, folderId),
     rawNoteId: api.rawNoteId,
+    listFolders: () => api.listFolders(createdBy),
+    createFolder: (name: string) => api.createFolder(name, createdBy ?? ""),
+    renameFolder: (folderId: string, name: string) => api.renameFolder(folderId, name),
+    deleteFolder: (folderId: string) => api.deleteFolder(folderId),
   };
 }

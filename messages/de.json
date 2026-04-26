@@ -684,7 +684,19 @@
     "wikiSelectResult": "Ergebnis auswählen, um die Zusammenfassung zu lesen.",
     "wikiPrompt": "Person, Ort oder Ereignis suchen.",
     "wikiOpenInWikipedia": "In Wikipedia öffnen",
-    "wikiSaveAsNote": "Als Notiz speichern"
+    "wikiSaveAsNote": "Als Notiz speichern",
+    "foldersTitle": "Ordner",
+    "allNotes": "Alle Notizen",
+    "unfiled": "Nicht abgelegt",
+    "newFolderPlaceholder": "Ordnername…",
+    "renameFolder": "Ordner umbenennen",
+    "deleteFolder": "Ordner löschen",
+    "deleteFolderConfirm": "Ordner '{name}' löschen? Notizen werden nicht mehr abgelegt.",
+    "noFolder": "Kein Ordner",
+    "createFolderFailed": "Ordner konnte nicht erstellt werden",
+    "renameFolderFailed": "Ordner konnte nicht umbenannt werden",
+    "deleteFolderFailed": "Ordner konnte nicht gelöscht werden",
+    "moveFailed": "Notiz konnte nicht verschoben werden"
   },
   "census": {
     "toggle": "Volkszählung 1926",

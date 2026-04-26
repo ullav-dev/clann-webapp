@@ -11,6 +11,7 @@ import type {
   LifeEvent,
   CreateLifeEvent,
   UpdateLifeEvent,
+  ResearchFolder,
   ResearchNote,
   CreateResearchNote,
   UpdateResearchNote,
@@ -250,3 +251,28 @@ export const updateResearchNote = (noteId: string, body: UpdateResearchNote): Pr
 
 export const deleteResearchNote = (noteId: string): Promise<void> =>
   request(`/api/notes/${rawNoteId(noteId)}`, { method: "DELETE" });
+
+export const setNoteFolder = (noteId: string, folderId: string | null): Promise<ResearchNote> =>
+  request(`/api/notes/${rawNoteId(noteId)}/folder`, {
+    method: "PATCH",
+    body: JSON.stringify({ folder_id: folderId }),
+  });
+
+// Research Folders
+export function rawFolderId(id: string): string {
+  return id.startsWith("research_folder:") ? id.slice(16) : id;
+}
+
+export const listFolders = (createdBy?: string): Promise<ResearchFolder[]> => {
+  const qs = createdBy ? `?created_by=${encodeURIComponent(createdBy)}` : "";
+  return request(`/api/folders${qs}`);
+};
+
+export const createFolder = (name: string, createdBy: string): Promise<ResearchFolder> =>
+  request("/api/folders", { method: "POST", body: JSON.stringify({ name, created_by: createdBy }) });
+
+export const renameFolder = (folderId: string, name: string): Promise<ResearchFolder> =>
+  request(`/api/folders/${rawFolderId(folderId)}`, { method: "PATCH", body: JSON.stringify({ name }) });
+
+export const deleteFolder = (folderId: string): Promise<void> =>
+  request(`/api/folders/${rawFolderId(folderId)}`, { method: "DELETE" });
