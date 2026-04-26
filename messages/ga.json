@@ -293,6 +293,8 @@
     "primary": "Príomha",
     "setPrimaryTitle": "Socraigh mar phríomhchrann",
     "setPrimaryFailed": "Theip ar shocrú an phríomhchrainn",
+    "renameTitle": "Athainmnigh an crann seo",
+    "renameFailed": "Theip ar an athainmniú",
     "deleteTitle": "Scrios an crann seo",
     "deleteConfirmTitle": "An gcrann teaghlaigh a scriosadh?",
     "deleteConfirmBody": "Scriosfaidh sé seo {name} agus gach duine ann go buan. Ní féidir é seo a chealú.",

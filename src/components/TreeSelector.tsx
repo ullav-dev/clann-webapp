@@ -9,7 +9,7 @@ import Link from "next/link";
 import ImportTreeModal from "./ImportTreeModal";
 
 export default function TreeSelector() {
-  const { trees, activeTree, isLoading, setActiveTree, createTree, deleteTree, setPrimaryTree } = useTree();
+  const { trees, activeTree, isLoading, setActiveTree, createTree, renameTree, deleteTree, setPrimaryTree } = useTree();
   const { atTreeLimit, maxTrees } = useSubscription();
   const tLimits = useTranslations("limits");
   const t = useTranslations("trees");
@@ -29,6 +29,10 @@ export default function TreeSelector() {
   const [pendingDelete, setPendingDelete] = useState<{ name: string; displayName: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [renamingTree, setRenamingTree] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [renaming, setRenaming] = useState(false);
+  const renameInputRef = useRef<HTMLInputElement>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   // Close on outside click
@@ -104,6 +108,31 @@ export default function TreeSelector() {
     }
   }
 
+  function startRename(name: string, displayName: string) {
+    setRenamingTree(name);
+    setRenameValue(displayName);
+    setTimeout(() => renameInputRef.current?.focus(), 0);
+  }
+
+  function cancelRename() {
+    setRenamingTree(null);
+    setRenameValue("");
+  }
+
+  async function commitRename(name: string) {
+    const trimmed = renameValue.trim();
+    if (!trimmed || renaming) return;
+    setRenaming(true);
+    try {
+      await renameTree(name, trimmed);
+      setRenamingTree(null);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : t("renameFailed"));
+    } finally {
+      setRenaming(false);
+    }
+  }
+
   if (isLoading) {
     return <span className="text-sm text-stone-400">{t("loading")}</span>;
   }
@@ -130,25 +159,52 @@ export default function TreeSelector() {
             <ul className="py-1 max-h-60 overflow-y-auto divide-y divide-stone-50">
               {trees.map((tree) => (
                 <li key={tree.name} className="flex items-center gap-1 px-2 py-1.5 hover:bg-stone-50 group">
-                  <button
-                    onClick={() => { setActiveTree(tree); setOpen(false); router.push(`/${locale}/family`); }}
-                    className="flex-1 flex items-center gap-2 text-left min-w-0"
-                  >
-                    <span className={`text-sm truncate ${activeTree?.name === tree.name ? "font-semibold text-emerald-700" : "text-stone-700"}`}>
-                      {tree.display_name}
-                    </span>
-                    {tree.is_primary && (
-                      <span className="shrink-0 text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full leading-none">
-                        {t("primary")}
+                  {renamingTree === tree.name ? (
+                    <input
+                      ref={renameInputRef}
+                      type="text"
+                      value={renameValue}
+                      onChange={(e) => setRenameValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") { e.preventDefault(); commitRename(tree.name); }
+                        if (e.key === "Escape") cancelRename();
+                      }}
+                      onBlur={() => commitRename(tree.name)}
+                      disabled={renaming}
+                      className="flex-1 text-sm border border-emerald-400 rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-60 min-w-0"
+                    />
+                  ) : (
+                    <button
+                      onClick={() => { setActiveTree(tree); setOpen(false); router.push(`/${locale}/family`); }}
+                      className="flex-1 flex items-center gap-2 text-left min-w-0"
+                    >
+                      <span className={`text-sm truncate ${activeTree?.name === tree.name ? "font-semibold text-emerald-700" : "text-stone-700"}`}>
+                        {tree.display_name}
                       </span>
-                    )}
-                    {activeTree?.name === tree.name && (
-                      <svg className="shrink-0 ml-auto w-3.5 h-3.5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      {tree.is_primary && (
+                        <span className="shrink-0 text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full leading-none">
+                          {t("primary")}
+                        </span>
+                      )}
+                      {activeTree?.name === tree.name && (
+                        <svg className="shrink-0 ml-auto w-3.5 h-3.5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
+                  {renamingTree !== tree.name && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); startRename(tree.name, tree.display_name); }}
+                      title={t("renameTitle")}
+                      className="shrink-0 p-1 rounded text-stone-300 hover:text-emerald-600 hover:bg-emerald-50 opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                       </svg>
-                    )}
-                  </button>
-                  {!tree.is_primary && (
+                    </button>
+                  )}
+                  {!tree.is_primary && renamingTree !== tree.name && (
                     <button
                       onClick={() => handleSetPrimary(tree.name)}
                       title={t("setPrimaryTitle")}
@@ -159,7 +215,7 @@ export default function TreeSelector() {
                       </svg>
                     </button>
                   )}
-                  {!tree.is_primary && (
+                  {!tree.is_primary && renamingTree !== tree.name && (
                     <button
                       onClick={() => handleDelete(tree.name, tree.display_name)}
                       title={t("deleteTitle")}

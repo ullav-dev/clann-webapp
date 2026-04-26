@@ -293,6 +293,8 @@
     "primary": "Primary",
     "setPrimaryTitle": "Set as primary tree",
     "setPrimaryFailed": "Failed to set primary tree",
+    "renameTitle": "Rename this tree",
+    "renameFailed": "Rename failed",
     "deleteTitle": "Delete this tree",
     "deleteConfirmTitle": "Delete family tree?",
     "deleteConfirmBody": "This will permanently delete {name} and every person in it. This cannot be undone.",
