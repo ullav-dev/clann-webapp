@@ -173,6 +173,14 @@ export interface UpdateLifeEvent {
   source_doc?: string | null;
 }
 
+// Research Folders
+export interface ResearchFolder {
+  id: string; // "research_folder:<ulid>"
+  name: string;
+  created_by: string;
+  created_at?: string | null;
+}
+
 // Research Notes
 export interface ResearchNote {
   id: string; // "research_note:<ulid>"
@@ -180,6 +188,7 @@ export interface ResearchNote {
   description?: string | null;
   body?: string | null;
   trees: string[];
+  folder_id?: string | null;
   created_by?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -190,6 +199,7 @@ export interface CreateResearchNote {
   description?: string | null;
   body?: string | null;
   trees: string[];
+  folder_id?: string | null;
   created_by?: string | null;
 }
 
