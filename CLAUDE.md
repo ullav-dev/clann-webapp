@@ -219,13 +219,53 @@ On save the event is patched in-place via `updateLifeEvent` and the list is re-s
 | `PUT` | `/api/notes/{id}` | Full update; sets `updated_at = <string>time::now()` |
 | `DELETE` | `/api/notes/{id}` | Delete |
 
-**Layout:** left column (`lg:w-80`) lists note cards with title, description, and last-edited date; right panel switches between modes: `view` (read-only markdown), `create` / `edit` (editor form), `wikipedia` (`WikipediaSearch`), `census` (`CensusSearch`), or null (empty state prompt).
+**Layout:** left column (`lg:w-80`) lists note cards with title, description, and last-edited date; right panel switches between modes: `view` (read-only markdown), `create` / `edit` (editor form), `wikipedia` (`WikipediaSearch`), `census` (`CensusSearch`), `ai` (`AiChat`), or null (empty state prompt).
+
+**Folders:** Notes can be organised into user-scoped folders (`research_folder` table). Folder sidebar above the note list; `activeFolder` state `"all" | "unfiled" | folderId` filters the note list client-side. A dedicated `PATCH /api/notes/{id}/folder` endpoint moves notes between folders (so normal `PUT` updates don't accidentally clear `folder_id`). Deleting a folder unfiles all its notes atomically server-side before the folder record is deleted.
+
+**Dig Deeper with AI:** The note view panel has a `🤖 Dig deeper with AI` button. Clicking it sets `aiNoteContext` state (`{ title, body }`) and switches to `mode === "ai"`. `AiChat` receives the note as `noteContext` prop, injects it into the system prompt, and shows an amber badge. Closing the AI panel clears `aiNoteContext`.
 
 **Wikipedia search:** Uses `https://{lang}.wikipedia.org/w/rest.php/v1/search/page` for search (note: the old `api/rest_v1/page/search` endpoint is deprecated) and `api/rest_v1/page/summary/{key}` for article detail. Language derived from `useLocale()`. "Save as Note" pre-fills the create form with the article title, Wikipedia URL as description, and a markdown body containing the extract plus a citation link.
 
 **1926 Irish Census:** Hero image panel (no iframe — the NAI site blocks embedding). Shows the NAI hero image for the 1926 census, a grid of content chips describing what records contain, and a search form (surname, forename, county). The search button constructs a deep-link URL using `surname__icontains`, `forename__icontains`, `county` params and opens it on the NAI website in a new tab. Data published by the National Archives of Ireland under CC BY 4.0 — attribution always displayed.
 
 **Edit access:** `canEdit = roles.includes("admin") || user.username === note.created_by`.
+
+## AI Research Assistant
+
+`src/components/AiChat.tsx` — chat UI component used on the Research page and person detail pages.
+
+**Architecture:**
+- Streaming via Vercel AI SDK (`useChat` hook, `DefaultChatTransport`). Chat request goes to `POST /api/ai/chat` (a Next.js Route Handler, **not** proxied to clann-server).
+- Provider settings (API key, model) are stored in clann-server's `user_ai_settings` SurrealDB table via `GET/PUT/DELETE /api/ai-settings`. The webapp AES-256-GCM encrypts the key before sending (`src/lib/ai-settings.ts`); clann-server stores opaque blobs and never sees the key.
+- The route handler (`src/app/api/ai/chat/route.ts`) decrypts the key at request time and constructs the `streamText` call. Supported providers: Anthropic, OpenAI, Ollama (local).
+
+**System prompt:** `GENEALOGY_SYSTEM_PROMPT` in the chat route. Covers Irish genealogy, historical records, name variants, DNA, and major repositories. Key design decision: the prompt says "research **any** family tree" — not just personal ancestry — so the AI handles royal lineages, historical families, and demo trees equally.
+
+**Context injection:** Three optional context strings are passed in the request body alongside `messages`. Each is built from a React ref (updated by `useEffect`) so the transport closure always reads the latest value at send time:
+- `personContext` — formatted person details + relationships (loaded when `personId` prop is set)
+- `treeContext` — formatted list of all persons in the active tree (loaded on demand via the 🌳 toggle)
+- `noteContext` — note title + body injected when launched via "Dig deeper" from a research note (`noteContext` prop)
+
+**Session history:** Every conversation is auto-saved to the `chat_session` / `chat_message` SurrealDB tables via clann-server endpoints. Persistence logic:
+- `persistedCountRef` tracks how many messages have been saved; `currentSessionIdRef` holds the active session ID.
+- When `status` transitions to `"ready"` (streaming complete), a `useEffect` saves unpersisted messages. If no session exists yet, it creates one titled after the first user message.
+- The 🕐 History panel lists sessions (ordered by `updated_at DESC`, scoped to `created_by` + `tree`). Clicking a session calls `listSessionMessages`, converts them to `UIMessage[]`, and calls `setMessages` with `persistedCountRef` set to the loaded count so no duplicate saves occur.
+- `handleClearChat` resets both refs and clears messages.
+
+**Backend endpoints (clann-server):**
+| Method | Path | Notes |
+|---|---|---|
+| `GET/PUT/DELETE` | `/api/ai-settings` | Encrypted BYOK key storage |
+| `GET/POST` | `/api/chat/sessions` | List/create sessions (`?created_by=&tree=`) |
+| `DELETE` | `/api/chat/sessions/{id}` | Delete session + all its messages |
+| `GET/POST` | `/api/chat/sessions/{id}/messages` | List messages (ASC) / append a message |
+
+**New env var:**
+
+| Variable | Default | Notes |
+|---|---|---|
+| `SETTINGS_ENCRYPTION_KEY` | `clann-dev-key-change-in-production!!` | AES-256-GCM key for BYOK encryption — **change in production** |
 
 ## Family Tree graph
 

@@ -25,8 +25,10 @@ A responsive, localised family tree management application built with Next.js, b
 - **Life Events** — chronological timeline on each person's profile (📅 Life Events tab); events have a name, date, type (Birth, Death, Marriage, Divorce, Graduation, Military, Immigration, Emigration, Other — or a custom label), a short description, a long-form story (markdown with media library image insertion), an external source URL, source image and source document (each picked from the media library), and a verified flag; events are sorted by date using a fuzzy date parser (undated events sort last); each event type has a distinct icon and colour; a **Details pill** (always visible on cards with story or source content) expands an inline read-only panel showing the full story rendered as formatted markdown, source image as an authenticated inline thumbnail, and source document as a named download link (asset name resolved from DAM metadata); editing opens in a modal without a page reload; edit and delete actions are restricted to the person's owner and admins
 - **Research workspace** — dedicated `/research` page (tree-scoped) for capturing genealogical research:
   - **Research notes** — create, edit, and delete markdown notes with a title and short description; notes support inline media library image insertion at the cursor position
+  - **Note folders** — organise notes into user-scoped folders; folder sidebar above the note list; notes can be moved between folders or left unfiled
   - **Wikipedia search** — inline panel using the Wikipedia REST API; search by name, place, or event; select a result to read the article summary; **Save as Note** pre-fills a new note with the article title, URL, and extract. Searches the Wikipedia edition matching the current language setting
   - **1926 Irish Census** — hero panel with a census image, description of record contents, and a pre-populated search form (surname, forename, county). The search button opens the [National Archives of Ireland](https://nationalarchives.ie/collections/search-the-1926-census/) in a new tab with terms pre-filled. Census data published under **CC BY 4.0**
+  - **AI Research Assistant** — streaming AI chat panel powered by your choice of Anthropic, OpenAI, or Ollama (BYOK — your API key is AES-256-GCM encrypted before storage, never held in plain text). Works with any family tree — personal ancestry, royal lineages, historical families, or demo trees. Features: person context (pre-load a person's details from their profile), tree context toggle (inject all persons from the active tree), prompt templates (six genealogy categories), **conversation history** (auto-saved per tree; resume any past session from the 🕐 History panel), and **Dig Deeper** (click on any research note to launch the AI chat with the note's content pre-injected as context)
 - **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, life events, research, list view, multiple trees, GEDCOM exchange), accessible from the nav bar without logging in
 - **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
 
@@ -79,6 +81,8 @@ DAM_URL=http://ullav-dam-server:8080
 ```
 
 > **Note:** Use plain `API_URL` / `AUTH_URL` / `DAM_URL`, **not** `NEXT_PUBLIC_*` variants — plain env vars cannot be set at runtime. The defaults already point to the correct Docker service names, so these vars are only needed if your service names differ. `NEXT_PUBLIC_IDLE_TIMEOUT_MS` is the exception: it **is** a `NEXT_PUBLIC_*` var and must be set at build time if you want a non-default timeout.
+>
+> **`SETTINGS_ENCRYPTION_KEY`** — required for the AI Research Assistant. Set to a random 32-character string in production. The default (`clann-dev-key-change-in-production!!`) is intentionally weak — always override in `.env.prod`.
 
 ### Build and run
 
@@ -209,6 +213,35 @@ Every API call includes `created_by=<username>` (applied automatically by `useAp
 | `DELETE` | `/api/notes/{id}` | Delete a note |
 
 Notes are stored in the `research_note` SurrealDB table with a `trees: array<string>` field, making the schema M2M-ready for future cross-tree note sharing.
+
+### Research Folders API
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/folders?created_by=<user>` | List folders |
+| `POST` | `/api/folders` | Create a folder |
+| `PATCH` | `/api/folders/{id}` | Rename a folder |
+| `DELETE` | `/api/folders/{id}` | Delete folder (unfiles all its notes) |
+| `PATCH` | `/api/notes/{id}/folder` | Move a note to a folder (`folder_id: null` to unfile) |
+
+### AI Settings API
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/ai/settings` | Get AI provider config (via Next.js Route Handler) |
+| `POST` | `/api/ai/settings` | Save AI provider config (key encrypted before storage) |
+| `DELETE` | `/api/ai/settings` | Remove AI settings |
+| `POST` | `/api/ai/chat` | Streaming chat (Vercel AI SDK; proxied directly, not via clann-server) |
+
+### Chat Sessions API
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/chat/sessions` | List past sessions (scoped to user + tree) |
+| `POST` | `/api/chat/sessions` | Create a session |
+| `DELETE` | `/api/chat/sessions/{id}` | Delete session and all its messages |
+| `GET` | `/api/chat/sessions/{id}/messages` | Load messages for a session |
+| `POST` | `/api/chat/sessions/{id}/messages` | Append a message to a session |
 
 ## Third-party data
 
