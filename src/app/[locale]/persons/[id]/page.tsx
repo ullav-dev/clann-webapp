@@ -6,7 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { rawId } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import { useTree } from "@/contexts/TreeContext";
@@ -34,6 +34,7 @@ export default function PersonDetailPage() {
   const { trees: allTrees } = useTree();
   const t = useTranslations("personDetail");
   const tEvents = useTranslations("lifeEvents");
+  const locale = useLocale();
 
   const [person, setPerson] = useState<Person | null>(null);
   const [rels, setRels] = useState<RelationshipsResponse | null>(null);
@@ -147,6 +148,12 @@ export default function PersonDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
+          <Link
+            href={`/${locale}/research?personId=${id}`}
+            className="border border-violet-200 bg-violet-50 hover:bg-violet-100 text-violet-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            {t("researchWithAI")}
+          </Link>
           <Link href={`/persons/${id}/edit`} className="border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors">{t("edit")}</Link>
           <button onClick={handleDelete} disabled={deleting} className="border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-60">
             {deleting ? t("deleting") : t("delete")}

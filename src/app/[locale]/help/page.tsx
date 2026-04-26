@@ -90,6 +90,21 @@ export default async function HelpPage() {
         </Cards>
       </Section>
 
+      <Section title={t("aiAssistant.title")} icon="🤖">
+        <Cards>
+          <Card title={t("aiAssistant.overviewTitle")} body={t("aiAssistant.overviewBody")} />
+          <Card title={t("aiAssistant.setupTitle")} body={t("aiAssistant.setupBody")} />
+          <Card title={t("aiAssistant.providersTitle")} body={t("aiAssistant.providersBody")} />
+          <Card title={t("aiAssistant.startingTitle")} body={t("aiAssistant.startingBody")} />
+          <Card title={t("aiAssistant.templatesTitle")} body={t("aiAssistant.templatesBody")} />
+          <Card title={t("aiAssistant.personContextTitle")} body={t("aiAssistant.personContextBody")} />
+          <Card title={t("aiAssistant.treeContextTitle")} body={t("aiAssistant.treeContextBody")} />
+          <Card title={t("aiAssistant.saveTitle")} body={t("aiAssistant.saveBody")} />
+          <Card title={t("aiAssistant.historyTitle")} body={t("aiAssistant.historyBody")} />
+          <Card title={t("aiAssistant.digDeeperTitle")} body={t("aiAssistant.digDeeperBody")} />
+        </Cards>
+      </Section>
+
       <Section title={t("multipleTrees.title")} icon="🌲">
         <Cards>
           <Card title={t("multipleTrees.manageTitle")} body={t("multipleTrees.manageBody")} />

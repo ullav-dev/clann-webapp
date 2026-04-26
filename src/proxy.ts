@@ -8,6 +8,11 @@ const intlMiddleware = createMiddleware(routing);
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
+  // Let /api/ai/* be handled by Next.js Route Handlers (not proxied to clann-server).
+  if (pathname.startsWith("/api/ai/")) {
+    return NextResponse.next();
+  }
+
   // Proxy /api/dam/* → ullav-dam-server (strips /api/dam prefix).
   // Must be checked before the generic /api/* rule below.
   if (pathname.startsWith("/api/dam/")) {

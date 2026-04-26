@@ -106,6 +106,9 @@ export default function Nav() {
                         <DropdownLink href="/account/subscription" onClick={() => setDropdownOpen(false)}>
                           {t("account")}
                         </DropdownLink>
+                        <DropdownLink href="/settings" onClick={() => setDropdownOpen(false)}>
+                          {t("settings")}
+                        </DropdownLink>
                         <DropdownLink href="/help" onClick={() => setDropdownOpen(false)}>
                           {t("help")}
                         </DropdownLink>
@@ -194,6 +197,9 @@ export default function Nav() {
                     className="block px-4 py-3 text-sm text-stone-600 hover:bg-stone-50 transition-colors"
                   >
                     {t("account")} ({user.username})
+                  </Link>
+                  <Link href="/settings" onClick={closeMobileMenu} className={mobileLink("/settings")}>
+                    {t("settings")}
                   </Link>
                   <Link href="/help" onClick={closeMobileMenu} className={mobileLink("/help")}>
                     {t("help")}

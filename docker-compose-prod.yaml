@@ -13,4 +13,3 @@ services:
 networks:
   ullav-net:
     external: true
-

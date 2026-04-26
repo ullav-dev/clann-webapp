@@ -15,6 +15,9 @@ import type {
   ResearchNote,
   CreateResearchNote,
   UpdateResearchNote,
+  ChatSession,
+  CreateChatSession,
+  ChatMessage,
 } from "./types";
 
 // In the browser, use relative paths so Next.js proxies to the backend (avoids CORS).
@@ -276,3 +279,35 @@ export const renameFolder = (folderId: string, name: string): Promise<ResearchFo
 
 export const deleteFolder = (folderId: string): Promise<void> =>
   request(`/api/folders/${rawFolderId(folderId)}`, { method: "DELETE" });
+
+// Chat Sessions
+export function rawSessionId(id: string): string {
+  return id.startsWith("chat_session:") ? id.slice(13) : id;
+}
+
+export const listChatSessions = (createdBy?: string, tree?: string): Promise<ChatSession[]> => {
+  const params = new URLSearchParams();
+  if (createdBy) params.set("created_by", createdBy);
+  if (tree) params.set("tree", tree);
+  const qs = params.toString();
+  return request(`/api/chat/sessions${qs ? `?${qs}` : ""}`);
+};
+
+export const createChatSession = (body: CreateChatSession): Promise<ChatSession> =>
+  request("/api/chat/sessions", { method: "POST", body: JSON.stringify(body) });
+
+export const deleteChatSession = (sessionId: string): Promise<void> =>
+  request(`/api/chat/sessions/${rawSessionId(sessionId)}`, { method: "DELETE" });
+
+export const listSessionMessages = (sessionId: string): Promise<ChatMessage[]> =>
+  request(`/api/chat/sessions/${rawSessionId(sessionId)}/messages`);
+
+export const appendSessionMessage = (
+  sessionId: string,
+  role: "user" | "assistant",
+  content: string
+): Promise<ChatMessage> =>
+  request(`/api/chat/sessions/${rawSessionId(sessionId)}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ role, content }),
+  });

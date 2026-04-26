@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -13,6 +14,7 @@ import type { PickedAsset } from "@ullav/dam-picker";
 import type { ResearchFolder, ResearchNote, CreateResearchNote, UpdateResearchNote } from "@/lib/types";
 import WikipediaSearch from "@/components/WikipediaSearch";
 import CensusSearch from "@/components/CensusSearch";
+import AiChat from "@/components/AiChat";
 
 const MarkdownEditor = dynamic(() => import("@/components/MarkdownEditor"), { ssr: false });
 
@@ -226,20 +228,27 @@ function NoteCard({ note, selected, canEdit, folderName, onSelect, onEdit, onDel
 export default function ResearchPage() {
   const t = useTranslations("research");
   const tCensus = useTranslations("census");
+  const tAi = useTranslations("aiChat");
   const { user, roles, token } = useAuth();
   const { activeTree, isLoading: treeLoading } = useTree();
   const apiHook = useApi();
+  const searchParams = useSearchParams();
+
+  // When navigating from a person's detail page, personId is provided as a query param.
+  const aiPersonId = searchParams.get("personId") ?? undefined;
 
   const [notes, setNotes] = useState<ResearchNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [mode, setMode] = useState<"view" | "create" | "edit" | "wikipedia" | "census" | null>(null);
+  const [mode, setMode] = useState<"view" | "create" | "edit" | "wikipedia" | "census" | "ai" | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   // Pre-fill state for "Save as Note" from Wikipedia
   const [prefill, setPrefill] = useState<{ title: string; description: string; body: string } | null>(null);
+  // Note context injected into AI chat via "Dig deeper"
+  const [aiNoteContext, setAiNoteContext] = useState<{ title: string; body: string } | null>(null);
 
   // Folder state — "all" | "unfiled" | folder ID string
   const [folders, setFolders] = useState<ResearchFolder[]>([]);
@@ -279,6 +288,11 @@ export default function ResearchPage() {
 
   useEffect(() => { load(); loadFolders(); }, [load, loadFolders]);
 
+  // Auto-open AI panel when arriving from a person's detail page.
+  useEffect(() => {
+    if (aiPersonId) setMode("ai");
+  }, [aiPersonId]);
+
   function handleSelect(id: string) {
     if (mode === "create") return;
     if (selectedId === id && mode === "view") {
@@ -300,6 +314,11 @@ export default function ResearchPage() {
     setSelectedId(null);
     setPrefill({ title, description, body });
     setMode("create");
+  }
+
+  function handleDigDeeper(note: ResearchNote) {
+    setAiNoteContext({ title: note.title, body: note.body ?? "" });
+    setMode("ai");
   }
 
   function handleEdit(note: ResearchNote) {
@@ -421,6 +440,14 @@ export default function ResearchPage() {
   }
 
   const rightPanel = () => {
+    if (mode === "ai") {
+      return (
+        <div className="bg-white rounded-xl border border-stone-200 p-6 h-full">
+          <AiChat onSaveAsNote={handleSaveAsNote} personId={aiPersonId} noteContext={aiNoteContext} />
+        </div>
+      );
+    }
+
     if (mode === "wikipedia") {
       return (
         <div className="bg-white rounded-xl border border-stone-200 p-6">
@@ -484,14 +511,22 @@ export default function ResearchPage() {
                 <p className="text-sm text-stone-500 mt-0.5">{selectedNote.description}</p>
               )}
             </div>
-            {canEditNote(selectedNote) && (
+            <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={() => handleEdit(selectedNote)}
-                className="shrink-0 text-sm text-emerald-700 hover:text-emerald-800 font-medium transition-colors"
+                onClick={() => handleDigDeeper(selectedNote)}
+                className="text-sm text-violet-700 hover:text-violet-800 font-medium transition-colors"
               >
-                {t("editNote")}
+                🤖 {t("digDeeper")}
               </button>
-            )}
+              {canEditNote(selectedNote) && (
+                <button
+                  onClick={() => handleEdit(selectedNote)}
+                  className="text-sm text-emerald-700 hover:text-emerald-800 font-medium transition-colors"
+                >
+                  {t("editNote")}
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
@@ -545,6 +580,20 @@ export default function ResearchPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-end">
+          <button
+            onClick={() => {
+              if (mode === "ai") { setMode(null); setAiNoteContext(null); }
+              else setMode("ai");
+            }}
+            title={tAi("toggleTooltip")}
+            className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
+              mode === "ai"
+                ? "bg-violet-600 text-white border-violet-600 hover:bg-violet-700"
+                : "bg-white text-stone-700 border-stone-300 hover:bg-stone-50"
+            }`}
+          >
+            🤖 {tAi("toggle")}
+          </button>
           <button
             onClick={() => setMode(mode === "census" ? null : "census")}
             title={tCensus("toggleTooltip")}
