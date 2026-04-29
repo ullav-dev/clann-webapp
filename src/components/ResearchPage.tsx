@@ -274,9 +274,11 @@ export default function ResearchPage() {
   // Note context injected into AI chat via "Dig deeper"
   const [aiNoteContext, setAiNoteContext] = useState<{ title: string; body: string } | null>(null);
 
-  // Folder state — "all" | "unfiled" | folder ID string
+  // Folder state — "all" | "unfiled" | "shared-by-others" | folder ID string
   const [folders, setFolders] = useState<ResearchFolder[]>([]);
-  const [activeFolder, setActiveFolder] = useState<"all" | "unfiled" | string>("all");
+  const [activeFolder, setActiveFolder] = useState<"all" | "unfiled" | "shared-by-others" | string>("all");
+  const [allNotesRevealed, setAllNotesRevealed] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [creatingFolder, setCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null);
@@ -404,6 +406,22 @@ export default function ResearchPage() {
     } catch {
       alert(t("deleteFolderFailed"));
     }
+  }
+
+  async function handleRefreshNotes() {
+    setRefreshing(true);
+    try {
+      const data = await apiHook.listResearchNotes();
+      setNotes(data);
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  function selectFolder(id: "all" | "unfiled" | "shared-by-others" | string) {
+    setActiveFolder(id);
+    setSelectedId(null);
+    setMode(null);
   }
 
   async function handleMoveNote(noteId: string, folderId: string | null) {
@@ -685,20 +703,30 @@ export default function ResearchPage() {
               <span className="text-[10px] font-semibold uppercase tracking-wide text-stone-400">
                 {t("foldersTitle")}
               </span>
-              <button
-                onClick={() => { setCreatingFolder(true); setNewFolderName(""); }}
-                className="text-stone-400 hover:text-emerald-700 transition-colors text-base leading-none px-1"
-                title={t("newFolderPlaceholder")}
-              >
-                +
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleRefreshNotes}
+                  disabled={refreshing}
+                  className="text-stone-400 hover:text-emerald-700 transition-colors text-sm leading-none px-1 disabled:opacity-40"
+                  title={t("refresh")}
+                >
+                  {refreshing ? "⏳" : "↻"}
+                </button>
+                <button
+                  onClick={() => { setCreatingFolder(true); setNewFolderName(""); }}
+                  className="text-stone-400 hover:text-emerald-700 transition-colors text-base leading-none px-1"
+                  title={t("newFolderPlaceholder")}
+                >
+                  +
+                </button>
+              </div>
             </div>
 
-            {/* All Notes */}
+            {/* All Notes / Unfiled */}
             {(["all", "unfiled"] as const).map((key) => (
               <button
                 key={key}
-                onClick={() => setActiveFolder(key)}
+                onClick={() => selectFolder(key)}
                 className={`w-full text-left text-xs px-2 py-1.5 rounded-md transition-colors ${
                   activeFolder === key
                     ? "bg-emerald-50 text-emerald-700 font-medium"
@@ -708,6 +736,22 @@ export default function ResearchPage() {
                 {key === "all" ? t("allNotes") : t("unfiled")}
               </button>
             ))}
+
+            {/* "Shared by team" virtual folder — only on team-linked trees */}
+            {apiHook.isTeamLinkedTree && (
+              <button
+                onClick={() => selectFolder("shared-by-others")}
+                className={`w-full text-left text-xs px-2 py-1.5 rounded-md transition-colors ${
+                  activeFolder === "shared-by-others"
+                    ? "bg-violet-50 text-violet-700 font-medium"
+                    : "text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                👥 {t("sharedByTeam")}
+              </button>
+            )}
+
+            <hr className="border-stone-200 my-1" />
 
             {/* User folders */}
             {folders.map((folder) =>
@@ -733,7 +777,7 @@ export default function ResearchPage() {
                   }`}
                 >
                   <button
-                    onClick={() => setActiveFolder(folder.id)}
+                    onClick={() => selectFolder(folder.id)}
                     className={`flex-1 text-left text-xs px-2 py-1.5 truncate ${
                       activeFolder === folder.id ? "text-emerald-700 font-medium" : "text-stone-600"
                     }`}
@@ -786,9 +830,27 @@ export default function ResearchPage() {
               <div className="text-sm text-stone-400 py-8 text-center">{t("loading")}</div>
             ) : (() => {
               const filteredNotes =
-                activeFolder === "unfiled" ? topLevelNotes.filter((n) => !n.folder_id) :
+                activeFolder === "unfiled" ? topLevelNotes.filter((n) => !n.folder_id && n.created_by === user.username) :
+                activeFolder === "shared-by-others" ? topLevelNotes.filter((n) => n.is_shared && n.created_by !== user.username) :
                 activeFolder !== "all" ? topLevelNotes.filter((n) => n.folder_id === activeFolder) :
                 topLevelNotes;
+
+              if (activeFolder === "all" && !allNotesRevealed) {
+                return (
+                  <div className="text-center py-10 text-stone-400">
+                    <p className="text-sm text-stone-500 mb-3">
+                      {topLevelNotes.length} {topLevelNotes.length === 1 ? t("notesSingular") : t("notesPlural")}
+                    </p>
+                    <button
+                      onClick={() => setAllNotesRevealed(true)}
+                      className="text-sm text-emerald-700 hover:text-emerald-800 font-medium transition-colors"
+                    >
+                      {t("showAllNotes")}
+                    </button>
+                  </div>
+                );
+              }
+
               return filteredNotes.length === 0 ? (
                 <div className="text-center py-10 text-stone-400">
                   <p className="text-sm">{t("empty")}</p>

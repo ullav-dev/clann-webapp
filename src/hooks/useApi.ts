@@ -18,10 +18,11 @@ import type {
  * ownership and tree scoping on the backend.
  *
  * For shared team trees (where activeTree.owner !== the logged-in user),
- * read operations omit `created_by` so the backend uses JWT-based team access
- * instead of the ownership filter, which would otherwise return 404.
- * Write operations still use the logged-in user's username (and are hidden in
- * the UI for shared trees).
+ * person read operations omit `created_by` so the backend uses JWT-based team
+ * access instead of the ownership filter (which would return 404).
+ * Note reads always include `created_by`; the backend query returns notes
+ * owned by the caller OR shared by others (is_shared = true).
+ * Write operations keep the logged-in user's username and are blocked in UI.
  */
 export function useApi() {
   const { user } = useAuth();
@@ -34,10 +35,7 @@ export function useApi() {
   // For reads on a shared tree, omit created_by so the backend uses JWT auth.
   const readOwner = isSharedTree ? undefined : createdBy;
 
-  // Notes: omit created_by whenever the tree is linked to a team (team_id set),
-  // regardless of ownership — so the tree owner also sees replies from members.
   const isTeamLinkedTree = !!activeTree?.team_id;
-  const notesReadOwner = isTeamLinkedTree ? undefined : createdBy;
 
   return {
     isSharedTree,
@@ -63,7 +61,7 @@ export function useApi() {
     personImageUrl: api.personImageUrl,
     personLifeImageUrl: api.personLifeImageUrl,
     isTeamLinkedTree,
-    listResearchNotes: () => api.listResearchNotes(tree, notesReadOwner),
+    listResearchNotes: () => api.listResearchNotes(tree, createdBy),
     createResearchNote: (body: CreateResearchNote) =>
       api.createResearchNote({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),
     updateResearchNote: (id: string, body: UpdateResearchNote) => api.updateResearchNote(id, body),
