@@ -141,3 +141,42 @@ export const createPortalSession = (token: string): Promise<CheckoutResponse> =>
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
   });
+
+// ── Subscription decoding ─────────────────────────────────────────────────────
+
+export type ClannTier = "individual" | "family" | "professional" | "enterprise" | null;
+
+export interface ClannSubscription {
+  tier: ClannTier;
+  status: string | null;
+  isActive: boolean;
+}
+
+/** Decode subscription info from a JWT without verifying the signature (browser UX only). */
+export function decodeClannSubscription(token: string | null): ClannSubscription {
+  const none: ClannSubscription = { tier: null, status: null, isActive: false };
+  if (!token) return none;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const subs = payload.subscriptions as
+      | Record<string, { tier?: string; status?: string }>
+      | undefined;
+    const clann = subs?.clann;
+    if (!clann) return none;
+    const status: string = clann.status ?? "";
+    const isActive = status === "active" || status === "trialing";
+    const tier = isActive ? ((clann.tier as ClannTier) ?? "individual") : null;
+    return { tier, status: status || null, isActive };
+  } catch {
+    return none;
+  }
+}
+
+/** Returns true when the user's subscription allows creating a team. */
+export function canCreateTeam(token: string | null): boolean {
+  const sub = decodeClannSubscription(token);
+  return (
+    sub.isActive &&
+    (sub.tier === "family" || sub.tier === "professional" || sub.tier === "enterprise")
+  );
+}

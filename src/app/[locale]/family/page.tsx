@@ -14,8 +14,10 @@ import PersonAvatar from "@/components/PersonAvatar";
 import { fullName } from "@/components/PersonCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
+import { useTeam } from "@/contexts/TeamContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
+import ReadOnlyBanner from "@/components/ReadOnlyBanner";
 
 type ViewMode = "card" | "list";
 
@@ -107,7 +109,9 @@ function ListIcon() { return (<svg className="w-4 h-4" viewBox="0 0 20 20" fill=
 export default function FamilyPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { activeTree, isLoading: treeLoading, initError } = useTree();
+  const { isTeamTree } = useTeam();
   const { atMemberLimit } = useSubscription();
+  const readOnly = !!activeTree && isTeamTree(activeTree.name);
   const api = useApi();
   const router = useRouter();
   const t = useTranslations("family");
@@ -171,6 +175,7 @@ export default function FamilyPage() {
 
   return (
     <div>
+      <ReadOnlyBanner />
       {initError && (
         <div className="mb-6 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-amber-800 text-sm">
           {initError}
@@ -183,17 +188,19 @@ export default function FamilyPage() {
             {loading ? t("loading") : t("personCount", { count: persons.length })}
           </p>
         </div>
-        {atMemberLimit(persons.length) ? (
-          <Link
-            href="/pricing"
-            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto text-sm"
-          >
-            ⚡ {t("memberLimitCta")}
-          </Link>
-        ) : (
-          <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto">
-            <span>+</span> {t("addPerson")}
-          </Link>
+        {!readOnly && (
+          atMemberLimit(persons.length) ? (
+            <Link
+              href="/pricing"
+              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto text-sm"
+            >
+              ⚡ {t("memberLimitCta")}
+            </Link>
+          ) : (
+            <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto">
+              <span>+</span> {t("addPerson")}
+            </Link>
+          )
         )}
       </div>
 
@@ -243,11 +250,17 @@ export default function FamilyPage() {
 
       {view === "card" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {paged.map((p) => (<PersonCard key={p.id} person={p} onDeleted={(id) => setPersons((prev) => prev.filter((x) => x.id !== id))} />))}
+          {paged.map((p) => (
+            <PersonCard
+              key={p.id}
+              person={p}
+              onDeleted={readOnly ? undefined : (id) => setPersons((prev) => prev.filter((x) => x.id !== id))}
+            />
+          ))}
         </div>
       ) : (
         <ListView people={paged} sortField={sortField} sortDir={sortDir} onSort={handleSort}
-          onDeleted={(id) => setPersons((prev) => prev.filter((x) => x.id !== id))} />
+          onDeleted={readOnly ? ((_id) => {}) : (id) => setPersons((prev) => prev.filter((x) => x.id !== id))} />
       )}
 
       {numPages > 1 && (

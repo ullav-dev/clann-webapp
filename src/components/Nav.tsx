@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTeam } from "@/contexts/TeamContext";
 import LocaleSwitcher from "./LocaleSwitcher";
 import TreeSelector from "./TreeSelector";
 import AboutModal from "./AboutModal";
@@ -13,6 +14,8 @@ export default function Nav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isLoading, logout, roles } = useAuth();
+  const { teams } = useTeam();
+  const hasTeam = teams.length > 0;
   const t = useTranslations("nav");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -74,6 +77,11 @@ export default function Nav() {
                   <Link href="/research" className={activeLink("/research")}>
                     {t("research")}
                   </Link>
+                  {hasTeam && (
+                    <Link href="/team" className={activeLink("/team")}>
+                      {t("team")}
+                    </Link>
+                  )}
                   <TreeSelector />
                   <Link
                     href="/persons/new"
@@ -177,6 +185,11 @@ export default function Nav() {
                 <Link href="/research" onClick={closeMobileMenu} className={mobileLink("/research")}>
                   {t("research")}
                 </Link>
+                {hasTeam && (
+                  <Link href="/team" onClick={closeMobileMenu} className={mobileLink("/team")}>
+                    {t("team")}
+                  </Link>
+                )}
                 <div className="px-4 py-3 border-t border-stone-100">
                   <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-2">{t("activeTree")}</p>
                   <TreeSelector />
