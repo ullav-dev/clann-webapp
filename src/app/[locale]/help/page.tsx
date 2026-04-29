@@ -129,6 +129,20 @@ export default async function HelpPage() {
       ],
     },
     {
+      id: "teams",
+      icon: "👥",
+      title: t("teams.title"),
+      cards: [
+        { title: t("teams.whatTitle"), body: t("teams.whatBody") },
+        { title: t("teams.createTitle"), body: t("teams.createBody") },
+        { title: t("teams.inviteTitle"), body: t("teams.inviteBody") },
+        { title: t("teams.acceptTitle"), body: t("teams.acceptBody") },
+        { title: t("teams.linkTreeTitle"), body: t("teams.linkTreeBody") },
+        { title: t("teams.sharedTreeTitle"), body: t("teams.sharedTreeBody") },
+        { title: t("teams.manageTitle"), body: t("teams.manageBody") },
+      ],
+    },
+    {
       id: "gedcom",
       icon: "🔗",
       title: t("gedcom.title"),

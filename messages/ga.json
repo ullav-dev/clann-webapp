@@ -473,6 +473,23 @@
       "importTitle": "Crann a iompórtáil",
       "importBody": "Cliceáil roghnóir an chrainn sa bharra nascleanúna agus roghnaigh 'Crann a iompórtáil...'. Uaslódáil onnmhairiú JSON ó Clann nó comhad GEDCOM (.ged). Feicfidh tú réamhamharc de na daoine agus na caidrimh a fuarthas. Tabhair ainm don chrann nua agus cliceáil Tosaigh iompórtáil."
     },
+    "teams": {
+      "title": "Foirne",
+      "whatTitle": "Cad is Foireann ann?",
+      "whatBody": "Ligeann foirne duit crann teaghlaigh a roinnt le húsáideoirí Clann eile i mód léamh amháin. Tá úinéir ag foireann (an duine a chruthaigh í), tuairisc roghnach ar a cuspóir, agus liosta ball. Is féidir le baill aon chrann a d'fheistigh an t-úinéir leis an bhfoireann a fheiceáil — ní féidir leo daoine nó caidrimh a chur leis, a chur in eagar, ná a scriosadh. Tá foirne ar fáil do síntiúsóirí Teaghlaigh, Gairmiúil, agus Fiontraíochta.",
+      "createTitle": "Foireann a chruthú",
+      "createBody": "Má tá síntiús Teaghlaigh, Gairmiúil, nó Fiontraíochta agat, is féidir leat foireann a chruthú ón leathanach Foireann, inrochtana trí bharra nascleanúna. Tabhair ainm do d'fhoireann agus tuairisc roghnach ar a cuspóir. Ní thacaítear ach le foireann amháin in aghaidh an chuntais.",
+      "inviteTitle": "Baill a chuireadh",
+      "inviteBody": "Ar leathanach na Foirne, cliceáil 'Ball a chuireadh' agus cuir isteach seoladh ríomhphoist an duine is mian leat a chuireadh. Gheobhaidh siad ríomhphost le nasc chun an cuireadh a ghlacadh nó a dhiúltú. Ní mór do bhaill chuireadh cuntas Clann a bheith acu, nó is féidir leo ceann a chruthú nuair a leanann siad an nasc cuiridh.",
+      "acceptTitle": "Cuireadh a ghlacadh",
+      "acceptBody": "Nuair a fhaigheann tú cuireadh foirne trí ríomhphost, cliceáil an nasc sa teachtaireacht. Má tá tú sínithe isteach i gClann cheana féin, taispeánfar ainm na foirne agus an t-úinéir duit agus is féidir leat rogha a dhéanamh an cuireadh a ghlacadh nó a dhiúltú. Mura bhfuil tú sínithe isteach, déanfar tú a atreorú chun logáil isteach ar dtús agus ansin filleadh ar an gcuireadh. Taispeánfar baill a ghlac cuireadh i liosta ball na foirne.",
+      "linkTreeTitle": "Crann a nascadh le d'fhoireann",
+      "linkTreeBody": "Mar úinéir foirne, téigh go leathanach na Foirne agus roghnaigh an tab 'Crainnte Nasctha'. Cliceáil 'Crann a nascadh' chun ceann de do chrainnte teaghlaigh a roinnt le baill foirne. Is féidir crann a nascadh le foireann amháin ag an am. Chun an nasc a bhaint, roghnaigh é ón liosta agus roghnaigh 'Nasc a bhaint'.",
+      "sharedTreeTitle": "Crann comhroinnte a fheiceáil",
+      "sharedTreeBody": "Nuair a roinntear crann leat trí fhoireann, feictear é sa rannóg 'Comhroinnte liom' de roghnóir an chrainn sa bharra nascleanúna. Trí é a roghnú athraítear an crann gníomhach go dtí an crann comhroinnte. Deimhníonn banna corcra ar bharr an leathanaigh go bhfuil tú i radharc léamh amháin — is féidir leat gach ball teaghlaigh agus graf an chrainn teaghlaigh a bhrabhsáil, ach níl cur leis ná eagarthóireacht ar fáil.",
+      "manageTitle": "D'fhoireann a bhainistiú",
+      "manageBody": "Taispeánann leathanach na Foirne taib do Bhaill, Crainnte Nasctha, agus Cuspóir. Mar úinéir, is féidir leat ainm agus cuspóir na foirne a chur in eagar, baill a chuireadh agus a bhaint, agus crainnte a nascadh agus a dhínascadh. Ligeann an Crios Guaise ag bun an leathanaigh duit an fhoireann a scriosadh — bainfidh sé seo gach ball agus dínaiscfidh sé gach crann, ach ní scriosfar aon chrainnte teaghlaigh ná a gcuid sonraí."
+    },
     "gedcom": {
       "title": "Malartú GEDCOM",
       "whatTitle": "Cad is GEDCOM ann?",

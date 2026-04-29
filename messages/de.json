@@ -473,6 +473,23 @@
       "importTitle": "Baum importieren",
       "importBody": "Klicken Sie auf den Baumwähler in der Navigationsleiste und wählen Sie 'Baum importieren…'. Laden Sie einen Clann-JSON-Export oder eine GEDCOM-Datei (.ged) hoch. Sie sehen eine Vorschau der gefundenen Personen und Beziehungen. Geben Sie dem neuen Baum einen Namen und klicken Sie auf Import starten."
     },
+    "teams": {
+      "title": "Teams",
+      "whatTitle": "Was ist ein Team?",
+      "whatBody": "Teams ermöglichen es Ihnen, einen Stammbaum mit anderen Clann-Benutzern im schreibgeschützten Modus zu teilen. Ein Team hat einen Eigentümer (die Person, die es erstellt hat), eine optionale Beschreibung seines Zwecks und eine Liste von Mitgliedern. Mitglieder können jeden Baum einsehen, den der Eigentümer mit dem Team verknüpft hat — sie können keine Personen oder Beziehungen hinzufügen, bearbeiten oder löschen. Teams sind für Abonnenten der Tarife Familie, Professional und Enterprise verfügbar.",
+      "createTitle": "Ein Team erstellen",
+      "createBody": "Wenn Sie ein Familie-, Professional- oder Enterprise-Abonnement besitzen, können Sie ein Team über die Teamseite erstellen, die über die Navigationsleiste erreichbar ist. Geben Sie Ihrem Team einen Namen und eine optionale Beschreibung seines Zwecks. Pro Konto wird nur ein Team unterstützt.",
+      "inviteTitle": "Mitglieder einladen",
+      "inviteBody": "Klicken Sie auf der Teamseite auf 'Mitglied einladen' und geben Sie die E-Mail-Adresse der Person ein, die Sie einladen möchten. Diese erhält eine E-Mail mit einem Link, um die Einladung anzunehmen oder abzulehnen. Eingeladene Mitglieder müssen ein Clann-Konto haben oder können eines erstellen, wenn sie dem Einladungslink folgen.",
+      "acceptTitle": "Eine Einladung annehmen",
+      "acceptBody": "Wenn Sie eine Team-Einladung per E-Mail erhalten, klicken Sie auf den Link in der Nachricht. Wenn Sie bereits bei Clann angemeldet sind, werden Ihnen der Teamname und der Eigentümer angezeigt und Sie können wählen, ob Sie die Einladung annehmen oder ablehnen möchten. Wenn Sie nicht angemeldet sind, werden Sie zunächst zur Anmeldung weitergeleitet und dann zur Einladung zurückgeleitet. Angenommene Mitglieder erscheinen in der Mitgliederliste des Teams.",
+      "linkTreeTitle": "Einen Baum mit Ihrem Team verknüpfen",
+      "linkTreeBody": "Gehen Sie als Teameigentümer auf die Teamseite und wählen Sie den Tab 'Verknüpfte Bäume'. Klicken Sie auf 'Baum verknüpfen', um einen Ihrer Stammbäume für Teammitglieder freizugeben. Ein Baum kann jeweils mit einem Team verknüpft werden. Um die Verknüpfung aufzuheben, wählen Sie ihn aus der Liste und klicken Sie auf 'Verknüpfung aufheben'.",
+      "sharedTreeTitle": "Einen geteilten Baum ansehen",
+      "sharedTreeBody": "Wenn ein Baum über ein Team mit Ihnen geteilt wurde, erscheint er im Abschnitt 'Mit mir geteilt' des Baumwählers in der Navigationsleiste. Durch Auswählen wird der aktive Baum auf den geteilten umgeschaltet. Ein violettes Banner oben auf der Seite bestätigt, dass Sie sich in der schreibgeschützten Ansicht befinden — Sie können alle Familienmitglieder und den Stammbaum durchsuchen, aber Hinzufügen oder Bearbeiten ist nicht verfügbar.",
+      "manageTitle": "Ihr Team verwalten",
+      "manageBody": "Die Teamseite zeigt Tabs für Mitglieder, Verknüpfte Bäume und Zweck. Als Eigentümer können Sie den Teamnamen und den Zweck bearbeiten, Mitglieder einladen und entfernen sowie Bäume verknüpfen und trennen. Die Gefahrenzone am unteren Ende der Seite ermöglicht das Löschen des Teams — dabei werden alle Mitglieder entfernt und alle Bäume getrennt, aber keine Stammbäume oder deren Daten gelöscht."
+    },
     "gedcom": {
       "title": "GEDCOM-Austausch",
       "whatTitle": "Was ist GEDCOM?",
