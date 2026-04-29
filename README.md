@@ -29,7 +29,8 @@ A responsive, localised family tree management application built with Next.js, b
   - **Wikipedia search** — inline panel using the Wikipedia REST API; search by name, place, or event; select a result to read the article summary; **Save as Note** pre-fills a new note with the article title, URL, and extract. Searches the Wikipedia edition matching the current language setting
   - **1926 Irish Census** — hero panel with a census image, description of record contents, and a pre-populated search form (surname, forename, county). The search button opens the [National Archives of Ireland](https://nationalarchives.ie/collections/search-the-1926-census/) in a new tab with terms pre-filled. Census data published under **CC BY 4.0**
   - **AI Research Assistant** — streaming AI chat panel powered by your choice of Anthropic, OpenAI, or Ollama (BYOK — your API key is AES-256-GCM encrypted before storage, never held in plain text). Works with any family tree — personal ancestry, royal lineages, historical families, or demo trees. Features: person context (pre-load a person's details from their profile), tree context toggle (inject all persons from the active tree), prompt templates (six genealogy categories), **conversation history** (auto-saved per tree; resume any past session from the 🕐 History panel), and **Dig Deeper** (click on any research note to launch the AI chat with the note's content pre-injected as context)
-- **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, life events, research, list view, multiple trees, GEDCOM exchange), accessible from the nav bar without logging in
+- **Teams and shared trees** — users with an eligible subscription can create a **team**, invite other registered users by email, and share one of their family trees with all active team members. Members see the shared tree in the "Shared with me" section of the tree selector and can navigate the full tree and all person profiles in **read-only mode** (edit, delete, and relationship controls are hidden; a violet banner identifies the shared tree and its team). Team owners can manage membership (invite, remove, resend invites) and update the team name, description, and purpose from the `/team` page
+- **In-app help** — `/help` page documenting all features (getting started, people, relationships, family tree, life story, life events, research, list view, multiple trees, teams, GEDCOM exchange), accessible from the nav bar without logging in
 - **Localisation** — English (default), German, and Irish (Gaeilge); language switcher in the nav bar
 
 ## Prerequisites
@@ -134,6 +135,10 @@ src/
       help/page.tsx         # In-app documentation (server component)
       family/page.tsx       # Person list (card/list, sort, search, pagination)
       research/page.tsx     # Research workspace (notes, Wikipedia, 1926 Census)
+      team/page.tsx         # Team management (create, members, linked trees)
+      auth/
+        team-invite/
+          page.tsx          # Handles team invitation link (?token=); accept/decline
       persons/
         new/page.tsx        # Create person
         [id]/
@@ -163,15 +168,17 @@ src/
   contexts/
     AuthContext.tsx         # JWT auth state (localStorage)
     TreeContext.tsx         # Active tree + tree CRUD (localStorage: clann_active_tree)
+    TeamContext.tsx         # Team list + team trees; isTeamTree() / treeTeamName() helpers
   hooks/
-    useApi.ts               # API hook; binds created_by=username on every call
+    useApi.ts               # API hook; binds created_by=username; omits it for shared-tree reads; exposes isSharedTree
   i18n/
     routing.ts              # Supported locales and default locale
     request.ts              # Server-side locale/message loader
   lib/
     types.ts                # TypeScript types (mirrors OpenAPI schema)
     api.ts                  # Typed fetch wrappers
-    auth-api.ts             # Auth service fetch wrappers
+    auth-api.ts             # Auth service fetch wrappers; canCreateTeam()
+    teams-api.ts            # Team endpoints on ullav-user-management (via /auth-api/*)
     persons.ts              # Pure sort/filter/pagination helpers (tested)
     tree-import.ts          # Parser for Clann JSON export format; exports ParsedImport, slugify
     gedcom-export.ts        # Pure GEDCOM 5.5.1 serialiser (exportToGedcom)
@@ -200,7 +207,7 @@ npm run test:watch # Watch mode
 
 All browser requests go through the Next.js proxy (`src/proxy.ts`): `/api/*` is rewritten to clann-server, `/auth-api/*` to ullav-user-management, and `/api/dam/*` to ullav-dam-server (with the `/api/dam` prefix stripped), so there are no CORS issues. The backend URLs are configured via `API_URL`, `AUTH_URL`, and `DAM_URL` in `.env.local` (runtime env vars, not `NEXT_PUBLIC_*`).
 
-Every API call includes `created_by=<username>` (applied automatically by `useApi`). The backend enforces ownership server-side and grants admin access when the username matches the `ADMIN_USERNAME` environment variable.
+Every API call includes `created_by=<username>` (applied automatically by `useApi`). The backend enforces ownership server-side and grants admin access when the username matches the `ADMIN_USERNAME` environment variable. For shared team trees (where the active tree is owned by another user), read operations omit `created_by` so the backend uses JWT-based team-membership access instead of the per-user ownership filter.
 
 ### Research Notes API
 

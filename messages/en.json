@@ -875,6 +875,9 @@
     "removeMember": "Remove member",
     "removeMemberConfirm": "Remove {name} from the team?",
     "removeFailed": "Failed to remove member.",
+    "resendInvite": "Resend",
+    "resending": "Resending...",
+    "resendFailed": "Failed to resend invitation.",
     "role_owner": "Owner",
     "role_leader": "Leader",
     "role_member": "Member",
@@ -911,7 +914,7 @@
     "viewTeam": "View Team",
     "goHome": "Go to Family Home",
     "readOnlyBanner": "You are viewing a shared tree — changes are not permitted.",
-    "readOnlyBannerWithTeam": "You are viewing a tree shared by team '{team}' — changes are not permitted.",
+    "readOnlyBannerWithTeam": "You are viewing a tree shared by team {team} — changes are not permitted.",
     "myTrees": "My Trees",
     "sharedWithMe": "Shared with me",
     "readOnlyTreeHint": "This tree is shared with you — you can view but not edit it"

@@ -875,6 +875,9 @@
     "removeMember": "Mitglied entfernen",
     "removeMemberConfirm": "{name} aus dem Team entfernen?",
     "removeFailed": "Mitglied konnte nicht entfernt werden.",
+    "resendInvite": "Erneut senden",
+    "resending": "Wird gesendet…",
+    "resendFailed": "Einladung konnte nicht erneut gesendet werden.",
     "role_owner": "Inhaber",
     "role_leader": "Leiter",
     "role_member": "Mitglied",
@@ -911,7 +914,7 @@
     "viewTeam": "Team ansehen",
     "goHome": "Zur Familien-Startseite",
     "readOnlyBanner": "Sie sehen einen geteilten Stammbaum — Änderungen sind nicht erlaubt.",
-    "readOnlyBannerWithTeam": "Sie sehen einen von Team '{team}' geteilten Baum — Änderungen sind nicht erlaubt.",
+    "readOnlyBannerWithTeam": "Sie sehen einen von Team {team} geteilten Baum — Änderungen sind nicht erlaubt.",
     "myTrees": "Meine Bäume",
     "sharedWithMe": "Mit mir geteilt",
     "readOnlyTreeHint": "Dieser Baum wird mit Ihnen geteilt — Sie können ihn ansehen, aber nicht bearbeiten"

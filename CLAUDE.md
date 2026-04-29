@@ -62,7 +62,7 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 - `src/lib/types.ts` — all TypeScript types mirroring the OpenAPI schema
 - `src/lib/api.ts` — typed fetch wrappers for every backend endpoint
 - `src/lib/persons.ts` — pure utility functions (`sortPersons`, `filterPersons`, `totalPages`, `pageSlice`) extracted for testability
-- `src/hooks/useApi.ts` — binds all API calls with `created_by=username` so the backend ownership filter is always applied
+- `src/hooks/useApi.ts` — binds all API calls with `created_by=username` so the backend ownership filter is always applied. For shared team trees (`activeTree.owner !== user.username`), read operations omit `created_by` so the backend uses JWT-based team access instead of returning 404. Exposes `isSharedTree: boolean` for UI guards. Write operations always use the logged-in user's `created_by`.
 - `src/components/FamilyTreeView.tsx` — React Flow graph; loaded via `dynamic(..., { ssr: false })`. Shows 2-generation ancestors, direct children, and spouses for the root person. Supports vertical/horizontal orientation toggle and JPEG / JSON / GEDCOM export. The GEDCOM export uses the same fetch pattern as JSON (fetches all persons then relationships sequentially) and calls `exportToGedcom` from `src/lib/gedcom-export.ts`; downloads as `{treeName}.ged`.
 - `src/components/PersonForm.tsx` — shared create/edit form; fields: name, sex, birth/death, identity (nickname/username/email/verified), biography (markdown editor via `MarkdownEditor`; no character cap). Accepts an optional `onCancel` prop: when provided, a **"Forget Changes"** button is rendered alongside "Save Changes"; clicking it resets the form to its initial values and calls `onCancel()` (the edit page uses this to navigate back to the person detail view). Includes an inline `DamPicker` (toggled by "Browse media library" button) — passes `apiBase="/api/dam"`, `token`, `username` (so the category tree is filtered to the user's own categories plus global ones), and a `filter` restricting to `image/*` assets owned by the logged-in user. Also has a drop zone below the editor. Both click-to-insert and drag-and-drop call `insertAssetMarkdown`, which appends `/thumbnail` to the asset URL and inserts the markdown image at the last tracked cursor position (tracked via `onSelect`/`onKeyUp`/`onMouseUp` on the textarea via `textareaProps`; falls back to end of string). A 2-second green flash on the drop zone confirms insertion.
 - `src/components/MarkdownEditor.tsx` — thin wrapper around `@uiw/react-md-editor`; dynamically imported (`ssr: false`); wraps output in `data-color-mode="light"` to prevent dark-mode flicker; always yields a plain markdown string; accepts a `textareaProps` passthrough for attaching handlers to the underlying textarea
@@ -72,12 +72,22 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 - `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 2 MB); accepts an optional `uploadFn` prop to override the default profile-image endpoint, making it reusable for the life story image
 - `src/components/PasswordInput.tsx` — password field with show/hide toggle (eye icon button); used on all password inputs in the app
 - `src/components/LocaleSwitcher.tsx` — language selector dropdown in the nav
-- `src/components/TreeSelector.tsx` — dropdown in the nav for selecting, creating, deleting (non-primary only), and setting the primary family tree; also opens `ImportTreeModal`
+- `src/components/TreeSelector.tsx` — dropdown in the nav for selecting, creating, deleting (non-primary only), and setting the primary family tree; also opens `ImportTreeModal`. Shows a "Shared with me" section for team trees the user does not own (sourced from `TeamContext.teamTrees`).
 - `src/components/ImportTreeModal.tsx` — 3-step modal (upload → name/preview → progress → done) for importing a tree from a Clann JSON export **or a GEDCOM (.ged) file**. Detects format by file extension; routes to `parseTreeExport` (JSON) or `parseGedcomFile` (GEDCOM). If the GEDCOM has no `FILE` tag the tree name is derived from the filename. Any parse warnings are shown in an amber scrollable list in the name step so the user can review before committing.
 - `src/components/TermsModal.tsx` — scrollable modal for Terms & Conditions; reads content from `login.termsContent` translation key (rendered as markdown)
 - `src/components/DisclaimerModal.tsx` — scrollable modal for the Disclaimer; reads content from `disclaimer.content` translation key (rendered as markdown); used in both the footer and the registration form
 - `src/components/Footer.tsx` — site footer with © year, Disclaimer link, and Terms & Conditions link
 - `src/contexts/TreeContext.tsx` — holds the list of trees, the active tree, and tree CRUD actions; persists active selection in localStorage (`clann_active_tree`)
+- `src/contexts/TeamContext.tsx` — holds the user's teams and team trees; exposes `isTeamTree(name)` (true when a tree is shared with the user but not owned by them), `treeTeamName(name)`, and full team CRUD. `teamTrees` are fetched by iterating teams where the user is a member (not owner) and calling `listTeamTrees`.
+- `src/components/ReadOnlyBanner.tsx` — violet banner shown at the top of the family list and person detail pages when the active tree is a shared team tree. Shows the team name when known. Hidden for trees the current user owns.
+- `src/components/TeamAvatar.tsx` — coloured initial-letter avatar for a team; used on the Team page.
+- `src/components/TeamMemberList.tsx` — lists team members with role and status badges; owner can remove members or resend invitations.
+- `src/components/InviteMemberModal.tsx` — modal for inviting a member to a team by email; passes `app_url` so the auth service sends a locale-aware invite link.
+- `src/components/CreateTeamModal.tsx` — modal for creating a new team (name, description); eligibility checked via `canCreateTeam(token)` which inspects the JWT claims.
+- `src/components/LinkTreeModal.tsx` — modal for the team owner to link one of their trees to the team (or unlink it); calls `setTreeTeam(treeName, teamId)`.
+- `src/components/LinkedTreesList.tsx` — shows trees linked to a team; team members see them as read-only entries in the Tree Selector.
+- `src/lib/teams-api.ts` — typed fetch wrappers for ullav-user-management team endpoints (`/teams`, `/teams/{id}`, invitations, members). Requests go via the `/auth-api/*` rewrite.
+- `src/lib/auth-api.ts` — typed fetch wrappers for other ullav-user-management endpoints; exports `canCreateTeam(token)` which decodes the JWT and checks subscription/role claims.
 - `src/lib/tree-import.ts` — pure parser for the Clann JSON export format; deduplicates persons and relationships. Exports the shared `ParsedImport` interface (includes optional `warnings?: string[]`) and the `slugify` helper used by both importers.
 - `src/lib/gedcom-export.ts` — pure function `exportToGedcom(persons, relationships, treeName)` → GEDCOM 5.5.1 string. Maps persons to INDI records (NAME with GIVN/SURN/NICK, SEX, BIRT/DEAT, NOTE for biography) and derives FAM records from spouse pairs and parent–child relationships; siblings are listed as CHIL in shared FAM records. Output uses UTF-8 and CRLF line endings.
 - `src/lib/gedcom-import.ts` — pure function `parseGedcomFile(content)` → `ParsedImport`. Groups GEDCOM lines into INDI/FAM records; extracts given name, middle name, surname, nickname (prefers explicit GIVN/SURN/NICK subfields), SEX, BIRT/DEAT events, NOTE → biography (with CONT/CONC continuation). FAM records → Spouse (with marriage date as `spouse_from`), Father/Mother (derived from sex of HUSB/WIFE), and Sibling relationships for all children sharing a FAM. Unresolvable references and missing fields are collected as human-readable warnings returned in `ParsedImport.warnings`.
@@ -110,6 +120,8 @@ Both pages use `useSearchParams()` inside a `<Suspense>` boundary (required by N
 | `/[locale]/persons/new` | Create person |
 | `/[locale]/persons/[id]` | Person detail: family tree tab · relationships tab · life story tab · life events tab |
 | `/[locale]/persons/[id]/edit` | Edit person |
+| `/[locale]/team` | Team management — create team, manage members, link trees |
+| `/[locale]/auth/team-invite` | Handles team invitation link clicks (`?token=`); accepts or declines |
 
 **ID handling:** The backend stores IDs as `person:<ulid>` (e.g. `person:01jd4a8xyz`). URLs use just the ULID (no prefix, no encoding). `api.ts` exposes a `rawId()` helper that strips the `person:` prefix before building request paths. **Always use `rawId(person.id)` when constructing links or `router.push` calls** — never `encodeURIComponent(person.id)`, which embeds the prefix in the URL and causes 404s.
 
@@ -149,6 +161,40 @@ The export fetches persons via `listPersons`, then fetches each person's relatio
 
 After parsing, the modal creates a new tree via `TreeContext.createTree(..., { select: false })` (so the tree appears in the dropdown but does not become the active tree, avoiding a concurrent `listPersons` re-fetch), imports persons sequentially (building an `originalId → newId` map), then adds relationships using the mapped IDs. `sibling_type` is taken directly from the export; if absent it falls back to the sibling's `sex`. On completion the "Go to family" button explicitly sets the imported tree as active.
 
+## Teams and shared trees
+
+Users with an eligible subscription (or admin role) can create a **team** and invite other registered users as members. A team owner can link one of their family trees to the team; all active members then see that tree in the "Shared with me" section of the Tree Selector dropdown.
+
+**Access model:**
+- **Owner** — full read/write access to their own trees; can manage the team (invite/remove members, link/unlink trees, update team info).
+- **Member** — read-only access to trees linked to the team. Write actions (edit person, delete person, add/remove relationships, upload photos) are hidden in the UI. The `ReadOnlyBanner` is shown at the top of the Family Members page and Person Detail page.
+
+**Shared-tree API calls:** When `activeTree.owner !== user.username`, `useApi` omits `created_by` from all read requests (`getPerson`, `getRelationships`, `getFamilyTree`, `listPersons`). This lets the backend use JWT-based team-membership access control instead of the per-user ownership filter (which would return 404 for another user's persons). Write operations keep the logged-in user's `created_by` and are blocked by the UI before reaching the backend.
+
+**ICU placeholder gotcha:** next-intl uses ICU message format. Single quotes are escape characters — `'{team}'` outputs the literal string `{team}`. Never wrap ICU placeholders in single quotes; leave them bare (`{team}`) or use typographic quotes if you need decorative quoting.
+
+**Team API endpoints (ullav-user-management, via `/auth-api/*` rewrite):**
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/teams` | List teams the current user belongs to |
+| `POST` | `/teams` | Create a team |
+| `GET` | `/teams/{id}` | Full team detail (members, etc.) |
+| `PATCH` | `/teams/{id}` | Update name / description / purpose / avatar |
+| `DELETE` | `/teams/{id}` | Delete team |
+| `POST` | `/teams/{id}/invitations` | Invite a member by email; pass `app_url` for locale-aware link |
+| `POST` | `/teams/invitations/{token}/accept` | Accept an invite (from link in email) |
+| `POST` | `/teams/invitations/{token}/decline` | Decline an invite |
+| `DELETE` | `/teams/{id}/members/{userId}` | Remove a member |
+| `POST` | `/teams/{id}/members/{userId}/resend-invite` | Resend invitation email |
+
+**Tree–team link endpoints (clann-server):**
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/api/trees/team/{teamId}` | List trees linked to a team |
+| `PATCH` | `/api/trees/{name}/team` | Link or unlink a tree (`{ team_id: "<uuid>" | null }`) |
+
+**`canCreateTeam(token)`** in `src/lib/auth-api.ts` decodes the JWT without verification and checks the claims for the required subscription tier or admin flag. Used by the Team page to decide whether to show the "Create team" button.
+
 ## i18n
 
 **Library:** next-intl v4. Supported locales: `en` (default), `de`, `ga`. Defined in `src/i18n/routing.ts`.
@@ -158,7 +204,8 @@ After parsing, the modal creates a new tree via `TreeContext.createTree(..., { s
 - Client components use `useTranslations("namespace")` (React hook)
 - Do **not** use `t.rich(...)` with `{placeholder}` syntax — use separate keys or XML-style tags (`<b>text</b>`) instead. The `{br}` self-closing placeholder is not supported; split into two keys and insert `<br />` manually.
 - The `LocaleSwitcher` component replaces the locale segment in the current pathname and calls `router.push`.
-- **JSON string safety:** never use unescaped ASCII `"` (U+0022) inside translation string values — use `'single quotes'` or `\"escaped\"` instead. Typographic opening quotes like `„` (U+201E) are fine but their matching closing quote must not be a plain `"` or the JSON parser will terminate the string early.
+- **JSON string safety:** never use unescaped ASCII `"` (U+0022) inside translation string values — use `\"escaped\"` or typographic quotes instead. Typographic opening quotes like `„` (U+201E) are fine but their matching closing quote must not be a plain `"` or the JSON parser will terminate the string early.
+- **ICU single-quote escaping:** next-intl uses ICU message format, where single quotes are escape characters. `'{team}'` outputs the literal text `{team}` — it does NOT interpolate the value. Never wrap ICU placeholders (`{foo}`) in single quotes. Use typographic quotes (`'name'` → `'name'`) or drop the decorative quotes entirely.
 - **Key naming:** the confirmation prompt for removing a relationship is `personDetail.removeConfirm` (not `removeRelConfirm`).
 
 ## Family Members page

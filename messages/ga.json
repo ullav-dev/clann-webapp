@@ -875,6 +875,9 @@
     "removeMember": "Comhalta a bhaint",
     "removeMemberConfirm": "{name} a bhaint ón bhfoireann?",
     "removeFailed": "Níorbh fhéidir an comhalta a bhaint.",
+    "resendInvite": "Athsheol",
+    "resending": "Á sheoladh…",
+    "resendFailed": "Níorbh fhéidir an cuireadh a athsheoladh.",
     "role_owner": "Úinéir",
     "role_leader": "Ceannaire",
     "role_member": "Comhalta",
@@ -911,7 +914,7 @@
     "viewTeam": "Féach ar an bhFoireann",
     "goHome": "Go dtí Baile Teaghlaigh",
     "readOnlyBanner": "Tá tú ag féachaint ar chrann roinnte — ní cheadaítear athruithe.",
-    "readOnlyBannerWithTeam": "Tá tú ag féachaint ar chrann roinnte ag foireann '{team}' — ní cheadaítear athruithe.",
+    "readOnlyBannerWithTeam": "Tá tú ag féachaint ar chrann roinnte ag foireann {team} — ní cheadaítear athruithe.",
     "myTrees": "Mo Chrainn",
     "sharedWithMe": "Roinnte liom",
     "readOnlyTreeHint": "Roinntear an crann seo leat — is féidir leat féachaint air ach ní féidir leat é a chur in eagar"

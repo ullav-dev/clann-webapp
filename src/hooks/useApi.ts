@@ -16,6 +16,12 @@ import type {
  * Returns typed API helpers pre-bound with the current user's `created_by`
  * and the active family tree so that every request automatically enforces
  * ownership and tree scoping on the backend.
+ *
+ * For shared team trees (where activeTree.owner !== the logged-in user),
+ * read operations omit `created_by` so the backend uses JWT-based team access
+ * instead of the ownership filter, which would otherwise return 404.
+ * Write operations still use the logged-in user's username (and are hidden in
+ * the UI for shared trees).
  */
 export function useApi() {
   const { user } = useAuth();
@@ -23,21 +29,27 @@ export function useApi() {
   const createdBy = user?.username;
   const tree = activeTree?.name;
 
+  // True when the active tree is owned by someone else (a shared team tree).
+  const isSharedTree = !!activeTree && !!user && activeTree.owner !== user.username;
+  // For reads on a shared tree, omit created_by so the backend uses JWT auth.
+  const readOwner = isSharedTree ? undefined : createdBy;
+
   return {
-    listPersons: () => api.listPersons(createdBy, tree),
+    isSharedTree,
+    listPersons: () => api.listPersons(readOwner, tree),
     createPerson: (body: CreatePerson) =>
       api.createPerson({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),
-    getPerson: (id: string) => api.getPerson(id, createdBy),
+    getPerson: (id: string) => api.getPerson(id, readOwner),
     updatePerson: (id: string, body: UpdatePerson) => api.updatePerson(id, body, createdBy),
     deletePerson: (id: string) => api.deletePerson(id, createdBy),
-    getRelationships: (id: string) => api.getRelationships(id, createdBy),
+    getRelationships: (id: string) => api.getRelationships(id, readOwner),
     addRelationship: (id: string, body: AddRelationshipRequest) =>
       api.addRelationship(id, body, createdBy),
     deleteRelationship: (id: string, relType: string, relatedId: string) =>
       api.deleteRelationship(id, relType, relatedId, createdBy),
     updateSpouseDates: (id: string, relatedId: string, body: UpdateSpouseDatesRequest) =>
       api.updateSpouseDates(id, relatedId, body, createdBy),
-    getFamilyTree: (id: string) => api.getFamilyTree(id, createdBy),
+    getFamilyTree: (id: string) => api.getFamilyTree(id, readOwner),
     addPersonToTree: (id: string, treeName: string) => api.addPersonToTree(id, treeName, createdBy),
     removePersonFromTree: (id: string, treeName: string) => api.removePersonFromTree(id, treeName, createdBy),
     uploadPersonImage: (id: string, file: File) => api.uploadPersonImage(id, file, createdBy),

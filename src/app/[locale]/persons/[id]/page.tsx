@@ -17,6 +17,7 @@ import ImageUpload from "@/components/ImageUpload";
 import AddRelationshipModal from "@/components/AddRelationshipModal";
 import LifeStoryPrintView from "@/components/LifeStoryPrintView";
 import LifeTimeline from "@/components/LifeTimeline";
+import ReadOnlyBanner from "@/components/ReadOnlyBanner";
 
 const FamilyTreeView = dynamic(() => import("@/components/FamilyTreeView"), { ssr: false });
 
@@ -32,6 +33,7 @@ export default function PersonDetailPage() {
   const router = useRouter();
   const api = useApi();
   const { trees: allTrees } = useTree();
+  const readOnly = api.isSharedTree;
   const t = useTranslations("personDetail");
   const tEvents = useTranslations("lifeEvents");
   const locale = useLocale();
@@ -125,13 +127,21 @@ export default function PersonDetailPage() {
 
   return (
     <div>
+      <ReadOnlyBanner />
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
-          <button onClick={() => setShowUpload((v) => !v)} title={t("changePhoto")} className="relative group/avatar flex-shrink-0">
+          <button
+            onClick={readOnly ? undefined : () => setShowUpload((v) => !v)}
+            disabled={readOnly}
+            title={readOnly ? undefined : t("changePhoto")}
+            className={`relative flex-shrink-0 ${readOnly ? "cursor-default" : "group/avatar"}`}
+          >
             <PersonAvatar person={person} size={72} className="ring-2 ring-stone-200" imageVersion={photoVersions[id]} />
-            <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 text-white text-xs font-medium opacity-0 group-hover/avatar:opacity-100 transition-opacity">
-              {person.image_path ? t("changePhotoHover") : t("addPhoto")}
-            </span>
+            {!readOnly && (
+              <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 text-white text-xs font-medium opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+                {person.image_path ? t("changePhotoHover") : t("addPhoto")}
+              </span>
+            )}
           </button>
           <div>
             <h1 className="text-3xl font-bold text-stone-800">{fullName(person)}</h1>
@@ -154,14 +164,18 @@ export default function PersonDetailPage() {
           >
             {t("researchWithAI")}
           </Link>
-          <Link href={`/persons/${id}/edit`} className="border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors">{t("edit")}</Link>
-          <button onClick={handleDelete} disabled={deleting} className="border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-60">
-            {deleting ? t("deleting") : t("delete")}
-          </button>
+          {!readOnly && (
+            <>
+              <Link href={`/persons/${id}/edit`} className="border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors">{t("edit")}</Link>
+              <button onClick={handleDelete} disabled={deleting} className="border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-60">
+                {deleting ? t("deleting") : t("delete")}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {showUpload && (
+      {!readOnly && showUpload && (
         <div className="mb-6 bg-white rounded-xl border border-stone-200 p-4 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-medium text-stone-700">{person.image_path ? t("replacePhoto") : t("addPhoto")}</p>
@@ -193,11 +207,13 @@ export default function PersonDetailPage() {
 
       {tab === "relationships" && rels && (
         <div className="space-y-6">
-          <div className="flex justify-end">
-            <button onClick={() => setShowAddRel(true)} className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-              + {t("addRelationship")}
-            </button>
-          </div>
+          {!readOnly && (
+            <div className="flex justify-end">
+              <button onClick={() => setShowAddRel(true)} className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                + {t("addRelationship")}
+              </button>
+            </div>
+          )}
           {(["father", "mother", "siblings"] as const).map((group) => {
             const people = rels[group];
             return (
@@ -216,7 +232,7 @@ export default function PersonDetailPage() {
                             {p.date_of_birth && <p className="text-xs text-stone-400">{t("bornPrefix", { date: p.date_of_birth })}</p>}
                           </div>
                         </Link>
-                        <button onClick={() => handleDeleteRel(group, p)} className="text-stone-300 hover:text-red-500 transition-colors text-lg ml-2 flex-shrink-0" title={t("removeRelationship")}>×</button>
+                        {!readOnly && <button onClick={() => handleDeleteRel(group, p)} className="text-stone-300 hover:text-red-500 transition-colors text-lg ml-2 flex-shrink-0" title={t("removeRelationship")}>×</button>}
                       </div>
                     ))}
                   </div>
@@ -238,10 +254,12 @@ export default function PersonDetailPage() {
                           {sp.date_of_birth && <p className="text-xs text-stone-400">{t("bornPrefix", { date: sp.date_of_birth })}</p>}
                         </div>
                       </Link>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <button onClick={() => editingSpouseId === sp.id ? setEditingSpouseId(null) : startEditSpouse(sp)} className="text-stone-400 hover:text-emerald-600 transition-colors text-xs px-1" title={t("editDates")}>✏️</button>
-                        <button onClick={() => handleDeleteRel("spouse", sp)} className="text-stone-300 hover:text-red-500 transition-colors text-lg" title={t("removeRelationship")}>×</button>
-                      </div>
+                      {!readOnly && (
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <button onClick={() => editingSpouseId === sp.id ? setEditingSpouseId(null) : startEditSpouse(sp)} className="text-stone-400 hover:text-emerald-600 transition-colors text-xs px-1" title={t("editDates")}>✏️</button>
+                          <button onClick={() => handleDeleteRel("spouse", sp)} className="text-stone-300 hover:text-red-500 transition-colors text-lg" title={t("removeRelationship")}>×</button>
+                        </div>
+                      )}
                     </div>
                     {(sp.spouse_from || sp.spouse_to) && editingSpouseId !== sp.id && (
                       <p className="text-xs text-violet-500 mt-1">
@@ -276,7 +294,7 @@ export default function PersonDetailPage() {
         </div>
       )}
 
-      {tab === "relationships" && person && (
+      {tab === "relationships" && person && !readOnly && (
         <div className="mt-6">
           <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3">{t("sectionTrees")}</h2>
           <div className="flex flex-wrap gap-2">
@@ -324,7 +342,7 @@ export default function PersonDetailPage() {
               ↓ {t("exportPdf")}
             </button>
           </div>
-          {showLifeUpload && (
+          {!readOnly && showLifeUpload && (
             <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm font-medium text-stone-700">{t("lifeImageSection")}</p>
@@ -342,18 +360,21 @@ export default function PersonDetailPage() {
             {person.life_image_path && (
               <div className="shrink-0 flex flex-col gap-2">
                 <button
-                  onClick={() => setShowLifeUpload((v) => !v)}
-                  title={t("changeLifeImage")}
-                  className="relative group/lifeimg block"
+                  onClick={readOnly ? undefined : () => setShowLifeUpload((v) => !v)}
+                  disabled={readOnly}
+                  title={readOnly ? undefined : t("changeLifeImage")}
+                  className={`relative block ${readOnly ? "cursor-default" : "group/lifeimg"}`}
                 >
                   <img
                     src={api.personLifeImageUrl(id)}
                     alt={t("lifeImageSection")}
                     className="rounded-xl object-cover w-full sm:w-48 md:w-64 max-h-80 sm:max-h-none"
                   />
-                  <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/30 text-white text-xs font-medium opacity-0 group-hover/lifeimg:opacity-100 transition-opacity">
-                    {t("changeLifeImage")}
-                  </span>
+                  {!readOnly && (
+                    <span className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/30 text-white text-xs font-medium opacity-0 group-hover/lifeimg:opacity-100 transition-opacity">
+                      {t("changeLifeImage")}
+                    </span>
+                  )}
                 </button>
                 {(person.date_of_birth || person.place_of_birth) && (
                   <div className="text-xs text-stone-500 space-y-0.5 px-1">
@@ -371,12 +392,14 @@ export default function PersonDetailPage() {
                 </div>
               ) : (
                 <p className="text-stone-400 text-sm italic">
-                  {t("lifeStoryEmpty")}{" "}
-                  <Link href={`/persons/${id}/edit`} className="text-emerald-700 underline not-italic">{t("lifeStoryEmptyEdit")}</Link>
+                  {t("lifeStoryEmpty")}
+                  {!readOnly && (
+                    <>{" "}<Link href={`/persons/${id}/edit`} className="text-emerald-700 underline not-italic">{t("lifeStoryEmptyEdit")}</Link></>
+                  )}
                 </p>
               )}
 
-              {!person.life_image_path && !showLifeUpload && (
+              {!readOnly && !person.life_image_path && !showLifeUpload && (
                 <button
                   onClick={() => setShowLifeUpload(true)}
                   className="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-emerald-700 border border-dashed border-stone-300 hover:border-emerald-400 rounded-lg px-3 py-1.5 transition-colors"
@@ -393,7 +416,7 @@ export default function PersonDetailPage() {
         <LifeTimeline personId={id} personCreatedBy={person.created_by} />
       )}
 
-      {showAddRel && (<AddRelationshipModal personId={id} onDone={() => { setShowAddRel(false); load(); }} onClose={() => setShowAddRel(false)} />)}
+      {!readOnly && showAddRel && (<AddRelationshipModal personId={id} onDone={() => { setShowAddRel(false); load(); }} onClose={() => setShowAddRel(false)} />)}
 
       <LifeStoryPrintView
         person={person}
