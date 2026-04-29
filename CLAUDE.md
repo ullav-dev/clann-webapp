@@ -15,6 +15,8 @@ npm run test:watch # Run tests in watch mode
 
 > `next` must be invoked via `node node_modules/next/dist/bin/next` (the `.bin/next` shim is broken with Node v25). The scripts in `package.json` already handle this.
 
+> **Package installs:** always use `./scripts/npm.sh` instead of bare `npm` when installing, updating, or removing packages. The Docker build uses `node:22-alpine` (npm 10.9.7) while local npm is a different major version; running installs through the script keeps `package-lock.json` compatible and prevents `npm ci` failures in the build.
+
 The backend (clann-server) must be running on `http://localhost:3000`. After rebuilding the backend, always restart the running process — the old binary continues serving until killed.
 
 ## Production deployment (Docker)
