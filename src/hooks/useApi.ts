@@ -34,6 +34,11 @@ export function useApi() {
   // For reads on a shared tree, omit created_by so the backend uses JWT auth.
   const readOwner = isSharedTree ? undefined : createdBy;
 
+  // Notes: omit created_by whenever the tree is linked to a team (team_id set),
+  // regardless of ownership — so the tree owner also sees replies from members.
+  const isTeamLinkedTree = !!activeTree?.team_id;
+  const notesReadOwner = isTeamLinkedTree ? undefined : createdBy;
+
   return {
     isSharedTree,
     listPersons: () => api.listPersons(readOwner, tree),
@@ -57,11 +62,15 @@ export function useApi() {
     rawId: api.rawId,
     personImageUrl: api.personImageUrl,
     personLifeImageUrl: api.personLifeImageUrl,
-    listResearchNotes: () => api.listResearchNotes(tree, createdBy),
+    isTeamLinkedTree,
+    listResearchNotes: () => api.listResearchNotes(tree, notesReadOwner),
     createResearchNote: (body: CreateResearchNote) =>
       api.createResearchNote({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),
     updateResearchNote: (id: string, body: UpdateResearchNote) => api.updateResearchNote(id, body),
     deleteResearchNote: (id: string) => api.deleteResearchNote(id),
+    listNoteReplies: (noteId: string) => api.listNoteReplies(noteId),
+    createNoteReply: (noteId: string, body: string) =>
+      api.createNoteReply(noteId, { body, created_by: createdBy, trees: tree ? [tree] : [] }),
     setNoteFolder: (noteId: string, folderId: string | null) => api.setNoteFolder(noteId, folderId),
     rawNoteId: api.rawNoteId,
     listFolders: () => api.listFolders(createdBy),

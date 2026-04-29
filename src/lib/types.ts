@@ -247,6 +247,9 @@ export interface ResearchNote {
   created_by?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+  is_shared?: boolean;        // when true, visible to all team members with tree access
+  parent_id?: string | null;  // set on replies; null/absent for top-level notes
+  reply_count?: number;       // derived by the list endpoint; absent on replies
 }
 
 export interface CreateResearchNote {
@@ -256,6 +259,7 @@ export interface CreateResearchNote {
   trees: string[];
   folder_id?: string | null;
   created_by?: string | null;
+  is_shared?: boolean;
 }
 
 export interface UpdateResearchNote {
@@ -263,6 +267,13 @@ export interface UpdateResearchNote {
   description?: string | null;
   body?: string | null;
   trees?: string[] | null;
+  is_shared?: boolean | null;
+}
+
+export interface CreateNoteReply {
+  body: string;
+  created_by?: string | null;
+  trees?: string[];
 }
 
 // Chat Sessions

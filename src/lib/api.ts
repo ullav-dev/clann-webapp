@@ -15,6 +15,7 @@ import type {
   ResearchNote,
   CreateResearchNote,
   UpdateResearchNote,
+  CreateNoteReply,
   ChatSession,
   CreateChatSession,
   ChatMessage,
@@ -266,6 +267,15 @@ export const updateResearchNote = (noteId: string, body: UpdateResearchNote): Pr
 
 export const deleteResearchNote = (noteId: string): Promise<void> =>
   request(`/api/notes/${rawNoteId(noteId)}`, { method: "DELETE" });
+
+export const listNoteReplies = (noteId: string): Promise<ResearchNote[]> =>
+  request(`/api/notes/${rawNoteId(noteId)}/replies`);
+
+export const createNoteReply = (noteId: string, body: CreateNoteReply): Promise<ResearchNote> =>
+  request(`/api/notes/${rawNoteId(noteId)}/replies`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
 
 export const setNoteFolder = (noteId: string, folderId: string | null): Promise<ResearchNote> =>
   request(`/api/notes/${rawNoteId(noteId)}/folder`, {
