@@ -132,9 +132,12 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
     [reload]
   );
 
+  // A tree is a "team tree" only when it appears in a team's shared trees
+  // AND is not owned by the current user (owners can always edit their own trees).
   const isTeamTree = useCallback(
-    (treeName: string) => teamTrees.some((t) => t.name === treeName),
-    [teamTrees]
+    (treeName: string) =>
+      teamTrees.some((t) => t.name === treeName && t.owner !== user?.username),
+    [teamTrees, user]
   );
 
   const treeTeamName = useCallback(

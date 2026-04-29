@@ -896,6 +896,7 @@
     "readOnlyBanner": "Tá tú ag féachaint ar chrann roinnte — ní cheadaítear athruithe.",
     "readOnlyBannerWithTeam": "Tá tú ag féachaint ar chrann roinnte ag foireann '{team}' — ní cheadaítear athruithe.",
     "myTrees": "Mo Chrainn",
-    "sharedWithMe": "Roinnte liom"
+    "sharedWithMe": "Roinnte liom",
+    "readOnlyTreeHint": "Roinntear an crann seo leat — is féidir leat féachaint air ach ní féidir leat é a chur in eagar"
   }
 }

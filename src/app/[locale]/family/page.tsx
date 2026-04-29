@@ -111,10 +111,12 @@ export default function FamilyPage() {
   const { activeTree, isLoading: treeLoading, initError } = useTree();
   const { isTeamTree } = useTeam();
   const { atMemberLimit } = useSubscription();
-  const readOnly = !!activeTree && isTeamTree(activeTree.name);
+  // Only treat a tree as read-only if it is a team tree AND the current user does not own it.
+  const readOnly = !!activeTree && activeTree.owner !== user?.username && isTeamTree(activeTree.name);
   const api = useApi();
   const router = useRouter();
   const t = useTranslations("family");
+  const tTeam = useTranslations("team");
 
   const [persons, setPersons] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
@@ -188,19 +190,24 @@ export default function FamilyPage() {
             {loading ? t("loading") : t("personCount", { count: persons.length })}
           </p>
         </div>
-        {!readOnly && (
-          atMemberLimit(persons.length) ? (
-            <Link
-              href="/pricing"
-              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto text-sm"
-            >
-              ⚡ {t("memberLimitCta")}
-            </Link>
-          ) : (
-            <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto">
-              <span>+</span> {t("addPerson")}
-            </Link>
-          )
+        {readOnly ? (
+          <span
+            title={tTeam("readOnlyTreeHint")}
+            className="inline-flex items-center gap-2 bg-stone-300 text-stone-500 text-sm font-medium px-5 py-2.5 rounded-lg cursor-not-allowed select-none self-start sm:self-auto"
+          >
+            <span>+</span> {t("addPerson")}
+          </span>
+        ) : atMemberLimit(persons.length) ? (
+          <Link
+            href="/pricing"
+            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto text-sm"
+          >
+            ⚡ {t("memberLimitCta")}
+          </Link>
+        ) : (
+          <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto">
+            <span>+</span> {t("addPerson")}
+          </Link>
         )}
       </div>
 
@@ -244,7 +251,16 @@ export default function FamilyPage() {
           <div className="text-6xl mb-4">🌱</div>
           <p className="text-lg font-medium text-stone-600">{t("noPeopleYet")}</p>
           <p className="text-sm mt-1">{t("noPeopleDescription")}</p>
-          <Link href="/persons/new" className="inline-block mt-6 bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors">{t("addFirstPerson")}</Link>
+          {readOnly ? (
+            <span
+              title={tTeam("readOnlyTreeHint")}
+              className="inline-block mt-6 bg-stone-300 text-stone-500 font-medium px-5 py-2.5 rounded-lg cursor-not-allowed select-none"
+            >
+              {t("addFirstPerson")}
+            </span>
+          ) : (
+            <Link href="/persons/new" className="inline-block mt-6 bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors">{t("addFirstPerson")}</Link>
+          )}
         </div>
       )}
 

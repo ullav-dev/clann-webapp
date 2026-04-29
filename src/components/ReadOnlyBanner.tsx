@@ -2,14 +2,17 @@
 
 import { useTeam } from "@/contexts/TeamContext";
 import { useTree } from "@/contexts/TreeContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useTranslations } from "next-intl";
 
 export default function ReadOnlyBanner() {
   const { activeTree } = useTree();
   const { isTeamTree, treeTeamName } = useTeam();
+  const { user } = useAuth();
   const t = useTranslations("team");
 
-  if (!activeTree || !isTeamTree(activeTree.name)) return null;
+  // Never show the banner for trees the current user owns.
+  if (!activeTree || activeTree.owner === user?.username || !isTeamTree(activeTree.name)) return null;
 
   const teamName = treeTeamName(activeTree.name);
 

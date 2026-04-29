@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTeam } from "@/contexts/TeamContext";
+import { useTree } from "@/contexts/TreeContext";
 import LocaleSwitcher from "./LocaleSwitcher";
 import TreeSelector from "./TreeSelector";
 import AboutModal from "./AboutModal";
@@ -14,9 +15,12 @@ export default function Nav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isLoading, logout, roles } = useAuth();
-  const { teams } = useTeam();
+  const { teams, isTeamTree } = useTeam();
+  const { activeTree } = useTree();
   const hasTeam = teams.length > 0;
+  const readOnly = !!activeTree && isTeamTree(activeTree.name);
   const t = useTranslations("nav");
+  const tTeam = useTranslations("team");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
@@ -83,12 +87,21 @@ export default function Nav() {
                     </Link>
                   )}
                   <TreeSelector />
-                  <Link
-                    href="/persons/new"
-                    className="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-                  >
-                    <span>+</span> {t("addPerson")}
-                  </Link>
+                  {readOnly ? (
+                    <span
+                      title={tTeam("readOnlyTreeHint")}
+                      className="inline-flex items-center gap-1 bg-stone-300 text-stone-500 text-sm font-medium px-4 py-2 rounded-lg cursor-not-allowed select-none"
+                    >
+                      <span>+</span> {t("addPerson")}
+                    </span>
+                  ) : (
+                    <Link
+                      href="/persons/new"
+                      className="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                    >
+                      <span>+</span> {t("addPerson")}
+                    </Link>
+                  )}
 
                   {/* User dropdown */}
                   <div className="relative pl-2 border-l border-stone-200" ref={dropdownRef}>
@@ -195,13 +208,19 @@ export default function Nav() {
                   <TreeSelector />
                 </div>
                 <div className="px-4 py-2 border-t border-stone-100">
-                  <Link
-                    href="/persons/new"
-                    onClick={closeMobileMenu}
-                    className="flex items-center justify-center gap-1 w-full bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
-                  >
-                    <span>+</span> {t("addPerson")}
-                  </Link>
+                  {readOnly ? (
+                    <span className="flex items-center justify-center gap-1 w-full bg-stone-300 text-stone-500 text-sm font-medium px-4 py-2.5 rounded-lg cursor-not-allowed select-none">
+                      <span>+</span> {t("addPerson")}
+                    </span>
+                  ) : (
+                    <Link
+                      href="/persons/new"
+                      onClick={closeMobileMenu}
+                      className="flex items-center justify-center gap-1 w-full bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+                    >
+                      <span>+</span> {t("addPerson")}
+                    </Link>
+                  )}
                 </div>
                 <div className="border-t border-stone-100 mt-2">
                   <Link

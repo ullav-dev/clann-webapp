@@ -896,6 +896,7 @@
     "readOnlyBanner": "Sie sehen einen geteilten Stammbaum — Änderungen sind nicht erlaubt.",
     "readOnlyBannerWithTeam": "Sie sehen einen von Team '{team}' geteilten Baum — Änderungen sind nicht erlaubt.",
     "myTrees": "Meine Bäume",
-    "sharedWithMe": "Mit mir geteilt"
+    "sharedWithMe": "Mit mir geteilt",
+    "readOnlyTreeHint": "Dieser Baum wird mit Ihnen geteilt — Sie können ihn ansehen, aber nicht bearbeiten"
   }
 }

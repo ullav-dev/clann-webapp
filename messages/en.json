@@ -896,6 +896,7 @@
     "readOnlyBanner": "You are viewing a shared tree — changes are not permitted.",
     "readOnlyBannerWithTeam": "You are viewing a tree shared by team '{team}' — changes are not permitted.",
     "myTrees": "My Trees",
-    "sharedWithMe": "Shared with me"
+    "sharedWithMe": "Shared with me",
+    "readOnlyTreeHint": "This tree is shared with you — you can view but not edit it"
   }
 }
