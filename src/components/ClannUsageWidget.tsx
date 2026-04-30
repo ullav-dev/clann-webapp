@@ -72,7 +72,12 @@ export default function ClannUsageWidget({ inline = false }: Props) {
       .then((people) => setPersonCount(people.length))
       .catch(() => {});
     listResearchNotes(undefined, user.username)
-      .then((notes) => setNoteCount(notes.length))
+      .then((notes) => {
+        const ownIds = new Set(notes.map((n) => n.id));
+        // Replies to another user's note don't count toward the quota.
+        const countable = notes.filter((n) => !n.parent_id || ownIds.has(n.parent_id));
+        setNoteCount(countable.length);
+      })
       .catch(() => {});
   }, [user]);
 
