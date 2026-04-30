@@ -43,7 +43,16 @@ export default function LoginPage() {
   const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && user) router.replace("/family");
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("tab") === "register") setTab("register");
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      const params = new URLSearchParams(window.location.search);
+      const returnUrl = params.get("returnUrl");
+      router.replace(returnUrl || "/family");
+    }
   }, [isLoading, user, router]);
 
   function errorMessage(err: unknown, fallback: string): string {
@@ -58,7 +67,8 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       await login(loginEmail, loginPassword);
-      router.push("/family");
+      const params = new URLSearchParams(window.location.search);
+      router.push(params.get("returnUrl") || "/family");
     } catch (err) {
       setError(errorMessage(err, t("loginFailed")));
     } finally {

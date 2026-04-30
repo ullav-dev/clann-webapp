@@ -15,6 +15,8 @@ import type { ResearchFolder, ResearchNote, CreateResearchNote, UpdateResearchNo
 import WikipediaSearch from "@/components/WikipediaSearch";
 import CensusSearch from "@/components/CensusSearch";
 import AiChat from "@/components/AiChat";
+import AuthorChip from "@/components/AuthorChip";
+import NoteThread from "@/components/NoteThread";
 
 const MarkdownEditor = dynamic(() => import("@/components/MarkdownEditor"), { ssr: false });
 
@@ -42,10 +44,11 @@ interface EditorProps {
   onCancel: () => void;
   saving: boolean;
   setSaving: (v: boolean) => void;
-  onSubmit: (title: string, description: string, body: string) => Promise<void>;
+  showShareToggle?: boolean;
+  onSubmit: (title: string, description: string, body: string, isShared: boolean) => Promise<void>;
 }
 
-function NoteEditor({ initial, token, username, onSaved, onCancel, saving, onSubmit }: EditorProps) {
+function NoteEditor({ initial, token, username, onSaved, onCancel, saving, showShareToggle, onSubmit }: EditorProps) {
   const t = useTranslations("research");
   const cursorPosRef = useRef<number | null>(null);
   const [showPicker, setShowPicker] = useState(false);
@@ -53,6 +56,7 @@ function NoteEditor({ initial, token, username, onSaved, onCancel, saving, onSub
   const [title, setTitle] = useState(initial?.title ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [body, setBody] = useState(initial?.body ?? "");
+  const [isShared, setIsShared] = useState(initial?.is_shared ?? false);
   const [error, setError] = useState<string | null>(null);
 
   function insertAssetMarkdown(asset: PickedAsset) {
@@ -74,7 +78,7 @@ function NoteEditor({ initial, token, username, onSaved, onCancel, saving, onSub
     if (!title.trim()) return;
     setError(null);
     try {
-      await onSubmit(title.trim(), description.trim(), body.trim());
+      await onSubmit(title.trim(), description.trim(), body.trim(), isShared);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("saveFailed"));
     }
@@ -140,6 +144,24 @@ function NoteEditor({ initial, token, username, onSaved, onCancel, saving, onSub
         />
       </div>
 
+      {showShareToggle && (
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <div
+            role="checkbox"
+            aria-checked={isShared}
+            tabIndex={0}
+            onClick={() => setIsShared((v) => !v)}
+            onKeyDown={(e) => { if (e.key === " " || e.key === "Enter") setIsShared((v) => !v); }}
+            className={`relative w-8 h-4 rounded-full transition-colors flex-shrink-0 ${isShared ? "bg-violet-600" : "bg-stone-300"}`}
+          >
+            <span className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${isShared ? "translate-x-4" : "translate-x-0"}`} />
+          </div>
+          <span className="text-xs text-stone-600">
+            {isShared ? `👥 ${t("sharedNote")}` : `🔒 ${t("privateNote")}`}
+          </span>
+        </label>
+      )}
+
       <div className="flex gap-2 justify-end">
         <button
           type="button"
@@ -166,6 +188,7 @@ interface NoteCardProps {
   note: ResearchNote;
   selected: boolean;
   canEdit: boolean;
+  currentUsername: string;
   folderName?: string;
   onSelect: () => void;
   onEdit: () => void;
@@ -173,7 +196,7 @@ interface NoteCardProps {
   deleting: boolean;
 }
 
-function NoteCard({ note, selected, canEdit, folderName, onSelect, onEdit, onDelete, deleting }: NoteCardProps) {
+function NoteCard({ note, selected, canEdit, currentUsername, folderName, onSelect, onEdit, onDelete, deleting }: NoteCardProps) {
   const t = useTranslations("research");
   return (
     <div
@@ -190,34 +213,35 @@ function NoteCard({ note, selected, canEdit, folderName, onSelect, onEdit, onDel
         </h3>
         {canEdit && (
           <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={onEdit}
-              className="p-1 text-stone-400 hover:text-stone-700 transition-colors rounded"
-              title={t("editNote")}
-            >
-              ✏️
-            </button>
-            <button
-              onClick={onDelete}
-              disabled={deleting}
-              className="p-1 text-stone-400 hover:text-red-500 transition-colors rounded disabled:opacity-40"
-              title={t("deleteNote")}
-            >
-              🗑️
-            </button>
+            <button onClick={onEdit} className="p-1 text-stone-400 hover:text-stone-700 transition-colors rounded" title={t("editNote")}>✏️</button>
+            <button onClick={onDelete} disabled={deleting} className="p-1 text-stone-400 hover:text-red-500 transition-colors rounded disabled:opacity-40" title={t("deleteNote")}>🗑️</button>
           </div>
         )}
       </div>
       {note.description && (
         <p className="text-xs text-stone-500 mt-1 line-clamp-2">{note.description}</p>
       )}
-      <div className="flex items-center justify-between mt-2 gap-2">
-        {note.updated_at && (
-          <p className="text-xs text-stone-400">{formatDate(note.updated_at)}</p>
-        )}
-        {folderName && (
-          <span className="text-[10px] text-stone-400 shrink-0">📁 {folderName}</span>
-        )}
+      <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          {note.created_by && (
+            <AuthorChip username={note.created_by} isSelf={note.created_by === currentUsername} />
+          )}
+          {note.updated_at && (
+            <p className="text-[10px] text-stone-400">{formatDate(note.updated_at)}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5">
+          {(note.reply_count ?? 0) > 0 && (
+            <span className="text-[10px] text-stone-400">💬 {note.reply_count}</span>
+          )}
+          {note.is_shared
+            ? <span className="text-[10px] text-violet-500" title={t("sharedNote")}>👥</span>
+            : <span className="text-[10px] text-stone-300" title={t("privateNote")}>🔒</span>
+          }
+          {folderName && (
+            <span className="text-[10px] text-stone-400">📁 {folderName}</span>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -250,16 +274,21 @@ export default function ResearchPage() {
   // Note context injected into AI chat via "Dig deeper"
   const [aiNoteContext, setAiNoteContext] = useState<{ title: string; body: string } | null>(null);
 
-  // Folder state — "all" | "unfiled" | folder ID string
+  // Folder state — "all" | "unfiled" | "shared-by-others" | folder ID string
   const [folders, setFolders] = useState<ResearchFolder[]>([]);
-  const [activeFolder, setActiveFolder] = useState<"all" | "unfiled" | string>("all");
+  const [activeFolder, setActiveFolder] = useState<"all" | "unfiled" | "shared-by-others" | string>("all");
+  const [allNotesRevealed, setAllNotesRevealed] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [creatingFolder, setCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null);
   const [renameFolderName, setRenameFolderName] = useState("");
 
   const isAdmin = roles.includes("admin");
-  const selectedNote = notes.find((n) => n.id === selectedId) ?? null;
+  // Only top-level notes appear in the sidebar; replies are shown in NoteThread.
+  const topLevelNotes = notes.filter((n) => !n.parent_id);
+  const selectedNote = topLevelNotes.find((n) => n.id === selectedId) ?? null;
+  const showShareToggle = apiHook.isTeamLinkedTree;
 
   const canEditNote = (note: ResearchNote) =>
     isAdmin || (!!user && user.username === note.created_by);
@@ -379,6 +408,22 @@ export default function ResearchPage() {
     }
   }
 
+  async function handleRefreshNotes() {
+    setRefreshing(true);
+    try {
+      const data = await apiHook.listResearchNotes();
+      setNotes(data);
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  function selectFolder(id: "all" | "unfiled" | "shared-by-others" | string) {
+    setActiveFolder(id);
+    setSelectedId(null);
+    setMode(null);
+  }
+
   async function handleMoveNote(noteId: string, folderId: string | null) {
     try {
       const updated = await apiHook.setNoteFolder(noteId, folderId);
@@ -388,7 +433,7 @@ export default function ResearchPage() {
     }
   }
 
-  async function handleCreate(title: string, description: string, body: string) {
+  async function handleCreate(title: string, description: string, body: string, isShared: boolean) {
     setSaving(true);
     try {
       const folderId = activeFolder !== "all" && activeFolder !== "unfiled" ? activeFolder : null;
@@ -399,6 +444,7 @@ export default function ResearchPage() {
         trees: activeTree ? [activeTree.name] : [],
         folder_id: folderId,
         created_by: user?.username ?? null,
+        is_shared: isShared,
       };
       const created = await apiHook.createResearchNote(payload);
       setNotes((prev) => [created, ...prev]);
@@ -409,7 +455,7 @@ export default function ResearchPage() {
     }
   }
 
-  async function handleUpdate(title: string, description: string, body: string) {
+  async function handleUpdate(title: string, description: string, body: string, isShared: boolean) {
     if (!selectedNote) return;
     setSaving(true);
     try {
@@ -418,6 +464,7 @@ export default function ResearchPage() {
         description: description || null,
         body: body || null,
         trees: selectedNote.trees,
+        is_shared: isShared,
       };
       const updated = await apiHook.updateResearchNote(selectedNote.id, payload);
       setNotes((prev) => prev.map((n) => n.id === updated.id ? updated : n));
@@ -475,6 +522,7 @@ export default function ResearchPage() {
             username={user.username}
             saving={saving}
             setSaving={setSaving}
+            showShareToggle={showShareToggle}
             onSubmit={handleCreate}
             onSaved={() => {}}
             onCancel={() => { setPrefill(null); setMode(null); }}
@@ -493,6 +541,7 @@ export default function ResearchPage() {
             username={user.username}
             saving={saving}
             setSaving={setSaving}
+            showShareToggle={showShareToggle}
             onSubmit={handleUpdate}
             onSaved={() => {}}
             onCancel={() => setMode("view")}
@@ -530,9 +579,20 @@ export default function ResearchPage() {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
+            {selectedNote.created_by && (
+              <AuthorChip
+                username={selectedNote.created_by}
+                isSelf={selectedNote.created_by === user.username}
+                size="sm"
+              />
+            )}
             {selectedNote.updated_at && (
               <p className="text-xs text-stone-400">{t("lastEdited")}: {formatDate(selectedNote.updated_at)}</p>
             )}
+            {selectedNote.is_shared
+              ? <span className="text-xs text-violet-600 font-medium">👥 {t("sharedNote")}</span>
+              : <span className="text-xs text-stone-400">🔒 {t("privateNote")}</span>
+            }
             <div className="flex items-center gap-1.5 ml-auto">
               <span className="text-xs text-stone-400">📁</span>
               <select
@@ -557,6 +617,10 @@ export default function ResearchPage() {
             </div>
           ) : (
             <p className="text-sm text-stone-400 italic border-t border-stone-100 pt-4">{t("emptyBody")}</p>
+          )}
+
+          {selectedNote.is_shared && (
+            <NoteThread note={selectedNote} />
           )}
         </div>
       );
@@ -639,20 +703,30 @@ export default function ResearchPage() {
               <span className="text-[10px] font-semibold uppercase tracking-wide text-stone-400">
                 {t("foldersTitle")}
               </span>
-              <button
-                onClick={() => { setCreatingFolder(true); setNewFolderName(""); }}
-                className="text-stone-400 hover:text-emerald-700 transition-colors text-base leading-none px-1"
-                title={t("newFolderPlaceholder")}
-              >
-                +
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleRefreshNotes}
+                  disabled={refreshing}
+                  className="text-stone-400 hover:text-emerald-700 transition-colors text-sm leading-none px-1 disabled:opacity-40"
+                  title={t("refresh")}
+                >
+                  {refreshing ? "⏳" : "↻"}
+                </button>
+                <button
+                  onClick={() => { setCreatingFolder(true); setNewFolderName(""); }}
+                  className="text-stone-400 hover:text-emerald-700 transition-colors text-base leading-none px-1"
+                  title={t("newFolderPlaceholder")}
+                >
+                  +
+                </button>
+              </div>
             </div>
 
-            {/* All Notes */}
+            {/* All Notes / Unfiled */}
             {(["all", "unfiled"] as const).map((key) => (
               <button
                 key={key}
-                onClick={() => setActiveFolder(key)}
+                onClick={() => selectFolder(key)}
                 className={`w-full text-left text-xs px-2 py-1.5 rounded-md transition-colors ${
                   activeFolder === key
                     ? "bg-emerald-50 text-emerald-700 font-medium"
@@ -662,6 +736,22 @@ export default function ResearchPage() {
                 {key === "all" ? t("allNotes") : t("unfiled")}
               </button>
             ))}
+
+            {/* "Shared by team" virtual folder — only on team-linked trees */}
+            {apiHook.isTeamLinkedTree && (
+              <button
+                onClick={() => selectFolder("shared-by-others")}
+                className={`w-full text-left text-xs px-2 py-1.5 rounded-md transition-colors ${
+                  activeFolder === "shared-by-others"
+                    ? "bg-violet-50 text-violet-700 font-medium"
+                    : "text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                👥 {t("sharedByTeam")}
+              </button>
+            )}
+
+            <hr className="border-stone-200 my-1" />
 
             {/* User folders */}
             {folders.map((folder) =>
@@ -687,7 +777,7 @@ export default function ResearchPage() {
                   }`}
                 >
                   <button
-                    onClick={() => setActiveFolder(folder.id)}
+                    onClick={() => selectFolder(folder.id)}
                     className={`flex-1 text-left text-xs px-2 py-1.5 truncate ${
                       activeFolder === folder.id ? "text-emerald-700 font-medium" : "text-stone-600"
                     }`}
@@ -740,9 +830,27 @@ export default function ResearchPage() {
               <div className="text-sm text-stone-400 py-8 text-center">{t("loading")}</div>
             ) : (() => {
               const filteredNotes =
-                activeFolder === "unfiled" ? notes.filter((n) => !n.folder_id) :
-                activeFolder !== "all" ? notes.filter((n) => n.folder_id === activeFolder) :
-                notes;
+                activeFolder === "unfiled" ? topLevelNotes.filter((n) => !n.folder_id && n.created_by === user.username) :
+                activeFolder === "shared-by-others" ? topLevelNotes.filter((n) => n.is_shared && n.created_by !== user.username) :
+                activeFolder !== "all" ? topLevelNotes.filter((n) => n.folder_id === activeFolder) :
+                topLevelNotes;
+
+              if (activeFolder === "all" && !allNotesRevealed) {
+                return (
+                  <div className="text-center py-10 text-stone-400">
+                    <p className="text-sm text-stone-500 mb-3">
+                      {topLevelNotes.length} {topLevelNotes.length === 1 ? t("notesSingular") : t("notesPlural")}
+                    </p>
+                    <button
+                      onClick={() => setAllNotesRevealed(true)}
+                      className="text-sm text-emerald-700 hover:text-emerald-800 font-medium transition-colors"
+                    >
+                      {t("showAllNotes")}
+                    </button>
+                  </div>
+                );
+              }
+
               return filteredNotes.length === 0 ? (
                 <div className="text-center py-10 text-stone-400">
                   <p className="text-sm">{t("empty")}</p>
@@ -762,6 +870,7 @@ export default function ResearchPage() {
                       note={note}
                       selected={selectedId === note.id}
                       canEdit={canEditNote(note)}
+                      currentUsername={user.username}
                       folderName={activeFolder === "all" ? folderName : undefined}
                       onSelect={() => handleSelect(note.id)}
                       onEdit={() => handleEdit(note)}

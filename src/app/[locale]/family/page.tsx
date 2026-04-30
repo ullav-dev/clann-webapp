@@ -14,8 +14,11 @@ import PersonAvatar from "@/components/PersonAvatar";
 import { fullName } from "@/components/PersonCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
+import { useTeam } from "@/contexts/TeamContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
+import ReadOnlyBanner from "@/components/ReadOnlyBanner";
+import ClannUsageWidget from "@/components/ClannUsageWidget";
 
 type ViewMode = "card" | "list";
 
@@ -107,10 +110,14 @@ function ListIcon() { return (<svg className="w-4 h-4" viewBox="0 0 20 20" fill=
 export default function FamilyPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { activeTree, isLoading: treeLoading, initError } = useTree();
+  const { isTeamTree } = useTeam();
   const { atMemberLimit } = useSubscription();
+  // Only treat a tree as read-only if it is a team tree AND the current user does not own it.
+  const readOnly = !!activeTree && activeTree.owner !== user?.username && isTeamTree(activeTree.name);
   const api = useApi();
   const router = useRouter();
   const t = useTranslations("family");
+  const tTeam = useTranslations("team");
 
   const [persons, setPersons] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
@@ -171,30 +178,45 @@ export default function FamilyPage() {
 
   return (
     <div>
+      <ReadOnlyBanner />
       {initError && (
         <div className="mb-6 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-amber-800 text-sm">
           {initError}
         </div>
       )}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+        <div className="shrink-0">
           <h1 className="text-3xl font-bold text-stone-800">{t("title")}</h1>
           <p className="text-stone-500 mt-1">
             {loading ? t("loading") : t("personCount", { count: persons.length })}
           </p>
         </div>
-        {atMemberLimit(persons.length) ? (
-          <Link
-            href="/pricing"
-            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto text-sm"
-          >
-            ⚡ {t("memberLimitCta")}
-          </Link>
-        ) : (
-          <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto">
-            <span>+</span> {t("addPerson")}
-          </Link>
-        )}
+        <div className="self-start shrink-0 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 flex items-center gap-3">
+          <div className="w-44">
+            <ClannUsageWidget inline />
+          </div>
+          <div className="shrink-0">
+            {readOnly ? (
+              <span
+                title={tTeam("readOnlyTreeHint")}
+                className="inline-flex items-center gap-2 bg-stone-300 text-stone-500 text-sm font-medium px-4 py-2 rounded-lg cursor-not-allowed select-none"
+              >
+                <span>+</span> {t("addPerson")}
+              </span>
+            ) : atMemberLimit(persons.length) ? (
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+              >
+                ⚡ {t("memberLimitCta")}
+              </Link>
+            ) : (
+              <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                <span>+</span> {t("addPerson")}
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
 
       {!loading && atMemberLimit(persons.length) && (
@@ -237,17 +259,32 @@ export default function FamilyPage() {
           <div className="text-6xl mb-4">🌱</div>
           <p className="text-lg font-medium text-stone-600">{t("noPeopleYet")}</p>
           <p className="text-sm mt-1">{t("noPeopleDescription")}</p>
-          <Link href="/persons/new" className="inline-block mt-6 bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors">{t("addFirstPerson")}</Link>
+          {readOnly ? (
+            <span
+              title={tTeam("readOnlyTreeHint")}
+              className="inline-block mt-6 bg-stone-300 text-stone-500 font-medium px-5 py-2.5 rounded-lg cursor-not-allowed select-none"
+            >
+              {t("addFirstPerson")}
+            </span>
+          ) : (
+            <Link href="/persons/new" className="inline-block mt-6 bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors">{t("addFirstPerson")}</Link>
+          )}
         </div>
       )}
 
       {view === "card" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {paged.map((p) => (<PersonCard key={p.id} person={p} onDeleted={(id) => setPersons((prev) => prev.filter((x) => x.id !== id))} />))}
+          {paged.map((p) => (
+            <PersonCard
+              key={p.id}
+              person={p}
+              onDeleted={readOnly ? undefined : (id) => setPersons((prev) => prev.filter((x) => x.id !== id))}
+            />
+          ))}
         </div>
       ) : (
         <ListView people={paged} sortField={sortField} sortDir={sortDir} onSort={handleSort}
-          onDeleted={(id) => setPersons((prev) => prev.filter((x) => x.id !== id))} />
+          onDeleted={readOnly ? ((_id) => {}) : (id) => setPersons((prev) => prev.filter((x) => x.id !== id))} />
       )}
 
       {numPages > 1 && (

@@ -2,19 +2,21 @@
 
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import type { AuthUser, LoginResponse } from "@/lib/auth-api";
-import { login as apiLogin } from "@/lib/auth-api";
+import type { AuthUser, ClannSubscription, LoginResponse } from "@/lib/auth-api";
+import { login as apiLogin, decodeClannSubscription } from "@/lib/auth-api";
 import { setApiToken } from "@/lib/api";
 
 interface AuthState {
   user: AuthUser | null;
   token: string | null;
   roles: string[];
+  permissions: string[];
+  clannSub: ClannSubscription;
   /** true while restoring session from localStorage (prevents auth flash) */
   isLoading: boolean;
   login: (email: string, password: string) => Promise<LoginResponse>;
   /** Used by the SSO page to set session without a page reload */
-  setSession: (session: { user: AuthUser; token: string; roles: string[] }) => void;
+  setSession: (session: { user: AuthUser; token: string; roles: string[]; permissions?: string[] }) => void;
   logout: () => void;
 }
 
@@ -22,6 +24,8 @@ const AuthContext = createContext<AuthState>({
   user: null,
   token: null,
   roles: [],
+  permissions: [],
+  clannSub: { tier: null, status: null, isActive: false },
   isLoading: true,
   login: async () => { throw new Error("AuthProvider not mounted"); },
   setSession: () => {},
@@ -96,6 +100,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
+  const [permissions, setPermissions] = useState<string[]>([]);
+  const [clannSub, setClannSub] = useState<ClannSubscription>({ tier: null, status: null, isActive: false });
   const [isLoading, setIsLoading] = useState(true);
   const [idleWarning, setIdleWarning] = useState(false);
 
@@ -111,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw) as { user: AuthUser; token: string; roles?: string[] };
+        const parsed = JSON.parse(raw) as { user: AuthUser; token: string; roles?: string[]; permissions?: string[] };
         if (!parsed.roles) {
           // Session predates role storage — discard it so the user re-authenticates
           // and gets a fresh session with roles included.
@@ -120,6 +126,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(parsed.user);
           setToken(parsed.token);
           setRoles(parsed.roles);
+          setPermissions(parsed.permissions ?? []);
+          setClannSub(decodeClannSubscription(parsed.token));
           setApiToken(parsed.token);
         }
       }
@@ -136,15 +144,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setToken(null);
     setRoles([]);
+    setPermissions([]);
+    setClannSub({ tier: null, status: null, isActive: false });
     setApiToken(null);
     setIdleWarning(false);
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  const setSession = useCallback((session: { user: AuthUser; token: string; roles: string[] }) => {
+  const setSession = useCallback((session: { user: AuthUser; token: string; roles: string[]; permissions?: string[] }) => {
     setUser(session.user);
     setToken(session.token);
     setRoles(session.roles);
+    setPermissions(session.permissions ?? []);
+    setClannSub(decodeClannSubscription(session.token));
     setApiToken(session.token);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   }, []);
@@ -154,8 +166,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(resp.user);
     setToken(resp.token);
     setRoles(resp.roles);
+    setPermissions(resp.permissions);
+    setClannSub(decodeClannSubscription(resp.token));
     setApiToken(resp.token);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ user: resp.user, token: resp.token, roles: resp.roles }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ user: resp.user, token: resp.token, roles: resp.roles, permissions: resp.permissions }));
     return resp;
   }, []);
 
@@ -211,7 +225,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <AuthContext.Provider value={{ user, token, roles, isLoading, login, setSession, logout }}>
+    <AuthContext.Provider value={{ user, token, roles, permissions, clannSub, isLoading, login, setSession, logout }}>
       {children}
       {idleWarning && (
         <IdleWarningModal onStay={startTimers} onLogout={logout} />

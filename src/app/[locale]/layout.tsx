@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { TreeProvider } from "@/contexts/TreeContext";
+import { TeamProvider } from "@/contexts/TeamContext";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -49,9 +50,11 @@ export default async function LocaleLayout({
           <AuthProvider>
             <SubscriptionProvider>
               <TreeProvider>
-                <Nav />
-                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
-                <Footer />
+                <TeamProvider>
+                  <Nav />
+                  <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
+                  <Footer />
+                </TeamProvider>
               </TreeProvider>
             </SubscriptionProvider>
           </AuthProvider>

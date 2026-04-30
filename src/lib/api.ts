@@ -15,6 +15,7 @@ import type {
   ResearchNote,
   CreateResearchNote,
   UpdateResearchNote,
+  CreateNoteReply,
   ChatSession,
   CreateChatSession,
   ChatMessage,
@@ -88,6 +89,15 @@ export const updateTree = (name: string, body: { display_name: string }): Promis
 
 export const setPrimaryTree = (name: string): Promise<FamilyTree> =>
   request(`/api/trees/${encodeURIComponent(name)}/set-primary`, { method: "PATCH" });
+
+export const listTeamTrees = (teamId: string): Promise<FamilyTree[]> =>
+  request(`/api/trees?team_id=${encodeURIComponent(teamId)}`);
+
+export const setTreeTeam = (name: string, teamId: string | null): Promise<FamilyTree> =>
+  request(`/api/trees/${encodeURIComponent(name)}/team`, {
+    method: "PATCH",
+    body: JSON.stringify({ team_id: teamId }),
+  });
 
 // Person CRUD
 export const listPersons = (createdBy?: string, tree?: string): Promise<Person[]> => {
@@ -257,6 +267,15 @@ export const updateResearchNote = (noteId: string, body: UpdateResearchNote): Pr
 
 export const deleteResearchNote = (noteId: string): Promise<void> =>
   request(`/api/notes/${rawNoteId(noteId)}`, { method: "DELETE" });
+
+export const listNoteReplies = (noteId: string): Promise<ResearchNote[]> =>
+  request(`/api/notes/${rawNoteId(noteId)}/replies`);
+
+export const createNoteReply = (noteId: string, body: CreateNoteReply): Promise<ResearchNote> =>
+  request(`/api/notes/${rawNoteId(noteId)}/replies`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
 
 export const setNoteFolder = (noteId: string, folderId: string | null): Promise<ResearchNote> =>
   request(`/api/notes/${rawNoteId(noteId)}/folder`, {

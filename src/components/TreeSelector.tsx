@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useTree } from "@/contexts/TreeContext";
+import { useTeam } from "@/contexts/TeamContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
@@ -10,6 +11,7 @@ import ImportTreeModal from "./ImportTreeModal";
 
 export default function TreeSelector() {
   const { trees, activeTree, isLoading, setActiveTree, createTree, renameTree, deleteTree, setPrimaryTree } = useTree();
+  const { teamTrees, teams } = useTeam();
   const { atTreeLimit, maxTrees } = useSubscription();
   const tLimits = useTranslations("limits");
   const t = useTranslations("trees");
@@ -153,10 +155,15 @@ export default function TreeSelector() {
 
       {open && (
         <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-xl border border-stone-200 shadow-lg z-50">
-          {trees.length === 0 ? (
+          {trees.length === 0 && teamTrees.length === 0 ? (
             <p className="px-3 py-3 text-sm text-stone-400 text-center">{t("noTreesYet")}</p>
           ) : (
             <ul className="py-1 max-h-60 overflow-y-auto divide-y divide-stone-50">
+              {trees.length > 0 && (
+                <li className="px-3 pt-2 pb-1">
+                  <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">{t("myTrees")}</span>
+                </li>
+              )}
               {trees.map((tree) => (
                 <li key={tree.name} className="flex items-center gap-1 px-2 py-1.5 hover:bg-stone-50 group">
                   {renamingTree === tree.name ? (
@@ -228,6 +235,39 @@ export default function TreeSelector() {
                   )}
                 </li>
               ))}
+              {teamTrees.length > 0 && (
+                <>
+                  <li className="px-3 pt-3 pb-1 border-t border-stone-100 mt-1">
+                    <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">{t("sharedWithMe")}</span>
+                  </li>
+                  {teamTrees.map((tree) => {
+                    const teamName = teams.find((t) => t.id === tree.team_id)?.name;
+                    return (
+                      <li key={tree.name} className="flex items-center gap-1 px-2 py-1.5 hover:bg-stone-50">
+                        <button
+                          onClick={() => { setActiveTree(tree); setOpen(false); router.push(`/${locale}/family`); }}
+                          className="flex-1 flex items-center gap-2 text-left min-w-0"
+                        >
+                          <span className="text-stone-400 shrink-0">👥</span>
+                          <span className={`text-sm truncate ${activeTree?.name === tree.name ? "font-semibold text-emerald-700" : "text-stone-700"}`}>
+                            {tree.display_name}
+                          </span>
+                          {teamName && (
+                            <span className="shrink-0 text-xs bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full leading-none truncate max-w-[5rem]">
+                              {teamName}
+                            </span>
+                          )}
+                          {activeTree?.name === tree.name && (
+                            <svg className="shrink-0 ml-auto w-3.5 h-3.5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </>
+              )}
             </ul>
           )}
 

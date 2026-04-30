@@ -8,6 +8,61 @@ export interface FamilyTree {
   display_name: string;
   owner: string; // username
   is_primary?: boolean;
+  team_id?: string | null; // UUID of linked team, if any
+}
+
+// ── Team types (ullav-user-management) ────────────────────────────────────────
+
+export interface TeamUserRef {
+  id: string;
+  username: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+}
+
+export interface TeamMember {
+  id: string;
+  user: TeamUserRef;
+  status: "invited" | "active" | "inactive";
+  role: "owner" | "leader" | "member";
+  invited_at: string;
+  joined_at: string | null;
+}
+
+export interface Team {
+  id: string;
+  name: string;
+  description: string | null;
+  purpose: string | null;
+  avatar_url: string | null;
+  owner: TeamUserRef;
+  leader: TeamUserRef;
+  members: TeamMember[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TeamSummary {
+  id: string;
+  name: string;
+  description: string | null;
+  avatar_url: string | null;
+  owner: TeamUserRef;
+  leader: TeamUserRef;
+  member_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// ── Subscription types ─────────────────────────────────────────────────────────
+
+export type ClannTier = "individual" | "family" | "professional" | "enterprise" | null;
+
+export interface ClannSubscription {
+  tier: ClannTier;
+  status: string | null;
+  isActive: boolean;
 }
 
 export interface CreateFamilyTree {
@@ -192,6 +247,9 @@ export interface ResearchNote {
   created_by?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+  is_shared?: boolean;        // when true, visible to all team members with tree access
+  parent_id?: string | null;  // set on replies; null/absent for top-level notes
+  reply_count?: number;       // derived by the list endpoint; absent on replies
 }
 
 export interface CreateResearchNote {
@@ -201,6 +259,7 @@ export interface CreateResearchNote {
   trees: string[];
   folder_id?: string | null;
   created_by?: string | null;
+  is_shared?: boolean;
 }
 
 export interface UpdateResearchNote {
@@ -208,6 +267,13 @@ export interface UpdateResearchNote {
   description?: string | null;
   body?: string | null;
   trees?: string[] | null;
+  is_shared?: boolean | null;
+}
+
+export interface CreateNoteReply {
+  body: string;
+  created_by?: string | null;
+  trees?: string[];
 }
 
 // Chat Sessions
