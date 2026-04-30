@@ -29,7 +29,7 @@ export default function InviteMemberModal({ teamId, onClose, onInvited }: Props)
     setSending(true);
     setError(null);
     try {
-      const appUrl = `${window.location.origin}/${locale}/auth/team-invite`;
+      const appUrl = `${window.location.origin}/${locale}`;
       await inviteMember(token, teamId, email.trim(), appUrl);
       setSent(true);
       onInvited?.();

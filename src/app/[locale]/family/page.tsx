@@ -18,6 +18,7 @@ import { useTeam } from "@/contexts/TeamContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import ReadOnlyBanner from "@/components/ReadOnlyBanner";
+import ClannUsageWidget from "@/components/ClannUsageWidget";
 
 type ViewMode = "card" | "list";
 
@@ -183,32 +184,39 @@ export default function FamilyPage() {
           {initError}
         </div>
       )}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+        <div className="shrink-0">
           <h1 className="text-3xl font-bold text-stone-800">{t("title")}</h1>
           <p className="text-stone-500 mt-1">
             {loading ? t("loading") : t("personCount", { count: persons.length })}
           </p>
         </div>
-        {readOnly ? (
-          <span
-            title={tTeam("readOnlyTreeHint")}
-            className="inline-flex items-center gap-2 bg-stone-300 text-stone-500 text-sm font-medium px-5 py-2.5 rounded-lg cursor-not-allowed select-none self-start sm:self-auto"
-          >
-            <span>+</span> {t("addPerson")}
-          </span>
-        ) : atMemberLimit(persons.length) ? (
-          <Link
-            href="/pricing"
-            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto text-sm"
-          >
-            ⚡ {t("memberLimitCta")}
-          </Link>
-        ) : (
-          <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors self-start sm:self-auto">
-            <span>+</span> {t("addPerson")}
-          </Link>
-        )}
+        <div className="self-start shrink-0 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 flex items-center gap-3">
+          <div className="w-44">
+            <ClannUsageWidget inline />
+          </div>
+          <div className="shrink-0">
+            {readOnly ? (
+              <span
+                title={tTeam("readOnlyTreeHint")}
+                className="inline-flex items-center gap-2 bg-stone-300 text-stone-500 text-sm font-medium px-4 py-2 rounded-lg cursor-not-allowed select-none"
+              >
+                <span>+</span> {t("addPerson")}
+              </span>
+            ) : atMemberLimit(persons.length) ? (
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+              >
+                ⚡ {t("memberLimitCta")}
+              </Link>
+            ) : (
+              <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                <span>+</span> {t("addPerson")}
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
 
       {!loading && atMemberLimit(persons.length) && (

@@ -898,6 +898,7 @@
     "resendInvite": "Erneut senden",
     "resending": "Wird gesendet…",
     "resendFailed": "Einladung konnte nicht erneut gesendet werden.",
+    "seatLimitReached": "Platzkontingent erschöpft. Entferne ein Mitglied, um jemanden einzuladen.",
     "role_owner": "Inhaber",
     "role_leader": "Leiter",
     "role_member": "Mitglied",
@@ -938,5 +939,14 @@
     "myTrees": "Meine Bäume",
     "sharedWithMe": "Mit mir geteilt",
     "readOnlyTreeHint": "Dieser Baum wird mit Ihnen geteilt — Sie können ihn ansehen, aber nicht bearbeiten"
+  },
+  "usageWidget": {
+    "title": "Nutzung",
+    "familyMembers": "Familienmitglieder",
+    "researchNotes": "Forschungsnotizen",
+    "membersShort": "Personen",
+    "notesShort": "Notizen",
+    "unlimited": "Unbegrenzt",
+    "upgrade": "Pläne ansehen"
   }
 }

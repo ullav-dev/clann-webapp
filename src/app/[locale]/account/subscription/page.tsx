@@ -10,6 +10,7 @@ import {
   createPortalSession,
   type SubscriptionInfo,
 } from "@/lib/auth-api";
+import ClannUsageWidget from "@/components/ClannUsageWidget";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -92,8 +93,12 @@ export default function SubscriptionPage() {
       <h1 className="text-2xl font-bold text-stone-900 mb-1">{t("heading")}</h1>
       <p className="text-sm text-stone-500 mb-8">{t("subheading")}</p>
 
+      <div className="mb-6">
+        <ClannUsageWidget />
+      </div>
+
       {fetchError && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm mb-6">
+        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm mt-6 mb-0">
           {fetchError}
         </div>
       )}

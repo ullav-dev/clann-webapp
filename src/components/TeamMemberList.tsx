@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import type { Team } from "@/lib/types";
-import { removeMember } from "@/lib/teams-api";
+import { removeMember, resendInvitation } from "@/lib/teams-api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 import InviteMemberModal from "./InviteMemberModal";
 
 const ROLE_BADGE: Record<string, string> = {
@@ -26,12 +28,28 @@ interface Props {
 
 export default function TeamMemberList({ team, onChanged }: Props) {
   const { token, user } = useAuth();
+  const { subscription } = useSubscription();
   const t = useTranslations("team");
+  const pathname = usePathname();
+  const locale = pathname.split("/")[1] ?? "en";
   const [showInvite, setShowInvite] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [resending, setResending] = useState<string | null>(null);
+  const [resendSent, setResendSent] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const isOwner = team.owner.username === user?.username;
+  // Seat limit applies only to the owner and only on the family plan (pro/enterprise are unlimited).
+  const seatLimit = isOwner && subscription?.plan === "family" ? subscription.seat_count : null;
+  const atSeatLimit = seatLimit !== null && team.members.length >= seatLimit;
+  const seatCountColor =
+    seatLimit === null
+      ? "text-stone-500"
+      : atSeatLimit
+      ? "text-red-600 font-semibold"
+      : team.members.length / seatLimit >= 0.8
+      ? "text-amber-600"
+      : "text-stone-500";
 
   async function handleRemove(userId: string, username: string) {
     if (!confirm(t("removeMemberConfirm", { name: username }))) return;
@@ -47,14 +65,42 @@ export default function TeamMemberList({ team, onChanged }: Props) {
     }
   }
 
+  async function handleResend(userId: string) {
+    if (!token) return;
+    setResending(userId);
+    setResendSent(null);
+    setError(null);
+    try {
+      const appUrl = `${window.location.origin}/${locale}`;
+      await resendInvitation(token, team.id, userId, appUrl);
+      setResendSent(userId);
+      setTimeout(() => setResendSent(null), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("resendFailed"));
+    } finally {
+      setResending(null);
+    }
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-stone-700">{t("members")} ({team.members.length})</h3>
+        <h3 className="text-sm font-semibold text-stone-700">
+          {t("members")}{" "}
+          <span className={seatCountColor}>
+            ({seatLimit !== null ? `${team.members.length}/${seatLimit}` : team.members.length})
+          </span>
+        </h3>
         {isOwner && (
           <button
-            onClick={() => setShowInvite(true)}
-            className="text-sm font-medium text-violet-700 hover:text-violet-900 transition-colors"
+            onClick={() => !atSeatLimit && setShowInvite(true)}
+            disabled={atSeatLimit}
+            title={atSeatLimit ? t("seatLimitReached") : undefined}
+            className={`text-sm font-medium transition-colors ${
+              atSeatLimit
+                ? "text-stone-400 cursor-not-allowed"
+                : "text-violet-700 hover:text-violet-900"
+            }`}
           >
             + {t("inviteMember")}
           </button>
@@ -85,6 +131,20 @@ export default function TeamMemberList({ team, onChanged }: Props) {
                 {t(`status_${m.status}`)}
               </span>
             </div>
+            {isOwner && m.status === "invited" && (
+              <button
+                onClick={() => handleResend(m.user.id)}
+                disabled={resending === m.user.id}
+                title={t("resendInvite")}
+                className="ml-1 shrink-0 text-xs font-medium px-2 py-1 rounded text-violet-600 hover:text-violet-800 hover:bg-violet-50 transition-all disabled:opacity-50"
+              >
+                {resendSent === m.user.id
+                  ? "✓"
+                  : resending === m.user.id
+                  ? t("resending")
+                  : t("resendInvite")}
+              </button>
+            )}
             {isOwner && m.role !== "owner" && (
               <button
                 onClick={() => handleRemove(m.user.id, m.user.username)}

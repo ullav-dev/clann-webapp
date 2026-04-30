@@ -898,6 +898,7 @@
     "resendInvite": "Resend",
     "resending": "Resending...",
     "resendFailed": "Failed to resend invitation.",
+    "seatLimitReached": "Seat limit reached. Remove a member to invite someone new.",
     "role_owner": "Owner",
     "role_leader": "Leader",
     "role_member": "Member",
@@ -938,5 +939,14 @@
     "myTrees": "My Trees",
     "sharedWithMe": "Shared with me",
     "readOnlyTreeHint": "This tree is shared with you — you can view but not edit it"
+  },
+  "usageWidget": {
+    "title": "Usage",
+    "familyMembers": "Family Members",
+    "researchNotes": "Research Notes",
+    "membersShort": "Members",
+    "notesShort": "Notes",
+    "unlimited": "Unlimited",
+    "upgrade": "View plans"
   }
 }

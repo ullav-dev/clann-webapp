@@ -94,6 +94,17 @@ export const removeMember = (
     method: "DELETE",
   });
 
+export const resendInvitation = (
+  token: string,
+  teamId: string,
+  userId: string,
+  appUrl?: string
+): Promise<void> =>
+  teamsRequest(`/teams/${teamId}/members/${userId}/resend-invite`, token, {
+    method: "POST",
+    body: JSON.stringify(appUrl ? { app_url: appUrl } : {}),
+  });
+
 export const acceptInvitation = (
   token: string,
   inviteToken: string

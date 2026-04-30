@@ -25,7 +25,7 @@ function TeamInviteInner() {
   useEffect(() => {
     if (!authLoading && !user) {
       const returnUrl = encodeURIComponent(`/${locale}/auth/team-invite${window.location.search}`);
-      router.push(`/${locale}/login?returnUrl=${returnUrl}`);
+      router.push(`/${locale}/login?tab=register&returnUrl=${returnUrl}`);
     }
   }, [authLoading, user, locale, router]);
 
@@ -132,7 +132,11 @@ function TeamInviteInner() {
 
 export default function TeamInvitePage() {
   return (
-    <Suspense>
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-24 text-stone-400 text-sm">
+        Loading…
+      </div>
+    }>
       <TeamInviteInner />
     </Suspense>
   );

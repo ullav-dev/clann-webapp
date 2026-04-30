@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTeam } from "@/contexts/TeamContext";
 import { useTree } from "@/contexts/TreeContext";
+import { canCreateTeam } from "@/lib/auth-api";
 import LocaleSwitcher from "./LocaleSwitcher";
 import TreeSelector from "./TreeSelector";
 import AboutModal from "./AboutModal";
@@ -14,10 +15,11 @@ import AboutModal from "./AboutModal";
 export default function Nav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isLoading, logout, roles } = useAuth();
+  const { user, isLoading, logout, roles, token } = useAuth();
   const { teams, isTeamTree } = useTeam();
   const { activeTree } = useTree();
   const hasTeam = teams.length > 0;
+  const showTeam = canCreateTeam(token) || roles.includes("admin");
   const readOnly = !!activeTree && isTeamTree(activeTree.name);
   const t = useTranslations("nav");
   const tTeam = useTranslations("team");
@@ -81,7 +83,7 @@ export default function Nav() {
                   <Link href="/research" className={activeLink("/research")}>
                     {t("research")}
                   </Link>
-                  {hasTeam && (
+                  {showTeam && (
                     <Link href="/team" className={activeLink("/team")}>
                       {t("team")}
                     </Link>

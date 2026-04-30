@@ -898,6 +898,7 @@
     "resendInvite": "Athsheol",
     "resending": "Á sheoladh…",
     "resendFailed": "Níorbh fhéidir an cuireadh a athsheoladh.",
+    "seatLimitReached": "Tá an teorainn suíochán bainte amach. Bain ball chun cuireadh a sheoladh chuig duine nua.",
     "role_owner": "Úinéir",
     "role_leader": "Ceannaire",
     "role_member": "Comhalta",
@@ -938,5 +939,14 @@
     "myTrees": "Mo Chrainn",
     "sharedWithMe": "Roinnte liom",
     "readOnlyTreeHint": "Roinntear an crann seo leat — is féidir leat féachaint air ach ní féidir leat é a chur in eagar"
+  },
+  "usageWidget": {
+    "title": "Úsáid",
+    "familyMembers": "Baill Teaghlaigh",
+    "researchNotes": "Nótaí Taighde",
+    "membersShort": "Baill",
+    "notesShort": "Nótaí",
+    "unlimited": "Gan teorainn",
+    "upgrade": "Féach ar phleananna"
   }
 }
