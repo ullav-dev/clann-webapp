@@ -11,6 +11,10 @@ const gitSha: string = (() => {
   catch { return "dev"; }
 })();
 
+const portalOrigins = process.env.PORTAL_URL
+  ? process.env.PORTAL_URL
+  : "https://portal.ullav.com http://localhost:3003";
+
 const nextConfig: NextConfig = {
   output: "standalone",
   env: {
@@ -21,6 +25,19 @@ const nextConfig: NextConfig = {
   // that API_URL / AUTH_URL are read at request time from process.env rather
   // than being baked into routes-manifest.json at build time.
   transpilePackages: ["@ullav/dam-picker"],
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: `frame-ancestors 'self' ${portalOrigins}`,
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);
