@@ -29,12 +29,6 @@ docker compose -f docker-compose-prod.yaml up -d --build
 docker compose -f docker-compose-prod.yaml pull && docker compose -f docker-compose-prod.yaml up -d
 ```
 
-**Files:**
-- `Dockerfile` — three-stage build: `deps` (npm ci) → `builder` (next build) → `runner` (node:22-alpine, standalone server)
-- `docker-compose-prod.yaml` — single `webapp` service; joins the external `ullav-net` Docker network to reach clann-server and ullav-auth (managed by their own compose files)
-- `.env.prod` — non-sensitive runtime config (not committed); sets `API_URL` and `AUTH_URL` pointing to the internal Docker service names
-- `.dockerignore` — excludes `node_modules`, `.next`, `.env*`, `memory/`, etc. from the build context
-
 **`output: "standalone"`** is set in `next.config.ts` so the build emits a self-contained `server.js` with only the files needed at runtime — no `node_modules` in the final image.
 
 **Environment variables — important:** `NEXT_PUBLIC_*` variables are statically inlined by the Next.js bundler at build time (into both client bundles and server-side code). Setting them at runtime has no effect. Instead, the server-side backend URLs use plain (non-`NEXT_PUBLIC_`) env vars:
@@ -67,34 +61,17 @@ The webapp has no secrets of its own — all sensitive values live in clann-serv
 - `src/components/PersonForm.tsx` — shared create/edit form; fields: name, sex, birth/death, identity (nickname/username/email/verified), biography (markdown editor via `MarkdownEditor`; no character cap). Accepts an optional `onCancel` prop: when provided, a **"Forget Changes"** button is rendered alongside "Save Changes"; clicking it resets the form to its initial values and calls `onCancel()` (the edit page uses this to navigate back to the person detail view). Includes an inline `DamPicker` (toggled by "Browse media library" button) — passes `apiBase="/api/dam"`, `token`, `username` (so the category tree is filtered to the user's own categories plus global ones), and a `filter` restricting to `image/*` assets owned by the logged-in user. Also has a drop zone below the editor. Both click-to-insert and drag-and-drop call `insertAssetMarkdown`, which appends `/thumbnail` to the asset URL and inserts the markdown image at the last tracked cursor position (tracked via `onSelect`/`onKeyUp`/`onMouseUp` on the textarea via `textareaProps`; falls back to end of string). A 2-second green flash on the drop zone confirms insertion.
 - `src/components/MarkdownEditor.tsx` — thin wrapper around `@uiw/react-md-editor`; dynamically imported (`ssr: false`); wraps output in `data-color-mode="light"` to prevent dark-mode flicker; always yields a plain markdown string; accepts a `textareaProps` passthrough for attaching handlers to the underlying textarea
 - `src/components/AddRelationshipModal.tsx` — modal for linking Father / Mother / Sibling / Spouse. The person list is filtered by sex: Father/Brother → males only, Mother/Sister → females only. Sibling mode supports **multi-select** (click to toggle; submit links all selected siblings at once and inherits the root person's parents to each). Setting a Father or Mother also triggers **auto-sibling discovery**: fetches the parent's existing children via `getFamilyTree` and links any that are not already siblings — deduplication uses `rawId()` to normalise the `person:<ulid>` IDs returned by the API against the bare ULID in `personId` from `useParams`.
-- `src/components/PersonCard.tsx` — card used on the list page; includes inline delete
 - `src/components/PersonAvatar.tsx` — circular photo with emoji fallback; accepts an optional `imageVersion` prop (number) that is appended as `?v={imageVersion}` to the image URL to bust the browser cache after a photo upload
 - `src/components/ImageUpload.tsx` — drag-and-drop image uploader (JPEG/PNG ≤ 2 MB); accepts an optional `uploadFn` prop to override the default profile-image endpoint, making it reusable for the life story image
-- `src/components/PasswordInput.tsx` — password field with show/hide toggle (eye icon button); used on all password inputs in the app
-- `src/components/LocaleSwitcher.tsx` — language selector dropdown in the nav
 - `src/components/TreeSelector.tsx` — dropdown in the nav for selecting, creating, deleting (non-primary only), and setting the primary family tree; also opens `ImportTreeModal`. Shows a "Shared with me" section for team trees the user does not own (sourced from `TeamContext.teamTrees`).
 - `src/components/ImportTreeModal.tsx` — 3-step modal (upload → name/preview → progress → done) for importing a tree from a Clann JSON export **or a GEDCOM (.ged) file**. Detects format by file extension; routes to `parseTreeExport` (JSON) or `parseGedcomFile` (GEDCOM). If the GEDCOM has no `FILE` tag the tree name is derived from the filename. Any parse warnings are shown in an amber scrollable list in the name step so the user can review before committing.
-- `src/components/TermsModal.tsx` — scrollable modal for Terms & Conditions; reads content from `login.termsContent` translation key (rendered as markdown)
-- `src/components/DisclaimerModal.tsx` — scrollable modal for the Disclaimer; reads content from `disclaimer.content` translation key (rendered as markdown); used in both the footer and the registration form
-- `src/components/Footer.tsx` — site footer with © year, Disclaimer link, and Terms & Conditions link
 - `src/contexts/TreeContext.tsx` — holds the list of trees, the active tree, and tree CRUD actions; persists active selection in localStorage (`clann_active_tree`)
 - `src/contexts/TeamContext.tsx` — holds the user's teams and team trees; exposes `isTeamTree(name)` (true when a tree is shared with the user but not owned by them), `treeTeamName(name)`, and full team CRUD. `teamTrees` are fetched by iterating teams where the user is a member (not owner) and calling `listTeamTrees`.
-- `src/components/ReadOnlyBanner.tsx` — violet banner shown at the top of the family list and person detail pages when the active tree is a shared team tree. Shows the team name when known. Hidden for trees the current user owns.
-- `src/components/TeamAvatar.tsx` — coloured initial-letter avatar for a team; used on the Team page.
-- `src/components/TeamMemberList.tsx` — lists team members with role and status badges; owner can remove members or resend invitations.
-- `src/components/InviteMemberModal.tsx` — modal for inviting a member to a team by email; passes `app_url` so the auth service sends a locale-aware invite link.
-- `src/components/CreateTeamModal.tsx` — modal for creating a new team (name, description); eligibility checked via `canCreateTeam(token)` which inspects the JWT claims.
-- `src/components/LinkTreeModal.tsx` — modal for the team owner to link one of their trees to the team (or unlink it); calls `setTreeTeam(treeName, teamId)`.
-- `src/components/LinkedTreesList.tsx` — shows trees linked to a team; team members see them as read-only entries in the Tree Selector.
 - `src/lib/teams-api.ts` — typed fetch wrappers for ullav-user-management team endpoints (`/teams`, `/teams/{id}`, invitations, members). Requests go via the `/auth-api/*` rewrite.
 - `src/lib/auth-api.ts` — typed fetch wrappers for other ullav-user-management endpoints; exports `canCreateTeam(token)` which decodes the JWT and checks subscription/role claims.
 - `src/lib/tree-import.ts` — pure parser for the Clann JSON export format; deduplicates persons and relationships. Exports the shared `ParsedImport` interface (includes optional `warnings?: string[]`) and the `slugify` helper used by both importers.
 - `src/lib/gedcom-export.ts` — pure function `exportToGedcom(persons, relationships, treeName)` → GEDCOM 5.5.1 string. Maps persons to INDI records (NAME with GIVN/SURN/NICK, SEX, BIRT/DEAT, NOTE for biography) and derives FAM records from spouse pairs and parent–child relationships; siblings are listed as CHIL in shared FAM records. Output uses UTF-8 and CRLF line endings.
 - `src/lib/gedcom-import.ts` — pure function `parseGedcomFile(content)` → `ParsedImport`. Groups GEDCOM lines into INDI/FAM records; extracts given name, middle name, surname, nickname (prefers explicit GIVN/SURN/NICK subfields), SEX, BIRT/DEAT events, NOTE → biography (with CONT/CONC continuation). FAM records → Spouse (with marriage date as `spouse_from`), Father/Mother (derived from sex of HUSB/WIFE), and Sibling relationships for all children sharing a FAM. Unresolvable references and missing fields are collected as human-readable warnings returned in `ParsedImport.warnings`.
-- `src/components/ResearchPage.tsx` — full-page Research workspace at `/research`. Two-panel layout: scrollable note list (left, `lg:w-80`) and a right panel that switches between view/create/edit/wikipedia/census modes. Header has three action buttons: **📜 1926 Census** (amber, toggles `CensusSearch`), **🌐 Wikipedia** (blue, toggles `WikipediaSearch`), and **+ New Note**. "Save as Note" from Wikipedia pre-fills the create form via `prefill` state. Notes are tree-scoped via `useApi.listResearchNotes()`.
-- `src/components/WikipediaSearch.tsx` — Wikipedia search panel. Debounced search (350 ms) against `https://{locale}.wikipedia.org/w/rest.php/v1/search/page` (current REST API; the old `api/rest_v1/page/search` endpoint was deprecated). Selecting a result fetches the full summary from `api/rest_v1/page/summary/{key}`. "Save as Note" callback passes title, Wikipedia URL (as description), and a markdown body (extract + citation link) back to `ResearchPage`.
-- `src/components/CensusSearch.tsx` — 1926 Irish Census panel. Hero image (`Hero-1926.jpg` from `nationalarchives.ie/wp-content/uploads/2026/03/`) with gradient overlay title, a grid of content chips (name/age, occupation, religion, birthplace, Irish language, marital status, household, location), and a search form (Surname, First Name, County — all 26 Irish counties). Constructs a deep-link URL using `surname__icontains` / `forename__icontains` / `county` query params and opens it in a new tab via an `<a target="_blank">` button. No iframe — the NAI site blocks embedding. Attribution to the National Archives of Ireland (CC BY 4.0) always displayed.
-
 **Auth proxy:** `next.config.ts` also rewrites `/auth-api/*` → `http://localhost:8081/*` for the ullav-user-management service. Auth state is managed by `src/contexts/AuthContext.tsx` (localStorage key `clann_auth`, JWT Bearer token). The context also implements **idle session timeout**: after `NEXT_PUBLIC_IDLE_TIMEOUT_MS` ms of inactivity (default 1 hour) the user is automatically signed out; a warning modal appears 60 s beforehand with "Stay Signed In" / "Sign Out Now" buttons. Activity events (`mousemove`, `keydown`, `pointerdown`, `scroll`, `touchstart`) reset the timer; events are ignored while the modal is open so the user must make an explicit choice. The `IdleWarningModal` component lives inside `AuthContext.tsx`.
 
 **DAM proxy:** `src/proxy.ts` rewrites `/api/dam/*` → `DAM_URL` (default `http://ullav-dam-server:8080`), stripping the `/api/dam` prefix. This must be checked before the generic `/api/*` rule. The `DamPicker` component from `@ullav/dam-picker` (source copied into `packages/dam-picker/` and referenced as `file:./packages/dam-picker` in `package.json` so it is inside the Docker build context; switch to a version number once published to GitHub Packages) uses `/api/dam` as its `apiBase` and requires a `username` prop so it can filter the category tree sidebar to the logged-in user's own categories and global ones.
@@ -153,8 +130,6 @@ Each user can own multiple family trees. One tree per user is designated **prima
 
 The export fetches persons via `listPersons`, then fetches each person's relationships **sequentially** (not `Promise.all`).
 
-**Backend concurrency:** The clann-server wraps its `Surreal<Any>` WebSocket connection in `Arc<tokio::sync::Mutex<DbConn>>`. All handlers acquire this mutex before querying, serialising all database access. This prevents "Connection uninitialised" / "Specify a namespace to use" errors that occur when concurrent Axum handlers interleave queries on the shared WebSocket connection.
-
 **Import:** `ImportTreeModal` calls `parseTreeExport` (in `src/lib/tree-import.ts`), which auto-detects the format:
 - If the JSON has a `persons` array → `parseFlatExport` (current format)
 - Otherwise → `parseTreeWalkExport` (legacy tree-walk format, preserved for backward compatibility)
@@ -170,8 +145,6 @@ Users with an eligible subscription (or admin role) can create a **team** and in
 - **Member** — read-only access to trees linked to the team. Write actions (edit person, delete person, add/remove relationships, upload photos) are hidden in the UI. The `ReadOnlyBanner` is shown at the top of the Family Members page and Person Detail page.
 
 **Shared-tree API calls:** When `activeTree.owner !== user.username`, `useApi` omits `created_by` from all read requests (`getPerson`, `getRelationships`, `getFamilyTree`, `listPersons`). This lets the backend use JWT-based team-membership access control instead of the per-user ownership filter (which would return 404 for another user's persons). Write operations keep the logged-in user's `created_by` and are blocked by the UI before reaching the backend.
-
-**ICU placeholder gotcha:** next-intl uses ICU message format. Single quotes are escape characters — `'{team}'` outputs the literal string `{team}`. Never wrap ICU placeholders in single quotes; leave them bare (`{team}`) or use typographic quotes if you need decorative quoting.
 
 **Team API endpoints (ullav-user-management, via `/auth-api/*` rewrite):**
 | Method | Path | Notes |
@@ -207,13 +180,6 @@ Users with an eligible subscription (or admin role) can create a **team** and in
 - **JSON string safety:** never use unescaped ASCII `"` (U+0022) inside translation string values — use `\"escaped\"` or typographic quotes instead. Typographic opening quotes like `„` (U+201E) are fine but their matching closing quote must not be a plain `"` or the JSON parser will terminate the string early.
 - **ICU single-quote escaping:** next-intl uses ICU message format, where single quotes are escape characters. `'{team}'` outputs the literal text `{team}` — it does NOT interpolate the value. Never wrap ICU placeholders (`{foo}`) in single quotes. Use typographic quotes (`'name'` → `'name'`) or drop the decorative quotes entirely.
 - **Key naming:** the confirmation prompt for removing a relationship is `personDetail.removeConfirm` (not `removeRelConfirm`).
-
-## Family Members page
-
-`/family` (card/list/pagination):
-- **Card view** (default): responsive grid of `PersonCard` components
-- **List view**: sortable table (family name, date of birth, place of birth); empty values sort last
-- **Pagination**: default 10 per page; page size selector (5/10/15/20/25/30); page resets to 1 on search, sort, or page-size change; ellipsised page number buttons
 
 ## Life Story tab
 
