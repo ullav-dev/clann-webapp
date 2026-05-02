@@ -649,7 +649,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
         {canUseDam && user && token && (
           <button
             onClick={() => {
-              const damUrl = process.env.NEXT_PUBLIC_DAM_BROWSER_URL ?? "https://comad.ullav.com";
+              const damUrl = (window as any).__ENV__?.DAM_BROWSER_URL ?? "https://comad.ullav.com";
               const session = encodeURIComponent(JSON.stringify({ token, user, roles }));
               window.open(`${damUrl}/${locale}/auth/sso?t=${session}`, "_blank", "noopener,noreferrer");
             }}

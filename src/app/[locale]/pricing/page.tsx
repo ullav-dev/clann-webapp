@@ -18,7 +18,7 @@ interface PlanDef {
 
 const PLANS: PlanDef[] = [
   { key: "individual" },
-  { key: "family" },
+  { key: "family", comingSoon: true },
   { key: "professional", comingSoon: true },
   { key: "enterprise", comingSoon: true },
 ];
@@ -204,9 +204,7 @@ function PlanCard({
             <span className="text-sm text-stone-400 mb-1">{t("perMonth")}</span>
           )}
         </div>
-        {plan === "family" && (
-          <p className="text-xs text-stone-400 mt-1">{t("familyPriceNote")}</p>
-        )}
+
         <p className="text-sm text-stone-500 mt-2">
           {t(`plans.${plan}.description`)}
         </p>

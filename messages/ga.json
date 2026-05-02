@@ -555,7 +555,7 @@
     "heading": "Roghnaigh do phlean Clann",
     "subheading": "Tosaigh saor in aisce agus uasghrádaigh de réir mar a fhásann do theaghlach. Triail 7 lá san áireamh le pleananna íoctha.",
     "perMonth": "/ mí",
-    "familyPriceNote": "Bunús: 2 shuíochán. +€2/mí in aghaidh an tsuíocháin bhreise.",
+    "familyPriceNote": "",
     "comingSoon": "Ag teacht go luath",
     "trialNote": "Áirítear triail 7 lá saor in aisce le pleananna Teaghlaigh agus Gairmiúil.",
     "learnMore": "Foghlaim tuilleadh",
@@ -585,11 +585,11 @@
       },
       "family": {
         "name": "Teaghlach / Foireann",
-        "price": "€5",
+        "price": "€6",
         "description": "Do theaghlaigh ag tógáil a staire le chéile.",
-        "cta": "Liostáil",
+        "cta": "Ag teacht go luath",
         "features": [
-          "2 – 10 suíochán úsáideora",
+          "Uasmhéid foirne: 5 bhall",
           "10 crann teaghlaigh",
           "Suas le 1,000 ball teaghlaigh",
           "5 GB stórála meáin",

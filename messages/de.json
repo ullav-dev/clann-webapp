@@ -555,7 +555,7 @@
     "heading": "Clann-Tarif wählen",
     "subheading": "Starten Sie kostenlos und wechseln Sie, wenn Ihre Familie wächst. Bezahlte Tarife mit 7-Tage-Testzeitraum.",
     "perMonth": "/ Monat",
-    "familyPriceNote": "Basis: 2 Plätze. +2 €/Monat je zusätzlichem Platz.",
+    "familyPriceNote": "",
     "comingSoon": "Demnächst",
     "trialNote": "Familien- und Professional-Tarife enthalten eine 7-tägige kostenlose Testphase.",
     "learnMore": "Mehr erfahren",
@@ -585,11 +585,11 @@
       },
       "family": {
         "name": "Familie / Team",
-        "price": "5 €",
+        "price": "6 €",
         "description": "Für Familien, die ihre Geschichte gemeinsam aufbauen.",
-        "cta": "Abonnieren",
+        "cta": "Demnächst verfügbar",
         "features": [
-          "2 – 10 Nutzerplätze",
+          "Maximale Teamgröße: 5 Mitglieder",
           "10 Stammbäume",
           "Bis zu 1.000 Familienmitglieder",
           "5 GB Medienspeicher",

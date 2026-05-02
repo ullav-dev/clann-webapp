@@ -555,7 +555,7 @@
     "heading": "Choose your Clann plan",
     "subheading": "Start free and upgrade when your family grows. 7-day trial included on paid plans.",
     "perMonth": "/ mo",
-    "familyPriceNote": "Base: 2 seats. +€2/mo per extra seat.",
+    "familyPriceNote": "",
     "comingSoon": "Coming Soon",
     "trialNote": "Family and Professional plans include a 7-day free trial — no charge until the trial ends.",
     "learnMore": "Learn more",
@@ -585,11 +585,11 @@
       },
       "family": {
         "name": "Family / Team",
-        "price": "€5",
+        "price": "€6",
         "description": "For families building their history together.",
-        "cta": "Subscribe",
+        "cta": "Coming Soon",
         "features": [
-          "2 – 10 user seats",
+          "Maximum Team Size 5 members",
           "10 family trees",
           "Up to 1,000 family members",
           "5 GB media storage",

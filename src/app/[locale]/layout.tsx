@@ -45,6 +45,9 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `window.__ENV__=${JSON.stringify({ DAM_BROWSER_URL: process.env.DAM_BROWSER_URL ?? "https://comad.ullav.com" })}` }} />
+      </head>
       <body className={`${geist.className} bg-stone-50 text-stone-900 min-h-screen`}>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
