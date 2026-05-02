@@ -556,6 +556,7 @@
     "subheading": "Starten Sie kostenlos und wechseln Sie, wenn Ihre Familie wächst. Bezahlte Tarife mit 7-Tage-Testzeitraum.",
     "perMonth": "/ Monat",
     "familyPriceNote": "",
+    "professionalPriceNote": "pro Person / Monat",
     "comingSoon": "Demnächst",
     "trialNote": "Familien- und Professional-Tarife enthalten eine 7-tägige kostenlose Testphase.",
     "learnMore": "Mehr erfahren",
@@ -601,10 +602,10 @@
       "professional": {
         "name": "Professional",
         "price": "15 €",
-        "description": "Unbegrenzter Zugang für ernsthafte Forscher.",
+        "description": "Für ernsthafte Forscher und professionelle Genealogen.",
         "cta": "Demnächst verfügbar",
         "features": [
-          "Unbegrenzte Plätze",
+          "Bis zu 50 Teammitglieder",
           "Unbegrenzte Stammbäume",
           "Unbegrenzte Familienmitglieder",
           "50 GB Medienspeicher",

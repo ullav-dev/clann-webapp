@@ -556,6 +556,7 @@
     "subheading": "Tosaigh saor in aisce agus uasghrádaigh de réir mar a fhásann do theaghlach. Triail 7 lá san áireamh le pleananna íoctha.",
     "perMonth": "/ mí",
     "familyPriceNote": "",
+    "professionalPriceNote": "in aghaidh duine / mí",
     "comingSoon": "Ag teacht go luath",
     "trialNote": "Áirítear triail 7 lá saor in aisce le pleananna Teaghlaigh agus Gairmiúil.",
     "learnMore": "Foghlaim tuilleadh",
@@ -601,10 +602,10 @@
       "professional": {
         "name": "Gairmiúil",
         "price": "€15",
-        "description": "Rochtain gan teorainn do thaighdeoirí dáiríre.",
+        "description": "Do thaighdeoirí dáiríre agus geineolaeoirí gairmiúla.",
         "cta": "Ag teacht go luath",
         "features": [
-          "Suíocháin gan teorainn",
+          "Suas le 50 ball foirne",
           "Crainn teaghlaigh gan teorainn",
           "Baill teaghlaigh gan teorainn",
           "50 GB stórála meáin",
