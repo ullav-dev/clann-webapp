@@ -204,7 +204,9 @@ function PlanCard({
             <span className="text-sm text-stone-400 mb-1">{t("perMonth")}</span>
           )}
         </div>
-
+        {plan === "professional" && (
+          <p className="text-xs text-stone-400 mt-1">{t("professionalPriceNote")}</p>
+        )}
         <p className="text-sm text-stone-500 mt-2">
           {t(`plans.${plan}.description`)}
         </p>

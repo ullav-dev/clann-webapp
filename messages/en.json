@@ -556,6 +556,7 @@
     "subheading": "Start free and upgrade when your family grows. 7-day trial included on paid plans.",
     "perMonth": "/ mo",
     "familyPriceNote": "",
+    "professionalPriceNote": "per person / month",
     "comingSoon": "Coming Soon",
     "trialNote": "Family and Professional plans include a 7-day free trial — no charge until the trial ends.",
     "learnMore": "Learn more",
@@ -601,10 +602,10 @@
       "professional": {
         "name": "Professional",
         "price": "€15",
-        "description": "Unlimited access for serious researchers.",
+        "description": "For serious researchers and professional genealogists.",
         "cta": "Coming Soon",
         "features": [
-          "Unlimited seats",
+          "Up to 50 Team members",
           "Unlimited family trees",
           "Unlimited family members",
           "50 GB media storage",
