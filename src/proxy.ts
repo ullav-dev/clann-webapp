@@ -22,6 +22,13 @@ export function proxy(request: NextRequest) {
     );
   }
 
+  // Let file-upload endpoints be handled by Next.js Route Handlers.
+  // NextResponse.rewrite() runs in the Edge Runtime and doesn't properly stream
+  // multipart/form-data bodies, causing clann-server's parser to hang.
+  if (/^\/api\/persons\/[^/]+\/(?:image|life-image)$/.test(pathname)) {
+    return NextResponse.next();
+  }
+
   // Proxy /api/* → clann-server (keeps /api prefix).
   // API_URL is read at request time so it can be set via runtime env vars.
   if (pathname.startsWith("/api/")) {
