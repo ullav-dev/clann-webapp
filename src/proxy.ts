@@ -26,7 +26,12 @@ export function proxy(request: NextRequest) {
   // NextResponse.rewrite() runs in the Edge Runtime and doesn't properly stream
   // multipart/form-data bodies, causing clann-server's parser to hang.
   if (/^\/api\/persons\/[^/]+\/(?:image|life-image)$/.test(pathname)) {
+    console.log(`[middleware] upload exempt path=${pathname} te=${request.headers.get("transfer-encoding")} cl=${request.headers.get("content-length")}`);
     return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/api/persons/") && pathname.includes("/image")) {
+    console.log(`[middleware] image path DID NOT match regex: ${pathname}`);
   }
 
   // Proxy /api/* → clann-server (keeps /api prefix).
