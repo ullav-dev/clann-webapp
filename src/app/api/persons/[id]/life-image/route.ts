@@ -12,6 +12,7 @@ export async function POST(
 
   const headers = new Headers(request.headers);
   headers.delete("host");
+  headers.delete("transfer-encoding");
 
   const res = await fetch(upstream, {
     method: "POST",

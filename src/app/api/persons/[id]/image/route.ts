@@ -17,6 +17,10 @@ export async function POST(
 
   const headers = new Headers(request.headers);
   headers.delete("host");
+  // transfer-encoding is a hop-by-hop header managed by the Node.js runtime;
+  // forwarding it causes undici to throw UND_ERR_INVALID_ARG on chunked requests
+  // (e.g. browser HTTP/2 FormData uploads converted to chunked by Traefik).
+  headers.delete("transfer-encoding");
 
   const res = await fetch(upstream, {
     method: "POST",
