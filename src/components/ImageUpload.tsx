@@ -4,29 +4,45 @@ import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useApi } from "@/hooks/useApi";
 
-const MAX_BYTES = 3 * 1024 * 1024; // 3 MB
-const ACCEPTED = ["image/jpeg", "image/png"];
+const PROFILE_MAX_BYTES = 2 * 1024 * 1024;
+const PROFILE_ACCEPT = ["image/jpeg", "image/png"];
+const PROFILE_ACCEPT_LABEL = "JPEG or PNG";
 
 interface Props {
   personId: string;
   onUploaded: () => void;
   /** Override the upload function. When omitted, uploads to the profile image endpoint. */
   uploadFn?: (file: File) => Promise<void>;
+  /** MIME types to accept. Defaults to JPEG and PNG (profile image). */
+  accept?: string[];
+  /** Human-readable list of accepted formats shown in the UI. Defaults to "JPEG or PNG". */
+  acceptLabel?: string;
+  /** Maximum file size in bytes. Defaults to 2 MB (profile image). */
+  maxBytes?: number;
 }
 
-export default function ImageUpload({ personId, onUploaded, uploadFn }: Props) {
+export default function ImageUpload({
+  personId,
+  onUploaded,
+  uploadFn,
+  accept = PROFILE_ACCEPT,
+  acceptLabel = PROFILE_ACCEPT_LABEL,
+  maxBytes = PROFILE_MAX_BYTES,
+}: Props) {
   const api = useApi();
   const t = useTranslations("imageUpload");
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const maxMb = Math.round(maxBytes / (1024 * 1024));
+
   async function handleFile(file: File) {
-    if (!ACCEPTED.includes(file.type)) {
-      return setError(t("invalidType"));
+    if (!accept.includes(file.type)) {
+      return setError(t("invalidType", { types: acceptLabel }));
     }
-    if (file.size > MAX_BYTES) {
-      return setError(t("fileTooLarge"));
+    if (file.size > maxBytes) {
+      return setError(t("fileTooLarge", { maxMb }));
     }
     setError(null);
     setUploading(true);
@@ -63,14 +79,14 @@ export default function ImageUpload({ personId, onUploaded, uploadFn }: Props) {
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png"
+          accept={accept.join(",")}
           className="hidden"
           onChange={handleChange}
         />
         <p className="text-sm text-stone-500">
           {uploading ? t("uploading") : t("clickOrDrag")}
         </p>
-        <p className="text-xs text-stone-400 mt-1">{t("constraints")}</p>
+        <p className="text-xs text-stone-400 mt-1">{t("constraints", { types: acceptLabel, maxMb })}</p>
       </div>
       {error && (
         <p className="text-xs text-red-600">{error}</p>

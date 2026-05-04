@@ -282,9 +282,9 @@
   "imageUpload": {
     "clickOrDrag": "Foto hier klicken oder ablegen",
     "uploading": "Hochladen…",
-    "constraints": "JPEG oder PNG · max. 3 MB",
-    "invalidType": "Nur JPEG- oder PNG-Dateien werden akzeptiert.",
-    "fileTooLarge": "Die Datei darf maximal 3 MB groß sein.",
+    "constraints": "{types} · max. {maxMb} MB",
+    "invalidType": "Nur {types}-Dateien werden akzeptiert.",
+    "fileTooLarge": "Die Datei darf maximal {maxMb} MB groß sein.",
     "uploadFailed": "Hochladen fehlgeschlagen"
   },
   "trees": {
@@ -403,7 +403,7 @@
       "markdownTitle": "Markdown-Formatierung",
       "markdownBody": "Der Editor verwendet Markdown: # Überschrift 1, ## Überschrift 2, **fett**, *kursiv*, - Aufzählungsliste, 1. nummerierte Liste, [Linktext](url). Der Reiter Lebensgeschichte zeigt das fertige Ergebnis an.",
       "lifeImageTitle": "Bild für die Lebensgeschichte",
-      "lifeImageBody": "Ein größeres Porträt- oder Szenenbild kann dem Reiter Lebensgeschichte hinzugefügt werden. Öffnen Sie das Profil einer Person, gehen Sie zum Reiter Lebensgeschichte und klicken Sie auf '+ Bild für Lebensgeschichte hinzufügen' (oder bewegen Sie die Maus über das vorhandene Bild und klicken Sie auf Ändern). Ziehen Sie eine JPEG- oder PNG-Datei (bis zu 2 MB) in den Upload-Bereich. Das Bild erscheint oben links im Lebensgeschichte-Panel mit der Biografie rechts daneben.",
+      "lifeImageBody": "Ein größeres Porträt- oder Szenenbild kann dem Reiter Lebensgeschichte hinzugefügt werden. Öffnen Sie das Profil einer Person, gehen Sie zum Reiter Lebensgeschichte und klicken Sie auf '+ Bild für Lebensgeschichte hinzufügen' (oder bewegen Sie die Maus über das vorhandene Bild und klicken Sie auf Ändern). Ziehen Sie eine JPEG-, PNG-, GIF- oder WebP-Datei (bis zu 10 MB) in den Upload-Bereich. Das Bild erscheint oben links im Lebensgeschichte-Panel mit der Biografie rechts daneben.",
       "exportPdfTitle": "Als PDF exportieren",
       "exportPdfBody": "Klicken Sie auf die Schaltfläche 'Als PDF exportieren' oben im Reiter Lebensgeschichte, um den Druckdialog Ihres Browsers zu öffnen. Wählen Sie 'Als PDF speichern' (oder die entsprechende Option in Ihrem Browser), um eine formatierte PDF-Datei herunterzuladen. Die Datei wird nach der Person benannt. Das PDF enthält Name, Geburtsdaten, Lebensgeschichte-Bild und die vollständige Biografie.",
       "mediaLibraryTitle": "Bilder aus der Medienbibliothek einfügen",

@@ -352,6 +352,9 @@ export default function PersonDetailPage() {
                 personId={id}
                 uploadFn={(file) => api.uploadPersonLifeImage(id, file)}
                 onUploaded={() => { setShowLifeUpload(false); load(); }}
+                accept={["image/jpeg", "image/png", "image/gif", "image/webp"]}
+                acceptLabel="JPEG, PNG, GIF or WebP"
+                maxBytes={10 * 1024 * 1024}
               />
             </div>
           )}
