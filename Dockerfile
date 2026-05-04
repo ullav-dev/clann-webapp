@@ -33,5 +33,9 @@ USER nextjs
 EXPOSE 3001
 ENV PORT=3001
 ENV HOSTNAME=0.0.0.0
+# Increase the HTTP header size limit from 16 KB to 32 KB.
+# Real JWTs carrying roles/permissions/subscriptions/teams can exceed the default
+# and cause Node.js to reset the connection before Next.js middleware runs.
+ENV NODE_OPTIONS="--max-http-header-size=32768"
 
 CMD ["node", "server.js"]
