@@ -22,21 +22,14 @@ export async function POST(
   // (e.g. browser HTTP/2 FormData uploads converted to chunked by Traefik).
   headers.delete("transfer-encoding");
 
-  console.log(`[image-upload] POST id=${id} ct=${headers.get("content-type")?.slice(0, 40)} te=${request.headers.get("transfer-encoding")}`);
-  try {
-    const res = await fetch(upstream, {
-      method: "POST",
-      headers,
-      body: request.body,
-      // @ts-expect-error — duplex is required for streaming request bodies in Node.js fetch
-      duplex: "half",
-    });
-    console.log(`[image-upload] upstream responded ${res.status}`);
-    return new NextResponse(res.body, { status: res.status, headers: res.headers });
-  } catch (e) {
-    console.error(`[image-upload] fetch failed:`, e);
-    return new NextResponse(JSON.stringify({ error: "upstream fetch failed" }), { status: 502 });
-  }
+  const res = await fetch(upstream, {
+    method: "POST",
+    headers,
+    body: request.body,
+    // @ts-expect-error — duplex is required for streaming request bodies in Node.js fetch
+    duplex: "half",
+  });
+  return new NextResponse(res.body, { status: res.status, headers: res.headers });
 }
 
 export async function GET(
