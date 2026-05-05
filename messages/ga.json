@@ -346,7 +346,9 @@
       "step3Title": "Cuir daoine eile leis",
       "step3Body": "Tá d'iontráil féin sa chrann cheana féin. Cliceáil Duine a Chur Leis sa bharra nascleanúna chun comhaltaí teaghlaigh eile a chur leis. Líon isteach an céadainm, sloinne, agus inscne (riachtanach). Is féidir leat dátaí agus áiteanna breithe agus báis, beathaisnéis, agus grianghraf a chur leis más mian leat.",
       "step4Title": "Tóg caidrimh",
-      "step4Body": "Oscail próifíl duine agus téigh go dtí an tab Caidrimh. Cliceáil + Caidreamh a Chur Leis chun iad a nascadh mar Athair, Máthair, Deartháir/Deirfiúr, nó Céile duine eile i do chrann."
+      "step4Body": "Oscail próifíl duine agus téigh go dtí an tab Caidrimh. Cliceáil + Caidreamh a Chur Leis chun iad a nascadh mar Athair, Máthair, Deartháir/Deirfiúr, nó Céile duine eile i do chrann.",
+      "step5Title": "Úsáid 'Socraigh Teaghlach' le tosú go tapa",
+      "step5Body": "Ar leathanach próifíle duine ar bith, cliceáil an cnaipe 'Socraigh Teaghlach'. Roghnaigh an bhfuil tú ag iarraidh Athair, Máthair, deartháireacha agus deirfiúracha a chruthú — cruthaíonn Clann na daoine ionadacha go léir agus nascann sé gach caidreamh go huathoibríoch. Tic 'Pósta' chun caidreamh Céile agus imeachtaí saoil Pósta a chur leis do na tuismitheoirí."
     },
     "people": {
       "title": "Daoine a Bhainistiú",
@@ -368,7 +370,9 @@
       "filterTitle": "Scagadh cliste daoine",
       "filterBody": "Scagann an roghnóir daoine de réir gnéis chun na meaitseanna ábhartha amháin a thaispeáint: taispeánann Athair fir, taispeánann Máthair mná, taispeánann Deartháir fir, agus taispeánann Deirfiúr mná. Déanann sé seo níos éasca duine a aimsiú i dteaghlaigh mhóra.",
       "spouseTitle": "Dátaí céile",
-      "spouseBody": "Is féidir dátaí roghnach Ó agus Go a bheith ag caidrimh céile (téacs saorchineál, m.sh. \"1990\" nó \"2 Meitheamh 2001\"). Socraigh iad agus an caidreamh á chur leis, nó cuir in eagar iad go díreach sa tab Caidrimh."
+      "spouseBody": "Is féidir dátaí roghnach Ó agus Go a bheith ag caidrimh céile (téacs saorchineál, m.sh. \"1990\" nó \"2 Meitheamh 2001\"). Socraigh iad agus an caidreamh á chur leis, nó cuir in eagar iad go díreach sa tab Caidrimh.",
+      "setupFamilyTitle": "Socraigh Teaghlach — teaghlach iomlán a chruthú ar aon iarracht amháin",
+      "setupFamilyBody": "Cliceáil 'Socraigh Teaghlach' i mbarra gníomh próifíle duine. Seiceáil Athair agus/nó Máthair, agus úsáid na spinnéirí do dheartháireacha agus deirfiúracha. Nascann Clann gach deartháir/deirfiúr lena chéile agus leis na tuismitheoirí go huathoibríoch. Tic 'Pósta' chun caidreamh Céile agus imeachtaí saoil Pósta a chur leis do na tuismitheoirí. Leanann ainmneacha ionadacha an patrún 'Athair Ó Briain', 'Deartháir 1 Ó Briain' — is féidir leat na fíorainmneacha a chur isteach am ar bith."
     },
     "familyTree": {
       "title": "Crann Teaghlaigh",
@@ -412,7 +416,7 @@
     "lifeEvents": {
       "title": "Imeachtaí Saoil",
       "overviewTitle": "Cad iad Imeachtaí Saoil?",
-      "overviewBody": "Tá cluaisín Imeachtaí Saoil ag gach duine ar a leathanach próifíle. Taispeánann sé amlíne chróineolaíoch de mhóimintí suntasacha — breith, pósadh, céim, inimirce, seirbhís mhíleata, agus tuilleadh. Sórtáiltear imeachtaí de réir dáta; taispeántar imeachtaí gan dáta ag an deireadh.",
+      "overviewBody": "Tá cluaisín Imeachtaí Saoil ag gach duine ar a leathanach próifíle. Taispeánann sé amlíne chróineolaíoch de mhóimintí suntasacha — breith, pósadh, céim, inimirce, seirbhís mhíleata, agus tuilleadh. Sórtáiltear imeachtaí de réir dáta; taispeántar an imeacht Breithe ar dtús i gcónaí, fiú mura bhfuil dáta socraithe. Cruthaítear imeacht Breithe go huathoibríoch gach uair a chuirtear duine nua leis an gcrann.",
       "timelineTitle": "An amlíne a léamh",
       "timelineBody": "Taispeántar imeachtaí mar chártaí ar amlíne clé-cholúin, gach ceann le suaitheantas datha-íomhá a léiríonn cineál an imeachta. Roghnaítear an íomhá agus an dath go huathoibríoch: emerald do Bhreith, corcairghorm do Phósadh, gorm do Chéim, dearg do Sheirbhís Mhíleata, gormspéir d'Inimirce agus d'Eisimirce, ómra do Cholscaradh, agus liath do Bhás nó do chineálacha eile nó saincheaptha.",
       "addingTitle": "Imeacht a chur leis",

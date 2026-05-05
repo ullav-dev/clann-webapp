@@ -14,6 +14,7 @@ export default async function HelpPage() {
         { number: 2, title: t("gettingStarted.step2Title"), body: t("gettingStarted.step2Body") },
         { number: 3, title: t("gettingStarted.step3Title"), body: t("gettingStarted.step3Body") },
         { number: 4, title: t("gettingStarted.step4Title"), body: t("gettingStarted.step4Body") },
+        { number: 5, title: t("gettingStarted.step5Title"), body: t("gettingStarted.step5Body") },
       ],
     },
     {
@@ -36,6 +37,7 @@ export default async function HelpPage() {
         { title: t("relationships.parentTitle"), body: t("relationships.parentBody") },
         { title: t("relationships.filterTitle"), body: t("relationships.filterBody") },
         { title: t("relationships.spouseTitle"), body: t("relationships.spouseBody") },
+        { title: t("relationships.setupFamilyTitle"), body: t("relationships.setupFamilyBody") },
       ],
     },
     {

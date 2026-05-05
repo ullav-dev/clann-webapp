@@ -346,7 +346,9 @@
       "step3Title": "Add more people",
       "step3Body": "Your own entry is already in the tree. Click Add Person in the navigation bar to add other family members. Fill in the first name, family name, and sex (required). Optionally add birth and death dates and places, a biography, and a photo.",
       "step4Title": "Build relationships",
-      "step4Body": "Open a person's profile and go to the Relationships tab. Click + Add Relationship to link them as Father, Mother, Sibling, or Spouse of another person in your tree."
+      "step4Body": "Open a person's profile and go to the Relationships tab. Click + Add Relationship to link them as Father, Mother, Sibling, or Spouse of another person in your tree.",
+      "step5Title": "Use Setup Family to get started quickly",
+      "step5Body": "On any person's profile page, click the Setup Family button in the top action bar. Choose whether to create a Father, Mother, brothers, and sisters — Clann creates all the placeholder people and wires every relationship (and sibling-to-sibling links) automatically. Tick Married to also add a Spouse relationship and Marriage life events for the parents. You can then go back and fill in the real names and details for each person."
     },
     "people": {
       "title": "Managing People",
@@ -368,7 +370,9 @@
       "filterTitle": "Smart person filtering",
       "filterBody": "The person picker filters by sex to show only relevant matches: Father shows males, Mother shows females, Brother shows males, and Sister shows females. This makes it faster to find the right person in large families.",
       "spouseTitle": "Spouse dates",
-      "spouseBody": "Spouse relationships can carry optional From and To dates (free-form text, e.g. \"1990\" or \"2 June 2001\"). Set them when adding the relationship, or edit them inline in the Relationships tab."
+      "spouseBody": "Spouse relationships can carry optional From and To dates (free-form text, e.g. \"1990\" or \"2 June 2001\"). Set them when adding the relationship, or edit them inline in the Relationships tab.",
+      "setupFamilyTitle": "Setup Family — scaffold a whole family at once",
+      "setupFamilyBody": "Click Setup Family in the top action bar of any person's profile to open the Setup Family panel. Check Father and/or Mother to create placeholder parents, and use the Brothers and Sisters spinners to add siblings in one go. Clann automatically links every sibling to every other sibling and to the parents — you do not need to add those relationships individually. Tick Married to add a Spouse relationship between the parents and a Marriage life event on each parent's timeline. All placeholder names follow the pattern 'Father Smith', 'Brother 1 Smith', 'Sister 2 Smith' using the person's family name — go back and update them with real names at any time."
     },
     "familyTree": {
       "title": "Family Tree",
@@ -412,7 +416,7 @@
     "lifeEvents": {
       "title": "Life Events",
       "overviewTitle": "What are Life Events?",
-      "overviewBody": "Each person has a Life Events tab on their profile page. It shows a chronological timeline of significant moments — birth, marriage, graduation, immigration, military service, and more. Events are sorted by date; undated events appear at the end.",
+      "overviewBody": "Each person has a Life Events tab on their profile page. It shows a chronological timeline of significant moments — birth, marriage, graduation, immigration, military service, and more. Events are sorted by date; the Birth event is always shown first regardless of whether a date has been set. A Birth event is created automatically every time a new person is added to your tree.",
       "timelineTitle": "Reading the timeline",
       "timelineBody": "Events appear as cards on a left-spine timeline, each with a coloured icon badge that reflects the event type. The icon and colour are chosen automatically: emerald for Birth, violet for Marriage, blue for Graduation, red for Military service, sky for Immigration and Emigration, amber for Divorce, stone for Death, and grey for Other or custom types.",
       "addingTitle": "Adding an event",
