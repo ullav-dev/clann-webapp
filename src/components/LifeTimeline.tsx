@@ -63,7 +63,12 @@ function dateSortKey(date: string | null | undefined): number {
 }
 
 function sortedEvents(events: LifeEvent[]): LifeEvent[] {
-  return [...events].sort((a, b) => dateSortKey(a.date) - dateSortKey(b.date));
+  return [...events].sort((a, b) => {
+    // Birth always sorts first regardless of date
+    if (a.event_type === "Birth" && b.event_type !== "Birth") return -1;
+    if (b.event_type === "Birth" && a.event_type !== "Birth") return 1;
+    return dateSortKey(a.date) - dateSortKey(b.date);
+  });
 }
 
 // ─── known event types ────────────────────────────────────────────────────────

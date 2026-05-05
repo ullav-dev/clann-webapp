@@ -346,7 +346,9 @@
       "step3Title": "Weitere Personen hinzufügen",
       "step3Body": "Ihr eigener Eintrag ist bereits im Baum. Klicken Sie auf Person hinzufügen in der Navigationsleiste, um weitere Familienmitglieder hinzuzufügen. Füllen Sie Vorname, Familienname und Geschlecht (Pflichtfelder) aus. Optional können Sie Geburts- und Sterbedaten, Orte, eine Biografie und ein Foto hinzufügen.",
       "step4Title": "Beziehungen aufbauen",
-      "step4Body": "Öffnen Sie das Profil einer Person und gehen Sie zum Tab Beziehungen. Klicken Sie auf + Beziehung hinzufügen, um sie als Vater, Mutter, Geschwister oder Ehepartner einer anderen Person in Ihrem Baum zu verknüpfen."
+      "step4Body": "Öffnen Sie das Profil einer Person und gehen Sie zum Tab Beziehungen. Klicken Sie auf + Beziehung hinzufügen, um sie als Vater, Mutter, Geschwister oder Ehepartner einer anderen Person in Ihrem Baum zu verknüpfen.",
+      "step5Title": "Mit 'Familie einrichten' schnell starten",
+      "step5Body": "Klicken Sie auf der Profilseite einer Person auf 'Familie einrichten'. Wählen Sie, ob Vater, Mutter, Brüder und Schwestern erstellt werden sollen — Clann erstellt alle Platzhalter-Personen und verknüpft jede Beziehung automatisch. Aktivieren Sie 'Verheiratet', um eine Ehepartner-Beziehung und Heirats-Lebensereignisse für die Eltern hinzuzufügen."
     },
     "people": {
       "title": "Personen verwalten",
@@ -368,7 +370,9 @@
       "filterTitle": "Intelligente Personenfilterung",
       "filterBody": "Die Personenauswahl filtert nach Geschlecht, um nur passende Treffer anzuzeigen: Vater zeigt Männer, Mutter zeigt Frauen, Bruder zeigt Männer und Schwester zeigt Frauen. Das erleichtert die Suche in großen Familien.",
       "spouseTitle": "Ehe-Daten",
-      "spouseBody": "Ehebeziehungen können optionale Von- und Bis-Daten tragen (Freitext, z. B. '1990' oder '2. Juni 2001'). Setzen Sie sie beim Hinzufügen der Beziehung oder bearbeiten Sie sie direkt im Tab Beziehungen."
+      "spouseBody": "Ehebeziehungen können optionale Von- und Bis-Daten tragen (Freitext, z. B. '1990' oder '2. Juni 2001'). Setzen Sie sie beim Hinzufügen der Beziehung oder bearbeiten Sie sie direkt im Tab Beziehungen.",
+      "setupFamilyTitle": "Familie einrichten — eine ganze Familie auf einmal anlegen",
+      "setupFamilyBody": "Klicken Sie auf 'Familie einrichten' in der Aktionsleiste des Profils einer Person. Haken Sie Vater und/oder Mutter an, und verwenden Sie die Spinner für Brüder und Schwestern. Clann verknüpft alle Geschwister untereinander und mit den Eltern automatisch. Aktivieren Sie 'Verheiratet', um eine Ehepartner-Beziehung und Heirats-Lebensereignisse für beide Elternteile hinzuzufügen. Platzhalternamen folgen dem Muster 'Vater Müller', 'Bruder 1 Müller' — Sie können die echten Namen jederzeit nachtragen."
     },
     "familyTree": {
       "title": "Stammbaum",
@@ -412,7 +416,7 @@
     "lifeEvents": {
       "title": "Lebensereignisse",
       "overviewTitle": "Was sind Lebensereignisse?",
-      "overviewBody": "Jede Person hat auf ihrer Profilseite eine Registerkarte 'Lebensereignisse'. Sie zeigt eine chronologische Zeitleiste bedeutsamer Momente — Geburt, Heirat, Schulabschluss, Einwanderung, Militärdienst und mehr. Ereignisse werden nach Datum sortiert; Ereignisse ohne Datum erscheinen am Ende.",
+      "overviewBody": "Jede Person hat auf ihrer Profilseite eine Registerkarte 'Lebensereignisse'. Sie zeigt eine chronologische Zeitleiste bedeutsamer Momente — Geburt, Heirat, Schulabschluss, Einwanderung, Militärdienst und mehr. Ereignisse werden nach Datum sortiert; das Geburtsereignis wird immer zuerst angezeigt, unabhängig davon, ob ein Datum gesetzt wurde. Ein Geburtsereignis wird automatisch erstellt, wenn eine neue Person zum Baum hinzugefügt wird.",
       "timelineTitle": "Die Zeitleiste lesen",
       "timelineBody": "Ereignisse erscheinen als Karten auf einer linksseitigen Zeitleiste, jede mit einem farbigen Symbolabzeichen, das den Ereignistyp anzeigt. Symbol und Farbe werden automatisch gewählt: Smaragd für Geburt, Violett für Heirat, Blau für Abschluss, Rot für Militär, Himmelblau für Ein- und Auswanderung, Bernstein für Scheidung, Grau für Tod und Grau für Sonstiges oder benutzerdefinierte Typen.",
       "addingTitle": "Ein Ereignis hinzufügen",

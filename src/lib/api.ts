@@ -230,6 +230,17 @@ export const createLifeEvent = (personId: string, body: CreateLifeEvent): Promis
     body: JSON.stringify(body),
   });
 
+export async function createPersonWithBirthEvent(body: CreatePerson): Promise<Person> {
+  const person = await createPerson(body);
+  await createLifeEvent(rawId(person.id), {
+    name: "Birth",
+    event_type: "Birth",
+    date: body.date_of_birth ?? null,
+    created_by: body.created_by ?? undefined,
+  });
+  return person;
+}
+
 export const getLifeEvent = (eventId: string): Promise<LifeEvent> =>
   request(`/api/life-events/${rawEventId(eventId)}`);
 

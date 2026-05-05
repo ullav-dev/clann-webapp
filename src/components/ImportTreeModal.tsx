@@ -123,7 +123,7 @@ export default function ImportTreeModal({ onClose }: Props) {
       // Step 2: create all persons, build old→new ID map
       const idMap = new Map<string, string>();
       for (const person of parsed.persons) {
-        const created = await api.createPerson({
+        const created = await api.createPersonWithBirthEvent({
           first_name: person.first_name,
           family_name: person.family_name,
           sex: person.sex,
