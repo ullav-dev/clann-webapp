@@ -44,7 +44,7 @@ type NodeData = {
 
 // Per-role visual style
 const ROLE_STYLES: Record<Role, { border: string; bg: string; text: string; handle: string; minimap: string }> = {
-  root:    { border: "border-emerald-600", bg: "bg-emerald-50",  text: "text-emerald-800", handle: "!bg-emerald-500", minimap: "#059669" },
+  root:    { border: "border-emerald-700", bg: "bg-emerald-600", text: "text-white",        handle: "!bg-white",       minimap: "#059669" },
   father:  { border: "border-blue-400",    bg: "bg-blue-50",     text: "text-blue-800",    handle: "!bg-blue-400",    minimap: "#60a5fa" },
   mother:  { border: "border-rose-400",    bg: "bg-rose-50",     text: "text-rose-800",    handle: "!bg-rose-400",    minimap: "#fb7185" },
   child:   { border: "border-amber-400",   bg: "bg-amber-50",    text: "text-amber-800",   handle: "!bg-amber-400",   minimap: "#fbbf24" },
@@ -66,11 +66,23 @@ function PersonNode({ data }: NodeProps) {
 
   const hasTooltip = !!(d.dob || d.placeOfBirth || d.biography);
 
+  const isRoot = d.role === "root";
+
   return (
     <div className="group relative">
+      {/* Star badge — anchored to the card's top-right corner */}
+      {isRoot && (
+        <div className="absolute -top-2.5 -right-2.5 z-10 w-6 h-6 rounded-full bg-amber-400 border-2 border-white shadow-md flex items-center justify-center text-white text-[11px] leading-none select-none">
+          ★
+        </div>
+      )}
       <div
         onClick={() => router.push(`/persons/${rawId(d.id)}`)}
-        className={`cursor-pointer rounded-xl border-2 shadow-md px-4 py-3 w-[148px] text-center select-none transition-shadow hover:shadow-lg ${style.border} ${style.bg}`}
+        className={`cursor-pointer rounded-xl border-2 px-4 py-3 w-[148px] text-center select-none transition-shadow ${style.border} ${style.bg} ${
+          isRoot
+            ? "shadow-xl shadow-emerald-400/50 ring-2 ring-emerald-400 ring-offset-2 hover:shadow-2xl hover:shadow-emerald-400/60"
+            : "shadow-md hover:shadow-lg"
+        }`}
       >
         {/* Main-axis handles */}
         <Handle id="main-s" type="source" position={isH ? Position.Left   : Position.Bottom} className={style.handle} />
@@ -82,7 +94,7 @@ function PersonNode({ data }: NodeProps) {
         <div className="flex justify-center mb-2">
           {showImage ? (
             <div className={`relative w-14 h-14 rounded-full overflow-hidden ring-2 bg-stone-100 ${
-              d.role === "father" ? "ring-blue-200" : d.role === "mother" ? "ring-rose-200" : "ring-emerald-200"
+              isRoot ? "ring-white/70" : d.role === "father" ? "ring-blue-200" : d.role === "mother" ? "ring-rose-200" : "ring-emerald-200"
             }`}>
               <Image
                 src={imgSrc}
@@ -102,7 +114,7 @@ function PersonNode({ data }: NodeProps) {
         <div className={`font-semibold text-sm leading-tight ${style.text}`}>
           {d.name}
         </div>
-        {d.dob && <div className="text-xs text-stone-400 mt-1">b. {d.dob}</div>}
+        {d.dob && <div className={`text-xs mt-1 ${isRoot ? "text-emerald-100" : "text-stone-400"}`}>b. {d.dob}</div>}
       </div>
 
       {hasTooltip && (
