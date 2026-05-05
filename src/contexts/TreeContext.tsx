@@ -89,7 +89,7 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
                 );
               }
             } else {
-              await api.createPerson({
+              await api.createPersonWithBirthEvent({
                 first_name: firstName,
                 family_name: lastName,
                 sex: pending?.sex || "Male",

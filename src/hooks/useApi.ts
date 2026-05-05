@@ -41,7 +41,7 @@ export function useApi() {
     isSharedTree,
     listPersons: () => api.listPersons(readOwner, tree),
     createPerson: (body: CreatePerson) =>
-      api.createPerson({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),
+      api.createPersonWithBirthEvent({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),
     getPerson: (id: string) => api.getPerson(id, readOwner),
     updatePerson: (id: string, body: UpdatePerson) => api.updatePerson(id, body, createdBy),
     deletePerson: (id: string) => api.deletePerson(id, createdBy),
