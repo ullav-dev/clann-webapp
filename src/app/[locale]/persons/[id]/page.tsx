@@ -15,6 +15,7 @@ import { fullName } from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
 import ImageUpload from "@/components/ImageUpload";
 import AddRelationshipModal from "@/components/AddRelationshipModal";
+import SetupFamilyModal from "@/components/SetupFamilyModal";
 import LifeStoryPrintView from "@/components/LifeStoryPrintView";
 import LifeTimeline from "@/components/LifeTimeline";
 import ReadOnlyBanner from "@/components/ReadOnlyBanner";
@@ -44,6 +45,7 @@ export default function PersonDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddRel, setShowAddRel] = useState(false);
+  const [showSetupFamily, setShowSetupFamily] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [photoVersions, setPhotoVersions] = useState<Record<string, number>>({});
   const [showLifeUpload, setShowLifeUpload] = useState(false);
@@ -166,6 +168,12 @@ export default function PersonDetailPage() {
           </Link>
           {!readOnly && (
             <>
+              <button
+                onClick={() => setShowSetupFamily(true)}
+                className="border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              >
+                Setup Family
+              </button>
               <Link href={`/persons/${id}/edit`} className="border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors">{t("edit")}</Link>
               <button onClick={handleDelete} disabled={deleting} className="border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-60">
                 {deleting ? t("deleting") : t("delete")}
@@ -420,6 +428,14 @@ export default function PersonDetailPage() {
       )}
 
       {!readOnly && showAddRel && (<AddRelationshipModal personId={id} onDone={() => { setShowAddRel(false); load(); }} onClose={() => setShowAddRel(false)} />)}
+      {!readOnly && showSetupFamily && rels && (
+        <SetupFamilyModal
+          person={person}
+          existingRels={rels}
+          onDone={() => { setShowSetupFamily(false); load(); }}
+          onClose={() => setShowSetupFamily(false)}
+        />
+      )}
 
       <LifeStoryPrintView
         person={person}
