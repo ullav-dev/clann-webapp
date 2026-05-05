@@ -25,7 +25,7 @@ function TeamInviteInner() {
   useEffect(() => {
     if (!authLoading && !user) {
       const returnUrl = encodeURIComponent(`/${locale}/auth/team-invite${window.location.search}`);
-      router.push(`/${locale}/login?tab=register&returnUrl=${returnUrl}`);
+      router.push(`/${locale}/login?tab=login&returnUrl=${returnUrl}`);
     }
   }, [authLoading, user, locale, router]);
 
@@ -49,7 +49,13 @@ function TeamInviteInner() {
       await reload();
       setStatus("accepted");
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("acceptFailed"));
+      const msg = err instanceof Error ? err.message : "";
+      const isPermissions = /insufficient.permissions|forbidden|403/i.test(msg);
+      setError(
+        isPermissions
+          ? `This invitation was sent to a different email address. You are signed in as ${user?.email ?? user?.username}. Please sign in with the account that received the invitation.`
+          : (msg || t("acceptFailed"))
+      );
       setStatus("error");
     }
   }
@@ -107,6 +113,11 @@ function TeamInviteInner() {
         <h1 className="text-lg font-semibold text-stone-800">{t("inviteTitle")}</h1>
         <p className="text-stone-500 text-sm">{t("inviteBody")}</p>
       </div>
+
+      <p className="text-xs text-stone-400">
+        Signed in as <span className="font-medium text-stone-600">{user.email ?? user.username}</span>.
+        Make sure this matches the email address the invitation was sent to.
+      </p>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

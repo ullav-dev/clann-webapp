@@ -10,6 +10,7 @@ import PersonAvatar from "./PersonAvatar";
 
 interface Props {
   person: Person;
+  isRoot?: boolean;
   onDeleted?: (id: string) => void;
 }
 
@@ -21,7 +22,7 @@ export function fullName(p: { first_name: string; middle_name?: string | null; f
   return [p.first_name, p.middle_name, p.family_name].filter(Boolean).join(" ");
 }
 
-export default function PersonCard({ person, onDeleted }: Props) {
+export default function PersonCard({ person, isRoot = false, onDeleted }: Props) {
   const api = useApi();
   const t = useTranslations("family");
   const tPerson = useTranslations("personDetail");
@@ -41,17 +42,26 @@ export default function PersonCard({ person, onDeleted }: Props) {
   }
 
   return (
-    <div className="group relative rounded-xl border border-stone-200 bg-white shadow-sm hover:shadow-md hover:border-emerald-300 transition-all">
+    <div className={`group relative rounded-xl border-2 transition-all ${
+      isRoot
+        ? "border-emerald-700 bg-emerald-600 shadow-lg shadow-emerald-300/50 ring-2 ring-emerald-400 ring-offset-1 hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-400/60"
+        : "border-stone-200 bg-white shadow-sm hover:shadow-md hover:border-emerald-300"
+    }`}>
+      {isRoot && (
+        <div className="absolute -top-2.5 -right-2.5 z-10 w-6 h-6 rounded-full bg-amber-400 border-2 border-white shadow-md flex items-center justify-center text-white text-[11px] leading-none select-none">
+          ★
+        </div>
+      )}
       <Link
         href={`/persons/${rawId(person.id)}`}
         className="flex items-center gap-3 p-4 pr-12"
       >
-        <PersonAvatar person={person} size={44} />
+        <PersonAvatar person={person} size={44} className={isRoot ? "ring-2 ring-white/60" : ""} />
         <div className="min-w-0">
-          <p className="font-semibold text-stone-800 group-hover:text-emerald-700 transition-colors truncate">
+          <p className={`font-semibold transition-colors truncate ${isRoot ? "text-white" : "text-stone-800 group-hover:text-emerald-700"}`}>
             {fullName(person)}
           </p>
-          <p className="text-xs text-stone-500 mt-0.5">
+          <p className={`text-xs mt-0.5 ${isRoot ? "text-emerald-100" : "text-stone-500"}`}>
             {person.date_of_birth ? tPerson("bornPrefix", { date: person.date_of_birth }) : tPerson("birthDateUnknown")}
             {person.date_of_death ? ` · ${tPerson("diedPrefix", { date: person.date_of_death })}` : ""}
           </p>
@@ -62,7 +72,9 @@ export default function PersonCard({ person, onDeleted }: Props) {
         onClick={handleDelete}
         disabled={deleting}
         title={t("deletePersonTitle")}
-        className="absolute top-3 right-3 p-1.5 rounded-lg text-stone-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
+        className={`absolute top-3 right-3 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50 ${
+          isRoot ? "text-white/60 hover:text-red-300 hover:bg-red-900/30" : "text-stone-300 hover:text-red-500 hover:bg-red-50"
+        }`}
       >
         {deleting ? (
           <span className="text-xs">…</span>
