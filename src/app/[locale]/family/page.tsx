@@ -28,6 +28,7 @@ interface ListViewProps {
   sortDir: SortDir;
   onSort: (field: SortField) => void;
   onDeleted: (id: string) => void;
+  rootUsername?: string;
 }
 
 function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
@@ -35,7 +36,7 @@ function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
   return <span className="text-emerald-600 ml-1">{dir === "asc" ? "↑" : "↓"}</span>;
 }
 
-function ListView({ people, sortField, sortDir, onSort, onDeleted }: ListViewProps) {
+function ListView({ people, sortField, sortDir, onSort, onDeleted, rootUsername }: ListViewProps) {
   const api = useApi();
   const t = useTranslations("family");
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -74,30 +75,38 @@ function ListView({ people, sortField, sortDir, onSort, onDeleted }: ListViewPro
           </tr>
         </thead>
         <tbody className="divide-y divide-stone-100">
-          {people.map((p) => (
-            <tr key={p.id} className="hover:bg-stone-50 transition-colors group">
-              <td className="px-4 py-3">
-                <Link href={`/persons/${rawId(p.id)}`} className="flex items-center gap-3 group/link">
-                  <PersonAvatar person={p} size={36} />
-                  <span className="font-medium text-stone-800 group-hover/link:text-emerald-700 transition-colors">{fullName(p)}</span>
-                </Link>
-              </td>
-              <td className="px-4 py-3 text-stone-600">{p.family_name}</td>
-              <td className="px-4 py-3 text-stone-500">{p.date_of_birth ?? <span className="text-stone-300 italic">—</span>}</td>
-              <td className="px-4 py-3 text-stone-500">{p.place_of_birth ?? <span className="text-stone-300 italic">—</span>}</td>
-              <td className="px-4 py-3 text-stone-500 hidden sm:table-cell">{p.sex}</td>
-              <td className="px-4 py-3 text-right">
-                <button onClick={() => handleDelete(p)} disabled={deletingId === p.id} title={t("deletePersonTitle")}
-                  className="p-1.5 rounded-lg text-stone-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50">
-                  {deletingId === p.id ? <span className="text-xs">…</span> : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </button>
-              </td>
-            </tr>
-          ))}
+          {people.map((p) => {
+            const isRoot = p.username === rootUsername;
+            return (
+              <tr key={p.id} className={`transition-colors group ${isRoot ? "bg-emerald-50 hover:bg-emerald-100" : "hover:bg-stone-50"}`}>
+                <td className="px-4 py-3">
+                  <Link href={`/persons/${rawId(p.id)}`} className="flex items-center gap-3 group/link">
+                    <div className="relative shrink-0">
+                      <PersonAvatar person={p} size={36} />
+                      {isRoot && (
+                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-amber-400 border border-white shadow-sm flex items-center justify-center text-white text-[9px] leading-none">★</span>
+                      )}
+                    </div>
+                    <span className={`font-medium transition-colors ${isRoot ? "text-emerald-800 group-hover/link:text-emerald-600" : "text-stone-800 group-hover/link:text-emerald-700"}`}>{fullName(p)}</span>
+                  </Link>
+                </td>
+                <td className={`px-4 py-3 ${isRoot ? "text-emerald-700 font-medium" : "text-stone-600"}`}>{p.family_name}</td>
+                <td className={`px-4 py-3 ${isRoot ? "text-emerald-600" : "text-stone-500"}`}>{p.date_of_birth ?? <span className="text-stone-300 italic">—</span>}</td>
+                <td className={`px-4 py-3 ${isRoot ? "text-emerald-600" : "text-stone-500"}`}>{p.place_of_birth ?? <span className="text-stone-300 italic">—</span>}</td>
+                <td className={`px-4 py-3 hidden sm:table-cell ${isRoot ? "text-emerald-600" : "text-stone-500"}`}>{p.sex}</td>
+                <td className="px-4 py-3 text-right">
+                  <button onClick={() => handleDelete(p)} disabled={deletingId === p.id} title={t("deletePersonTitle")}
+                    className="p-1.5 rounded-lg text-stone-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50">
+                    {deletingId === p.id ? <span className="text-xs">…</span> : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -155,10 +164,23 @@ export default function FamilyPage() {
     setPage(1);
   }
 
+  const rootUsername = user?.username;
+
   const filtered = useMemo(() => {
     const matched = filterPersons(persons, search);
-    return view === "list" ? sortPersons(matched, sortField, sortDir) : matched;
-  }, [persons, search, view, sortField, sortDir]);
+    const sorted = view === "list" ? sortPersons(matched, sortField, sortDir) : matched;
+    // Card view: pin the logged-in user's own person to position 0 regardless of sort
+    if (view === "card" && rootUsername) {
+      const rootIdx = sorted.findIndex((p) => p.username === rootUsername);
+      if (rootIdx > 0) {
+        const result = [...sorted];
+        const [root] = result.splice(rootIdx, 1);
+        result.unshift(root);
+        return result;
+      }
+    }
+    return sorted;
+  }, [persons, search, view, sortField, sortDir, rootUsername]);
 
   const numPages = totalPages(filtered.length, pageSize);
   const safePage = Math.min(page, numPages);
@@ -278,12 +300,14 @@ export default function FamilyPage() {
             <PersonCard
               key={p.id}
               person={p}
+              isRoot={p.username === rootUsername}
               onDeleted={readOnly ? undefined : (id) => setPersons((prev) => prev.filter((x) => x.id !== id))}
             />
           ))}
         </div>
       ) : (
         <ListView people={paged} sortField={sortField} sortDir={sortDir} onSort={handleSort}
+          rootUsername={rootUsername}
           onDeleted={readOnly ? ((_id) => {}) : (id) => setPersons((prev) => prev.filter((x) => x.id !== id))} />
       )}
 
