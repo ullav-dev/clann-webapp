@@ -547,6 +547,7 @@ export default function ResearchPage() {
         <div className="bg-white rounded-xl border border-stone-200 p-6 flex flex-col gap-4">
           <h2 className="text-base font-semibold text-stone-800">{tCensus("title")}</h2>
           <CensusSearch
+            key={`${censusPersonName?.surname ?? ""}${censusPersonName?.forename ?? ""}`}
             initialForename={censusPersonName?.forename ?? ""}
             initialSurname={censusPersonName?.surname ?? ""}
           />
