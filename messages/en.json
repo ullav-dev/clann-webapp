@@ -746,6 +746,8 @@
     "noTreeTitle": "No family tree selected",
     "noTreeDescription": "Select a family tree to view research notes.",
     "wikiToggle": "Wikipedia",
+    "exploreToggle": "Explore",
+    "exploreTooltip": "Search historical records and external databases",
     "wikiSearchPlaceholder": "Search Wikipedia…",
     "wikiSearching": "Searching…",
     "wikiSearchFailed": "Wikipedia search failed. Check your connection.",

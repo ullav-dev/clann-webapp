@@ -746,6 +746,8 @@
     "noTreeTitle": "Gan crann teaghlaigh roghnaithe",
     "noTreeDescription": "Roghnaigh crann teaghlaigh chun nótaí taighde a fheiceáil.",
     "wikiToggle": "Vicipéid",
+    "exploreToggle": "Iniúchadh",
+    "exploreTooltip": "Taifid stairiúla agus bunachair sonraí seachtracha a chuardach",
     "wikiSearchPlaceholder": "Cuardaigh ar Vicipéid…",
     "wikiSearching": "Ag cuardach…",
     "wikiSearchFailed": "Theip ar chuardach Vicipéide. Seiceáil do nasc.",

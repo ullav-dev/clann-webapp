@@ -746,6 +746,8 @@
     "noTreeTitle": "Kein Stammbaum ausgewählt",
     "noTreeDescription": "Wählen Sie einen Stammbaum, um Forschungsnotizen anzuzeigen.",
     "wikiToggle": "Wikipedia",
+    "exploreToggle": "Erkunden",
+    "exploreTooltip": "Historische Quellen und externe Datenbanken durchsuchen",
     "wikiSearchPlaceholder": "Wikipedia durchsuchen…",
     "wikiSearching": "Suche läuft…",
     "wikiSearchFailed": "Wikipedia-Suche fehlgeschlagen. Verbindung prüfen.",
