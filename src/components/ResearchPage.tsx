@@ -159,6 +159,9 @@ function NoteEditor({ initial, token, username, onSaved, onCancel, saving, showS
           <span className="text-xs text-stone-600">
             {isShared ? `👥 ${t("sharedNote")}` : `🔒 ${t("privateNote")}`}
           </span>
+          <span className={`text-xs font-medium ${isShared ? "text-violet-500" : "text-stone-400"}`}>
+            {isShared ? t("clickToUnshare") : t("clickToShare")}
+          </span>
         </label>
       )}
 
