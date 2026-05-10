@@ -279,9 +279,9 @@ export default function ResearchPage() {
   // Note context injected into AI chat via "Dig deeper"
   const [aiNoteContext, setAiNoteContext] = useState<{ title: string; body: string } | null>(null);
 
-  // Folder state — "all" | "unfiled" | "shared-by-others" | folder ID string
+  // Folder state — "all" | "unfiled" | "shared-by-me" | "shared-by-others" | folder ID string
   const [folders, setFolders] = useState<ResearchFolder[]>([]);
-  const [activeFolder, setActiveFolder] = useState<"all" | "unfiled" | "shared-by-others" | string>("all");
+  const [activeFolder, setActiveFolder] = useState<"all" | "unfiled" | "shared-by-me" | "shared-by-others" | string>("all");
   const [allNotesRevealed, setAllNotesRevealed] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [sharedLastRefreshed, setSharedLastRefreshed] = useState<Date | null>(null);
@@ -430,22 +430,22 @@ export default function ResearchPage() {
     try {
       const data = await apiHook.listResearchNotes();
       setNotes(data);
-      if (activeFolder === "shared-by-others") setSharedLastRefreshed(new Date());
+      if (activeFolder === "shared-by-others" || activeFolder === "shared-by-me") setSharedLastRefreshed(new Date());
     } finally {
       setRefreshing(false);
     }
   }
 
-  // Auto-refresh every 60 s while "Shared with team" is the active folder.
+  // Auto-refresh every 60 s while a shared folder is active.
   useEffect(() => {
-    if (activeFolder !== "shared-by-others") return;
+    if (activeFolder !== "shared-by-others" && activeFolder !== "shared-by-me") return;
     setSharedLastRefreshed(new Date());
     const id = setInterval(() => { handleRefreshNotes(); }, 60_000);
     return () => clearInterval(id);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFolder]);
 
-  function selectFolder(id: "all" | "unfiled" | "shared-by-others" | string) {
+  function selectFolder(id: "all" | "unfiled" | "shared-by-me" | "shared-by-others" | string) {
     setActiveFolder(id);
     setSelectedId(null);
     setMode(null);
@@ -463,7 +463,8 @@ export default function ResearchPage() {
   async function handleCreate(title: string, description: string, body: string, isShared: boolean) {
     setSaving(true);
     try {
-      const folderId = activeFolder !== "all" && activeFolder !== "unfiled" ? activeFolder : null;
+      const virtualFolders = ["all", "unfiled", "shared-by-me", "shared-by-others"];
+      const folderId = !virtualFolders.includes(activeFolder) ? activeFolder : null;
       const payload: CreateResearchNote = {
         title,
         description: description || null,
@@ -786,34 +787,62 @@ export default function ResearchPage() {
               </button>
             ))}
 
-            {/* "Shared by team" virtual folder — only on team-linked trees */}
+            {/* "Shared with team" / "Shared by team" virtual folders — only on team-linked trees */}
             {apiHook.isTeamLinkedTree && (
-              <div className={`flex items-center gap-1 rounded-md transition-colors ${
-                activeFolder === "shared-by-others" ? "bg-violet-50" : "hover:bg-stone-100"
-              }`}>
-                <button
-                  onClick={() => selectFolder("shared-by-others")}
-                  className={`flex-1 text-left text-xs px-2 py-1.5 transition-colors ${
-                    activeFolder === "shared-by-others"
-                      ? "text-violet-700 font-medium"
-                      : "text-stone-600"
-                  }`}
-                >
-                  👥 {t("sharedByTeam")}
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleRefreshNotes(); }}
-                  disabled={refreshing}
-                  title={sharedLastRefreshed ? `${t("refresh")} · ${t("lastRefreshed")}: ${sharedLastRefreshed.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}` : t("refresh")}
-                  className={`shrink-0 mr-1 text-[10px] px-1.5 py-0.5 rounded-full border transition-colors disabled:opacity-40 ${
-                    activeFolder === "shared-by-others"
-                      ? "border-violet-200 text-violet-500 hover:bg-violet-100"
-                      : "border-stone-200 text-stone-400 hover:bg-stone-200"
-                  }`}
-                >
-                  {refreshing ? "⏳" : "↻"}
-                </button>
-              </div>
+              <>
+                <div className={`flex items-center gap-1 rounded-md transition-colors ${
+                  activeFolder === "shared-by-me" ? "bg-violet-50" : "hover:bg-stone-100"
+                }`}>
+                  <button
+                    onClick={() => selectFolder("shared-by-me")}
+                    className={`flex-1 text-left text-xs px-2 py-1.5 transition-colors ${
+                      activeFolder === "shared-by-me"
+                        ? "text-violet-700 font-medium"
+                        : "text-stone-600"
+                    }`}
+                  >
+                    📤 {t("sharedWithTeam")}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleRefreshNotes(); }}
+                    disabled={refreshing}
+                    title={sharedLastRefreshed ? `${t("refresh")} · ${t("lastRefreshed")}: ${sharedLastRefreshed.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}` : t("refresh")}
+                    className={`shrink-0 mr-1 text-[10px] px-1.5 py-0.5 rounded-full border transition-colors disabled:opacity-40 ${
+                      activeFolder === "shared-by-me"
+                        ? "border-violet-200 text-violet-500 hover:bg-violet-100"
+                        : "border-stone-200 text-stone-400 hover:bg-stone-200"
+                    }`}
+                  >
+                    {refreshing ? "⏳" : "↻"}
+                  </button>
+                </div>
+                <div className={`flex items-center gap-1 rounded-md transition-colors ${
+                  activeFolder === "shared-by-others" ? "bg-violet-50" : "hover:bg-stone-100"
+                }`}>
+                  <button
+                    onClick={() => selectFolder("shared-by-others")}
+                    className={`flex-1 text-left text-xs px-2 py-1.5 transition-colors ${
+                      activeFolder === "shared-by-others"
+                        ? "text-violet-700 font-medium"
+                        : "text-stone-600"
+                    }`}
+                  >
+                    👥 {t("sharedByTeam")}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleRefreshNotes(); }}
+                    disabled={refreshing}
+                    title={sharedLastRefreshed ? `${t("refresh")} · ${t("lastRefreshed")}: ${sharedLastRefreshed.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}` : t("refresh")}
+                    className={`shrink-0 mr-1 text-[10px] px-1.5 py-0.5 rounded-full border transition-colors disabled:opacity-40 ${
+                      activeFolder === "shared-by-others"
+                        ? "border-violet-200 text-violet-500 hover:bg-violet-100"
+                        : "border-stone-200 text-stone-400 hover:bg-stone-200"
+                    }`}
+                  >
+                    {refreshing ? "⏳" : "↻"}
+                  </button>
+                </div>
+              </>
             )}
 
             <hr className="border-stone-200 my-1" />
@@ -896,6 +925,7 @@ export default function ResearchPage() {
             ) : (() => {
               const filteredNotes =
                 activeFolder === "unfiled" ? topLevelNotes.filter((n) => !n.folder_id && n.created_by === user.username) :
+                activeFolder === "shared-by-me" ? topLevelNotes.filter((n) => n.is_shared && n.created_by === user.username) :
                 activeFolder === "shared-by-others" ? topLevelNotes.filter((n) => n.is_shared && n.created_by !== user.username) :
                 activeFolder !== "all" ? topLevelNotes.filter((n) => n.folder_id === activeFolder) :
                 topLevelNotes;

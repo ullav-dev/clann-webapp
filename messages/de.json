@@ -765,6 +765,7 @@
     "refresh": "Notizen aktualisieren",
     "lastRefreshed": "Zuletzt aktualisiert",
     "unfiled": "Nicht abgelegte Notizen",
+    "sharedWithTeam": "Mit Team geteilt",
     "sharedByTeam": "Vom Team geteilt",
     "newFolderPlaceholder": "Ordnername…",
     "renameFolder": "Ordner umbenennen",
