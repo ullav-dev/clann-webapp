@@ -11,6 +11,7 @@ import { useTree } from "@/contexts/TreeContext";
 import { useApi } from "@/hooks/useApi";
 import { DamPicker } from "@ullav/dam-picker";
 import type { PickedAsset } from "@ullav/dam-picker";
+import * as api from "@/lib/api";
 import type { ResearchFolder, ResearchNote, CreateResearchNote, UpdateResearchNote } from "@/lib/types";
 import WikipediaSearch from "@/components/WikipediaSearch";
 import CensusSearch from "@/components/CensusSearch";
@@ -278,6 +279,8 @@ export default function ResearchPage() {
   const [prefill, setPrefill] = useState<{ title: string; description: string; body: string } | null>(null);
   // Note context injected into AI chat via "Dig deeper"
   const [aiNoteContext, setAiNoteContext] = useState<{ title: string; body: string } | null>(null);
+  // Person name pre-fill for Census search (derived from aiPersonId URL param)
+  const [censusPersonName, setCensusPersonName] = useState<{ forename: string; surname: string } | null>(null);
 
   // Folder state — "all" | "unfiled" | "shared-by-me" | "shared-by-others" | folder ID string
   const [folders, setFolders] = useState<ResearchFolder[]>([]);
@@ -326,6 +329,14 @@ export default function ResearchPage() {
   // Auto-open AI panel when arriving from a person's detail page.
   useEffect(() => {
     if (aiPersonId) setMode("ai");
+  }, [aiPersonId]);
+
+  // Pre-fill Census form with the person's name when arriving from a person's detail page.
+  useEffect(() => {
+    if (!aiPersonId) return;
+    api.getPerson(aiPersonId).then((person) => {
+      setCensusPersonName({ forename: person.first_name, surname: person.family_name });
+    }).catch(() => {});
   }, [aiPersonId]);
 
   // Close Explore dropdown when clicking outside.
@@ -535,7 +546,10 @@ export default function ResearchPage() {
       return (
         <div className="bg-white rounded-xl border border-stone-200 p-6 flex flex-col gap-4">
           <h2 className="text-base font-semibold text-stone-800">{tCensus("title")}</h2>
-          <CensusSearch />
+          <CensusSearch
+            initialForename={censusPersonName?.forename ?? ""}
+            initialSurname={censusPersonName?.surname ?? ""}
+          />
         </div>
       );
     }
