@@ -270,6 +270,8 @@ export default function ResearchPage() {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mode, setMode] = useState<"view" | "create" | "edit" | "wikipedia" | "census" | "ai" | null>(null);
+  const [exploreOpen, setExploreOpen] = useState(false);
+  const exploreRef = useRef<HTMLDivElement>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   // Pre-fill state for "Save as Note" from Wikipedia
@@ -324,6 +326,17 @@ export default function ResearchPage() {
   useEffect(() => {
     if (aiPersonId) setMode("ai");
   }, [aiPersonId]);
+
+  // Close Explore dropdown when clicking outside.
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (exploreRef.current && !exploreRef.current.contains(e.target as Node)) {
+        setExploreOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   function handleSelect(id: string) {
     if (mode === "create") return;
@@ -662,17 +675,6 @@ export default function ResearchPage() {
             🤖 {tAi("toggle")}
           </button>
           <button
-            onClick={() => setMode(mode === "census" ? null : "census")}
-            title={tCensus("toggleTooltip")}
-            className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
-              mode === "census"
-                ? "bg-amber-600 text-white border-amber-600 hover:bg-amber-700"
-                : "bg-white text-stone-700 border-stone-300 hover:bg-stone-50"
-            }`}
-          >
-            📜 {tCensus("toggle")}
-          </button>
-          <button
             onClick={() => setMode(mode === "wikipedia" ? null : "wikipedia")}
             className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
               mode === "wikipedia"
@@ -682,6 +684,39 @@ export default function ResearchPage() {
           >
             🌐 {t("wikiToggle")}
           </button>
+          {/* Explore dropdown */}
+          <div ref={exploreRef} className="relative">
+            <button
+              onClick={() => setExploreOpen((o) => !o)}
+              title={t("exploreTooltip")}
+              className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
+                mode === "census"
+                  ? "bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800"
+                  : "bg-white text-stone-700 border-stone-300 hover:bg-stone-50"
+              }`}
+            >
+              🗂️ {t("exploreToggle")}
+              <svg className={`w-3.5 h-3.5 transition-transform ${exploreOpen ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+              </svg>
+            </button>
+            {exploreOpen && (
+              <div className="absolute right-0 mt-1.5 w-52 bg-white border border-stone-200 rounded-xl shadow-lg z-20 py-1 overflow-hidden">
+                <button
+                  onClick={() => { setMode(mode === "census" ? null : "census"); setExploreOpen(false); }}
+                  className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
+                    mode === "census"
+                      ? "bg-emerald-50 text-emerald-800 font-medium"
+                      : "text-stone-700 hover:bg-stone-50"
+                  }`}
+                >
+                  <span>📜</span>
+                  <span>{tCensus("toggle")}</span>
+                  {mode === "census" && <span className="ml-auto text-emerald-600 text-xs">✓</span>}
+                </button>
+              </div>
+            )}
+          </div>
           <button
             onClick={handleNewNote}
             className="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors text-sm"
