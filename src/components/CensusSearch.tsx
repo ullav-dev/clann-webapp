@@ -15,13 +15,14 @@ const IRISH_COUNTIES = [
   "Westmeath", "Wexford", "Wicklow",
 ];
 
-function buildSearchUrl(surname: string, forename: string, county: string): string {
+function buildSearchUrl(surname: string, firstName: string, county: string, townland: string): string {
   const params = new URLSearchParams();
-  if (surname.trim())  params.set("surname__icontains", surname.trim());
-  if (forename.trim()) params.set("forename__icontains", forename.trim());
-  if (county)          params.set("county", county);
+  if (surname.trim())   params.set("surname__icontains", surname.trim());
+  if (firstName.trim()) params.set("first_name__icontains", firstName.trim());
+  if (county)           params.set("county", county);
+  if (townland.trim())  params.set("townland__icontains", townland.trim());
   const qs = params.toString();
-  return qs ? `${CENSUS_RESULTS}?${qs}` : CENSUS_BASE;
+  return qs ? `${CENSUS_RESULTS}#${qs}` : CENSUS_BASE;
 }
 
 interface Props {
@@ -33,11 +34,12 @@ export default function CensusSearch({ initialSurname = "", initialForename = ""
   const t = useTranslations("census");
 
   const [surname, setSurname] = useState(initialSurname);
-  const [forename, setForename] = useState(initialForename);
+  const [firstName, setFirstName] = useState(initialForename);
   const [county, setCounty] = useState("");
+  const [townland, setTownland] = useState("");
 
-  const searchUrl = buildSearchUrl(surname, forename, county);
-  const hasQuery = !!(surname.trim() || forename.trim() || county);
+  const searchUrl = buildSearchUrl(surname, firstName, county, townland);
+  const hasQuery = !!(surname.trim() || firstName.trim() || county || townland.trim());
 
   return (
     <div className="flex flex-col gap-5">
@@ -86,8 +88,8 @@ export default function CensusSearch({ initialSurname = "", initialForename = ""
           <div className="flex-1 min-w-28">
             <label className="block text-xs text-stone-500 mb-1">{t("fieldForename")}</label>
             <input
-              value={forename}
-              onChange={(e) => setForename(e.target.value)}
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
               placeholder={t("fieldForenamePlaceholder")}
               className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
@@ -104,6 +106,15 @@ export default function CensusSearch({ initialSurname = "", initialForename = ""
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
+          </div>
+          <div className="flex-1 min-w-40">
+            <label className="block text-xs text-stone-500 mb-1">{t("fieldTownland")}</label>
+            <input
+              value={townland}
+              onChange={(e) => setTownland(e.target.value)}
+              placeholder={t("fieldTownlandPlaceholder")}
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            />
           </div>
         </div>
 
