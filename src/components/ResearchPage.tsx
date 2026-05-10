@@ -284,6 +284,7 @@ export default function ResearchPage() {
   const [activeFolder, setActiveFolder] = useState<"all" | "unfiled" | "shared-by-others" | string>("all");
   const [allNotesRevealed, setAllNotesRevealed] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [sharedLastRefreshed, setSharedLastRefreshed] = useState<Date | null>(null);
   const [creatingFolder, setCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [renamingFolderId, setRenamingFolderId] = useState<string | null>(null);
@@ -429,10 +430,20 @@ export default function ResearchPage() {
     try {
       const data = await apiHook.listResearchNotes();
       setNotes(data);
+      if (activeFolder === "shared-by-others") setSharedLastRefreshed(new Date());
     } finally {
       setRefreshing(false);
     }
   }
+
+  // Auto-refresh every 60 s while "Shared with team" is the active folder.
+  useEffect(() => {
+    if (activeFolder !== "shared-by-others") return;
+    setSharedLastRefreshed(new Date());
+    const id = setInterval(() => { handleRefreshNotes(); }, 60_000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFolder]);
 
   function selectFolder(id: "all" | "unfiled" | "shared-by-others" | string) {
     setActiveFolder(id);
@@ -777,16 +788,32 @@ export default function ResearchPage() {
 
             {/* "Shared by team" virtual folder — only on team-linked trees */}
             {apiHook.isTeamLinkedTree && (
-              <button
-                onClick={() => selectFolder("shared-by-others")}
-                className={`w-full text-left text-xs px-2 py-1.5 rounded-md transition-colors ${
-                  activeFolder === "shared-by-others"
-                    ? "bg-violet-50 text-violet-700 font-medium"
-                    : "text-stone-600 hover:bg-stone-100"
-                }`}
-              >
-                👥 {t("sharedByTeam")}
-              </button>
+              <div className={`flex items-center gap-1 rounded-md transition-colors ${
+                activeFolder === "shared-by-others" ? "bg-violet-50" : "hover:bg-stone-100"
+              }`}>
+                <button
+                  onClick={() => selectFolder("shared-by-others")}
+                  className={`flex-1 text-left text-xs px-2 py-1.5 transition-colors ${
+                    activeFolder === "shared-by-others"
+                      ? "text-violet-700 font-medium"
+                      : "text-stone-600"
+                  }`}
+                >
+                  👥 {t("sharedByTeam")}
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleRefreshNotes(); }}
+                  disabled={refreshing}
+                  title={sharedLastRefreshed ? `${t("refresh")} · ${t("lastRefreshed")}: ${sharedLastRefreshed.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}` : t("refresh")}
+                  className={`shrink-0 mr-1 text-[10px] px-1.5 py-0.5 rounded-full border transition-colors disabled:opacity-40 ${
+                    activeFolder === "shared-by-others"
+                      ? "border-violet-200 text-violet-500 hover:bg-violet-100"
+                      : "border-stone-200 text-stone-400 hover:bg-stone-200"
+                  }`}
+                >
+                  {refreshing ? "⏳" : "↻"}
+                </button>
+              </div>
             )}
 
             <hr className="border-stone-200 my-1" />
