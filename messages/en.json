@@ -765,6 +765,7 @@
     "refresh": "Refresh notes",
     "lastRefreshed": "Last refreshed",
     "unfiled": "Unfiled Notes",
+    "sharedWithTeam": "Shared with team",
     "sharedByTeam": "Shared by team",
     "newFolderPlaceholder": "Folder name…",
     "renameFolder": "Rename folder",
