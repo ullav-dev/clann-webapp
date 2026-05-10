@@ -164,12 +164,12 @@ export default function FamilyPage() {
     setPage(1);
   }
 
-  const rootUsername = user?.username;
+  const rootUsername = activeTree?.owner ?? user?.username;
 
   const filtered = useMemo(() => {
     const matched = filterPersons(persons, search);
     const sorted = view === "list" ? sortPersons(matched, sortField, sortDir) : matched;
-    // Card view: pin the logged-in user's own person to position 0 regardless of sort
+    // Card view: pin the tree owner's person to position 0 regardless of sort
     if (view === "card" && rootUsername) {
       const rootIdx = sorted.findIndex((p) => p.username === rootUsername);
       if (rootIdx > 0) {
