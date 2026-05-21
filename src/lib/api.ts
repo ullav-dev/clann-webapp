@@ -45,8 +45,10 @@ function withCreatedBy(path: string, createdBy?: string): string {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const isFormData = init?.body instanceof FormData;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    // Omit Content-Type for FormData — the browser must set it with the multipart boundary.
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(init?.headers as Record<string, string>),
   };
   if (_apiToken) headers["Authorization"] = `Bearer ${_apiToken}`;
@@ -98,6 +100,17 @@ export const setTreeTeam = (name: string, teamId: string | null): Promise<Family
     method: "PATCH",
     body: JSON.stringify({ team_id: teamId }),
   });
+
+export async function uploadTreeImage(name: string, file: File): Promise<void> {
+  const form = new FormData();
+  form.append("image", file);
+  await request(`/api/trees/${encodeURIComponent(name)}/image`, { method: "POST", body: form });
+}
+
+/** URL that serves the tree's avatar image directly (proxied through Next.js). */
+export function treeImageUrl(name: string): string {
+  return `/api/trees/${encodeURIComponent(name)}/image`;
+}
 
 // Person CRUD
 export const listPersons = (createdBy?: string, tree?: string): Promise<Person[]> => {

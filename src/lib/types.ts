@@ -9,6 +9,7 @@ export interface FamilyTree {
   owner: string; // username
   is_primary?: boolean;
   team_id?: string | null; // UUID of linked team, if any
+  image_path?: string | null; // tree avatar filename (e.g. coat of arms)
 }
 
 // ── Team types (ullav-user-management) ────────────────────────────────────────

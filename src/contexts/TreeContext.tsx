@@ -15,6 +15,7 @@ interface TreeState {
   renameTree: (name: string, displayName: string) => Promise<void>;
   deleteTree: (name: string) => Promise<void>;
   setPrimaryTree: (name: string) => Promise<void>;
+  refreshTree: (name: string) => Promise<void>;
 }
 
 const TreeContext = createContext<TreeState>({
@@ -27,6 +28,7 @@ const TreeContext = createContext<TreeState>({
   renameTree: async () => { throw new Error("TreeProvider not mounted"); },
   deleteTree: async () => { throw new Error("TreeProvider not mounted"); },
   setPrimaryTree: async () => { throw new Error("TreeProvider not mounted"); },
+  refreshTree: async () => { throw new Error("TreeProvider not mounted"); },
 });
 
 const STORAGE_KEY = "clann_active_tree";
@@ -180,8 +182,16 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const refreshTree = useCallback(async (name: string): Promise<void> => {
+    const updated = await api.getTree(name);
+    setTrees((prev) => prev.map((t) => t.name === name ? updated : t));
+    if (activeTree?.name === name) {
+      setActiveTreeState(updated);
+    }
+  }, [activeTree]);
+
   return (
-    <TreeContext.Provider value={{ trees, activeTree, isLoading, initError, setActiveTree, createTree, renameTree, deleteTree, setPrimaryTree }}>
+    <TreeContext.Provider value={{ trees, activeTree, isLoading, initError, setActiveTree, createTree, renameTree, deleteTree, setPrimaryTree, refreshTree }}>
       {children}
     </TreeContext.Provider>
   );
