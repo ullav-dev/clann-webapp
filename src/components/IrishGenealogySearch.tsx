@@ -280,7 +280,12 @@ export default function IrishGenealogySearch({
         <div className="absolute inset-0 opacity-10"
           style={{ backgroundImage: "radial-gradient(circle at 70% 50%, #fff 0%, transparent 60%)" }} />
         <div className="relative px-5 py-5 flex items-center gap-4">
-          <div className="text-4xl select-none">🍀</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://www.irishgenealogy.ie/app/uploads/2022/01/cropped-IrishGenealogy-logo-192x192.png"
+            alt="Irish Genealogy"
+            className="w-12 h-12 object-contain flex-shrink-0 drop-shadow"
+          />
           <div>
             <h3 className="text-white font-bold text-base leading-snug drop-shadow">
               {t("heroTitle")}

@@ -767,7 +767,8 @@ export default function ResearchPage() {
                       : "text-stone-700 hover:bg-stone-50"
                   }`}
                 >
-                  <span>🍀</span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="https://www.irishgenealogy.ie/app/uploads/2022/01/cropped-IrishGenealogy-logo-32x32.png" alt="" className="w-4 h-4 object-contain" />
                   <span>{tIrishGenealogy("toggle")}</span>
                   {mode === "irishGenealogy" && <span className="ml-auto text-emerald-600 text-xs">✓</span>}
                 </button>
