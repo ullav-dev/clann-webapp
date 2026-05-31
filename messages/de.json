@@ -296,6 +296,7 @@
     "primary": "Primär",
     "setPrimaryTitle": "Als primären Baum festlegen",
     "setPrimaryFailed": "Primären Baum konnte nicht festgelegt werden",
+    "settingsTitle": "Baumeinstellungen",
     "renameTitle": "Diesen Baum umbenennen",
     "renameFailed": "Umbenennen fehlgeschlagen",
     "deleteTitle": "Diesen Baum löschen",
@@ -961,5 +962,15 @@
     "notesShort": "Notizen",
     "unlimited": "Unbegrenzt",
     "upgrade": "Pläne ansehen"
+  },
+  "treeSettings": {
+    "title": "Baumeinstellungen",
+    "close": "Schließen",
+    "avatarLabel": "Baum-Avatar",
+    "avatarHint": "Laden Sie ein Wappen, ein Siegel oder ein beliebiges Bild hoch. JPG oder PNG, bis zu 2 MB.",
+    "displayNameLabel": "Anzeigename",
+    "save": "Speichern",
+    "saving": "Speichern…",
+    "uploadFailed": "Upload fehlgeschlagen"
   }
 }

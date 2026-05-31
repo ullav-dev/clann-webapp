@@ -296,6 +296,7 @@
     "primary": "Primary",
     "setPrimaryTitle": "Set as primary tree",
     "setPrimaryFailed": "Failed to set primary tree",
+    "settingsTitle": "Tree settings",
     "renameTitle": "Rename this tree",
     "renameFailed": "Rename failed",
     "deleteTitle": "Delete this tree",
@@ -961,5 +962,15 @@
     "notesShort": "Notes",
     "unlimited": "Unlimited",
     "upgrade": "View plans"
+  },
+  "treeSettings": {
+    "title": "Tree Settings",
+    "close": "Close",
+    "avatarLabel": "Tree Avatar",
+    "avatarHint": "Upload a coat of arms, crest, or any image to represent this tree. JPG or PNG, up to 2 MB.",
+    "displayNameLabel": "Display Name",
+    "save": "Save",
+    "saving": "Saving…",
+    "uploadFailed": "Upload failed"
   }
 }

@@ -296,6 +296,7 @@
     "primary": "Príomha",
     "setPrimaryTitle": "Socraigh mar phríomhchrann",
     "setPrimaryFailed": "Theip ar shocrú an phríomhchrainn",
+    "settingsTitle": "Socruithe crainn",
     "renameTitle": "Athainmnigh an crann seo",
     "renameFailed": "Theip ar an athainmniú",
     "deleteTitle": "Scrios an crann seo",
@@ -961,5 +962,15 @@
     "notesShort": "Nótaí",
     "unlimited": "Gan teorainn",
     "upgrade": "Féach ar phleananna"
+  },
+  "treeSettings": {
+    "title": "Socruithe Crainn",
+    "close": "Dún",
+    "avatarLabel": "Íomhá an Chrainn",
+    "avatarHint": "Uaslódáil armas, suaitheantas nó íomhá ar bith eile. JPG nó PNG, suas le 2 MB.",
+    "displayNameLabel": "Ainm Taispeána",
+    "save": "Sábháil",
+    "saving": "Ag sábháil…",
+    "uploadFailed": "Theip ar an uaslódáil"
   }
 }
