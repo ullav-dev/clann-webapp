@@ -1,0 +1,567 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
+import type {
+  IrishGenealogyRecord,
+  IrishGenealogySearchResponse,
+} from "@/app/api/irish-genealogy/search/route";
+import type { IrishGenealogyRecordDetail } from "@/app/api/irish-genealogy/record/route";
+
+// ── Constants ───────────────────────────────────────────────────────────────
+
+const SITE_URL = "https://www.irishgenealogy.ie";
+
+const COUNTIES = [
+  "Co. Antrim", "Co. Armagh", "Co. Carlow", "Co. Cavan", "Co. Clare",
+  "Co. Cork", "Co. Derry", "Co. Donegal", "Co. Down", "Co. Dublin",
+  "Co. Fermanagh", "Co. Galway", "Co. Kerry", "Co. Kildare", "Co. Kilkenny",
+  "Co. Laois", "Co. Leitrim", "Co. Limerick", "Co. Longford", "Co. Louth",
+  "Co. Mayo", "Co. Meath", "Co. Monaghan", "Co. Offaly", "Co. Roscommon",
+  "Co. Sligo", "Co. Tipperary", "Co. Tyrone", "Co. Waterford",
+  "Co. Westmeath", "Co. Wexford", "Co. Wicklow",
+];
+
+const EVENT_TYPES = [
+  { id: "birth",    label: "Birth",    emoji: "🌱", civil: true,  church: false },
+  { id: "marriage", label: "Marriage", emoji: "💍", civil: true,  church: true  },
+  { id: "death",    label: "Death",    emoji: "🕊️", civil: true,  church: false },
+  { id: "baptism",  label: "Baptism",  emoji: "✝️", civil: false, church: true  },
+  { id: "burial",   label: "Burial",   emoji: "⛪", civil: false, church: true  },
+] as const;
+
+const RECORD_TYPE_STYLES: Record<IrishGenealogyRecord["recordType"], {
+  bg: string; text: string; border: string; emoji: string;
+}> = {
+  birth:    { bg: "bg-emerald-50", text: "text-emerald-800", border: "border-emerald-200", emoji: "🌱" },
+  marriage: { bg: "bg-violet-50",  text: "text-violet-800",  border: "border-violet-200",  emoji: "💍" },
+  death:    { bg: "bg-stone-50",   text: "text-stone-700",   border: "border-stone-200",   emoji: "🕊️" },
+  baptism:  { bg: "bg-sky-50",     text: "text-sky-800",     border: "border-sky-200",     emoji: "✝️" },
+  burial:   { bg: "bg-amber-50",   text: "text-amber-800",   border: "border-amber-200",   emoji: "⛪" },
+};
+
+// ── Sub-components ───────────────────────────────────────────────────────────
+
+function RecordCard({ record, initialName }: { record: IrishGenealogyRecord; initialName?: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [detail, setDetail] = useState<IrishGenealogyRecordDetail | null>(null);
+  const [loading, setLoading] = useState(false);
+  const style = RECORD_TYPE_STYLES[record.recordType];
+
+  const loadDetail = useCallback(async () => {
+    if (detail || loading) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/irish-genealogy/record?id=${encodeURIComponent(record.recordId)}`);
+      if (res.ok) setDetail(await res.json());
+    } finally {
+      setLoading(false);
+    }
+  }, [detail, loading, record.recordId]);
+
+  const handleExpand = () => {
+    if (!expanded) loadDetail();
+    setExpanded((v) => !v);
+  };
+
+  const hasImages = detail && detail.imageLinks.length > 0;
+
+  return (
+    <div className={`rounded-xl border ${style.border} ${style.bg} overflow-hidden`}>
+      {/* Card header */}
+      <div className="flex items-start gap-3 p-3">
+        <span className="text-xl mt-0.5 flex-shrink-0">{style.emoji}</span>
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm font-semibold leading-snug ${style.text}`}>
+            {record.title}
+          </p>
+          {/* Key fields inline */}
+          <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5">
+            {Object.entries(record.fields).map(([k, v]) => (
+              <span key={k} className="text-xs text-stone-600">
+                <span className="text-stone-400">{k}:</span> {v}
+              </span>
+            ))}
+          </div>
+          {/* Civil/church badge */}
+          <span className={`mt-1.5 inline-block text-xs px-2 py-0.5 rounded-full font-medium
+            ${record.civilOrChurch === "civil"
+              ? "bg-blue-100 text-blue-700"
+              : "bg-amber-100 text-amber-700"}`}>
+            {record.civilOrChurch === "civil" ? "Civil record" : "Church record"}
+          </span>
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-col gap-1 flex-shrink-0">
+          <a
+            href={record.viewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs bg-white border border-stone-200 hover:border-stone-400 text-stone-700 font-medium px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
+          >
+            View record ↗
+          </a>
+          <button
+            onClick={handleExpand}
+            className="inline-flex items-center gap-1 text-xs bg-white border border-stone-200 hover:border-stone-400 text-stone-700 font-medium px-2.5 py-1 rounded-lg transition-colors"
+          >
+            {loading ? (
+              <span className="inline-block w-3 h-3 border-2 border-stone-400 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              "📄"
+            )}
+            {expanded ? "Close" : "Images"}
+          </button>
+        </div>
+      </div>
+
+      {/* Expanded detail / image panel */}
+      {expanded && (
+        <div className="border-t border-stone-200 bg-white/60 px-4 py-3">
+          {loading && (
+            <p className="text-xs text-stone-400 italic">Loading record detail…</p>
+          )}
+          {!loading && detail && (
+            <>
+              {/* Extra fields not already shown */}
+              {Object.keys(detail.fields).length > 0 && (
+                <div className="mb-3 grid grid-cols-2 gap-x-4 gap-y-1">
+                  {Object.entries(detail.fields).map(([k, v]) => (
+                    <div key={k} className="text-xs">
+                      <span className="text-stone-400">{k}: </span>
+                      <span className="text-stone-700 font-medium">{v}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {hasImages ? (
+                <>
+                  <p className="text-xs font-medium text-stone-600 mb-2">Original record images:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {detail.imageLinks.map((img, idx) => (
+                      <a
+                        key={idx}
+                        href={img.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs bg-amber-50 border border-amber-200 hover:border-amber-400 text-amber-800 font-medium px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        📜 {img.label}
+                      </a>
+                    ))}
+                  </div>
+                  <p className="text-xs text-stone-400 mt-2">
+                    Images hosted on{" "}
+                    <a href={SITE_URL} target="_blank" rel="noopener noreferrer" className="underline">
+                      irishgenealogy.ie
+                    </a>
+                  </p>
+                </>
+              ) : (
+                <p className="text-xs text-stone-400 italic">
+                  No digitised images available for this record.
+                </p>
+              )}
+            </>
+          )}
+          {!loading && !detail && (
+            <p className="text-xs text-stone-400 italic">Could not load record detail.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main component ───────────────────────────────────────────────────────────
+
+interface Props {
+  initialSurname?: string;
+  initialForename?: string;
+}
+
+export default function IrishGenealogySearch({
+  initialSurname = "",
+  initialForename = "",
+}: Props) {
+  const t = useTranslations("irishGenealogy");
+
+  // Form state
+  const [firstname, setFirstname] = useState(initialForename);
+  const [lastname, setLastname] = useState(initialSurname);
+  const [recordSource, setRecordSource] = useState<"all" | "civil" | "church">("all");
+  const [selectedEvents, setSelectedEvents] = useState<Set<string>>(
+    new Set(["birth", "marriage", "death", "baptism", "burial"])
+  );
+  const [county, setCounty] = useState("");
+  const [yearStart, setYearStart] = useState("");
+  const [yearEnd, setYearEnd] = useState("");
+
+  // Result state
+  const [results, setResults] = useState<IrishGenealogySearchResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const toggleEvent = (id: string) => {
+    setSelectedEvents((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        if (next.size === 1) return prev; // keep at least one
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  // Filter available event types based on record source
+  const availableEvents = EVENT_TYPES.filter((e) => {
+    if (recordSource === "civil") return e.civil;
+    if (recordSource === "church") return e.church;
+    return true;
+  });
+
+  const doSearch = useCallback(async (pg = 1) => {
+    setLoading(true);
+    setError(null);
+    setCurrentPage(pg);
+
+    const params = new URLSearchParams();
+    if (firstname) params.set("firstname", firstname);
+    if (lastname) params.set("lastname", lastname);
+    params.set("recordSource", recordSource);
+    params.set("events", [...selectedEvents].join(","));
+    if (county) params.set("location", county);
+    if (yearStart) params.set("yearStart", yearStart);
+    if (yearEnd) params.set("yearEnd", yearEnd);
+    if (pg > 1) params.set("pg", String(pg));
+
+    try {
+      const res = await fetch(`/api/irish-genealogy/search?${params}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Search failed");
+      setResults(data);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setLoading(false);
+    }
+  }, [firstname, lastname, recordSource, selectedEvents, county, yearStart, yearEnd]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    doSearch(1);
+  };
+
+  // Build the direct link to the search on irishgenealogy.ie
+  const buildDirectUrl = () => {
+    const p = new URLSearchParams();
+    if (firstname) p.set("firstname", firstname);
+    if (lastname) p.set("lastname", lastname);
+    p.set("church-or-civil", recordSource);
+    if (county) p.set("location", county);
+    if (yearStart) p.set("yearStart", yearStart);
+    if (yearEnd) p.set("yearEnd", yearEnd);
+    for (const ev of selectedEvents) p.set(`event-${ev}`, "1");
+    return `${SITE_URL}/search/?${p.toString()}`;
+  };
+
+  const hasQuery = !!(firstname.trim() || lastname.trim() || county);
+
+  // Pagination helpers
+  const totalPages = results?.totalPages ?? 1;
+  const showPagination = totalPages > 1;
+  const pageWindow = Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+    if (totalPages <= 7) return i + 1;
+    if (currentPage <= 4) return i + 1;
+    if (currentPage >= totalPages - 3) return totalPages - 6 + i;
+    return currentPage - 3 + i;
+  });
+
+  return (
+    <div className="flex flex-col gap-5">
+
+      {/* ── Hero ── */}
+      <div className="relative rounded-xl overflow-hidden" style={{ background: "linear-gradient(135deg, #2d4a1e 0%, #4a6741 40%, #979f1c 100%)" }}>
+        <div className="absolute inset-0 opacity-10"
+          style={{ backgroundImage: "radial-gradient(circle at 70% 50%, #fff 0%, transparent 60%)" }} />
+        <div className="relative px-5 py-5 flex items-center gap-4">
+          <div className="text-4xl select-none">🍀</div>
+          <div>
+            <h3 className="text-white font-bold text-base leading-snug drop-shadow">
+              {t("heroTitle")}
+            </h3>
+            <p className="text-green-100 text-xs mt-0.5 drop-shadow">
+              {t("heroSubtitle")}
+            </p>
+          </div>
+          <a
+            href={SITE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto flex-shrink-0 text-xs text-green-100 hover:text-white underline underline-offset-2"
+          >
+            irishgenealogy.ie ↗
+          </a>
+        </div>
+      </div>
+
+      {/* ── What's available chips ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        {(t.raw("contentItems") as string[]).map((item: string) => (
+          <div key={item} className="flex items-center gap-1.5 text-xs text-stone-600 bg-green-50 border border-green-100 rounded-lg px-3 py-1.5">
+            <span className="text-green-600">•</span> {item}
+          </div>
+        ))}
+      </div>
+
+      {/* ── Search form ── */}
+      <form onSubmit={handleSubmit} className="bg-stone-50 rounded-xl border border-stone-200 p-4 space-y-4">
+
+        {/* Name row */}
+        <div className="flex flex-wrap gap-3">
+          <div className="flex-1 min-w-28">
+            <label className="block text-xs text-stone-500 mb-1">{t("fieldFirstname")}</label>
+            <input
+              value={firstname}
+              onChange={(e) => setFirstname(e.target.value)}
+              placeholder={t("fieldFirstnamePlaceholder")}
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            />
+          </div>
+          <div className="flex-1 min-w-28">
+            <label className="block text-xs text-stone-500 mb-1">{t("fieldLastname")}</label>
+            <input
+              value={lastname}
+              onChange={(e) => setLastname(e.target.value)}
+              placeholder={t("fieldLastnamePlaceholder")}
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            />
+          </div>
+        </div>
+
+        {/* County + year range row */}
+        <div className="flex flex-wrap gap-3">
+          <div className="flex-1 min-w-40">
+            <label className="block text-xs text-stone-500 mb-1">{t("fieldCounty")}</label>
+            <div className="relative">
+              <select
+                value={county}
+                onChange={(e) => setCounty(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-stone-300 px-3 py-2 pr-8 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 bg-white"
+              >
+                <option value="">{t("allCounties")}</option>
+                {COUNTIES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-stone-400">
+                <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2 items-end">
+            <div>
+              <label className="block text-xs text-stone-500 mb-1">{t("yearFrom")}</label>
+              <input
+                type="number"
+                value={yearStart}
+                onChange={(e) => setYearStart(e.target.value)}
+                placeholder="e.g. 1850"
+                min="1600" max="2000"
+                className="w-24 rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-stone-500 mb-1">{t("yearTo")}</label>
+              <input
+                type="number"
+                value={yearEnd}
+                onChange={(e) => setYearEnd(e.target.value)}
+                placeholder="e.g. 1950"
+                min="1600" max="2000"
+                className="w-24 rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Record source tabs */}
+        <div>
+          <label className="block text-xs text-stone-500 mb-1.5">{t("recordSource")}</label>
+          <div className="inline-flex rounded-lg border border-stone-300 bg-white overflow-hidden text-sm">
+            {(["all", "civil", "church"] as const).map((src) => (
+              <button
+                key={src}
+                type="button"
+                onClick={() => setRecordSource(src)}
+                className={`px-3 py-1.5 font-medium transition-colors
+                  ${recordSource === src
+                    ? "bg-green-700 text-white"
+                    : "text-stone-600 hover:bg-stone-50"}`}
+              >
+                {t(`source_${src}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Event type checkboxes */}
+        <div>
+          <label className="block text-xs text-stone-500 mb-1.5">{t("eventTypes")}</label>
+          <div className="flex flex-wrap gap-2">
+            {availableEvents.map((ev) => {
+              const active = selectedEvents.has(ev.id);
+              return (
+                <button
+                  key={ev.id}
+                  type="button"
+                  onClick={() => toggleEvent(ev.id)}
+                  className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-colors
+                    ${active
+                      ? "bg-green-700 border-green-700 text-white"
+                      : "bg-white border-stone-300 text-stone-600 hover:border-stone-400"}`}
+                >
+                  {ev.emoji} {ev.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex gap-3 pt-1">
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white font-medium text-sm px-5 py-2.5 rounded-lg transition-colors"
+          >
+            {loading ? (
+              <>
+                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                {t("searching")}
+              </>
+            ) : (
+              hasQuery ? t("searchWithFields") : t("searchBrowse")
+            )}
+          </button>
+          <a
+            href={buildDirectUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 border border-stone-300 hover:border-stone-400 text-stone-600 font-medium text-sm px-4 py-2.5 rounded-lg transition-colors bg-white"
+            title={t("openOnSiteTitle")}
+          >
+            ↗
+          </a>
+        </div>
+      </form>
+
+      {/* ── Error ── */}
+      {error && (
+        <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+          {t("errorPrefix")} {error}
+        </div>
+      )}
+
+      {/* ── Results ── */}
+      {results && !loading && (
+        <div className="space-y-3">
+          {/* Header row */}
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-stone-500 font-medium">
+              {results.totalText}
+              {results.totalPages > 1 && (
+                <span className="ml-1 text-stone-400">
+                  — {t("page")} {currentPage} / {results.totalPages}
+                </span>
+              )}
+            </p>
+            <a
+              href={results.searchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-green-700 hover:underline"
+            >
+              {t("viewOnSite")} ↗
+            </a>
+          </div>
+
+          {results.records.length === 0 ? (
+            <p className="text-sm text-stone-500 italic text-center py-6">{t("noResults")}</p>
+          ) : (
+            <>
+              <div className="space-y-2">
+                {results.records.map((r) => (
+                  <RecordCard key={r.recordId} record={r} />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {showPagination && (
+                <div className="flex items-center justify-center gap-1 pt-1">
+                  <button
+                    disabled={currentPage <= 1}
+                    onClick={() => doSearch(currentPage - 1)}
+                    className="px-2.5 py-1.5 text-xs rounded-lg border border-stone-300 disabled:opacity-40 hover:border-stone-400 bg-white"
+                  >
+                    ←
+                  </button>
+                  {pageWindow.map((pg) => (
+                    <button
+                      key={pg}
+                      onClick={() => doSearch(pg)}
+                      className={`px-2.5 py-1.5 text-xs rounded-lg border transition-colors
+                        ${pg === currentPage
+                          ? "bg-green-700 border-green-700 text-white font-medium"
+                          : "border-stone-300 hover:border-stone-400 bg-white text-stone-700"}`}
+                    >
+                      {pg}
+                    </button>
+                  ))}
+                  {totalPages > 7 && currentPage < totalPages - 3 && (
+                    <>
+                      <span className="text-stone-400 text-xs px-1">…</span>
+                      <button
+                        onClick={() => doSearch(totalPages)}
+                        className="px-2.5 py-1.5 text-xs rounded-lg border border-stone-300 hover:border-stone-400 bg-white text-stone-700"
+                      >
+                        {totalPages}
+                      </button>
+                    </>
+                  )}
+                  <button
+                    disabled={currentPage >= totalPages}
+                    onClick={() => doSearch(currentPage + 1)}
+                    className="px-2.5 py-1.5 text-xs rounded-lg border border-stone-300 disabled:opacity-40 hover:border-stone-400 bg-white"
+                  >
+                    →
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ── Attribution ── */}
+      <p className="text-xs text-stone-400 text-center">
+        {t("attribution")}{" "}
+        <a
+          href={SITE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-stone-600"
+        >
+          irishgenealogy.ie
+        </a>
+        {" "}— {t("attributionBody")}
+      </p>
+    </div>
+  );
+}

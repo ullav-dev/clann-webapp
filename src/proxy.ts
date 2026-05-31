@@ -8,8 +8,8 @@ const intlMiddleware = createMiddleware(routing);
 function route(request: NextRequest): NextResponse {
   const { pathname, search } = request.nextUrl;
 
-  // Let /api/ai/* be handled by Next.js Route Handlers (not proxied to clann-server).
-  if (pathname.startsWith("/api/ai/")) {
+  // Let internal Next.js Route Handlers pass through (not proxied to clann-server).
+  if (pathname.startsWith("/api/ai/") || pathname.startsWith("/api/irish-genealogy/")) {
     return NextResponse.next();
   }
 
