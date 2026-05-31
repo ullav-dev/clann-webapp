@@ -568,6 +568,7 @@ export default function ResearchPage() {
             key={`${irishGenealogyPersonName?.surname ?? ""}${irishGenealogyPersonName?.forename ?? ""}`}
             initialForename={irishGenealogyPersonName?.forename ?? ""}
             initialSurname={irishGenealogyPersonName?.surname ?? ""}
+            onSaveAsNote={handleSaveAsNote}
           />
         </div>
       );

@@ -31,28 +31,125 @@ const RECORD_TYPE_STYLES: Record<IrishGenealogyRecord["recordType"], {
   burial:   { bg: "bg-amber-50",   text: "text-amber-800",   border: "border-amber-200",   emoji: "⛪" },
 };
 
+// ── Note helpers ────────────────────────────────────────────────────────────
+
+function toTitleCase(s: string): string {
+  return s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function buildNoteTitle(record: IrishGenealogyRecord): string {
+  const type = record.recordType.charAt(0).toUpperCase() + record.recordType.slice(1);
+
+  // Extract year — take the last 4-digit year-shaped number in the title
+  const years = [...record.title.matchAll(/\b(1[5-9]\d{2}|20[0-2]\d)\b/g)].map((m) => m[1]);
+  const year = years[years.length - 1] ?? "";
+
+  // Extract the name(s) portion: everything between the opening "Verb of " and
+  // the trailing " on / in / of <place>" clause
+  const nameMatch = record.title.match(
+    /^(?:Birth|Marriage|Death|Burial|Baptism) of (.+?)(?:\s+(?:on |in |of [A-Z]))/i
+  );
+  let names = nameMatch ? nameMatch[1] : "";
+
+  // Marriage records: "PARTY1 and PARTY2" → "Party1 & Party2"
+  names = names
+    .split(/\s+and\s+/i)
+    .map((n) => toTitleCase(n.trim()))
+    .join(" & ");
+
+  return year ? `${type}: ${names} (${year})` : `${type}: ${names}`;
+}
+
+function buildNoteBody(
+  record: IrishGenealogyRecord,
+  detail: IrishGenealogyRecordDetail | null
+): string {
+  const type = record.recordType.charAt(0).toUpperCase() + record.recordType.slice(1);
+  const source = record.civilOrChurch === "civil" ? "Civil record" : "Church record";
+
+  let body = `## ${type} Record\n\n`;
+  body += `**${record.title}**\n\n`;
+
+  // Fields table — merge list-view fields with any extra detail fields
+  const merged: Record<string, string> = { ...record.fields };
+  if (detail) {
+    for (const [k, v] of Object.entries(detail.fields)) {
+      if (!(k in merged)) merged[k] = v;
+    }
+  }
+  if (Object.keys(merged).length > 0) {
+    body += `| Field | Value |\n|---|---|\n`;
+    for (const [k, v] of Object.entries(merged)) {
+      body += `| ${k} | ${v} |\n`;
+    }
+    body += "\n";
+  }
+
+  body += `**Record type:** ${source}\n\n`;
+  body += `[View original record on irishgenealogy.ie ↗](${record.viewUrl})\n`;
+
+  if (detail?.imageLinks.length) {
+    body += "\n### Original Record Images\n\n";
+    for (const img of detail.imageLinks) {
+      body += `- [📜 ${img.label}](${img.url})\n`;
+    }
+  }
+
+  body +=
+    "\n---\n*Source: [irishgenealogy.ie](https://www.irishgenealogy.ie) — Department of Culture, Communications & Sport of Ireland. Free and open public access.*";
+
+  return body;
+}
+
 // ── Sub-components ───────────────────────────────────────────────────────────
 
-function RecordCard({ record, initialName }: { record: IrishGenealogyRecord; initialName?: string }) {
+function RecordCard({
+  record,
+  onSaveAsNote,
+}: {
+  record: IrishGenealogyRecord;
+  onSaveAsNote: (title: string, description: string, body: string) => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<IrishGenealogyRecordDetail | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const style = RECORD_TYPE_STYLES[record.recordType];
 
-  const loadDetail = useCallback(async () => {
-    if (detail || loading) return;
+  // Fetch detail, hoisted so both expand and save can call it
+  const fetchDetail = useCallback(async (): Promise<IrishGenealogyRecordDetail | null> => {
+    if (detail) return detail;
     setLoading(true);
     try {
       const res = await fetch(`/api/irish-genealogy/record?id=${encodeURIComponent(record.recordId)}`);
-      if (res.ok) setDetail(await res.json());
+      if (res.ok) {
+        const d: IrishGenealogyRecordDetail = await res.json();
+        setDetail(d);
+        return d;
+      }
     } finally {
       setLoading(false);
     }
-  }, [detail, loading, record.recordId]);
+    return null;
+  }, [detail, record.recordId]);
 
   const handleExpand = () => {
-    if (!expanded) loadDetail();
+    if (!expanded) fetchDetail();
     setExpanded((v) => !v);
+  };
+
+  const handleSaveAsNote = async () => {
+    setSaving(true);
+    try {
+      const d = await fetchDetail();
+      onSaveAsNote(
+        buildNoteTitle(record),
+        record.viewUrl,
+        buildNoteBody(record, d)
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const hasImages = detail && detail.imageLinks.length > 0;
@@ -94,10 +191,22 @@ function RecordCard({ record, initialName }: { record: IrishGenealogyRecord; ini
             View record ↗
           </a>
           <button
+            onClick={handleSaveAsNote}
+            disabled={saving}
+            className="inline-flex items-center gap-1 text-xs bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white font-medium px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap"
+          >
+            {saving ? (
+              <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              "📝"
+            )}
+            Save as note
+          </button>
+          <button
             onClick={handleExpand}
             className="inline-flex items-center gap-1 text-xs bg-white border border-stone-200 hover:border-stone-400 text-stone-700 font-medium px-2.5 py-1 rounded-lg transition-colors"
           >
-            {loading ? (
+            {loading && !saving ? (
               <span className="inline-block w-3 h-3 border-2 border-stone-400 border-t-transparent rounded-full animate-spin" />
             ) : (
               "📄"
@@ -170,11 +279,13 @@ function RecordCard({ record, initialName }: { record: IrishGenealogyRecord; ini
 interface Props {
   initialSurname?: string;
   initialForename?: string;
+  onSaveAsNote: (title: string, description: string, body: string) => void;
 }
 
 export default function IrishGenealogySearch({
   initialSurname = "",
   initialForename = "",
+  onSaveAsNote,
 }: Props) {
   const t = useTranslations("irishGenealogy");
 
@@ -483,7 +594,7 @@ export default function IrishGenealogySearch({
             <>
               <div className="space-y-2">
                 {results.records.map((r) => (
-                  <RecordCard key={r.recordId} record={r} />
+                  <RecordCard key={r.recordId} record={r} onSaveAsNote={onSaveAsNote} />
                 ))}
               </div>
 
