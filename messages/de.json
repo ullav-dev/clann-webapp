@@ -917,7 +917,9 @@
     "attribution": "Register bereitgestellt von",
     "attributionBody": "Ministerium für Kultur, Kommunikation und Sport Irlands. Kostenloser und offener Zugang.",
     "fieldLocation": "Grafschaft oder Ort",
-    "fieldLocationPlaceholder": "z. B. Dublin, Sligo, Tralee"
+    "fieldLocationPlaceholder": "z. B. Dublin, Sligo, Tralee",
+    "requiresName": "Geben Sie einen Vor- oder Nachnamen ein.",
+    "requiresDateRange": "Fügen Sie einen Jahrgangsbereich hinzu."
   },
   "team": {
     "loading": "Laden…",

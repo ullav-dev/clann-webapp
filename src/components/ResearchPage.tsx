@@ -283,7 +283,10 @@ export default function ResearchPage() {
   const [aiNoteContext, setAiNoteContext] = useState<{ title: string; body: string } | null>(null);
   // Person name pre-fill for Census and Irish Genealogy search (derived from aiPersonId URL param)
   const [censusPersonName, setCensusPersonName] = useState<{ forename: string; surname: string } | null>(null);
-  const [irishGenealogyPersonName, setIrishGenealogyPersonName] = useState<{ forename: string; surname: string } | null>(null);
+  const [irishGenealogyPrefill, setIrishGenealogyPrefill] = useState<{
+    forename: string; surname: string;
+    yearStart?: string; yearEnd?: string; location?: string;
+  } | null>(null);
 
   // Folder state — "all" | "unfiled" | "shared-by-me" | "shared-by-others" | folder ID string
   const [folders, setFolders] = useState<ResearchFolder[]>([]);
@@ -334,13 +337,23 @@ export default function ResearchPage() {
     if (aiPersonId) setMode("ai");
   }, [aiPersonId]);
 
-  // Pre-fill Census and Irish Genealogy forms with the person's name when arriving from a person's detail page.
+  // Pre-fill Census and Irish Genealogy forms with person data when arriving from a person's detail page.
   useEffect(() => {
     if (!aiPersonId) return;
     api.getPerson(aiPersonId).then((person) => {
-      const name = { forename: person.first_name, surname: person.family_name };
-      setCensusPersonName(name);
-      setIrishGenealogyPersonName(name);
+      const extractYear = (date?: string | null): string => {
+        if (!date) return "";
+        const m = date.match(/\b(1[5-9]\d{2}|20[0-2]\d)\b/);
+        return m ? m[1] : "";
+      };
+      setCensusPersonName({ forename: person.first_name, surname: person.family_name });
+      setIrishGenealogyPrefill({
+        forename: person.first_name,
+        surname: person.family_name,
+        yearStart: extractYear(person.date_of_birth),
+        yearEnd:   extractYear(person.date_of_death),
+        location:  person.place_of_birth ?? "",
+      });
     }).catch(() => {});
   }, [aiPersonId]);
 
@@ -565,9 +578,12 @@ export default function ResearchPage() {
         <div className="bg-white rounded-xl border border-stone-200 p-6 flex flex-col gap-4">
           <h2 className="text-base font-semibold text-stone-800">{tIrishGenealogy("title")}</h2>
           <IrishGenealogySearch
-            key={`${irishGenealogyPersonName?.surname ?? ""}${irishGenealogyPersonName?.forename ?? ""}`}
-            initialForename={irishGenealogyPersonName?.forename ?? ""}
-            initialSurname={irishGenealogyPersonName?.surname ?? ""}
+            key={`${irishGenealogyPrefill?.surname ?? ""}${irishGenealogyPrefill?.forename ?? ""}${irishGenealogyPrefill?.yearStart ?? ""}`}
+            initialForename={irishGenealogyPrefill?.forename ?? ""}
+            initialSurname={irishGenealogyPrefill?.surname ?? ""}
+            initialYearStart={irishGenealogyPrefill?.yearStart ?? ""}
+            initialYearEnd={irishGenealogyPrefill?.yearEnd ?? ""}
+            initialLocation={irishGenealogyPrefill?.location ?? ""}
             onSaveAsNote={handleSaveAsNote}
           />
         </div>

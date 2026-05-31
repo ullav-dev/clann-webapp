@@ -917,7 +917,9 @@
     "attribution": "Records provided by",
     "attributionBody": "Department of Culture, Communications & Sport of Ireland. Free and open access.",
     "fieldLocation": "County or location",
-    "fieldLocationPlaceholder": "e.g. Dublin, Sligo, Tralee"
+    "fieldLocationPlaceholder": "e.g. Dublin, Sligo, Tralee",
+    "requiresName": "Enter a first name or surname to search.",
+    "requiresDateRange": "Add a year range to narrow your search."
   },
   "team": {
     "loading": "Loading...",

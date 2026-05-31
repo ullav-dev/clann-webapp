@@ -279,12 +279,18 @@ function RecordCard({
 interface Props {
   initialSurname?: string;
   initialForename?: string;
+  initialYearStart?: string;
+  initialYearEnd?: string;
+  initialLocation?: string;
   onSaveAsNote: (title: string, description: string, body: string) => void;
 }
 
 export default function IrishGenealogySearch({
   initialSurname = "",
   initialForename = "",
+  initialYearStart = "",
+  initialYearEnd = "",
+  initialLocation = "",
   onSaveAsNote,
 }: Props) {
   const t = useTranslations("irishGenealogy");
@@ -296,9 +302,9 @@ export default function IrishGenealogySearch({
   const [selectedEvents, setSelectedEvents] = useState<Set<string>>(
     new Set(["birth", "marriage", "death", "baptism", "burial"])
   );
-  const [county, setCounty] = useState("");
-  const [yearStart, setYearStart] = useState("");
-  const [yearEnd, setYearEnd] = useState("");
+  const [county, setCounty] = useState(initialLocation);
+  const [yearStart, setYearStart] = useState(initialYearStart);
+  const [yearEnd, setYearEnd] = useState(initialYearEnd);
 
   // Result state
   const [results, setResults] = useState<IrishGenealogySearchResponse | null>(null);
@@ -371,7 +377,10 @@ export default function IrishGenealogySearch({
     return `${SITE_URL}/search/?${p.toString()}`;
   };
 
-  const hasQuery = !!(firstname.trim() || lastname.trim() || county);
+  // Search requires at minimum a name (first or last) plus a year range
+  const hasName = !!(firstname.trim() || lastname.trim());
+  const hasDateRange = !!(yearStart.trim() || yearEnd.trim());
+  const canSearch = hasName && hasDateRange;
 
   // Pagination helpers
   const totalPages = results?.totalPages ?? 1;
@@ -531,11 +540,16 @@ export default function IrishGenealogySearch({
         </div>
 
         {/* Action buttons */}
+        {!canSearch && (
+          <p className="text-xs text-stone-400 italic">
+            {!hasName ? t("requiresName") : t("requiresDateRange")}
+          </p>
+        )}
         <div className="flex gap-3 pt-1">
           <button
             type="submit"
-            disabled={loading}
-            className="flex-1 inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white font-medium text-sm px-5 py-2.5 rounded-lg transition-colors"
+            disabled={loading || !canSearch}
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm px-5 py-2.5 rounded-lg transition-colors"
           >
             {loading ? (
               <>
@@ -543,14 +557,18 @@ export default function IrishGenealogySearch({
                 {t("searching")}
               </>
             ) : (
-              hasQuery ? t("searchWithFields") : t("searchBrowse")
+              t("searchWithFields")
             )}
           </button>
           <a
-            href={buildDirectUrl()}
+            href={canSearch ? buildDirectUrl() : undefined}
+            onClick={canSearch ? undefined : (e) => e.preventDefault()}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 border border-stone-300 hover:border-stone-400 text-stone-600 font-medium text-sm px-4 py-2.5 rounded-lg transition-colors bg-white"
+            className={`inline-flex items-center gap-1.5 border font-medium text-sm px-4 py-2.5 rounded-lg transition-colors bg-white
+              ${canSearch
+                ? "border-stone-300 hover:border-stone-400 text-stone-600 cursor-pointer"
+                : "border-stone-200 text-stone-300 cursor-not-allowed"}`}
             title={t("openOnSiteTitle")}
           >
             ↗

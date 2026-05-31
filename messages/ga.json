@@ -917,7 +917,9 @@
     "attribution": "Taifid curtha ar fáil ag",
     "attributionBody": "Roinn Cultúir, Cumarsáide agus Spóirt na hÉireann. Rochtain saor agus oscailte.",
     "fieldLocation": "Contae nó suíomh",
-    "fieldLocationPlaceholder": "e.g. Baile Átha Cliath, Sligeach, Trá Lí"
+    "fieldLocationPlaceholder": "e.g. Baile Átha Cliath, Sligeach, Trá Lí",
+    "requiresName": "Cuir isteach céadainm nó sloinne le cuardach.",
+    "requiresDateRange": "Cuir raon blianta leis chun an cuardach a chúngú."
   },
   "team": {
     "loading": "Á lódáil…",
