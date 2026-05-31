@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
 import { useApi } from "@/hooks/useApi";
@@ -15,6 +15,7 @@ import * as api from "@/lib/api";
 import type { ResearchFolder, ResearchNote, CreateResearchNote, UpdateResearchNote } from "@/lib/types";
 import WikipediaSearch from "@/components/WikipediaSearch";
 import CensusSearch from "@/components/CensusSearch";
+import IrishGenealogySearch from "@/components/IrishGenealogySearch";
 import AiChat from "@/components/AiChat";
 import AuthorChip from "@/components/AuthorChip";
 import NoteThread from "@/components/NoteThread";
@@ -256,7 +257,9 @@ function NoteCard({ note, selected, canEdit, currentUsername, folderName, onSele
 export default function ResearchPage() {
   const t = useTranslations("research");
   const tCensus = useTranslations("census");
+  const tIrishGenealogy = useTranslations("irishGenealogy");
   const tAi = useTranslations("aiChat");
+  const locale = useLocale();
   const { user, roles, token } = useAuth();
   const { activeTree, isLoading: treeLoading } = useTree();
   const apiHook = useApi();
@@ -265,12 +268,26 @@ export default function ResearchPage() {
   // When navigating from a person's detail page, personId is provided as a query param.
   const aiPersonId = searchParams.get("personId") ?? undefined;
 
+  // When there is no URL param, fall back to the last-viewed person stored in localStorage.
+  const [localPersonId, setLocalPersonId] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    if (aiPersonId) return; // URL param takes priority
+    try {
+      const raw = localStorage.getItem("clann_last_person");
+      if (raw) setLocalPersonId(JSON.parse(raw).id);
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // The effective person ID to use for pre-filling search forms.
+  const prefillPersonId = aiPersonId ?? localPersonId;
+
   const [notes, setNotes] = useState<ResearchNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [mode, setMode] = useState<"view" | "create" | "edit" | "wikipedia" | "census" | "ai" | null>(null);
+  const [mode, setMode] = useState<"view" | "create" | "edit" | "wikipedia" | "census" | "irishGenealogy" | "ai" | null>(null);
   const [exploreOpen, setExploreOpen] = useState(false);
   const exploreRef = useRef<HTMLDivElement>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -279,8 +296,12 @@ export default function ResearchPage() {
   const [prefill, setPrefill] = useState<{ title: string; description: string; body: string } | null>(null);
   // Note context injected into AI chat via "Dig deeper"
   const [aiNoteContext, setAiNoteContext] = useState<{ title: string; body: string } | null>(null);
-  // Person name pre-fill for Census search (derived from aiPersonId URL param)
+  // Person name pre-fill for Census and Irish Genealogy search (derived from aiPersonId URL param)
   const [censusPersonName, setCensusPersonName] = useState<{ forename: string; surname: string } | null>(null);
+  const [irishGenealogyPrefill, setIrishGenealogyPrefill] = useState<{
+    forename: string; surname: string;
+    yearStart?: string; yearEnd?: string; location?: string;
+  } | null>(null);
 
   // Folder state — "all" | "unfiled" | "shared-by-me" | "shared-by-others" | folder ID string
   const [folders, setFolders] = useState<ResearchFolder[]>([]);
@@ -331,13 +352,27 @@ export default function ResearchPage() {
     if (aiPersonId) setMode("ai");
   }, [aiPersonId]);
 
-  // Pre-fill Census form with the person's name when arriving from a person's detail page.
+  // Pre-fill Census and Irish Genealogy forms from the effective person ID (URL param or last-viewed).
+  // Must pass created_by so the backend ownership filter can find the person (same as useApi.getPerson).
   useEffect(() => {
-    if (!aiPersonId) return;
-    api.getPerson(aiPersonId).then((person) => {
+    if (!prefillPersonId || !user?.username) return;
+    api.getPerson(prefillPersonId, user.username).then((person) => {
+      const extractYear = (date?: string | null): string => {
+        if (!date) return "";
+        const m = date.match(/\b(1[5-9]\d{2}|20[0-2]\d)\b/);
+        return m ? m[1] : "";
+      };
       setCensusPersonName({ forename: person.first_name, surname: person.family_name });
-    }).catch(() => {});
-  }, [aiPersonId]);
+      setIrishGenealogyPrefill({
+        forename: person.first_name,
+        surname: person.family_name,
+        yearStart: extractYear(person.date_of_birth),
+        yearEnd:   extractYear(person.date_of_death),
+        location:  person.place_of_birth ?? "",
+      });
+    }).catch((err) => console.error("Person pre-fill fetch failed:", err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefillPersonId]);
 
   // Close Explore dropdown when clicking outside.
   useEffect(() => {
@@ -555,6 +590,23 @@ export default function ResearchPage() {
       );
     }
 
+    if (mode === "irishGenealogy") {
+      return (
+        <div className="bg-white rounded-xl border border-stone-200 p-6 flex flex-col gap-4">
+          <h2 className="text-base font-semibold text-stone-800">{tIrishGenealogy("title")}</h2>
+          <IrishGenealogySearch
+            key={`${irishGenealogyPrefill?.surname ?? ""}${irishGenealogyPrefill?.forename ?? ""}${irishGenealogyPrefill?.yearStart ?? ""}`}
+            initialForename={irishGenealogyPrefill?.forename ?? ""}
+            initialSurname={irishGenealogyPrefill?.surname ?? ""}
+            initialYearStart={irishGenealogyPrefill?.yearStart ?? ""}
+            initialYearEnd={irishGenealogyPrefill?.yearEnd ?? ""}
+            initialLocation={irishGenealogyPrefill?.location ?? ""}
+            onSaveAsNote={handleSaveAsNote}
+          />
+        </div>
+      );
+    }
+
     if (mode === "create") {
       return (
         <div className="bg-white rounded-xl border border-stone-200 p-6">
@@ -679,6 +731,17 @@ export default function ResearchPage() {
 
   return (
     <div>
+      {/* Back-to-tree breadcrumb — shown whenever we have a person context (URL param or last-viewed) */}
+      {prefillPersonId && irishGenealogyPrefill && (
+        <div className="mb-4">
+          <a
+            href={`/${locale}/persons/${prefillPersonId}`}
+            className="inline-flex items-center gap-1.5 text-sm text-emerald-700 hover:text-emerald-900 font-medium transition-colors"
+          >
+            ← 🌳 {irishGenealogyPrefill.forename} {irishGenealogyPrefill.surname}
+          </a>
+        </div>
+      )}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-stone-800">{t("title")}</h1>
@@ -717,7 +780,7 @@ export default function ResearchPage() {
               onClick={() => setExploreOpen((o) => !o)}
               title={t("exploreTooltip")}
               className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
-                mode === "census"
+                mode === "census" || mode === "irishGenealogy"
                   ? "bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800"
                   : "bg-white text-stone-700 border-stone-300 hover:bg-stone-50"
               }`}
@@ -740,6 +803,19 @@ export default function ResearchPage() {
                   <span>📜</span>
                   <span>{tCensus("toggle")}</span>
                   {mode === "census" && <span className="ml-auto text-emerald-600 text-xs">✓</span>}
+                </button>
+                <button
+                  onClick={() => { setMode(mode === "irishGenealogy" ? null : "irishGenealogy"); setExploreOpen(false); }}
+                  className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
+                    mode === "irishGenealogy"
+                      ? "bg-emerald-50 text-emerald-800 font-medium"
+                      : "text-stone-700 hover:bg-stone-50"
+                  }`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="https://www.irishgenealogy.ie/app/uploads/2022/01/cropped-IrishGenealogy-logo-32x32.png" alt="" className="w-4 h-4 object-contain" />
+                  <span>{tIrishGenealogy("toggle")}</span>
+                  {mode === "irishGenealogy" && <span className="ml-auto text-emerald-600 text-xs">✓</span>}
                 </button>
               </div>
             )}
