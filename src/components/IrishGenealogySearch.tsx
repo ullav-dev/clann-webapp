@@ -377,10 +377,10 @@ export default function IrishGenealogySearch({
     return `${SITE_URL}/search/?${p.toString()}`;
   };
 
-  // Search requires at minimum a name (first or last) plus a year range
+  // Search requires at minimum a name (first or last); year range is optional
   const hasName = !!(firstname.trim() || lastname.trim());
   const hasDateRange = !!(yearStart.trim() || yearEnd.trim());
-  const canSearch = hasName && hasDateRange;
+  const canSearch = hasName;
 
   // Pagination helpers
   const totalPages = results?.totalPages ?? 1;
@@ -540,10 +540,11 @@ export default function IrishGenealogySearch({
         </div>
 
         {/* Action buttons */}
-        {!canSearch && (
-          <p className="text-xs text-stone-400 italic">
-            {!hasName ? t("requiresName") : t("requiresDateRange")}
-          </p>
+        {!hasName && (
+          <p className="text-xs text-stone-400 italic">{t("requiresName")}</p>
+        )}
+        {hasName && !hasDateRange && (
+          <p className="text-xs text-stone-400 italic">{t("requiresDateRange")}</p>
         )}
         <div className="flex gap-3 pt-1">
           <button
