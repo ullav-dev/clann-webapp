@@ -855,8 +855,14 @@
     "heroTitle": "Irische Volkszählung 1926 durchsuchen",
     "heroSubtitle": "Vollständige Haushalte, Berufe, Religion, Geburtsort, Irischkenntnisse und mehr",
     "contentsItems": [
-      "Name & Alter", "Beruf", "Religion", "Geburtsort",
-      "Irischkenntnisse", "Familienstand", "Haushaltsmitglieder", "Grafschaft & Ortschaft"
+      "Name & Alter",
+      "Beruf",
+      "Religion",
+      "Geburtsort",
+      "Irischkenntnisse",
+      "Familienstand",
+      "Haushaltsmitglieder",
+      "Grafschaft & Ortschaft"
     ],
     "searchPrompt": "Suche vorausfüllen und die Suche der Nationalarchive in einem neuen Tab öffnen:",
     "fieldSurname": "Nachname",
@@ -893,8 +899,6 @@
     "fieldFirstnamePlaceholder": "z. B. Patrick",
     "fieldLastname": "Nachname",
     "fieldLastnamePlaceholder": "z. B. Murphy",
-    "fieldCounty": "Grafschaft",
-    "allCounties": "Alle Grafschaften",
     "yearFrom": "Von Jahr",
     "yearTo": "Bis Jahr",
     "recordSource": "Registerquelle",
@@ -911,7 +915,9 @@
     "noResults": "Keine Einträge gefunden. Versuchen Sie eine breitere Suche.",
     "errorPrefix": "Suche fehlgeschlagen:",
     "attribution": "Register bereitgestellt von",
-    "attributionBody": "Ministerium für Kultur, Kommunikation und Sport Irlands. Kostenloser und offener Zugang."
+    "attributionBody": "Ministerium für Kultur, Kommunikation und Sport Irlands. Kostenloser und offener Zugang.",
+    "fieldLocation": "Grafschaft oder Ort",
+    "fieldLocationPlaceholder": "z. B. Dublin, Sligo, Tralee"
   },
   "team": {
     "loading": "Laden…",

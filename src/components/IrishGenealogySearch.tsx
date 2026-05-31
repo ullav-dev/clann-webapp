@@ -12,15 +12,6 @@ import type { IrishGenealogyRecordDetail } from "@/app/api/irish-genealogy/recor
 
 const SITE_URL = "https://www.irishgenealogy.ie";
 
-const COUNTIES = [
-  "Co. Antrim", "Co. Armagh", "Co. Carlow", "Co. Cavan", "Co. Clare",
-  "Co. Cork", "Co. Derry", "Co. Donegal", "Co. Down", "Co. Dublin",
-  "Co. Fermanagh", "Co. Galway", "Co. Kerry", "Co. Kildare", "Co. Kilkenny",
-  "Co. Laois", "Co. Leitrim", "Co. Limerick", "Co. Longford", "Co. Louth",
-  "Co. Mayo", "Co. Meath", "Co. Monaghan", "Co. Offaly", "Co. Roscommon",
-  "Co. Sligo", "Co. Tipperary", "Co. Tyrone", "Co. Waterford",
-  "Co. Westmeath", "Co. Wexford", "Co. Wicklow",
-];
 
 const EVENT_TYPES = [
   { id: "birth",    label: "Birth",    emoji: "🌱", civil: true,  church: false },
@@ -346,24 +337,13 @@ export default function IrishGenealogySearch({
         {/* County + year range row */}
         <div className="flex flex-wrap gap-3">
           <div className="flex-1 min-w-40">
-            <label className="block text-xs text-stone-500 mb-1">{t("fieldCounty")}</label>
-            <div className="relative">
-              <select
-                value={county}
-                onChange={(e) => setCounty(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-stone-300 px-3 py-2 pr-8 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 bg-white"
-              >
-                <option value="">{t("allCounties")}</option>
-                {COUNTIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-stone-400">
-                <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
+            <label className="block text-xs text-stone-500 mb-1">{t("fieldLocation")}</label>
+            <input
+              value={county}
+              onChange={(e) => setCounty(e.target.value)}
+              placeholder={t("fieldLocationPlaceholder")}
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            />
           </div>
           <div className="flex gap-2 items-end">
             <div>

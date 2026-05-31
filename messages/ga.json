@@ -855,8 +855,14 @@
     "heroTitle": "Daonáireamh na hÉireann 1926 a chuardach",
     "heroSubtitle": "Teaghlaigh iomlána, slite beatha, reiligiún, áit bhreithe, Gaeilge agus tuilleadh",
     "contentsItems": [
-      "Ainm & aois", "Slí bheatha", "Reiligiún", "Áit bhreithe",
-      "Gaeilge", "Stádas pósta", "Baill teaghlaigh", "Contae & baile fearainn"
+      "Ainm & aois",
+      "Slí bheatha",
+      "Reiligiún",
+      "Áit bhreithe",
+      "Gaeilge",
+      "Stádas pósta",
+      "Baill teaghlaigh",
+      "Contae & baile fearainn"
     ],
     "searchPrompt": "Líon isteach do chuardach, ansin oscail cuardach na Cartlainne Náisiúnta i gcluaisín nua:",
     "fieldSurname": "Sloinne",
@@ -893,8 +899,6 @@
     "fieldFirstnamePlaceholder": "m.sh. Pádraig",
     "fieldLastname": "Sloinne",
     "fieldLastnamePlaceholder": "m.sh. Ó Murchú",
-    "fieldCounty": "Contae",
-    "allCounties": "Gach contae",
     "yearFrom": "Ó bhliain",
     "yearTo": "Go bliain",
     "recordSource": "Foinse na dtaifead",
@@ -911,7 +915,9 @@
     "noResults": "Níor aimsíodh taifid. Bain triail as cuardach níos leithne.",
     "errorPrefix": "Theip ar an gcuardach:",
     "attribution": "Taifid curtha ar fáil ag",
-    "attributionBody": "Roinn Cultúir, Cumarsáide agus Spóirt na hÉireann. Rochtain saor agus oscailte."
+    "attributionBody": "Roinn Cultúir, Cumarsáide agus Spóirt na hÉireann. Rochtain saor agus oscailte.",
+    "fieldLocation": "Contae nó suíomh",
+    "fieldLocationPlaceholder": "e.g. Baile Átha Cliath, Sligeach, Trá Lí"
   },
   "team": {
     "loading": "Á lódáil…",

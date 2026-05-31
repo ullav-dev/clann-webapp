@@ -855,8 +855,14 @@
     "heroTitle": "Search the 1926 Irish Census",
     "heroSubtitle": "Full households, occupations, religion, birthplace, Irish language ability and more",
     "contentsItems": [
-      "Name & age", "Occupation", "Religion", "Birthplace",
-      "Irish language", "Marital status", "Household members", "County & townland"
+      "Name & age",
+      "Occupation",
+      "Religion",
+      "Birthplace",
+      "Irish language",
+      "Marital status",
+      "Household members",
+      "County & townland"
     ],
     "searchPrompt": "Pre-fill your search, then open the National Archives search in a new tab:",
     "fieldSurname": "Surname",
@@ -893,8 +899,6 @@
     "fieldFirstnamePlaceholder": "e.g. Patrick",
     "fieldLastname": "Surname",
     "fieldLastnamePlaceholder": "e.g. Murphy",
-    "fieldCounty": "County",
-    "allCounties": "All counties",
     "yearFrom": "From year",
     "yearTo": "To year",
     "recordSource": "Record source",
@@ -911,7 +915,9 @@
     "noResults": "No records found. Try broadening your search.",
     "errorPrefix": "Search failed:",
     "attribution": "Records provided by",
-    "attributionBody": "Department of Culture, Communications & Sport of Ireland. Free and open access."
+    "attributionBody": "Department of Culture, Communications & Sport of Ireland. Free and open access.",
+    "fieldLocation": "County or location",
+    "fieldLocationPlaceholder": "e.g. Dublin, Sligo, Tralee"
   },
   "team": {
     "loading": "Loading...",
