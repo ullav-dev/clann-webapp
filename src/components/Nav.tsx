@@ -27,6 +27,15 @@ export default function Nav() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [lastPerson, setLastPerson] = useState<{ id: string; name: string } | null>(null);
+
+  // Read the last-viewed person from localStorage so we can show a quick "back to tree" link.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("clann_last_person");
+      if (raw) setLastPerson(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, [pathname]); // refresh whenever navigation happens
 
   useEffect(() => {
     if (!dropdownOpen) return;
@@ -80,6 +89,15 @@ export default function Nav() {
                   <Link href="/family" className={activeLink("/family")}>
                     {t("myFamily")}
                   </Link>
+                  {lastPerson && !pathname.includes(`/persons/${lastPerson.id}`) && (
+                    <Link
+                      href={`/persons/${lastPerson.id}`}
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:text-emerald-900 transition-colors max-w-36 truncate"
+                      title={`Back to ${lastPerson.name}'s family tree`}
+                    >
+                      🌳 <span className="truncate">{lastPerson.name}</span>
+                    </Link>
+                  )}
                   <Link href="/research" className={activeLink("/research")}>
                     {t("research")}
                   </Link>

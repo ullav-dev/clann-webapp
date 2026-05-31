@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
 import { useApi } from "@/hooks/useApi";
@@ -259,6 +259,7 @@ export default function ResearchPage() {
   const tCensus = useTranslations("census");
   const tIrishGenealogy = useTranslations("irishGenealogy");
   const tAi = useTranslations("aiChat");
+  const locale = useLocale();
   const { user, roles, token } = useAuth();
   const { activeTree, isLoading: treeLoading } = useTree();
   const apiHook = useApi();
@@ -338,9 +339,10 @@ export default function ResearchPage() {
   }, [aiPersonId]);
 
   // Pre-fill Census and Irish Genealogy forms with person data when arriving from a person's detail page.
+  // Must pass created_by so the backend ownership filter can find the person (same as useApi.getPerson).
   useEffect(() => {
-    if (!aiPersonId) return;
-    api.getPerson(aiPersonId).then((person) => {
+    if (!aiPersonId || !user?.username) return;
+    api.getPerson(aiPersonId, user.username).then((person) => {
       const extractYear = (date?: string | null): string => {
         if (!date) return "";
         const m = date.match(/\b(1[5-9]\d{2}|20[0-2]\d)\b/);
@@ -354,7 +356,8 @@ export default function ResearchPage() {
         yearEnd:   extractYear(person.date_of_death),
         location:  person.place_of_birth ?? "",
       });
-    }).catch(() => {});
+    }).catch((err) => console.error("Person pre-fill fetch failed:", err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiPersonId]);
 
   // Close Explore dropdown when clicking outside.
@@ -714,6 +717,17 @@ export default function ResearchPage() {
 
   return (
     <div>
+      {/* Back-to-tree breadcrumb — shown when opened from a person's detail page */}
+      {aiPersonId && irishGenealogyPrefill && (
+        <div className="mb-4">
+          <a
+            href={`/${locale}/persons/${aiPersonId}`}
+            className="inline-flex items-center gap-1.5 text-sm text-emerald-700 hover:text-emerald-900 font-medium transition-colors"
+          >
+            ← 🌳 {irishGenealogyPrefill.forename} {irishGenealogyPrefill.surname}
+          </a>
+        </div>
+      )}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-stone-800">{t("title")}</h1>

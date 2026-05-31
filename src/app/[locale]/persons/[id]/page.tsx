@@ -64,6 +64,10 @@ export default function PersonDetailPage() {
       setPerson(p);
       setRels(r);
       setTree(tr);
+      // Persist the last-viewed person so the Nav can offer a quick "back to tree" link
+      try {
+        localStorage.setItem("clann_last_person", JSON.stringify({ id, name: fullName(p) }));
+      } catch { /* ignore quota errors */ }
     } catch (e) {
       setError(e instanceof Error ? e.message : t("deleteFailed"));
     } finally {
