@@ -268,6 +268,20 @@ export default function ResearchPage() {
   // When navigating from a person's detail page, personId is provided as a query param.
   const aiPersonId = searchParams.get("personId") ?? undefined;
 
+  // When there is no URL param, fall back to the last-viewed person stored in localStorage.
+  const [localPersonId, setLocalPersonId] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    if (aiPersonId) return; // URL param takes priority
+    try {
+      const raw = localStorage.getItem("clann_last_person");
+      if (raw) setLocalPersonId(JSON.parse(raw).id);
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // The effective person ID to use for pre-filling search forms.
+  const prefillPersonId = aiPersonId ?? localPersonId;
+
   const [notes, setNotes] = useState<ResearchNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -338,11 +352,11 @@ export default function ResearchPage() {
     if (aiPersonId) setMode("ai");
   }, [aiPersonId]);
 
-  // Pre-fill Census and Irish Genealogy forms with person data when arriving from a person's detail page.
+  // Pre-fill Census and Irish Genealogy forms from the effective person ID (URL param or last-viewed).
   // Must pass created_by so the backend ownership filter can find the person (same as useApi.getPerson).
   useEffect(() => {
-    if (!aiPersonId || !user?.username) return;
-    api.getPerson(aiPersonId, user.username).then((person) => {
+    if (!prefillPersonId || !user?.username) return;
+    api.getPerson(prefillPersonId, user.username).then((person) => {
       const extractYear = (date?: string | null): string => {
         if (!date) return "";
         const m = date.match(/\b(1[5-9]\d{2}|20[0-2]\d)\b/);
@@ -358,7 +372,7 @@ export default function ResearchPage() {
       });
     }).catch((err) => console.error("Person pre-fill fetch failed:", err));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [aiPersonId]);
+  }, [prefillPersonId]);
 
   // Close Explore dropdown when clicking outside.
   useEffect(() => {
@@ -717,11 +731,11 @@ export default function ResearchPage() {
 
   return (
     <div>
-      {/* Back-to-tree breadcrumb — shown when opened from a person's detail page */}
-      {aiPersonId && irishGenealogyPrefill && (
+      {/* Back-to-tree breadcrumb — shown whenever we have a person context (URL param or last-viewed) */}
+      {prefillPersonId && irishGenealogyPrefill && (
         <div className="mb-4">
           <a
-            href={`/${locale}/persons/${aiPersonId}`}
+            href={`/${locale}/persons/${prefillPersonId}`}
             className="inline-flex items-center gap-1.5 text-sm text-emerald-700 hover:text-emerald-900 font-medium transition-colors"
           >
             ← 🌳 {irishGenealogyPrefill.forename} {irishGenealogyPrefill.surname}
