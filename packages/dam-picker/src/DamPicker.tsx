@@ -33,7 +33,7 @@ export default function DamPicker({ apiBase, token, username, onSelect, onDragSt
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [assetCategories, setAssetCategories] = useState<Map<string, string[]>>(new Map());
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null | undefined>(undefined);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null | undefined>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
