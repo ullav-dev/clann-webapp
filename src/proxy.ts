@@ -25,7 +25,10 @@ function route(request: NextRequest): NextResponse {
   // Let file-upload endpoints be handled by Next.js Route Handlers.
   // NextResponse.rewrite() runs in the Edge Runtime and doesn't properly stream
   // multipart/form-data bodies, causing clann-server's parser to hang.
-  if (/^\/api\/persons\/[^/]+\/(?:image|life-image)$/.test(pathname)) {
+  if (
+    /^\/api\/persons\/[^/]+\/(?:image|life-image)$/.test(pathname) ||
+    /^\/api\/trees\/[^/]+\/image$/.test(pathname)
+  ) {
     return NextResponse.next();
   }
 
