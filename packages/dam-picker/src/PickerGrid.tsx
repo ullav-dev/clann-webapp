@@ -151,7 +151,7 @@ export default function PickerGrid({
     }
     if (selectedCategoryId) {
       const cats = assetCategories.get(asset.id);
-      if (cats === undefined) return true; // not loaded yet — show optimistically
+      if (cats === undefined) return false; // not loaded yet — hide until confirmed
       return cats.includes(selectedCategoryId);
     }
     return true;
@@ -223,7 +223,7 @@ export default function PickerGrid({
 
       {/* Asset grid */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+        <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))" }}>
           {paged.map((asset) => {
             const picked = toPickedAsset(asset);
             return (
