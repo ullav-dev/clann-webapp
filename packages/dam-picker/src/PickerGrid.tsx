@@ -282,17 +282,28 @@ export default function PickerGrid({
         </div>
       </div>
 
-      {/* Hover preview — fixed to viewport so it escapes overflow:hidden containers */}
+      {/* Hover preview — fixed to viewport, clearly larger than the card */}
       {hoverPreview && (() => {
-        const PREVIEW = 200;
+        const PREVIEW = 320;
+        const LABEL_H = 36;
+        const TOTAL_H = PREVIEW + LABEL_H;
         const { rect } = hoverPreview;
-        const fitsRight = rect.right + 8 + PREVIEW <= window.innerWidth;
-        const left = fitsRight ? rect.right + 8 : rect.left - PREVIEW - 8;
-        const top = Math.max(8, Math.min(rect.top, window.innerHeight - PREVIEW - 8));
-        const style: CSSProperties = { position: "fixed", left, top, width: PREVIEW, height: PREVIEW, zIndex: 9999, pointerEvents: "none" };
+        const fitsRight = rect.right + 16 + PREVIEW <= window.innerWidth;
+        const left = fitsRight ? rect.right + 16 : rect.left - PREVIEW - 16;
+        const top = Math.max(8, Math.min(rect.top, window.innerHeight - TOTAL_H - 8));
+        const asset = assets.find((a) => a.id === hoverPreview.id);
+        const style: CSSProperties = { position: "fixed", left, top, width: PREVIEW, zIndex: 9999, pointerEvents: "none" };
         return (
-          <div style={style} className="bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden">
-            <img src={getThumbnailUrl(hoverPreview.id)} className="w-full h-full object-contain" alt="" />
+          <div style={style} className="rounded-xl overflow-hidden shadow-2xl ring-2 ring-blue-500/40 bg-white">
+            <div style={{ width: PREVIEW, height: PREVIEW }} className="bg-slate-100">
+              <img src={getThumbnailUrl(hoverPreview.id)} className="w-full h-full object-contain" alt="" />
+            </div>
+            {asset && (
+              <div className="px-3 py-2 border-t border-slate-200 bg-white">
+                <p className="text-xs font-medium text-slate-700 truncate">{asset.name}</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">{typeInfo(asset.asset_type).label} · {formatSize(asset.size)}</p>
+              </div>
+            )}
           </div>
         );
       })()}
