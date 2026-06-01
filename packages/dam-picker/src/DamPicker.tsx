@@ -33,7 +33,7 @@ export default function DamPicker({ apiBase, token, username, onSelect, onDragSt
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [assetCategories, setAssetCategories] = useState<Map<string, string[]>>(new Map());
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null | undefined>(undefined);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null | undefined>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -160,14 +160,20 @@ export default function DamPicker({ apiBase, token, username, onSelect, onDragSt
   // ── Helpers ──────────────────────────────────────────────────────────────────
 
   const toPickedAsset = useCallback(
-    (asset: Asset): PickedAsset => ({
-      id: asset.id,
-      name: asset.name,
-      assetType: asset.asset_type,
-      size: asset.size,
-      url: client.assetUrl(asset.id),
-      thumbnailUrl: client.thumbnailUrl(asset.id),
-    }),
+    (asset: Asset): PickedAsset => {
+      // Absolute URLs so markdown image links work regardless of how/where
+      // the note body is later rendered (relative paths break in some contexts).
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const abs = (path: string) => path.startsWith("http") ? path : origin + path;
+      return {
+        id: asset.id,
+        name: asset.name,
+        assetType: asset.asset_type,
+        size: asset.size,
+        url: abs(client.assetUrl(asset.id)),
+        thumbnailUrl: abs(client.thumbnailUrl(asset.id)),
+      };
+    },
     [client]
   );
 

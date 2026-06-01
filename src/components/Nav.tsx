@@ -11,6 +11,7 @@ import { canCreateTeam } from "@/lib/auth-api";
 import LocaleSwitcher from "./LocaleSwitcher";
 import TreeSelector from "./TreeSelector";
 import AboutModal from "./AboutModal";
+import UserAvatar, { userDisplayName } from "./UserAvatar";
 
 export default function Nav() {
   const pathname = usePathname();
@@ -128,11 +129,12 @@ export default function Nav() {
                     <button
                       type="button"
                       onClick={() => setDropdownOpen((v) => !v)}
-                      className="flex items-center gap-1 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+                      className="flex items-center gap-1.5 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
                       aria-haspopup="true"
                       aria-expanded={dropdownOpen}
                     >
-                      <span className="hidden sm:block">{user.username}</span>
+                      <UserAvatar user={user} size="md" />
+                      <span className="hidden sm:block">{userDisplayName(user)}</span>
                       <svg
                         viewBox="0 0 16 16"
                         fill="currentColor"
@@ -248,7 +250,7 @@ export default function Nav() {
                     onClick={closeMobileMenu}
                     className="block px-4 py-3 text-sm text-stone-600 hover:bg-stone-50 transition-colors"
                   >
-                    {t("account")} ({user.username})
+                    {t("account")} ({userDisplayName(user)})
                   </Link>
                   <Link href="/settings" onClick={closeMobileMenu} className={mobileLink("/settings")}>
                     {t("settings")}
