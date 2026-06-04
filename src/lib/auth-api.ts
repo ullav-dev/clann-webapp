@@ -89,16 +89,31 @@ export const confirmPasswordReset = (token: string, new_password: string): Promi
     body: JSON.stringify({ token, new_password }),
   });
 
+export interface UpdateProfilePayload {
+  first_name?: string | null;
+  last_name?: string | null;
+  /** Pass null to clear; omit to leave unchanged. */
+  avatar_url?: string | null;
+}
+
 export const updateProfile = (
-  firstName: string | null,
-  lastName: string | null,
+  payload: UpdateProfilePayload,
   token: string
 ): Promise<AuthUser> =>
   authRequest("/users/me", {
     method: "PATCH",
     headers: { Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ first_name: firstName, last_name: lastName }),
+    body: JSON.stringify(payload),
   });
+
+export async function gravatarUrl(email: string, size = 200): Promise<string> {
+  const normalized = email.trim().toLowerCase();
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(normalized));
+  const hash = Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return `https://gravatar.com/avatar/${hash}?d=identicon&s=${size}`;
+}
 
 export const changePassword = (
   userId: string,

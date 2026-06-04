@@ -9,6 +9,7 @@ import {
   getSubscription,
   createPortalSession,
   updateProfile,
+  gravatarUrl,
   type SubscriptionInfo,
 } from "@/lib/auth-api";
 import ClannUsageWidget from "@/components/ClannUsageWidget";
@@ -40,6 +41,26 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+function AvatarPreview({ url, initials }: { url: string; initials: string }) {
+  const [broken, setBroken] = useState(false);
+  useEffect(() => setBroken(false), [url]);
+  if (url && !broken) {
+    return (
+      <img
+        src={url}
+        alt="Avatar preview"
+        className="w-16 h-16 rounded-full object-cover shrink-0"
+        onError={() => setBroken(true)}
+      />
+    );
+  }
+  return (
+    <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 text-lg font-semibold flex items-center justify-center select-none shrink-0">
+      {initials}
+    </div>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function SubscriptionPage() {
@@ -55,6 +76,8 @@ export default function SubscriptionPage() {
   // Profile editing state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [gravatarLoading, setGravatarLoading] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSaved, setProfileSaved] = useState(false);
@@ -64,11 +87,12 @@ export default function SubscriptionPage() {
     if (!isLoading && !user) router.replace("/login");
   }, [isLoading, user, router]);
 
-  // Populate name fields when user loads.
+  // Populate fields when user loads.
   useEffect(() => {
     if (user) {
       setFirstName(user.first_name ?? "");
       setLastName(user.last_name ?? "");
+      setAvatarUrl(user.avatar_url ?? "");
     }
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -87,7 +111,12 @@ export default function SubscriptionPage() {
     setProfileError(null);
     setProfileSaved(false);
     try {
-      const updated = await updateProfile(firstName.trim() || null, lastName.trim() || null, token);
+      const payload: Parameters<typeof updateProfile>[0] = {};
+      if (firstName.trim() !== (user!.first_name ?? "")) payload.first_name = firstName.trim() || null;
+      if (lastName.trim() !== (user!.last_name ?? "")) payload.last_name = lastName.trim() || null;
+      const newAvatar = avatarUrl.trim() || null;
+      if (newAvatar !== (user!.avatar_url ?? null)) payload.avatar_url = newAvatar;
+      const updated = await updateProfile(payload, token);
       updateUser(updated);
       setProfileSaved(true);
       setTimeout(() => setProfileSaved(false), 3000);
@@ -95,6 +124,17 @@ export default function SubscriptionPage() {
       setProfileError(err instanceof Error ? err.message : t("profileSaveError"));
     } finally {
       setProfileSaving(false);
+    }
+  }
+
+  async function handleUseGravatar() {
+    if (!user) return;
+    setGravatarLoading(true);
+    try {
+      const url = await gravatarUrl(user.email);
+      setAvatarUrl(url);
+    } finally {
+      setGravatarLoading(false);
     }
   }
 
@@ -112,6 +152,10 @@ export default function SubscriptionPage() {
   }
 
   if (isLoading || !user) return null;
+
+  const initials = (
+    `${(firstName || user.first_name)?.charAt(0) ?? ""}${(lastName || user.last_name)?.charAt(0) ?? ""}`
+  ).toUpperCase() || user.username.charAt(0).toUpperCase();
 
   const isPaid = sub && sub.plan !== "individual";
   const isTrialing = sub?.status === "trialing";
@@ -133,6 +177,41 @@ export default function SubscriptionPage() {
           <p className="text-xs text-stone-400 font-medium uppercase tracking-wide">{t("profileHeading")}</p>
         </div>
         <form onSubmit={handleProfileSave} className="px-6 py-5 space-y-4">
+          {/* Avatar row */}
+          <div className="flex items-center gap-4">
+            <AvatarPreview url={avatarUrl.trim()} initials={initials} />
+            <div className="flex-1 min-w-0">
+              <label className="block text-xs font-medium text-stone-500 mb-1">{t("avatarUrl")}</label>
+              <input
+                type="url"
+                value={avatarUrl}
+                onChange={(e) => setAvatarUrl(e.target.value)}
+                placeholder="https://…"
+                className="w-full text-sm border border-stone-300 rounded-lg px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+              <div className="flex gap-3 mt-1.5">
+                <button
+                  type="button"
+                  onClick={handleUseGravatar}
+                  disabled={gravatarLoading}
+                  className="text-xs text-emerald-700 hover:text-emerald-900 transition-colors disabled:opacity-50"
+                >
+                  {gravatarLoading ? t("gravatarGenerating") : t("useGravatar")}
+                </button>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setAvatarUrl("")}
+                    className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
+                  >
+                    {t("clearAvatar")}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Name fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-stone-500 mb-1">{t("firstName")}</label>
@@ -153,6 +232,7 @@ export default function SubscriptionPage() {
               />
             </div>
           </div>
+
           <div className="flex items-center gap-3">
             <button
               type="submit"
