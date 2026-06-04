@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   getSubscription,
   createPortalSession,
+  updateProfile,
   type SubscriptionInfo,
 } from "@/lib/auth-api";
 import ClannUsageWidget from "@/components/ClannUsageWidget";
@@ -43,7 +44,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function SubscriptionPage() {
   const t = useTranslations("subscription");
-  const { user, token, isLoading } = useAuth();
+  const { user, token, isLoading, updateUser } = useAuth();
   const router = useRouter();
 
   const [sub, setSub] = useState<SubscriptionInfo | null>(null);
@@ -51,10 +52,25 @@ export default function SubscriptionPage() {
   const [portalLoading, setPortalLoading] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
 
+  // Profile editing state
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [profileSaved, setProfileSaved] = useState(false);
+
   // Redirect to login if not authenticated.
   useEffect(() => {
     if (!isLoading && !user) router.replace("/login");
   }, [isLoading, user, router]);
+
+  // Populate name fields when user loads.
+  useEffect(() => {
+    if (user) {
+      setFirstName(user.first_name ?? "");
+      setLastName(user.last_name ?? "");
+    }
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch current subscription once the token is available.
   useEffect(() => {
@@ -63,6 +79,24 @@ export default function SubscriptionPage() {
       .then(setSub)
       .catch((err) => setFetchError(err instanceof Error ? err.message : t("loadError")));
   }, [token, t]);
+
+  async function handleProfileSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    setProfileSaving(true);
+    setProfileError(null);
+    setProfileSaved(false);
+    try {
+      const updated = await updateProfile(firstName.trim() || null, lastName.trim() || null, token);
+      updateUser(updated);
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 3000);
+    } catch (err) {
+      setProfileError(err instanceof Error ? err.message : t("profileSaveError"));
+    } finally {
+      setProfileSaving(false);
+    }
+  }
 
   async function handlePortal() {
     if (!token) return;
@@ -92,6 +126,50 @@ export default function SubscriptionPage() {
 
       <h1 className="text-2xl font-bold text-stone-900 mb-1">{t("heading")}</h1>
       <p className="text-sm text-stone-500 mb-8">{t("subheading")}</p>
+
+      {/* Profile section */}
+      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm mb-6">
+        <div className="px-6 py-5 border-b border-stone-100">
+          <p className="text-xs text-stone-400 font-medium uppercase tracking-wide">{t("profileHeading")}</p>
+        </div>
+        <form onSubmit={handleProfileSave} className="px-6 py-5 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-stone-500 mb-1">{t("firstName")}</label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full text-sm border border-stone-300 rounded-lg px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-stone-500 mb-1">{t("lastName")}</label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full text-sm border border-stone-300 rounded-lg px-3 py-2 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={profileSaving}
+              className="inline-flex items-center justify-center bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              {profileSaving ? t("profileSaving") : t("profileSave")}
+            </button>
+            {profileSaved && (
+              <span className="text-sm text-emerald-600 font-medium">{t("profileSaved")}</span>
+            )}
+            {profileError && (
+              <span className="text-sm text-red-600">{profileError}</span>
+            )}
+          </div>
+        </form>
+      </div>
 
       <div className="mb-6">
         <ClannUsageWidget />
@@ -137,28 +215,27 @@ export default function SubscriptionPage() {
           {/* Actions */}
           <div className="px-6 py-5 flex flex-col sm:flex-row gap-3">
             {!isPaid && (
-              <Link
-                href="/pricing"
-                className="inline-flex items-center justify-center bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+              <button
+                disabled
+                className="inline-flex items-center justify-center bg-emerald-700 opacity-40 cursor-not-allowed text-white text-sm font-medium px-5 py-2.5 rounded-lg"
               >
                 {t("upgradePlan")}
-              </Link>
+              </button>
             )}
             {isPaid && (
               <>
                 <button
-                  onClick={handlePortal}
-                  disabled={portalLoading}
-                  className="inline-flex items-center justify-center bg-stone-800 hover:bg-stone-900 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+                  disabled
+                  className="inline-flex items-center justify-center bg-stone-800 opacity-40 cursor-not-allowed text-white text-sm font-medium px-5 py-2.5 rounded-lg"
                 >
-                  {portalLoading ? t("redirecting") : t("manageBilling")}
+                  {t("manageBilling")}
                 </button>
-                <Link
-                  href="/pricing"
-                  className="inline-flex items-center justify-center border border-stone-300 text-stone-700 hover:bg-stone-50 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+                <button
+                  disabled
+                  className="inline-flex items-center justify-center border border-stone-300 text-stone-700 opacity-40 cursor-not-allowed text-sm font-medium px-5 py-2.5 rounded-lg"
                 >
                   {t("changePlan")}
-                </Link>
+                </button>
               </>
             )}
           </div>

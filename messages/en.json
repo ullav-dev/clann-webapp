@@ -661,7 +661,14 @@
     "loadError": "Could not load subscription details.",
     "portalError": "Could not open billing portal. Please try again.",
     "helpText": "Questions about billing?",
-    "helpLink": "View help"
+    "helpLink": "View help",
+    "profileHeading": "Profile",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "profileSave": "Save Changes",
+    "profileSaving": "Saving…",
+    "profileSaved": "Saved",
+    "profileSaveError": "Could not save profile. Please try again."
   },
   "lifeEvents": {
     "tabLabel": "📅 Life Events",
