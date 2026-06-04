@@ -32,8 +32,8 @@ export interface RegisterResponse {
 
 async function authRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...init?.headers },
     ...init,
+    headers: { "Content-Type": "application/json", ...init?.headers },
   });
   const contentType = res.headers.get("content-type") ?? "";
   if (res.status === 204 || !contentType.includes("application/json")) {
