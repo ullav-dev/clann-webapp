@@ -89,6 +89,17 @@ export const confirmPasswordReset = (token: string, new_password: string): Promi
     body: JSON.stringify({ token, new_password }),
   });
 
+export const updateProfile = (
+  firstName: string | null,
+  lastName: string | null,
+  token: string
+): Promise<AuthUser> =>
+  authRequest("/users/me", {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ first_name: firstName, last_name: lastName }),
+  });
+
 export const changePassword = (
   userId: string,
   newPassword: string,

@@ -661,7 +661,14 @@
     "loadError": "Abonnementdetails konnten nicht geladen werden.",
     "portalError": "Abrechnungsportal konnte nicht geöffnet werden.",
     "helpText": "Fragen zur Abrechnung?",
-    "helpLink": "Hilfe anzeigen"
+    "helpLink": "Hilfe anzeigen",
+    "profileHeading": "Profil",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "profileSave": "Änderungen speichern",
+    "profileSaving": "Speichern…",
+    "profileSaved": "Gespeichert",
+    "profileSaveError": "Profil konnte nicht gespeichert werden. Bitte erneut versuchen."
   },
   "lifeEvents": {
     "tabLabel": "📅 Lebensereignisse",

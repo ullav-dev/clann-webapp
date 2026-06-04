@@ -661,7 +661,14 @@
     "loadError": "Níorbh fhéidir sonraí liostála a luchtú.",
     "portalError": "Níorbh fhéidir an tairseach billeála a oscailt.",
     "helpText": "Ceisteanna faoin mbilleáil?",
-    "helpLink": "Féach ar chabhrú"
+    "helpLink": "Féach ar chabhrú",
+    "profileHeading": "Próifíl",
+    "firstName": "Céadainm",
+    "lastName": "Sloinne",
+    "profileSave": "Sábháil Athruithe",
+    "profileSaving": "Ag sábháil…",
+    "profileSaved": "Sábháilte",
+    "profileSaveError": "Níorbh fhéidir an phróifíl a shábháil. Bain triail eile as."
   },
   "lifeEvents": {
     "tabLabel": "📅 Imeachtaí Saoil",
