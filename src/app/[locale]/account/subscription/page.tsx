@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   getSubscription,
-  createPortalSession,
   updateProfile,
   gravatarUrl,
   type SubscriptionInfo,
@@ -70,8 +69,6 @@ export default function SubscriptionPage() {
 
   const [sub, setSub] = useState<SubscriptionInfo | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [portalLoading, setPortalLoading] = useState(false);
-  const [portalError, setPortalError] = useState<string | null>(null);
 
   // Profile editing state
   const [firstName, setFirstName] = useState("");
@@ -138,27 +135,11 @@ export default function SubscriptionPage() {
     }
   }
 
-  async function handlePortal() {
-    if (!token) return;
-    setPortalError(null);
-    setPortalLoading(true);
-    try {
-      const { url } = await createPortalSession(token);
-      window.location.href = url;
-    } catch (err) {
-      setPortalError(err instanceof Error ? err.message : t("portalError"));
-      setPortalLoading(false);
-    }
-  }
-
   if (isLoading || !user) return null;
 
   const initials = (
     `${(firstName || user.first_name)?.charAt(0) ?? ""}${(lastName || user.last_name)?.charAt(0) ?? ""}`
   ).toUpperCase() || user.username.charAt(0).toUpperCase();
-
-  const isPaid = sub && sub.plan !== "individual";
-  const isTrialing = sub?.status === "trialing";
 
   return (
     <div className="max-w-2xl mx-auto py-4">
@@ -270,11 +251,6 @@ export default function SubscriptionPage() {
                 {t("currentPlan")}
               </p>
               <p className="text-xl font-bold text-stone-900 capitalize">{sub.plan}</p>
-              {isTrialing && sub.trial_end && (
-                <p className="text-xs text-sky-600 mt-1">
-                  {t("trialEnds", { date: formatDate(sub.trial_end) })}
-                </p>
-              )}
             </div>
             <StatusBadge status={sub.status} />
           </div>
@@ -292,39 +268,6 @@ export default function SubscriptionPage() {
             <Detail label={t("memberSince")} value={formatDate(sub.created_at)} />
           </div>
 
-          {/* Actions */}
-          <div className="px-6 py-5 flex flex-col sm:flex-row gap-3">
-            {!isPaid && (
-              <button
-                disabled
-                className="inline-flex items-center justify-center bg-emerald-700 opacity-40 cursor-not-allowed text-white text-sm font-medium px-5 py-2.5 rounded-lg"
-              >
-                {t("upgradePlan")}
-              </button>
-            )}
-            {isPaid && (
-              <>
-                <button
-                  disabled
-                  className="inline-flex items-center justify-center bg-stone-800 opacity-40 cursor-not-allowed text-white text-sm font-medium px-5 py-2.5 rounded-lg"
-                >
-                  {t("manageBilling")}
-                </button>
-                <button
-                  disabled
-                  className="inline-flex items-center justify-center border border-stone-300 text-stone-700 opacity-40 cursor-not-allowed text-sm font-medium px-5 py-2.5 rounded-lg"
-                >
-                  {t("changePlan")}
-                </button>
-              </>
-            )}
-          </div>
-
-          {portalError && (
-            <div className="px-6 pb-5">
-              <p className="text-sm text-red-600">{portalError}</p>
-            </div>
-          )}
         </div>
       )}
 
