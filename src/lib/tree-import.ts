@@ -1,4 +1,4 @@
-import type { FamilyTreeNode, Sex, SiblingType } from "./types";
+import type { FamilyTreeNode, Pedigree, Sex, SiblingType } from "./types";
 
 export interface ImportPerson {
   originalId: string;
@@ -26,6 +26,8 @@ export interface ImportRelationship {
   sibling_type?: SiblingType | null;
   spouse_from?: string | null;
   spouse_to?: string | null;
+  /** Nature of the parent–child relationship. Meaningful only for Father and Mother. */
+  pedigree?: Pedigree | null;
 }
 
 export interface ParsedImport {

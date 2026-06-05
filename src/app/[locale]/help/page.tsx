@@ -38,6 +38,11 @@ export default async function HelpPage() {
         { title: t("relationships.filterTitle"), body: t("relationships.filterBody") },
         { title: t("relationships.spouseTitle"), body: t("relationships.spouseBody") },
         { title: t("relationships.setupFamilyTitle"), body: t("relationships.setupFamilyBody") },
+        { title: t("relationships.adoptionTitle"), body: t("relationships.adoptionBody") },
+        { title: t("relationships.adoptionPrincipleTitle"), body: t("relationships.adoptionPrincipleBody") },
+        { title: t("relationships.adoptionScenario1Title"), body: t("relationships.adoptionScenario1Body") },
+        { title: t("relationships.adoptionScenario2Title"), body: t("relationships.adoptionScenario2Body") },
+        { title: t("relationships.adoptionVisualTitle"), body: t("relationships.adoptionVisualBody") },
       ],
     },
     {

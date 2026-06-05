@@ -10,7 +10,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { rawId } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import { useTree } from "@/contexts/TreeContext";
-import type { Person, SpouseInfo, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
+import type { Person, ParentInfo, SpouseInfo, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
 import { fullName } from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
 import ImageUpload from "@/components/ImageUpload";
@@ -108,7 +108,7 @@ export default function PersonDetailPage() {
     }
   }
 
-  async function handleDeleteRel(group: "father" | "mother" | "siblings" | "spouse", related: Person | SpouseInfo) {
+  async function handleDeleteRel(group: "father" | "mother" | "siblings" | "spouse", related: Person | ParentInfo | SpouseInfo) {
     if (!confirm(t("removeConfirm", { name: fullName(related), group }))) return;
     await api.deleteRelationship(id, REL_TYPE_MAP[group], related.id);
     load();
@@ -235,18 +235,26 @@ export default function PersonDetailPage() {
                 </h2>
                 {people.length === 0 ? (<p className="text-stone-400 text-sm italic">{t("noneRecorded")}</p>) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {people.map((p) => (
-                      <div key={p.id} className="flex items-center gap-3 bg-white rounded-xl border border-stone-200 px-4 py-3 shadow-sm">
-                        <Link href={`/persons/${rawId(p.id)}`} className="flex items-center gap-3 flex-1 min-w-0 group">
-                          <PersonAvatar person={p} size={36} />
-                          <div className="min-w-0">
-                            <p className="font-medium text-sm text-stone-800 group-hover:text-emerald-700 truncate">{fullName(p)}</p>
-                            {p.date_of_birth && <p className="text-xs text-stone-400">{t("bornPrefix", { date: p.date_of_birth })}</p>}
-                          </div>
-                        </Link>
-                        {!readOnly && <button onClick={() => handleDeleteRel(group, p)} className="text-stone-300 hover:text-red-500 transition-colors text-lg ml-2 flex-shrink-0" title={t("removeRelationship")}>×</button>}
-                      </div>
-                    ))}
+                    {people.map((p) => {
+                      const pedigree = (group === "father" || group === "mother") ? (p as ParentInfo).pedigree : undefined;
+                      return (
+                        <div key={p.id} className="flex items-center gap-3 bg-white rounded-xl border border-stone-200 px-4 py-3 shadow-sm">
+                          <Link href={`/persons/${rawId(p.id)}`} className="flex items-center gap-3 flex-1 min-w-0 group">
+                            <PersonAvatar person={p} size={36} />
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm text-stone-800 group-hover:text-emerald-700 truncate">{fullName(p)}</p>
+                              {p.date_of_birth && <p className="text-xs text-stone-400">{t("bornPrefix", { date: p.date_of_birth })}</p>}
+                              {pedigree && pedigree !== "birth" && (
+                                <span className="inline-block text-xs font-medium px-1.5 py-0.5 rounded mt-0.5 bg-amber-100 text-amber-700 border border-amber-200">
+                                  {t(`pedigree_${pedigree}` as "pedigree_adopted")}
+                                </span>
+                              )}
+                            </div>
+                          </Link>
+                          {!readOnly && <button onClick={() => handleDeleteRel(group, p)} className="text-stone-300 hover:text-red-500 transition-colors text-lg ml-2 flex-shrink-0" title={t("removeRelationship")}>×</button>}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </section>

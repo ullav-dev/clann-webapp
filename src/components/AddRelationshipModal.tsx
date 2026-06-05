@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import type { Person, RelationshipType, SiblingType } from "@/lib/types";
+import type { Person, Pedigree, RelationshipType, SiblingType } from "@/lib/types";
 import { useApi } from "@/hooks/useApi";
 import { fullName, personIcon } from "./PersonCard";
 
@@ -18,6 +18,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
   const [persons, setPersons] = useState<Person[]>([]);
   const [relType, setRelType] = useState<RelationshipType>("Father");
   const [siblingType, setSiblingType] = useState<SiblingType>("Brother");
+  const [pedigree, setPedigree] = useState<Pedigree>("birth");
   const [spouseFrom, setSpouseFrom] = useState("");
   const [spouseTo, setSpouseTo] = useState("");
   const [selectedId, setSelectedId] = useState("");
@@ -112,6 +113,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
           related_id: selectedId,
           spouse_from: relType === "Spouse" && spouseFrom ? spouseFrom : undefined,
           spouse_to: relType === "Spouse" && spouseTo ? spouseTo : undefined,
+          pedigree: (relType === "Father" || relType === "Mother") ? pedigree : undefined,
         });
 
         // When adding a Father or Mother, find the parent's other children and
@@ -200,6 +202,29 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
                     }`}
                   >
                     {st === "Brother" ? t("brother") : t("sister")}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pedigree selector — only for Father / Mother */}
+          {(relType === "Father" || relType === "Mother") && (
+            <div>
+              <label className="text-sm font-medium text-stone-700 block mb-2">{t("pedigree")}</label>
+              <div className="grid grid-cols-2 gap-2">
+                {(["birth", "adopted", "step", "foster"] as Pedigree[]).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPedigree(p)}
+                    className={`py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${
+                      pedigree === p
+                        ? "bg-emerald-700 text-white border-emerald-700"
+                        : "border-stone-300 text-stone-700 hover:border-emerald-400"
+                    }`}
+                  >
+                    {t(`pedigree_${p}`)}
                   </button>
                 ))}
               </div>
