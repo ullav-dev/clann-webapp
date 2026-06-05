@@ -186,6 +186,7 @@ export type EventType =
   | "Immigration"
   | "Emigration"
   | "Military"
+  | "NameChange"
   | "Other"
   | string; // open to custom values
 

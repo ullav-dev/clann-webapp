@@ -419,7 +419,7 @@
       "overviewTitle": "What are Life Events?",
       "overviewBody": "Each person has a Life Events tab on their profile page. It shows a chronological timeline of significant moments — birth, marriage, graduation, immigration, military service, and more. Events are sorted by date; the Birth event is always shown first regardless of whether a date has been set. A Birth event is created automatically every time a new person is added to your tree.",
       "timelineTitle": "Reading the timeline",
-      "timelineBody": "Events appear as cards on a left-spine timeline, each with a coloured icon badge that reflects the event type. The icon and colour are chosen automatically: emerald for Birth, violet for Marriage, blue for Graduation, red for Military service, sky for Immigration and Emigration, amber for Divorce, stone for Death, and grey for Other or custom types.",
+      "timelineBody": "Events appear as cards on a left-spine timeline, each with a coloured icon badge that reflects the event type. The icon and colour are chosen automatically: emerald for Birth, violet for Marriage, blue for Graduation, red for Military service, sky for Immigration and Emigration, amber for Divorce, stone for Death, teal for Name Change, and grey for Other or custom types.",
       "addingTitle": "Adding an event",
       "addingBody": "On the Life Events tab, click 'Add Event'. Enter the event name, an optional date (free-form text is accepted: '1920', 'circa 1920', 'June 1920'), and choose an event type. Select 'Custom type…' to enter your own label. Click Save when done.",
       "viewingTitle": "Viewing full details",

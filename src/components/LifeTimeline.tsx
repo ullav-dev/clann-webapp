@@ -39,8 +39,17 @@ const EVENT_STYLES: Record<string, EventStyle> = {
   Military:    { icon: "⚔️", dotBg: "bg-red-100",     dotRing: "ring-red-400",     badge: "bg-red-100 text-red-700" },
   Immigration: { icon: "✈️", dotBg: "bg-sky-100",     dotRing: "ring-sky-400",     badge: "bg-sky-100 text-sky-700" },
   Emigration:  { icon: "✈️", dotBg: "bg-sky-100",     dotRing: "ring-sky-400",     badge: "bg-sky-100 text-sky-700" },
+  NameChange:  { icon: "✏️", dotBg: "bg-teal-100",    dotRing: "ring-teal-400",    badge: "bg-teal-100 text-teal-700" },
   Other:       DEFAULT_STYLE,
 };
+
+const EVENT_LABELS: Record<string, string> = {
+  NameChange: "Name Change",
+};
+
+function labelFor(eventType: string): string {
+  return EVENT_LABELS[eventType] ?? eventType;
+}
 
 function styleFor(eventType: string): EventStyle {
   return EVENT_STYLES[eventType] ?? DEFAULT_STYLE;
@@ -75,7 +84,7 @@ function sortedEvents(events: LifeEvent[]): LifeEvent[] {
 
 const KNOWN_EVENT_TYPES: EventType[] = [
   "Birth", "Death", "Marriage", "Divorce", "Graduation",
-  "Immigration", "Emigration", "Military", "Other",
+  "Immigration", "Emigration", "Military", "NameChange", "Other",
 ];
 
 // ─── source indicator icons ───────────────────────────────────────────────────
@@ -425,7 +434,7 @@ function EditEventPanel({ event, token, username, onSaved, onCancel }: EditEvent
             className="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           >
             {KNOWN_EVENT_TYPES.map((type) => (
-              <option key={type} value={type}>{type}</option>
+              <option key={type} value={type}>{labelFor(type)}</option>
             ))}
             <option value="_custom">{t("customType")}</option>
           </select>
@@ -633,7 +642,7 @@ function AddEventForm({ personId, createdBy, onSaved, onCancel }: AddEventFormPr
             className="w-full rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           >
             {KNOWN_EVENT_TYPES.map((type) => (
-              <option key={type} value={type}>{type}</option>
+              <option key={type} value={type}>{labelFor(type)}</option>
             ))}
             <option value="_custom">{t("customType")}</option>
           </select>
@@ -816,7 +825,7 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
                   <div className="relative z-10 flex-shrink-0 mt-0.5">
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ring-2 ${style.dotBg} ${style.dotRing}`}
-                      title={event.event_type}
+                      title={labelFor(event.event_type)}
                     >
                       {style.icon}
                     </div>
@@ -830,7 +839,7 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-stone-800 text-sm">{event.name}</span>
                           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${style.badge}`}>
-                            {event.event_type}
+                            {labelFor(event.event_type)}
                           </span>
                           {event.verified && (
                             <span className="text-xs text-emerald-600 font-medium" title={t("verified")}>✓ {t("verified")}</span>
