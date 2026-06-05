@@ -1,6 +1,7 @@
 export type Sex = "Male" | "Female";
 export type RelationshipType = "Father" | "Mother" | "Sibling" | "Spouse";
 export type SiblingType = "Brother" | "Sister";
+export type Pedigree = "birth" | "adopted" | "step" | "foster";
 
 export interface FamilyTree {
   id: string; // "family_tree:<ulid>"
@@ -135,9 +136,14 @@ export interface SpouseInfo extends Person {
   spouse_to?: string | null;
 }
 
+/** A parent with the pedigree qualifier from the edge. */
+export interface ParentInfo extends Person {
+  pedigree: Pedigree;
+}
+
 export interface RelationshipsResponse {
-  father: Person[];
-  mother: Person[];
+  father: ParentInfo[];
+  mother: ParentInfo[];
   siblings: Person[];
   spouse: SpouseInfo[];
 }
@@ -148,6 +154,8 @@ export interface AddRelationshipRequest {
   sibling_type?: SiblingType | null;
   spouse_from?: string | null;
   spouse_to?: string | null;
+  /** Nature of the parent–child relationship. Only meaningful for Father / Mother. Defaults to "birth". */
+  pedigree?: Pedigree | null;
 }
 
 export interface UpdateSpouseDatesRequest {
@@ -165,6 +173,8 @@ export interface FamilyTreeNode {
   biography?: string | null;
   image_path?: string | null;
   sibling_type?: SiblingType | null;
+  /** Pedigree of this node relative to its child. Set on nodes in father/mother arrays. */
+  pedigree?: Pedigree | null;
   father?: FamilyTreeNode[];
   mother?: FamilyTreeNode[];
   children?: FamilyTreeNode[];

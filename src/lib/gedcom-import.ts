@@ -2,7 +2,7 @@
 // Parses a .ged file into the same ParsedImport shape used by the JSON importer,
 // with a warnings array for anything that could not be fully resolved.
 
-import type { Sex, SiblingType } from "./types";
+import type { Pedigree, Sex, SiblingType } from "./types";
 import { type ParsedImport, type ImportPerson, type ImportRelationship, slugify } from "./tree-import";
 
 // ── GEDCOM line parser ────────────────────────────────────────────────────────
@@ -207,13 +207,38 @@ export function parseGedcomFile(content: string): ParsedImport {
     relatedId: string,
     extra?: Partial<ImportRelationship>,
   ) {
+    // For parent relations, pedigree is part of the key so birth + adopted can coexist.
     const key =
       type === "Spouse" || type === "Sibling"
         ? `${type}:${[personId, relatedId].sort().join(":")}`
-        : `${type}:${personId}:${relatedId}`;
+        : `${type}:${personId}:${relatedId}:${extra?.pedigree ?? "birth"}`;
     if (!relKeys.has(key)) {
       relKeys.add(key);
       relationships.push({ type, personId, relatedId, ...extra });
+    }
+  }
+
+  // Build a PEDI map from each INDI's FAMC records: famXref+indiXref → pedigree
+  const famcPedigreeMap = new Map<string, Pedigree>();
+  for (const rec of indiRecords) {
+    let i = 0;
+    while (i < rec.lines.length) {
+      const line = rec.lines[i];
+      if (line.level === 1 && line.tag === "FAMC") {
+        const famRef = line.value;
+        // Look for PEDI subfield
+        for (let j = i + 1; j < rec.lines.length; j++) {
+          if (rec.lines[j].level <= 1) break;
+          if (rec.lines[j].tag === "PEDI") {
+            const v = rec.lines[j].value.toLowerCase() as Pedigree;
+            if (["birth", "adopted", "step", "foster"].includes(v)) {
+              famcPedigreeMap.set(`${famRef}:${rec.xref}`, v);
+            }
+            break;
+          }
+        }
+      }
+      i++;
     }
   }
 
@@ -262,14 +287,16 @@ export function parseGedcomFile(content: string): ParsedImport {
       }
       validChildren.push(childRef);
 
+      const childPedigree = famcPedigreeMap.get(`${fam.xref}:${childRef}`) ?? "birth";
+
       // Use sex of the HUSB/WIFE to decide Father vs Mother
       if (validHusb) {
         const p = personMap.get(validHusb)!;
-        addRel(p.sex === "Female" ? "Mother" : "Father", childRef, validHusb);
+        addRel(p.sex === "Female" ? "Mother" : "Father", childRef, validHusb, { pedigree: childPedigree });
       }
       if (validWife) {
         const p = personMap.get(validWife)!;
-        addRel(p.sex === "Male" ? "Father" : "Mother", childRef, validWife);
+        addRel(p.sex === "Male" ? "Father" : "Mother", childRef, validWife, { pedigree: childPedigree });
       }
     }
 

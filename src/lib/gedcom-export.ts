@@ -21,6 +21,7 @@ export interface GedcomRelationship {
   related_id: string;
   spouse_from?: string | null;
   spouse_to?: string | null;
+  pedigree?: string | null; // "birth" | "adopted" | "step" | "foster"
 }
 
 interface FamRecord {
@@ -41,15 +42,20 @@ export function exportToGedcom(
   persons.forEach((p, i) => indiId.set(p.id, `@I${i + 1}@`));
 
   // Build relationship indexes
-  const fatherOf = new Map<string, string>(); // child id → father id
-  const motherOf = new Map<string, string>(); // child id → mother id
+  // A person may have multiple fathers or mothers (birth + adoptive), so use arrays.
+  const fathersOf = new Map<string, { id: string; pedigree: string }[]>();
+  const mothersOf = new Map<string, { id: string; pedigree: string }[]>();
   const spousePairs: { a: string; b: string; from: string | null }[] = [];
 
   for (const rel of relationships) {
     if (rel.type === "Father") {
-      fatherOf.set(rel.person_id, rel.related_id);
+      const arr = fathersOf.get(rel.person_id) ?? [];
+      arr.push({ id: rel.related_id, pedigree: rel.pedigree ?? "birth" });
+      fathersOf.set(rel.person_id, arr);
     } else if (rel.type === "Mother") {
-      motherOf.set(rel.person_id, rel.related_id);
+      const arr = mothersOf.get(rel.person_id) ?? [];
+      arr.push({ id: rel.related_id, pedigree: rel.pedigree ?? "birth" });
+      mothersOf.set(rel.person_id, arr);
     } else if (rel.type === "Spouse") {
       const [a, b] = [rel.person_id, rel.related_id].sort();
       if (!spousePairs.some((p) => p.a === a && p.b === b)) {
@@ -90,29 +96,50 @@ export function exportToGedcom(
     if (pair.from) fam.marriageDate = pair.from;
   }
 
-  // Children → find/create the parent FAM and add as CHIL
+  // Children → find/create a FAM per unique (father, mother) pairing.
+  // A child with birth + adoptive parents gets two FAMC links with PEDI tags.
+  const famcPedigree = new Map<string, string>(); // `${famGedId}:${personId}` → pedigree
+
   for (const person of persons) {
-    const fId = fatherOf.get(person.id) ?? null;
-    const mId = motherOf.get(person.id) ?? null;
-    if (!fId && !mId) continue;
+    const fathers = fathersOf.get(person.id) ?? [];
+    const mothers = mothersOf.get(person.id) ?? [];
 
-    let husbId: string | null = null;
-    let wifeId: string | null = null;
+    if (fathers.length === 0 && mothers.length === 0) continue;
 
-    if (fId && mId) {
-      const result = husbWife(fId, mId);
-      husbId = result.husbId;
-      wifeId = result.wifeId;
-    } else if (fId) {
-      const father = personById.get(fId);
-      if (father?.sex === "Female") wifeId = fId; else husbId = fId;
-    } else if (mId) {
-      const mother = personById.get(mId);
-      if (mother?.sex === "Male") husbId = mId; else wifeId = mId;
+    // Group parents by pedigree to create one FAM per pairing
+    const pedigreeGroups = new Map<string, { fId: string | null; mId: string | null }>();
+
+    for (const f of fathers) {
+      const g = pedigreeGroups.get(f.pedigree) ?? { fId: null, mId: null };
+      g.fId = f.id;
+      pedigreeGroups.set(f.pedigree, g);
+    }
+    for (const m of mothers) {
+      const g = pedigreeGroups.get(m.pedigree) ?? { fId: null, mId: null };
+      g.mId = m.id;
+      pedigreeGroups.set(m.pedigree, g);
     }
 
-    const fam = findOrCreateFam(husbId, wifeId);
-    if (!fam.childIds.includes(person.id)) fam.childIds.push(person.id);
+    for (const [ped, { fId, mId }] of pedigreeGroups) {
+      let husbId: string | null = null;
+      let wifeId: string | null = null;
+
+      if (fId && mId) {
+        const result = husbWife(fId, mId);
+        husbId = result.husbId;
+        wifeId = result.wifeId;
+      } else if (fId) {
+        const f = personById.get(fId);
+        if (f?.sex === "Female") wifeId = fId; else husbId = fId;
+      } else if (mId) {
+        const m = personById.get(mId);
+        if (m?.sex === "Male") husbId = mId; else wifeId = mId;
+      }
+
+      const fam = findOrCreateFam(husbId, wifeId);
+      if (!fam.childIds.includes(person.id)) fam.childIds.push(person.id);
+      famcPedigree.set(`${fam.gedId}:${person.id}`, ped);
+    }
   }
 
   // Reverse index: person id → FAM ids where they are a spouse (FAMS) or child (FAMC)
@@ -192,7 +219,11 @@ export function exportToGedcom(
 
     // FAMS / FAMC
     for (const famId of famsOf.get(p.id) ?? []) lines.push(`1 FAMS ${famId}`);
-    for (const famId of famcOf.get(p.id) ?? []) lines.push(`1 FAMC ${famId}`);
+    for (const famId of famcOf.get(p.id) ?? []) {
+      lines.push(`1 FAMC ${famId}`);
+      const ped = famcPedigree.get(`${famId}:${p.id}`);
+      if (ped && ped !== "birth") lines.push(`2 PEDI ${ped}`);
+    }
 
     // NOTE (biography)
     if (p.biography) lines.push(...noteLines(p.biography, 1));

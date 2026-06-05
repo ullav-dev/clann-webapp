@@ -208,13 +208,19 @@ function buildGraph(
     buildGraph(p, px, py, nodes, edges, orientation, parentRole, visited, photoVersions);
 
     const edgeColor = parentRole === "father" ? "#93c5fd" : "#fda4af"; // blue-300 / rose-300
+    const pedigree = p.pedigree ?? "birth";
+    const pedigreeStyle =
+      pedigree === "adopted" ? { strokeDasharray: "6 3" } :
+      pedigree === "step"    ? { strokeDasharray: "2 4" } :
+      pedigree === "foster"  ? { strokeDasharray: "8 4", opacity: 0.6 } :
+      {};
     edges.push({
       id: `${p.id}->${node.id}`,
       source: p.id,      sourceHandle: "main-s",
       target: node.id,   targetHandle: "main-t",
       type: "smoothstep",
       markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
-      style: { stroke: edgeColor, strokeWidth: 1.5 },
+      style: { stroke: edgeColor, strokeWidth: 1.5, ...pedigreeStyle },
     });
   });
 
@@ -278,9 +284,23 @@ function buildGraph(
 
 type TranslateFn = ReturnType<typeof useTranslations>;
 
-function Legend({ t }: { t: TranslateFn }) {
+function PedigreeLineSwatch({ dasharray, opacity = 1 }: { dasharray?: string; opacity?: number }) {
   return (
-    <div className="inline-flex items-center gap-4 text-xs text-stone-600">
+    <svg width="20" height="10" className="inline-block flex-shrink-0">
+      <line
+        x1="0" y1="5" x2="20" y2="5"
+        stroke="#78716c"
+        strokeWidth="2"
+        strokeDasharray={dasharray}
+        opacity={opacity}
+      />
+    </svg>
+  );
+}
+
+function Legend({ t, hasNonBirth }: { t: TranslateFn; hasNonBirth: boolean }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-600">
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-3 h-3 rounded-sm border-2 border-emerald-600 bg-emerald-50" />
         {t("legendYou")}
@@ -305,6 +325,27 @@ function Legend({ t }: { t: TranslateFn }) {
         <span className="inline-block w-3 h-3 rounded-sm border-2 border-teal-400 bg-teal-50" />
         {t("legendSibling")}
       </span>
+      {hasNonBirth && (
+        <>
+          <span className="w-px h-4 bg-stone-300" />
+          <span className="flex items-center gap-1.5">
+            <PedigreeLineSwatch />
+            {t("legendBirth")}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <PedigreeLineSwatch dasharray="6 3" />
+            {t("legendAdopted")}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <PedigreeLineSwatch dasharray="2 4" />
+            {t("legendStep")}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <PedigreeLineSwatch dasharray="8 4" opacity={0.6} />
+            {t("legendFoster")}
+          </span>
+        </>
+      )}
     </div>
   );
 }
@@ -410,6 +451,17 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
     return { nodes, edges };
   }, [tree, orientation, showSiblings, photoVersions]);
 
+  const hasNonBirth = useMemo(() => {
+    function check(node: FamilyTreeNode): boolean {
+      for (const p of [...(node.father ?? []), ...(node.mother ?? [])]) {
+        if (p.pedigree && p.pedigree !== "birth") return true;
+        if (check(p)) return true;
+      }
+      return false;
+    }
+    return check(tree);
+  }, [tree]);
+
   // Elevate the hovered node so its tooltip stacks above all other nodes.
   // Each React Flow node wrapper has a CSS transform that creates a stacking
   // context, so z-index inside the node only works within that context.
@@ -439,10 +491,11 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
       const relKeys = new Set<string>();
       const relationships: object[] = [];
       function addRel(type: string, personId: string, relatedId: string, extra?: Record<string, string | null>) {
+        const pedigree = (extra?.pedigree ?? "birth");
         const key =
           type === "Spouse" || type === "Sibling"
             ? `${type}:${[personId, relatedId].sort().join(":")}`
-            : `${type}:${personId}:${relatedId}`;
+            : `${type}:${personId}:${relatedId}:${pedigree}`;
         if (!relKeys.has(key)) {
           relKeys.add(key);
           relationships.push({ type, person_id: personId, related_id: relatedId, ...extra });
@@ -450,8 +503,8 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
       }
 
       for (const { id, r } of relResults) {
-        for (const p of r.father)   addRel("Father",  id, p.id);
-        for (const p of r.mother)   addRel("Mother",  id, p.id);
+        for (const p of r.father)   addRel("Father",  id, p.id, { pedigree: p.pedigree });
+        for (const p of r.mother)   addRel("Mother",  id, p.id, { pedigree: p.pedigree });
         for (const p of r.siblings) addRel("Sibling", id, p.id, { sibling_type: p.sex === "Female" ? "Sister" : "Brother" });
         for (const p of r.spouse)   addRel("Spouse",  id, p.id, { spouse_from: p.spouse_from ?? null, spouse_to: p.spouse_to ?? null });
       }
@@ -498,12 +551,13 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
       }
 
       const relKeys = new Set<string>();
-      const relationships: { type: string; person_id: string; related_id: string; spouse_from?: string | null; spouse_to?: string | null }[] = [];
-      function addRel(type: string, personId: string, relatedId: string, extra?: { spouse_from?: string | null; spouse_to?: string | null }) {
+      const relationships: { type: string; person_id: string; related_id: string; pedigree?: string; spouse_from?: string | null; spouse_to?: string | null }[] = [];
+      function addRel(type: string, personId: string, relatedId: string, extra?: { pedigree?: string; spouse_from?: string | null; spouse_to?: string | null }) {
+        const pedigree = extra?.pedigree ?? "birth";
         const key =
           type === "Spouse" || type === "Sibling"
             ? `${type}:${[personId, relatedId].sort().join(":")}`
-            : `${type}:${personId}:${relatedId}`;
+            : `${type}:${personId}:${relatedId}:${pedigree}`;
         if (!relKeys.has(key)) {
           relKeys.add(key);
           relationships.push({ type, person_id: personId, related_id: relatedId, ...extra });
@@ -511,8 +565,8 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
       }
 
       for (const { id, r } of relResults) {
-        for (const p of r.father)   addRel("Father",  id, p.id);
-        for (const p of r.mother)   addRel("Mother",  id, p.id);
+        for (const p of r.father)   addRel("Father",  id, p.id, { pedigree: p.pedigree });
+        for (const p of r.mother)   addRel("Mother",  id, p.id, { pedigree: p.pedigree });
         for (const p of r.siblings) addRel("Sibling", id, p.id);
         for (const p of r.spouse)   addRel("Spouse",  id, p.id, { spouse_from: p.spouse_from ?? null, spouse_to: p.spouse_to ?? null });
       }
@@ -603,7 +657,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
           {t("siblingsToggle")}
         </button>
 
-        <Legend t={t} />
+        <Legend t={t} hasNonBirth={hasNonBirth} />
 
         {/* Export dropdown */}
         <div className="relative" ref={exportMenuRef}>
