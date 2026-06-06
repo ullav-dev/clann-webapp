@@ -256,7 +256,13 @@
     "saving": "Saving…",
     "sexRequired": "Sex is required",
     "unknownError": "Unknown error",
-    "forgetChanges": "Forget Changes"
+    "forgetChanges": "Forget Changes",
+    "parentsSection": "Parents (optional)",
+    "fatherLabel": "Father",
+    "motherLabel": "Mother",
+    "fatherPlaceholder": "Search for father…",
+    "motherPlaceholder": "Search for mother…",
+    "noParentFound": "No matching person found"
   },
   "addRelationship": {
     "title": "Add Relationship",

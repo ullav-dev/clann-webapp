@@ -33,32 +33,43 @@ export default function NewPersonPage() {
       .catch(() => setMemberCount(null));
   }, [user, activeTree]);
 
-  async function handleSubmit(values: CreatePerson) {
-    const person = await apiHook.createPerson(values);
+  async function handleSubmit(values: CreatePerson & { _fatherId?: string; _motherId?: string }) {
+    const { _fatherId, _motherId, ...personValues } = values;
+    const person = await apiHook.createPerson(personValues);
+    const personRawId = apiHook.rawId(person.id);
     const createdBy = user?.username ?? null;
     const eventPromises = [];
-    if (values.date_of_birth) {
+    if (personValues.date_of_birth) {
       eventPromises.push(
         api.createLifeEvent(person.id, {
           name: "Birth",
           event_type: "Birth",
-          date: values.date_of_birth,
+          date: personValues.date_of_birth,
           created_by: createdBy,
         })
       );
     }
-    if (values.date_of_death) {
+    if (personValues.date_of_death) {
       eventPromises.push(
         api.createLifeEvent(person.id, {
           name: "Death",
           event_type: "Death",
-          date: values.date_of_death,
+          date: personValues.date_of_death,
           created_by: createdBy,
         })
       );
     }
     await Promise.all(eventPromises);
-    router.push(`/persons/${apiHook.rawId(person.id)}`);
+
+    // Link parent relationships if selected
+    if (_fatherId) {
+      await apiHook.addRelationship(personRawId, { type: "Father", related_id: _fatherId });
+    }
+    if (_motherId) {
+      await apiHook.addRelationship(personRawId, { type: "Mother", related_id: _motherId });
+    }
+
+    router.push(`/persons/${personRawId}`);
   }
 
   if (authLoading || treeLoading || subLoading || !user) return null;
@@ -91,7 +102,7 @@ export default function NewPersonPage() {
         <p className="text-stone-500 mt-1">{t("subtitle")}</p>
       </div>
       <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6">
-        <PersonForm onSubmit={handleSubmit} submitLabel={t("submitLabel")} />
+        <PersonForm onSubmit={handleSubmit} submitLabel={t("submitLabel")} showParentSelectors />
       </div>
     </div>
   );

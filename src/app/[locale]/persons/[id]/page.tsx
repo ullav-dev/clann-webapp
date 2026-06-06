@@ -10,7 +10,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { rawId } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import { useTree } from "@/contexts/TreeContext";
-import type { Person, ParentInfo, SpouseInfo, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
+import type { Person, ParentInfo, SiblingInfo, SpouseInfo, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
 import { fullName } from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
 import ImageUpload from "@/components/ImageUpload";
@@ -236,7 +236,9 @@ export default function PersonDetailPage() {
                 {people.length === 0 ? (<p className="text-stone-400 text-sm italic">{t("noneRecorded")}</p>) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {people.map((p) => {
-                      const pedigree = (group === "father" || group === "mother") ? (p as ParentInfo).pedigree : undefined;
+                      const pedigree = (group === "father" || group === "mother")
+                        ? (p as ParentInfo).pedigree
+                        : group === "siblings" ? (p as SiblingInfo).pedigree : undefined;
                       return (
                         <div key={p.id} className="flex items-center gap-3 bg-white rounded-xl border border-stone-200 px-4 py-3 shadow-sm">
                           <Link href={`/persons/${rawId(p.id)}`} className="flex items-center gap-3 flex-1 min-w-0 group">

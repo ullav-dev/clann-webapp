@@ -256,7 +256,13 @@
     "saving": "Á shábháil…",
     "sexRequired": "Tá inscne riachtanach",
     "unknownError": "Earráid anaithnid",
-    "forgetChanges": "Dearmad a dhéanamh ar Athruithe"
+    "forgetChanges": "Dearmad a dhéanamh ar Athruithe",
+    "parentsSection": "Tuismitheoirí (roghnach)",
+    "fatherLabel": "Athair",
+    "motherLabel": "Máthair",
+    "fatherPlaceholder": "Cuardaigh athair…",
+    "motherPlaceholder": "Cuardaigh máthair…",
+    "noParentFound": "Níor aimsíodh aon duine"
   },
   "addRelationship": {
     "title": "Caidreamh a Chur Leis",
