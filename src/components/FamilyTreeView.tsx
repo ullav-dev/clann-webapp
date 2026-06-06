@@ -20,6 +20,7 @@ import { rawId, personImageUrl, listPersons, getRelationships } from "@/lib/api"
 import { exportToGedcom } from "@/lib/gedcom-export";
 import { useTree } from "@/contexts/TreeContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApi } from "@/hooks/useApi";
 import { personIcon } from "@/components/PersonCard";
 import { useRouter } from "next/navigation";
 
@@ -386,9 +387,14 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
   const locale = useLocale();
   const { activeTree } = useTree();
   const { user, token, roles } = useAuth();
+  const api = useApi();
+  const apiRef = useRef(api);
+  apiRef.current = api;
   const canUseDam = hasDamAccess(token);
   const [orientation, setOrientation] = useState<Orientation>("vertical");
   const [showSiblings, setShowSiblings] = useState(false);
+  // Map of parentId → siblings in that group; "birth" key for full siblings
+  const [siblingGroups, setSiblingGroups] = useState<Map<string, FamilyTreeNode[]> | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportingJson, setExportingJson] = useState(false);
   const [exportingGedcom, setExportingGedcom] = useState(false);
@@ -406,21 +412,107 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showExportMenu]);
 
+  // When siblings are toggled on, bucket them by shared parent using parent tree lookups.
+  useEffect(() => {
+    if (!showSiblings) {
+      setSiblingGroups(null);
+      return;
+    }
+    const siblings = tree.siblings ?? [];
+    const fathers = tree.father ?? [];
+    const mothers = tree.mother ?? [];
+
+    if (siblings.length === 0 || (fathers.length === 0 && mothers.length === 0)) {
+      setSiblingGroups(new Map([["birth", siblings]]));
+      return;
+    }
+
+    let cancelled = false;
+    async function computeGroups() {
+      const fatherChildSets = new Map<string, Set<string>>();
+      const motherChildSets = new Map<string, Set<string>>();
+
+      for (const father of fathers) {
+        try {
+          const ft = await apiRef.current.getFamilyTree(rawId(father.id));
+          fatherChildSets.set(father.id, new Set((ft.children ?? []).map(c => rawId(c.id))));
+        } catch {
+          fatherChildSets.set(father.id, new Set());
+        }
+      }
+      for (const mother of mothers) {
+        try {
+          const mt = await apiRef.current.getFamilyTree(rawId(mother.id));
+          motherChildSets.set(mother.id, new Set((mt.children ?? []).map(c => rawId(c.id))));
+        } catch {
+          motherChildSets.set(mother.id, new Set());
+        }
+      }
+
+      if (cancelled) return;
+
+      const allFatherIds = new Set<string>();
+      for (const s of fatherChildSets.values()) for (const id of s) allFatherIds.add(id);
+      const allMotherIds = new Set<string>();
+      for (const s of motherChildSets.values()) for (const id of s) allMotherIds.add(id);
+
+      const groups = new Map<string, FamilyTreeNode[]>();
+      groups.set("birth", []);
+      for (const f of fathers) groups.set(f.id, []);
+      for (const m of mothers) groups.set(m.id, []);
+
+      for (const sib of siblings) {
+        const sibRaw = rawId(sib.id);
+        const inFather = allFatherIds.has(sibRaw);
+        const inMother = allMotherIds.has(sibRaw);
+
+        if (inFather && inMother) {
+          groups.get("birth")!.push(sib);
+        } else if (inFather) {
+          let parentId = fathers[0].id;
+          for (const [fId, childSet] of fatherChildSets) {
+            if (childSet.has(sibRaw)) { parentId = fId; break; }
+          }
+          groups.get(parentId)!.push(sib);
+        } else if (inMother) {
+          let parentId = mothers[0].id;
+          for (const [mId, childSet] of motherChildSets) {
+            if (childSet.has(sibRaw)) { parentId = mId; break; }
+          }
+          groups.get(parentId)!.push(sib);
+        } else {
+          groups.get("birth")!.push(sib);
+        }
+      }
+
+      // Remove empty step-parent groups (birth group always kept)
+      for (const [key, arr] of groups) {
+        if (key !== "birth" && arr.length === 0) groups.delete(key);
+      }
+
+      setSiblingGroups(groups);
+    }
+
+    computeGroups().catch(() => {
+      if (!cancelled) setSiblingGroups(new Map([["birth", siblings]]));
+    });
+    return () => { cancelled = true; };
+  }, [showSiblings, tree]);
+
   const { nodes, edges } = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
     const visited = new Set<string>();
     buildGraph(tree, 0, 0, nodes, edges, orientation, "root", visited, photoVersions);
 
-    if (showSiblings) {
-      (tree.siblings ?? []).forEach((sib, i) => {
+    if (showSiblings && siblingGroups) {
+      // Build parent position lookup from already-placed nodes
+      const parentPositions = new Map<string, { x: number; y: number }>();
+      for (const n of nodes) parentPositions.set(n.id, n.position);
+
+      function addSiblingNode(sib: FamilyTreeNode, px: number, py: number) {
         if (visited.has(sib.id)) return;
         visited.add(sib.id);
-
-        // Siblings sit at the same level as root, to the left (vertical) or above (horizontal)
-        const px = orientation === "vertical" ? -(i + 1) * X_GAP : 0;
-        const py = orientation === "vertical" ? 0 : -(i + 1) * Y_GAP;
-
         nodes.push({
           id: sib.id,
           type: "person",
@@ -440,7 +532,6 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
             orientation,
           } satisfies NodeData,
         });
-
         const edgeColor = "#5eead4"; // teal-300
         const sibPed = sib.pedigree ?? "birth";
         const sibStyle =
@@ -450,17 +541,47 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
           {};
         edges.push({
           id: `${tree.id}~sib~${sib.id}`,
-          // sibling is to the left/above; connect via perpendicular handles
           source: sib.id,  sourceHandle: "sp-s",
           target: tree.id, targetHandle: "sp-t",
-          type: "straight",
+          type: "smoothstep",
           style: { stroke: edgeColor, strokeWidth: 2, ...sibStyle },
         });
+      }
+
+      // Birth siblings: at root level, to the left (vertical) / above (horizontal)
+      const birthSibs = siblingGroups.get("birth") ?? [];
+      birthSibs.forEach((sib, i) => {
+        const px = orientation === "vertical" ? -(i + 1) * X_GAP : 0;
+        const py = orientation === "vertical" ? 0 : -(i + 1) * Y_GAP;
+        addSiblingNode(sib, px, py);
       });
+
+      // Step-siblings: positioned at their shared parent's level, extending outward
+      for (const [parentId, sibs] of siblingGroups) {
+        if (parentId === "birth" || sibs.length === 0) continue;
+        const parentPos = parentPositions.get(parentId);
+        if (!parentPos) continue;
+
+        sibs.forEach((sib, j) => {
+          let px: number, py: number;
+          if (orientation === "vertical") {
+            // Extend outward from parent: left if parent is on left side, right if right
+            const dir = parentPos.x <= 0 ? -1 : 1;
+            px = parentPos.x + dir * (j + 1) * X_GAP;
+            py = parentPos.y;
+          } else {
+            // Extend outward from parent in Y direction
+            const dir = parentPos.y <= 0 ? -1 : 1;
+            px = parentPos.x;
+            py = parentPos.y + dir * (j + 1) * Y_GAP;
+          }
+          addSiblingNode(sib, px, py);
+        });
+      }
     }
 
     return { nodes, edges };
-  }, [tree, orientation, showSiblings, photoVersions]);
+  }, [tree, orientation, showSiblings, siblingGroups, photoVersions]);
 
   const hasNonBirth = useMemo(() => {
     function check(node: FamilyTreeNode): boolean {
