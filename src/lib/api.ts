@@ -61,13 +61,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const hasBody = contentType.includes("application/json");
   if (!hasBody) {
     if (!res.ok) {
+      if (res.status === 401 && _apiToken && typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+      }
       const text = await res.text().catch(() => "");
       throw new Error(text || `HTTP ${res.status}`);
     }
     return undefined as T;
   }
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 401 && _apiToken && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+    }
+    throw new Error(data.error ?? `HTTP ${res.status}`);
+  }
   return data as T;
 }
 

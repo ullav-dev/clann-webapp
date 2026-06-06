@@ -442,63 +442,55 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
       return;
     }
 
+    // Build sets of root's parent IDs for fast lookup
+    const rootFatherIds = new Set(fathers.map(f => f.id));
+    const rootMotherIds = new Set(mothers.map(m => m.id));
+
     let cancelled = false;
     async function computeGroups() {
-      const fatherChildSets = new Map<string, Set<string>>();
-      const motherChildSets = new Map<string, Set<string>>();
-
-      for (const father of fathers) {
-        try {
-          const ft = await apiRef.current.getFamilyTree(rawId(father.id));
-          fatherChildSets.set(father.id, new Set((ft.children ?? []).map(c => rawId(c.id))));
-        } catch {
-          fatherChildSets.set(father.id, new Set());
-        }
-      }
-      for (const mother of mothers) {
-        try {
-          const mt = await apiRef.current.getFamilyTree(rawId(mother.id));
-          motherChildSets.set(mother.id, new Set((mt.children ?? []).map(c => rawId(c.id))));
-        } catch {
-          motherChildSets.set(mother.id, new Set());
-        }
-      }
-
-      if (cancelled) return;
-
-      const allFatherIds = new Set<string>();
-      for (const s of fatherChildSets.values()) for (const id of s) allFatherIds.add(id);
-      const allMotherIds = new Set<string>();
-      for (const s of motherChildSets.values()) for (const id of s) allMotherIds.add(id);
-
       const groups = new Map<string, FamilyTreeNode[]>();
       groups.set("birth", []);
       for (const f of fathers) groups.set(f.id, []);
       for (const m of mothers) groups.set(m.id, []);
 
       for (const sib of siblings) {
-        const sibRaw = rawId(sib.id);
-        const inFather = allFatherIds.has(sibRaw);
-        const inMother = allMotherIds.has(sibRaw);
+        const sibPedigree = sib.pedigree ?? "birth";
 
-        if (inFather && inMother) {
+        if (sibPedigree === "birth") {
           groups.get("birth")!.push(sib);
-        } else if (inFather) {
-          let parentId = fathers[0].id;
-          for (const [fId, childSet] of fatherChildSets) {
-            if (childSet.has(sibRaw)) { parentId = fId; break; }
+          continue;
+        }
+
+        // For non-birth siblings, fetch their own relationships to find which
+        // of root's parents they share. Step-siblings are linked by a sibling
+        // edge only — we cannot infer the shared parent from root's parent trees.
+        let placed = false;
+        try {
+          const sibRels = await apiRef.current.getRelationships(rawId(sib.id));
+          for (const sibFather of sibRels.father) {
+            if (rootFatherIds.has(sibFather.id)) {
+              groups.get(sibFather.id)!.push(sib);
+              placed = true;
+              break;
+            }
           }
-          groups.get(parentId)!.push(sib);
-        } else if (inMother) {
-          let parentId = mothers[0].id;
-          for (const [mId, childSet] of motherChildSets) {
-            if (childSet.has(sibRaw)) { parentId = mId; break; }
+          if (!placed) {
+            for (const sibMother of sibRels.mother) {
+              if (rootMotherIds.has(sibMother.id)) {
+                groups.get(sibMother.id)!.push(sib);
+                placed = true;
+                break;
+              }
+            }
           }
-          groups.get(parentId)!.push(sib);
-        } else {
+        } catch { /* fall through */ }
+
+        if (!placed) {
           groups.get("birth")!.push(sib);
         }
       }
+
+      if (cancelled) return;
 
       // Remove empty step-parent groups (birth group always kept)
       for (const [key, arr] of groups) {
