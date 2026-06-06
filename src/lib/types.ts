@@ -141,10 +141,15 @@ export interface ParentInfo extends Person {
   pedigree: Pedigree;
 }
 
+/** A sibling with the pedigree qualifier from the edge. */
+export interface SiblingInfo extends Person {
+  pedigree: Pedigree;
+}
+
 export interface RelationshipsResponse {
   father: ParentInfo[];
   mother: ParentInfo[];
-  siblings: Person[];
+  siblings: SiblingInfo[];
   spouse: SpouseInfo[];
 }
 

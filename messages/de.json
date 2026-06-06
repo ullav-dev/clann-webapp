@@ -256,7 +256,13 @@
     "saving": "Speichern…",
     "sexRequired": "Geschlecht ist erforderlich",
     "unknownError": "Unbekannter Fehler",
-    "forgetChanges": "Änderungen verwerfen"
+    "forgetChanges": "Änderungen verwerfen",
+    "parentsSection": "Eltern (optional)",
+    "fatherLabel": "Vater",
+    "motherLabel": "Mutter",
+    "fatherPlaceholder": "Vater suchen…",
+    "motherPlaceholder": "Mutter suchen…",
+    "noParentFound": "Keine passende Person gefunden"
   },
   "addRelationship": {
     "title": "Beziehung hinzufügen",

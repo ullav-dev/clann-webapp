@@ -7,7 +7,6 @@ import {
   ReactFlow,
   Background,
   Controls,
-  MiniMap,
   type Node,
   type Edge,
   type NodeProps,
@@ -43,13 +42,13 @@ type NodeData = {
 };
 
 // Per-role visual style
-const ROLE_STYLES: Record<Role, { border: string; bg: string; text: string; handle: string; minimap: string }> = {
-  root:    { border: "border-emerald-700", bg: "bg-emerald-600", text: "text-white",        handle: "!bg-white",       minimap: "#059669" },
-  father:  { border: "border-blue-400",    bg: "bg-blue-50",     text: "text-blue-800",    handle: "!bg-blue-400",    minimap: "#60a5fa" },
-  mother:  { border: "border-rose-400",    bg: "bg-rose-50",     text: "text-rose-800",    handle: "!bg-rose-400",    minimap: "#fb7185" },
-  child:   { border: "border-amber-400",   bg: "bg-amber-50",    text: "text-amber-800",   handle: "!bg-amber-400",   minimap: "#fbbf24" },
-  spouse:  { border: "border-violet-400",  bg: "bg-violet-50",   text: "text-violet-800",  handle: "!bg-violet-400",  minimap: "#a78bfa" },
-  sibling: { border: "border-teal-400",    bg: "bg-teal-50",     text: "text-teal-800",    handle: "!bg-teal-400",    minimap: "#2dd4bf" },
+const ROLE_STYLES: Record<Role, { border: string; bg: string; text: string; handle: string }> = {
+  root:    { border: "border-emerald-700", bg: "bg-emerald-600", text: "text-white",        handle: "!bg-white"       },
+  father:  { border: "border-blue-400",    bg: "bg-blue-50",     text: "text-blue-800",    handle: "!bg-blue-400"    },
+  mother:  { border: "border-rose-400",    bg: "bg-rose-50",     text: "text-rose-800",    handle: "!bg-rose-400"    },
+  child:   { border: "border-amber-400",   bg: "bg-amber-50",    text: "text-amber-800",   handle: "!bg-amber-400"   },
+  spouse:  { border: "border-violet-400",  bg: "bg-violet-50",   text: "text-violet-800",  handle: "!bg-violet-400"  },
+  sibling: { border: "border-teal-400",    bg: "bg-teal-50",     text: "text-teal-800",    handle: "!bg-teal-400"    },
 };
 
 // ── Custom person node ───────────────────────────────────────────────────────
@@ -242,13 +241,19 @@ function buildGraph(
     buildGraph(child, px, py, nodes, edges, orientation, "child", visited, photoVersions);
 
     const edgeColor = "#fcd34d"; // amber-300
+    const childPed = child.pedigree ?? "birth";
+    const childStyle =
+      childPed === "adopted" ? { strokeDasharray: "6 3" } :
+      childPed === "step"    ? { strokeDasharray: "2 4" } :
+      childPed === "foster"  ? { strokeDasharray: "8 4", opacity: 0.6 } :
+      {};
     edges.push({
       id: `${node.id}->${child.id}`,
       source: node.id,   sourceHandle: "main-s",
       target: child.id,  targetHandle: "main-t",
       type: "smoothstep",
       markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
-      style: { stroke: edgeColor, strokeWidth: 1.5 },
+      style: { stroke: edgeColor, strokeWidth: 1.5, ...childStyle },
     });
   });
 
@@ -437,13 +442,19 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
         });
 
         const edgeColor = "#5eead4"; // teal-300
+        const sibPed = sib.pedigree ?? "birth";
+        const sibStyle =
+          sibPed === "step"    ? { strokeDasharray: "2 4" } :
+          sibPed === "adopted" ? { strokeDasharray: "6 3" } :
+          sibPed === "foster"  ? { strokeDasharray: "8 4", opacity: 0.6 } :
+          {};
         edges.push({
           id: `${tree.id}~sib~${sib.id}`,
           // sibling is to the left/above; connect via perpendicular handles
           source: sib.id,  sourceHandle: "sp-s",
           target: tree.id, targetHandle: "sp-t",
           type: "straight",
-          style: { stroke: edgeColor, strokeWidth: 2, strokeDasharray: "4 3" },
+          style: { stroke: edgeColor, strokeWidth: 2, ...sibStyle },
         });
       });
     }
@@ -456,6 +467,12 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
       for (const p of [...(node.father ?? []), ...(node.mother ?? [])]) {
         if (p.pedigree && p.pedigree !== "birth") return true;
         if (check(p)) return true;
+      }
+      for (const c of node.children ?? []) {
+        if (c.pedigree && c.pedigree !== "birth") return true;
+      }
+      for (const s of node.siblings ?? []) {
+        if (s.pedigree && s.pedigree !== "birth") return true;
       }
       return false;
     }
@@ -611,9 +628,10 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between gap-2">
+      {/* Button toolbar — orientation, siblings, export, DAM */}
+      <div className="flex items-center gap-2 flex-wrap">
         {/* Orientation toggle */}
-        <div className="inline-flex rounded-lg border border-stone-300 bg-white shadow-sm overflow-hidden">
+        <div className="inline-flex rounded-lg border border-stone-300 bg-white shadow-sm overflow-hidden flex-shrink-0">
           <button
             onClick={() => setOrientation("vertical")}
             title={t("orientationVerticalTitle")}
@@ -623,10 +641,10 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
                 : "text-stone-600 hover:bg-stone-50"
             }`}
           >
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L11 6.414V16a1 1 0 11-2 0V6.414L7.707 7.707A1 1 0 016.293 6.293l3-3A1 1 0 0110 3z" clipRule="evenodd" />
             </svg>
-            {t("orientationVertical")}
+            <span className="hidden sm:inline">{t("orientationVertical")}</span>
           </button>
           <button
             onClick={() => setOrientation("horizontal")}
@@ -637,10 +655,10 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
                 : "text-stone-600 hover:bg-stone-50"
             }`}
           >
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L12.586 8H4a1 1 0 110-2h8.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
-            {t("orientationHorizontal")}
+            <span className="hidden sm:inline">{t("orientationHorizontal")}</span>
           </button>
         </div>
 
@@ -648,7 +666,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
         <button
           onClick={() => setShowSiblings((v) => !v)}
           title={t("siblingsToggleTitle")}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border shadow-sm transition-colors ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border shadow-sm transition-colors flex-shrink-0 ${
             showSiblings
               ? "bg-teal-600 text-white border-teal-600"
               : "bg-white text-stone-600 border-stone-300 hover:bg-stone-50"
@@ -657,7 +675,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
           {t("siblingsToggle")}
         </button>
 
-        <Legend t={t} hasNonBirth={hasNonBirth} />
+        <div className="flex-1" />
 
         {/* Export dropdown */}
         <div className="relative" ref={exportMenuRef}>
@@ -719,16 +737,19 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
               const session = encodeURIComponent(JSON.stringify({ token, user, roles }));
               window.open(`${damUrl}/${locale}/auth/sso?t=${session}`, "_blank", "noopener,noreferrer");
             }}
-            className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-700 shadow-sm hover:bg-stone-50 hover:border-stone-400 transition-colors flex-shrink-0"
             title={t("openDam")}
           >
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 5.5 2-3.5 3 6z" clipRule="evenodd" />
             </svg>
-            {t("openDam")}
+            <span className="hidden sm:inline">{t("openDam")}</span>
           </button>
         )}
       </div>
+
+      {/* Legend row — always below the button toolbar */}
+      <Legend t={t} hasNonBirth={hasNonBirth} />
 
       <div ref={containerRef} className="w-full h-[560px] rounded-xl border border-stone-200 overflow-hidden shadow-inner bg-stone-50">
         <ReactFlow
@@ -746,12 +767,6 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
         >
           <Background color="#d6d3d1" gap={24} size={1} />
           <Controls showInteractive={false} />
-          <MiniMap
-            nodeColor={(n) => ROLE_STYLES[(n.data as NodeData).role].minimap}
-            maskColor="rgba(240,236,232,0.6)"
-            pannable
-            zoomable
-          />
         </ReactFlow>
       </div>
     </div>

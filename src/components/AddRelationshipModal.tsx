@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import type { Person, Pedigree, RelationshipType, SiblingType } from "@/lib/types";
+import type { ParentInfo, Person, Pedigree, RelationshipType, SiblingType } from "@/lib/types";
 import { useApi } from "@/hooks/useApi";
 import { fullName, personIcon } from "./PersonCard";
 
@@ -19,6 +19,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
   const [relType, setRelType] = useState<RelationshipType>("Father");
   const [siblingType, setSiblingType] = useState<SiblingType>("Brother");
   const [pedigree, setPedigree] = useState<Pedigree>("birth");
+  const [siblingPedigree, setSiblingPedigree] = useState<Pedigree>("birth");
   const [spouseFrom, setSpouseFrom] = useState("");
   const [spouseTo, setSpouseTo] = useState("");
   const [selectedId, setSelectedId] = useState("");
@@ -87,19 +88,20 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
             type: "Sibling",
             related_id: sibId,
             sibling_type: siblingType,
+            pedigree: siblingPedigree,
           });
 
           const siblingRels = await api.getRelationships(sibId);
 
           const inheritParent = async (
             type: "Father" | "Mother",
-            rootParents: { id: string }[],
-            siblingParents: { id: string }[],
+            rootParents: ParentInfo[],
+            siblingParents: ParentInfo[],
           ) => {
             const siblingParentIds = new Set(siblingParents.map((p) => p.id));
             for (const parent of rootParents) {
               if (!siblingParentIds.has(parent.id)) {
-                await api.addRelationship(sibId, { type, related_id: parent.id });
+                await api.addRelationship(sibId, { type, related_id: parent.id, pedigree: parent.pedigree });
               }
             }
           };
@@ -117,13 +119,15 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
         });
 
         // When adding a Father or Mother, find the parent's other children and
-        // set them as siblings of the current person.
+        // link them as siblings of the current person. Use `step` pedigree when
+        // the parent link itself is step/adopted/foster so the relationship is honest.
         if (relType === "Father" || relType === "Mother") {
           const [parentTree, myRels] = await Promise.all([
             api.getFamilyTree(selectedId),
             api.getRelationships(personId),
           ]);
           const existingSiblingIds = new Set(myRels.siblings.map((s) => api.rawId(s.id)));
+          const derivedSibPedigree: Pedigree = pedigree !== "birth" ? "step" : "birth";
           for (const child of parentTree.children ?? []) {
             if (api.rawId(child.id) === personId) continue;
             if (existingSiblingIds.has(api.rawId(child.id))) continue;
@@ -132,6 +136,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
               type: "Sibling",
               related_id: child.id,
               sibling_type: siblingType,
+              pedigree: derivedSibPedigree,
             });
           }
         }
@@ -208,7 +213,30 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
             </div>
           )}
 
-          {/* Pedigree selector — only for Father / Mother */}
+          {/* Pedigree selector — for Sibling */}
+          {relType === "Sibling" && (
+            <div>
+              <label className="text-sm font-medium text-stone-700 block mb-2">{t("pedigree")}</label>
+              <div className="grid grid-cols-2 gap-2">
+                {(["birth", "adopted", "step", "foster"] as Pedigree[]).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setSiblingPedigree(p)}
+                    className={`py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${
+                      siblingPedigree === p
+                        ? "bg-emerald-700 text-white border-emerald-700"
+                        : "border-stone-300 text-stone-700 hover:border-emerald-400"
+                    }`}
+                  >
+                    {t(`pedigree_${p}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pedigree selector — for Father / Mother */}
           {(relType === "Father" || relType === "Mother") && (
             <div>
               <label className="text-sm font-medium text-stone-700 block mb-2">{t("pedigree")}</label>

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import type { CreatePerson, UpdatePerson, Sex } from "@/lib/types";
+import type { CreatePerson, UpdatePerson, Sex, Person } from "@/lib/types";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApi } from "@/hooks/useApi";
 import { DamPicker } from "@ullav/dam-picker";
 import type { PickedAsset } from "@ullav/dam-picker";
+import { fullName, personIcon } from "@/components/PersonCard";
 
 type FormValues = {
   first_name: string;
@@ -30,6 +32,7 @@ interface Props {
   onSubmit: (values: any) => Promise<void>;
   submitLabel?: string;
   onCancel?: () => void;
+  showParentSelectors?: boolean;
 }
 
 const empty: FormValues = {
@@ -48,9 +51,10 @@ const empty: FormValues = {
   biography: "",
 };
 
-export default function PersonForm({ initial, onSubmit, submitLabel, onCancel }: Props) {
+export default function PersonForm({ initial, onSubmit, submitLabel, onCancel, showParentSelectors }: Props) {
   const t = useTranslations("personForm");
   const { token, user } = useAuth();
+  const api = useApi();
   const [values, setValues] = useState<FormValues>({ ...empty, ...initial });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,6 +62,15 @@ export default function PersonForm({ initial, onSubmit, submitLabel, onCancel }:
   const [dropZoneActive, setDropZoneActive] = useState(false);
   const [dropZoneSuccess, setDropZoneSuccess] = useState(false);
   const cursorPosRef = useRef<number | null>(null);
+  const [allPersons, setAllPersons] = useState<Person[]>([]);
+  const [fatherId, setFatherId] = useState<string>("");
+  const [motherId, setMotherId] = useState<string>("");
+  const [parentSearch, setParentSearch] = useState<{ father: string; mother: string }>({ father: "", mother: "" });
+
+  useEffect(() => {
+    if (!showParentSelectors) return;
+    api.listPersons().then(setAllPersons).catch(() => {});
+  }, [showParentSelectors]);
 
   function insertAssetMarkdown(asset: PickedAsset) {
     const url = asset.url.replace(/\/?$/, "/thumbnail");
@@ -130,6 +143,8 @@ export default function PersonForm({ initial, onSubmit, submitLabel, onCancel }:
         email: optional(values.email),
         verified: values.verified,
         biography: optional(values.biography),
+        _fatherId: fatherId || undefined,
+        _motherId: motherId || undefined,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : t("unknownError"));
@@ -276,6 +291,67 @@ export default function PersonForm({ initial, onSubmit, submitLabel, onCancel }:
           </div>
         )}
       </fieldset>
+
+      {showParentSelectors && (
+        <fieldset className="border border-stone-200 rounded-xl p-4 space-y-4">
+          <legend className="text-sm font-semibold text-stone-700 px-1">{t("parentsSection")}</legend>
+          {(["father", "mother"] as const).map((role) => {
+            const isFather = role === "father";
+            const sexFilter = isFather ? "Male" : "Female";
+            const selectedId = isFather ? fatherId : motherId;
+            const setSelected = isFather ? setFatherId : setMotherId;
+            const search = parentSearch[role];
+            const filtered = allPersons
+              .filter((p) => p.sex === sexFilter && fullName(p).toLowerCase().includes(search.toLowerCase()));
+            const selectedPerson = allPersons.find((p) => p.id === selectedId);
+            return (
+              <div key={role}>
+                <label className="text-sm font-medium text-stone-700 block mb-1.5">
+                  {isFather ? t("fatherLabel") : t("motherLabel")}
+                  <span className="text-stone-400 font-normal ml-1">{t("optional")}</span>
+                </label>
+                {selectedPerson ? (
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-300 bg-emerald-50 text-sm">
+                    <span>{personIcon(selectedPerson.sex)}</span>
+                    <span className="flex-1 font-medium text-stone-800">{fullName(selectedPerson)}</span>
+                    <button type="button" onClick={() => setSelected("")} className="text-stone-400 hover:text-red-500 text-lg leading-none">×</button>
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="search"
+                      placeholder={isFather ? t("fatherPlaceholder") : t("motherPlaceholder")}
+                      value={search}
+                      onChange={(e) => setParentSearch((s) => ({ ...s, [role]: e.target.value }))}
+                      className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 mb-1"
+                    />
+                    {search && (
+                      <div className="max-h-36 overflow-y-auto rounded-lg border border-stone-200 bg-white">
+                        {filtered.length === 0 ? (
+                          <p className="text-stone-400 text-sm text-center py-3">{t("noParentFound")}</p>
+                        ) : (
+                          filtered.map((p) => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => { setSelected(p.id); setParentSearch((s) => ({ ...s, [role]: "" })); }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-stone-50 transition-colors text-stone-700"
+                            >
+                              <span>{personIcon(p.sex)}</span>
+                              <span>{fullName(p)}</span>
+                              {p.date_of_birth && <span className="ml-auto text-xs text-stone-400">{p.date_of_birth}</span>}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </fieldset>
+      )}
 
       <div className="flex justify-end gap-3 pt-2">
         {onCancel && (
