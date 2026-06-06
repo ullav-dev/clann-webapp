@@ -549,14 +549,14 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
           {};
         edges.push({
           id: `${tree.id}~sib~${sib.id}`,
-          source: sib.id,  sourceHandle: "sp-s",
-          target: tree.id, targetHandle: "sp-t",
+          source: sib.id,
+          target: tree.id,
           type: "smoothstep",
           style: { stroke: edgeColor, strokeWidth: 2, ...sibStyle },
         });
       }
 
-      // Birth siblings: at root level, to the left (vertical) / above (horizontal)
+      // Birth siblings: same row as root (y=0), to the left / above
       const birthSibs = siblingGroups.get("birth") ?? [];
       birthSibs.forEach((sib, i) => {
         const px = orientation === "vertical" ? -(i + 1) * X_GAP : 0;
@@ -564,22 +564,46 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
         addSiblingNode(sib, px, py);
       });
 
-      // Step-siblings: continue the same row as birth siblings (all on the
-      // "birth-sibling side": left for vertical, above for horizontal).
-      // Placing them at the parent's Y level caused collisions whenever two
-      // step-parent groups had parents near x=0, or one parent's step-sibling
-      // landed exactly on the other parent node.  Keeping everything at y=0
-      // (root generation row) guarantees no overlap with parents (y=-Y_GAP),
-      // children (y=+Y_GAP), or spouses (right side of root at y=0).
-      let stepSlot = birthSibs.length; // next available slot after birth siblings
+      // Non-birth siblings: rendered in a separate row at the midpoint between
+      // the parent generation (y = -Y_GAP) and root (y = 0).  Each parent's
+      // group extends outward from that parent's side — clearly separated both
+      // from birth siblings (different row) and from siblings via the other
+      // parent (different horizontal region).
+      //
+      // Fallback for unresolvable groups (parent not in rendered graph): place
+      // them further left in the midpoint row, past the birth siblings.
+      let fallbackSlot = birthSibs.length + 1;
+
       for (const [parentId, sibs] of siblingGroups) {
         if (parentId === "birth" || sibs.length === 0) continue;
-        sibs.forEach((sib) => {
-          stepSlot++;
-          const px = orientation === "vertical" ? -stepSlot * X_GAP : 0;
-          const py = orientation === "vertical" ? 0 : -stepSlot * Y_GAP;
+        const parentPos = parentPositions.get(parentId);
+
+        sibs.forEach((sib, j) => {
+          let px: number, py: number;
+          if (parentPos) {
+            if (orientation === "vertical") {
+              // Midpoint Y; extend outward (left for left-side parent, right for right)
+              const dir = parentPos.x <= 0 ? -1 : 1;
+              px = parentPos.x + dir * (j + 1) * X_GAP;
+              py = parentPos.y / 2;
+            } else {
+              const dir = parentPos.y <= 0 ? -1 : 1;
+              px = parentPos.x / 2;
+              py = parentPos.y + dir * (j + 1) * Y_GAP;
+            }
+          } else {
+            // Parent not rendered — use generic midpoint row, left side
+            if (orientation === "vertical") {
+              px = -(fallbackSlot + j) * X_GAP;
+              py = -Y_GAP / 2;
+            } else {
+              px = -X_GAP / 2;
+              py = -(fallbackSlot + j) * Y_GAP;
+            }
+          }
           addSiblingNode(sib, px, py);
         });
+        if (!parentPos) fallbackSlot += sibs.length + 1;
       }
     }
 
