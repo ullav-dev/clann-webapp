@@ -556,25 +556,20 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
         addSiblingNode(sib, px, py);
       });
 
-      // Step-siblings: positioned at their shared parent's level, extending outward
+      // Step-siblings: continue the same row as birth siblings (all on the
+      // "birth-sibling side": left for vertical, above for horizontal).
+      // Placing them at the parent's Y level caused collisions whenever two
+      // step-parent groups had parents near x=0, or one parent's step-sibling
+      // landed exactly on the other parent node.  Keeping everything at y=0
+      // (root generation row) guarantees no overlap with parents (y=-Y_GAP),
+      // children (y=+Y_GAP), or spouses (right side of root at y=0).
+      let stepSlot = birthSibs.length; // next available slot after birth siblings
       for (const [parentId, sibs] of siblingGroups) {
         if (parentId === "birth" || sibs.length === 0) continue;
-        const parentPos = parentPositions.get(parentId);
-        if (!parentPos) continue;
-
-        sibs.forEach((sib, j) => {
-          let px: number, py: number;
-          if (orientation === "vertical") {
-            // Extend outward from parent: left if parent is on left side, right if right
-            const dir = parentPos.x <= 0 ? -1 : 1;
-            px = parentPos.x + dir * (j + 1) * X_GAP;
-            py = parentPos.y;
-          } else {
-            // Extend outward from parent in Y direction
-            const dir = parentPos.y <= 0 ? -1 : 1;
-            px = parentPos.x;
-            py = parentPos.y + dir * (j + 1) * Y_GAP;
-          }
+        sibs.forEach((sib) => {
+          stepSlot++;
+          const px = orientation === "vertical" ? -stepSlot * X_GAP : 0;
+          const py = orientation === "vertical" ? 0 : -stepSlot * Y_GAP;
           addSiblingNode(sib, px, py);
         });
       }
