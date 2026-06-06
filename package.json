@@ -1,6 +1,6 @@
 {
   "name": "clann-webapp",
-  "version": "26.1.0",
+  "version": "26.1.1",
   "private": true,
   "scripts": {
     "dev": "node node_modules/next/dist/bin/next dev --port 3001 --webpack",
