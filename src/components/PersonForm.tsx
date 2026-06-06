@@ -183,6 +183,67 @@ export default function PersonForm({ initial, onSubmit, submitLabel, onCancel, s
         </Field>
       </div>
 
+      {showParentSelectors && (
+        <fieldset className="border border-stone-200 rounded-xl p-4 space-y-4">
+          <legend className="text-sm font-semibold text-stone-700 px-1">{t("parentsSection")}</legend>
+          {(["father", "mother"] as const).map((role) => {
+            const isFather = role === "father";
+            const sexFilter = isFather ? "Male" : "Female";
+            const selectedId = isFather ? fatherId : motherId;
+            const setSelected = isFather ? setFatherId : setMotherId;
+            const search = parentSearch[role];
+            const filtered = allPersons
+              .filter((p) => p.sex === sexFilter && fullName(p).toLowerCase().includes(search.toLowerCase()));
+            const selectedPerson = allPersons.find((p) => p.id === selectedId);
+            return (
+              <div key={role}>
+                <label className="text-sm font-medium text-stone-700 block mb-1.5">
+                  {isFather ? t("fatherLabel") : t("motherLabel")}
+                  <span className="text-stone-400 font-normal ml-1">{t("optional")}</span>
+                </label>
+                {selectedPerson ? (
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-300 bg-emerald-50 text-sm">
+                    <span>{personIcon(selectedPerson.sex)}</span>
+                    <span className="flex-1 font-medium text-stone-800">{fullName(selectedPerson)}</span>
+                    <button type="button" onClick={() => setSelected("")} className="text-stone-400 hover:text-red-500 text-lg leading-none">×</button>
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="search"
+                      placeholder={isFather ? t("fatherPlaceholder") : t("motherPlaceholder")}
+                      value={search}
+                      onChange={(e) => setParentSearch((s) => ({ ...s, [role]: e.target.value }))}
+                      className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 mb-1"
+                    />
+                    {search && (
+                      <div className="max-h-36 overflow-y-auto rounded-lg border border-stone-200 bg-white">
+                        {filtered.length === 0 ? (
+                          <p className="text-stone-400 text-sm text-center py-3">{t("noParentFound")}</p>
+                        ) : (
+                          filtered.map((p) => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => { setSelected(p.id); setParentSearch((s) => ({ ...s, [role]: "" })); }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-stone-50 transition-colors text-stone-700"
+                            >
+                              <span>{personIcon(p.sex)}</span>
+                              <span>{fullName(p)}</span>
+                              {p.date_of_birth && <span className="ml-auto text-xs text-stone-400">{p.date_of_birth}</span>}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </fieldset>
+      )}
+
       <fieldset className="border border-stone-200 rounded-xl p-4 space-y-3">
         <legend className="text-xs font-semibold text-stone-500 uppercase tracking-wide px-1">
           {t("birthSection")} <span className="font-normal normal-case text-stone-400">{t("optional")}</span>
@@ -291,67 +352,6 @@ export default function PersonForm({ initial, onSubmit, submitLabel, onCancel, s
           </div>
         )}
       </fieldset>
-
-      {showParentSelectors && (
-        <fieldset className="border border-stone-200 rounded-xl p-4 space-y-4">
-          <legend className="text-sm font-semibold text-stone-700 px-1">{t("parentsSection")}</legend>
-          {(["father", "mother"] as const).map((role) => {
-            const isFather = role === "father";
-            const sexFilter = isFather ? "Male" : "Female";
-            const selectedId = isFather ? fatherId : motherId;
-            const setSelected = isFather ? setFatherId : setMotherId;
-            const search = parentSearch[role];
-            const filtered = allPersons
-              .filter((p) => p.sex === sexFilter && fullName(p).toLowerCase().includes(search.toLowerCase()));
-            const selectedPerson = allPersons.find((p) => p.id === selectedId);
-            return (
-              <div key={role}>
-                <label className="text-sm font-medium text-stone-700 block mb-1.5">
-                  {isFather ? t("fatherLabel") : t("motherLabel")}
-                  <span className="text-stone-400 font-normal ml-1">{t("optional")}</span>
-                </label>
-                {selectedPerson ? (
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-300 bg-emerald-50 text-sm">
-                    <span>{personIcon(selectedPerson.sex)}</span>
-                    <span className="flex-1 font-medium text-stone-800">{fullName(selectedPerson)}</span>
-                    <button type="button" onClick={() => setSelected("")} className="text-stone-400 hover:text-red-500 text-lg leading-none">×</button>
-                  </div>
-                ) : (
-                  <div>
-                    <input
-                      type="search"
-                      placeholder={isFather ? t("fatherPlaceholder") : t("motherPlaceholder")}
-                      value={search}
-                      onChange={(e) => setParentSearch((s) => ({ ...s, [role]: e.target.value }))}
-                      className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 mb-1"
-                    />
-                    {search && (
-                      <div className="max-h-36 overflow-y-auto rounded-lg border border-stone-200 bg-white">
-                        {filtered.length === 0 ? (
-                          <p className="text-stone-400 text-sm text-center py-3">{t("noParentFound")}</p>
-                        ) : (
-                          filtered.map((p) => (
-                            <button
-                              key={p.id}
-                              type="button"
-                              onClick={() => { setSelected(p.id); setParentSearch((s) => ({ ...s, [role]: "" })); }}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-stone-50 transition-colors text-stone-700"
-                            >
-                              <span>{personIcon(p.sex)}</span>
-                              <span>{fullName(p)}</span>
-                              {p.date_of_birth && <span className="ml-auto text-xs text-stone-400">{p.date_of_birth}</span>}
-                            </button>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </fieldset>
-      )}
 
       <div className="flex justify-end gap-3 pt-2">
         {onCancel && (
