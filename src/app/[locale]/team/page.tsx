@@ -12,6 +12,7 @@ import TeamAvatar from "@/components/TeamAvatar";
 import TeamMemberList from "@/components/TeamMemberList";
 import LinkedTreesList from "@/components/LinkedTreesList";
 import CreateTeamModal from "@/components/CreateTeamModal";
+import { useConfirm } from "@/contexts/ConfirmContext";
 
 const MarkdownEditor = dynamic(() => import("@/components/MarkdownEditor"), { ssr: false });
 import ReactMarkdown from "react-markdown";
@@ -23,6 +24,7 @@ export default function TeamPage() {
   const { token, user } = useAuth();
   const { teams, getTeamDetail, updateTeam, deleteTeam, reload } = useTeam();
   const t = useTranslations("team");
+  const { confirm } = useConfirm();
 
   const [team, setTeam] = useState<Team | null>(null);
   const [linkedTrees, setLinkedTrees] = useState<FamilyTree[]>([]);
@@ -91,7 +93,7 @@ export default function TeamPage() {
   }
 
   async function handleDelete() {
-    if (!team || !confirm(t("deleteTeamConfirm", { name: team.name }))) return;
+    if (!team || !(await confirm(t("deleteTeamConfirm", { name: team.name }), { variant: "destructive" }))) return;
     await deleteTeam(team.id);
     setTeam(null);
   }

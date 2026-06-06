@@ -7,6 +7,7 @@ import { useTree } from "@/contexts/TreeContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import LinkTreeModal from "./LinkTreeModal";
+import { useConfirm } from "@/contexts/ConfirmContext";
 
 interface Props {
   teamId: string;
@@ -19,6 +20,7 @@ export default function LinkedTreesList({ teamId, trees, isOwner, onChanged }: P
   const { setTreeTeam } = useTeam();
   const { setActiveTree } = useTree();
   const t = useTranslations("team");
+  const { confirm } = useConfirm();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split("/")[1] ?? "en";
@@ -26,7 +28,7 @@ export default function LinkedTreesList({ teamId, trees, isOwner, onChanged }: P
   const [unlinking, setUnlinking] = useState<string | null>(null);
 
   async function handleUnlink(treeName: string) {
-    if (!confirm(t("unlinkConfirm"))) return;
+    if (!(await confirm(t("unlinkConfirm"), { variant: "destructive" }))) return;
     setUnlinking(treeName);
     try {
       await setTreeTeam(treeName, null);

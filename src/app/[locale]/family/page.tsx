@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
 import { useTeam } from "@/contexts/TeamContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useConfirm } from "@/contexts/ConfirmContext";
 import UpgradePrompt from "@/components/UpgradePrompt";
 import ReadOnlyBanner from "@/components/ReadOnlyBanner";
 import ClannUsageWidget from "@/components/ClannUsageWidget";
@@ -39,16 +40,17 @@ function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
 function ListView({ people, sortField, sortDir, onSort, onDeleted, rootUsername }: ListViewProps) {
   const api = useApi();
   const t = useTranslations("family");
+  const { confirm, alert } = useConfirm();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleDelete(person: Person) {
-    if (!confirm(t("deleteConfirm", { name: fullName(person) }))) return;
+    if (!(await confirm(t("deleteConfirm", { name: fullName(person) }), { variant: "destructive" }))) return;
     setDeletingId(person.id);
     try {
       await api.deletePerson(person.id);
       onDeleted(person.id);
     } catch {
-      alert(t("deleteFailed"));
+      await alert(t("deleteFailed"));
     } finally {
       setDeletingId(null);
     }

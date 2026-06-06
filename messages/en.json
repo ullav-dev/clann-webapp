@@ -1,4 +1,10 @@
 {
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "ok": "OK",
+    "delete": "Delete"
+  },
   "nav": {
     "myFamily": "Family Home",
     "research": "Research",

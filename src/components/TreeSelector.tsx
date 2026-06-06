@@ -10,6 +10,7 @@ import Link from "next/link";
 import ImportTreeModal from "./ImportTreeModal";
 import TreeSettingsModal from "./TreeSettingsModal";
 import { treeImageUrl } from "@/lib/api";
+import { useConfirm } from "@/contexts/ConfirmContext";
 
 export default function TreeSelector() {
   const { trees, activeTree, isLoading, setActiveTree, createTree, renameTree, deleteTree, setPrimaryTree } = useTree();
@@ -17,6 +18,7 @@ export default function TreeSelector() {
   const { atTreeLimit, maxTrees } = useSubscription();
   const tLimits = useTranslations("limits");
   const t = useTranslations("trees");
+  const { alert } = useConfirm();
   const router = useRouter();
   const pathname = usePathname();
   // Extract locale from the pathname prefix, e.g. "/en/persons/123" → "en"
@@ -105,7 +107,7 @@ export default function TreeSelector() {
     try {
       await setPrimaryTree(name);
     } catch (err) {
-      alert(err instanceof Error ? err.message : t("setPrimaryFailed"));
+      await alert(err instanceof Error ? err.message : t("setPrimaryFailed"));
     }
   }
 

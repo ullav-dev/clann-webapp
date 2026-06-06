@@ -11,6 +11,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { TreeProvider } from "@/contexts/TreeContext";
 import { TeamProvider } from "@/contexts/TeamContext";
+import { ConfirmProvider } from "@/contexts/ConfirmContext";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -54,9 +55,11 @@ export default async function LocaleLayout({
             <SubscriptionProvider>
               <TreeProvider>
                 <TeamProvider>
-                  <Nav />
-                  <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
-                  <Footer />
+                  <ConfirmProvider>
+                    <Nav />
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
+                    <Footer />
+                  </ConfirmProvider>
                 </TeamProvider>
               </TreeProvider>
             </SubscriptionProvider>
