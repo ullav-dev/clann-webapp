@@ -74,6 +74,7 @@
     }
   },
   "login": {
+    "sessionExpired": "Your session has expired. Please sign in again.",
     "resetPassword": "Reset Password",
     "emailAddress": "Email address",
     "sendResetToken": "Send Reset Token",

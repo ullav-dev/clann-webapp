@@ -23,6 +23,7 @@ export default function LoginPage() {
   const [tab, setTab] = useState<Tab>("login");
   const [stage, setStage] = useState<Stage>("form");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const [loginEmail, setLoginEmail] = useState("");
@@ -45,6 +46,7 @@ export default function LoginPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("tab") === "register") setTab("register");
+    if (params.get("reason") === "expired") setNotice(t("sessionExpired"));
   }, []);
 
   useEffect(() => {
@@ -181,6 +183,11 @@ export default function LoginPage() {
           <span className="text-2xl">🌳</span>
           <span className="font-bold text-lg text-stone-800">Clann</span>
         </div>
+        {notice && (
+          <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-amber-800 text-sm">
+            {notice}
+          </div>
+        )}
         <div className="flex gap-1 mb-6 border-b border-stone-200">
           {(["login", "register"] as Tab[]).map((tabKey) => (
             <button key={tabKey} onClick={() => { setTab(tabKey); setError(null); }}

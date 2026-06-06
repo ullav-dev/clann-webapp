@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import type { AuthUser, ClannSubscription, LoginResponse } from "@/lib/auth-api";
 import { login as apiLogin, decodeClannSubscription } from "@/lib/auth-api";
 import { setApiToken } from "@/lib/api";
@@ -100,6 +101,7 @@ function IdleWarningModal({
 // ── AuthProvider ──────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
@@ -236,6 +238,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ACTIVITY_EVENTS.forEach((e) => window.removeEventListener(e, handleActivity));
     };
   }, [user, startTimers, handleActivity]);
+
+  // ── Server-side 401 → session expired redirect ──────────────────────────────
+
+  const unauthorizedFiredRef = useRef(false);
+
+  useEffect(() => {
+    function handleUnauthorized() {
+      if (unauthorizedFiredRef.current || !user) return;
+      unauthorizedFiredRef.current = true;
+      logout();
+      router.replace("/login?reason=expired");
+    }
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, [user, logout, router]);
+
+  // Reset the guard whenever a new session starts so it can fire again
+  useEffect(() => {
+    if (user) unauthorizedFiredRef.current = false;
+  }, [user]);
 
   // ── Render ──────────────────────────────────────────────────────────────────
 

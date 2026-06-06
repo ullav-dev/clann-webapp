@@ -74,6 +74,7 @@
     }
   },
   "login": {
+    "sessionExpired": "Tá do sheisiún caite. Logáil isteach arís le do thoil.",
     "resetPassword": "Athshocraigh Pasfhocal",
     "emailAddress": "Seoladh ríomhphoist",
     "sendResetToken": "Seol Token Athshocraithe",
