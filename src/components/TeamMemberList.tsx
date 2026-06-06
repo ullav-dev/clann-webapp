@@ -8,6 +8,7 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import InviteMemberModal from "./InviteMemberModal";
+import { useConfirm } from "@/contexts/ConfirmContext";
 
 const ROLE_BADGE: Record<string, string> = {
   owner: "bg-amber-100 text-amber-800",
@@ -30,6 +31,7 @@ export default function TeamMemberList({ team, onChanged }: Props) {
   const { token, user } = useAuth();
   const { subscription } = useSubscription();
   const t = useTranslations("team");
+  const { confirm } = useConfirm();
   const pathname = usePathname();
   const locale = pathname.split("/")[1] ?? "en";
   const [showInvite, setShowInvite] = useState(false);
@@ -52,7 +54,7 @@ export default function TeamMemberList({ team, onChanged }: Props) {
       : "text-stone-500";
 
   async function handleRemove(userId: string, username: string) {
-    if (!confirm(t("removeMemberConfirm", { name: username }))) return;
+    if (!(await confirm(t("removeMemberConfirm", { name: username }), { variant: "destructive" }))) return;
     setRemoving(userId);
     setError(null);
     try {

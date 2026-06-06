@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import type { Person } from "@/lib/types";
 import { rawId } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
+import { useConfirm } from "@/contexts/ConfirmContext";
 import PersonAvatar from "./PersonAvatar";
 
 interface Props {
@@ -26,17 +27,18 @@ export default function PersonCard({ person, isRoot = false, onDeleted }: Props)
   const api = useApi();
   const t = useTranslations("family");
   const tPerson = useTranslations("personDetail");
+  const { confirm, alert } = useConfirm();
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete(e: React.MouseEvent) {
     e.preventDefault();
-    if (!confirm(t("deleteConfirm", { name: fullName(person) }))) return;
+    if (!(await confirm(t("deleteConfirm", { name: fullName(person) }), { variant: "destructive" }))) return;
     setDeleting(true);
     try {
       await api.deletePerson(person.id);
       onDeleted?.(person.id);
     } catch {
-      alert(t("deleteFailed"));
+      await alert(t("deleteFailed"));
       setDeleting(false);
     }
   }

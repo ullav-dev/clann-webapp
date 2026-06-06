@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useConfirm } from "@/contexts/ConfirmContext";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -37,6 +38,7 @@ export default function PersonDetailPage() {
   const readOnly = api.isSharedTree;
   const t = useTranslations("personDetail");
   const tEvents = useTranslations("lifeEvents");
+  const { confirm, alert } = useConfirm();
   const locale = useLocale();
 
   const [person, setPerson] = useState<Person | null>(null);
@@ -90,26 +92,26 @@ export default function PersonDetailPage() {
       setEditingSpouseId(null);
       load();
     } catch (e) {
-      alert(e instanceof Error ? e.message : t("saveFailed"));
+      await alert(e instanceof Error ? e.message : t("saveFailed"));
     } finally {
       setSavingSpouse(false);
     }
   }
 
   async function handleDelete() {
-    if (!confirm(t("deleteConfirm", { name: person ? fullName(person) : t("notFound") }))) return;
+    if (!(await confirm(t("deleteConfirm", { name: person ? fullName(person) : t("notFound") }), { variant: "destructive" }))) return;
     setDeleting(true);
     try {
       await api.deletePerson(id);
       router.push("/family");
     } catch (e) {
-      alert(e instanceof Error ? e.message : t("deleteFailed"));
+      await alert(e instanceof Error ? e.message : t("deleteFailed"));
       setDeleting(false);
     }
   }
 
   async function handleDeleteRel(group: "father" | "mother" | "siblings" | "spouse", related: Person | ParentInfo | SpouseInfo) {
-    if (!confirm(t("removeConfirm", { name: fullName(related), group }))) return;
+    if (!(await confirm(t("removeConfirm", { name: fullName(related), group }), { variant: "destructive" }))) return;
     await api.deleteRelationship(id, REL_TYPE_MAP[group], related.id);
     load();
   }

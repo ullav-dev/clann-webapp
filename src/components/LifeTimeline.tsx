@@ -11,6 +11,7 @@ import { DamPicker } from "@ullav/dam-picker";
 import type { PickedAsset } from "@ullav/dam-picker";
 import * as api from "@/lib/api";
 import type { LifeEvent, EventType, CreateLifeEvent, UpdateLifeEvent } from "@/lib/types";
+import { useConfirm } from "@/contexts/ConfirmContext";
 
 const MarkdownEditor = dynamic(() => import("@/components/MarkdownEditor"), { ssr: false });
 
@@ -142,6 +143,7 @@ function useAssetName(url: string | null | undefined, token: string): string | n
 
 function AuthDocLink({ url, token }: { url: string; token: string }) {
   const [busy, setBusy] = useState(false);
+  const { alert } = useConfirm();
   const assetName = useAssetName(url, token);
   const displayName = assetName ?? "document";
 
@@ -158,7 +160,7 @@ function AuthDocLink({ url, token }: { url: string; token: string }) {
       a.click();
       URL.revokeObjectURL(objectUrl);
     } catch {
-      alert("Could not download file");
+      await alert("Could not download file");
     } finally {
       setBusy(false);
     }
@@ -692,6 +694,7 @@ interface Props {
 export default function LifeTimeline({ personId, personCreatedBy }: Props) {
   const t = useTranslations("lifeEvents");
   const { user, roles, token } = useAuth();
+  const { confirm, alert } = useConfirm();
 
   const isAdmin = roles.includes("admin");
   const isOwner = !!user && user.username === personCreatedBy;
@@ -732,13 +735,13 @@ export default function LifeTimeline({ personId, personCreatedBy }: Props) {
   }, [editingId]);
 
   async function handleDelete(eventId: string, eventName: string) {
-    if (!confirm(t("deleteConfirm", { name: eventName }))) return;
+    if (!(await confirm(t("deleteConfirm", { name: eventName }), { variant: "destructive" }))) return;
     setDeleting(eventId);
     try {
       await api.deleteLifeEvent(eventId);
       setEvents((prev) => prev.filter((e) => e.id !== eventId));
     } catch (err) {
-      alert(err instanceof Error ? err.message : t("deleteFailed"));
+      await alert(err instanceof Error ? err.message : t("deleteFailed"));
     } finally {
       setDeleting(null);
     }

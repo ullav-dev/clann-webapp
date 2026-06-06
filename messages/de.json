@@ -1,4 +1,10 @@
 {
+  "common": {
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "ok": "OK",
+    "delete": "Löschen"
+  },
   "nav": {
     "myFamily": "Familien-Startseite",
     "research": "Forschung",

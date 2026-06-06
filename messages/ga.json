@@ -1,4 +1,10 @@
 {
+  "common": {
+    "cancel": "Cealaigh",
+    "confirm": "Deimhnigh",
+    "ok": "OK",
+    "delete": "Scrios"
+  },
   "nav": {
     "myFamily": "Baile Teaghlaigh",
     "research": "Taighde",

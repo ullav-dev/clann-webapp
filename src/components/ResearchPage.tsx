@@ -19,6 +19,7 @@ import IrishGenealogySearch from "@/components/IrishGenealogySearch";
 import AiChat from "@/components/AiChat";
 import AuthorChip from "@/components/AuthorChip";
 import NoteThread from "@/components/NoteThread";
+import { useConfirm } from "@/contexts/ConfirmContext";
 
 const MarkdownEditor = dynamic(() => import("@/components/MarkdownEditor"), { ssr: false });
 
@@ -263,6 +264,7 @@ export default function ResearchPage() {
   const { user, roles, token } = useAuth();
   const { activeTree, isLoading: treeLoading } = useTree();
   const apiHook = useApi();
+  const { confirm, alert } = useConfirm();
   const searchParams = useSearchParams();
 
   // When navigating from a person's detail page, personId is provided as a query param.
@@ -419,14 +421,14 @@ export default function ResearchPage() {
   }
 
   async function handleDelete(note: ResearchNote) {
-    if (!confirm(t("deleteConfirm", { title: note.title }))) return;
+    if (!(await confirm(t("deleteConfirm", { title: note.title }), { variant: "destructive" }))) return;
     setDeletingId(note.id);
     try {
       await apiHook.deleteResearchNote(note.id);
       setNotes((prev) => prev.filter((n) => n.id !== note.id));
       if (selectedId === note.id) { setSelectedId(null); setMode(null); }
     } catch {
-      alert(t("deleteFailed"));
+      await alert(t("deleteFailed"));
     } finally {
       setDeletingId(null);
     }
@@ -440,7 +442,7 @@ export default function ResearchPage() {
       setNewFolderName("");
       setCreatingFolder(false);
     } catch {
-      alert(t("createFolderFailed"));
+      await alert(t("createFolderFailed"));
     }
   }
 
@@ -450,7 +452,7 @@ export default function ResearchPage() {
       const updated = await apiHook.renameFolder(folderId, name.trim());
       setFolders((prev) => prev.map((f) => f.id === updated.id ? updated : f).sort((a, b) => a.name.localeCompare(b.name)));
     } catch {
-      alert(t("renameFolderFailed"));
+      await alert(t("renameFolderFailed"));
     } finally {
       setRenamingFolderId(null);
     }
@@ -459,7 +461,7 @@ export default function ResearchPage() {
   async function handleDeleteFolder(folderId: string) {
     const folder = folders.find((f) => f.id === folderId);
     if (!folder) return;
-    if (!confirm(t("deleteFolderConfirm", { name: folder.name }))) return;
+    if (!(await confirm(t("deleteFolderConfirm", { name: folder.name }), { variant: "destructive" }))) return;
     try {
       await apiHook.deleteFolder(folderId);
       setFolders((prev) => prev.filter((f) => f.id !== folderId));
@@ -467,7 +469,7 @@ export default function ResearchPage() {
       setNotes((prev) => prev.map((n) => n.folder_id === folderId ? { ...n, folder_id: null } : n));
       if (activeFolder === folderId) setActiveFolder("all");
     } catch {
-      alert(t("deleteFolderFailed"));
+      await alert(t("deleteFolderFailed"));
     }
   }
 
@@ -502,7 +504,7 @@ export default function ResearchPage() {
       const updated = await apiHook.setNoteFolder(noteId, folderId);
       setNotes((prev) => prev.map((n) => n.id === updated.id ? updated : n));
     } catch {
-      alert(t("moveFailed"));
+      await alert(t("moveFailed"));
     }
   }
 

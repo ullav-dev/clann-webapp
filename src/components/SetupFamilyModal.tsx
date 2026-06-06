@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useApi } from "@/hooks/useApi";
 import { rawId, createLifeEvent } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useConfirm } from "@/contexts/ConfirmContext";
 import type { Person, RelationshipsResponse, SiblingType } from "@/lib/types";
 import { fullName } from "@/components/PersonCard";
 
@@ -17,6 +18,7 @@ interface Props {
 export default function SetupFamilyModal({ person, existingRels, onDone, onClose }: Props) {
   const api = useApi();
   const { user } = useAuth();
+  const { alert } = useConfirm();
   const hasExistingFather = existingRels.father.length > 0;
   const hasExistingMother = existingRels.mother.length > 0;
 
@@ -131,7 +133,7 @@ export default function SetupFamilyModal({ person, existingRels, onDone, onClose
 
       onDone();
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Setup failed. Some members may have been created — check the family list.");
+      await alert(e instanceof Error ? e.message : "Setup failed. Some members may have been created — check the family list.");
       setRunning(false);
       setProgress(null);
     }
