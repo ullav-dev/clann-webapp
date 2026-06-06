@@ -34,6 +34,8 @@ type NodeData = {
   name: string;
   sex: string;
   role: Role;
+  /** Pedigree qualifier — only meaningful when role === "sibling" */
+  pedigree?: "birth" | "adopted" | "step" | "foster" | null;
   dob?: string;
   placeOfBirth?: string | null;
   biography?: string | null;
@@ -67,6 +69,13 @@ function PersonNode({ data }: NodeProps) {
   const hasTooltip = !!(d.dob || d.placeOfBirth || d.biography);
 
   const isRoot = d.role === "root";
+  const sibPedigree = d.role === "sibling" ? (d.pedigree ?? "birth") : null;
+  const sibBadge: Record<string, { label: string; cls: string }> = {
+    step:    { label: "step",    cls: "bg-orange-400 text-white" },
+    adopted: { label: "adopted", cls: "bg-sky-500 text-white"    },
+    foster:  { label: "foster",  cls: "bg-purple-500 text-white" },
+  };
+  const badge = sibPedigree && sibPedigree !== "birth" ? sibBadge[sibPedigree] : null;
 
   return (
     <div className="group relative">
@@ -74,6 +83,12 @@ function PersonNode({ data }: NodeProps) {
       {isRoot && (
         <div className="absolute -top-2.5 -right-2.5 z-10 w-6 h-6 rounded-full bg-amber-400 border-2 border-white shadow-md flex items-center justify-center text-white text-[11px] leading-none select-none">
           ★
+        </div>
+      )}
+      {/* Pedigree badge for step / adopted / foster siblings */}
+      {badge && (
+        <div className={`absolute -bottom-2.5 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 rounded-full text-[10px] font-semibold border-2 border-white shadow-md leading-none select-none whitespace-nowrap ${badge.cls}`}>
+          {badge.label}
         </div>
       )}
       <div
@@ -524,6 +539,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
             name: [sib.first_name, sib.family_name].join(" "),
             sex: sib.sex ?? "Male",
             role: "sibling" as Role,
+            pedigree: sib.pedigree ?? "birth",
             dob: sib.date_of_birth ?? undefined,
             placeOfBirth: sib.place_of_birth ?? null,
             biography: sib.biography ?? null,
@@ -556,25 +572,20 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
         addSiblingNode(sib, px, py);
       });
 
-      // Step-siblings: positioned at their shared parent's level, extending outward
+      // Step-siblings: continue the same row as birth siblings (all on the
+      // "birth-sibling side": left for vertical, above for horizontal).
+      // Placing them at the parent's Y level caused collisions whenever two
+      // step-parent groups had parents near x=0, or one parent's step-sibling
+      // landed exactly on the other parent node.  Keeping everything at y=0
+      // (root generation row) guarantees no overlap with parents (y=-Y_GAP),
+      // children (y=+Y_GAP), or spouses (right side of root at y=0).
+      let stepSlot = birthSibs.length; // next available slot after birth siblings
       for (const [parentId, sibs] of siblingGroups) {
         if (parentId === "birth" || sibs.length === 0) continue;
-        const parentPos = parentPositions.get(parentId);
-        if (!parentPos) continue;
-
-        sibs.forEach((sib, j) => {
-          let px: number, py: number;
-          if (orientation === "vertical") {
-            // Extend outward from parent: left if parent is on left side, right if right
-            const dir = parentPos.x <= 0 ? -1 : 1;
-            px = parentPos.x + dir * (j + 1) * X_GAP;
-            py = parentPos.y;
-          } else {
-            // Extend outward from parent in Y direction
-            const dir = parentPos.y <= 0 ? -1 : 1;
-            px = parentPos.x;
-            py = parentPos.y + dir * (j + 1) * Y_GAP;
-          }
+        sibs.forEach((sib) => {
+          stepSlot++;
+          const px = orientation === "vertical" ? -stepSlot * X_GAP : 0;
+          const py = orientation === "vertical" ? 0 : -stepSlot * Y_GAP;
           addSiblingNode(sib, px, py);
         });
       }
