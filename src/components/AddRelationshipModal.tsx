@@ -106,8 +106,13 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
             }
           };
 
-          await inheritParent("Father", rootRels.father, siblingRels.father);
-          await inheritParent("Mother", rootRels.mother, siblingRels.mother);
+          // Only inherit both parents for full birth siblings.
+          // Step/adopted/foster siblings share at most one parent — skip
+          // auto-inheritance so we don't assign the wrong parent.
+          if (siblingPedigree === "birth") {
+            await inheritParent("Father", rootRels.father, siblingRels.father);
+            await inheritParent("Mother", rootRels.mother, siblingRels.mother);
+          }
         }
       } else {
         await api.addRelationship(personId, {
