@@ -22,5 +22,21 @@
     padding: 2cm 2.5cm;
     background: white;
     color: black;
+    overflow: visible;
+  }
+  /* Life events start on a new page */
+  .life-events-section {
+    break-before: page;
+    padding-top: 0.5cm;
+  }
+  /* Keep each event card from splitting across pages */
+  .life-event-card {
+    break-inside: avoid;
+    margin-bottom: 1.5em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid #e7e5e4;
+  }
+  .life-event-card:last-child {
+    border-bottom: none;
   }
 }

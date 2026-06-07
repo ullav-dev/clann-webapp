@@ -8,10 +8,12 @@ import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useTranslations, useLocale } from "next-intl";
-import { rawId } from "@/lib/api";
+import { rawId, listLifeEvents, rawEventId } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
+import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
-import type { Person, ParentInfo, Pedigree, SiblingInfo, SpouseInfo, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
+import type { Person, ParentInfo, Pedigree, SiblingInfo, SpouseInfo, RelationshipsResponse, FamilyTreeNode, LifeEvent } from "@/lib/types";
+import { sortedEvents } from "@/lib/life-events";
 import { fullName } from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
 import ImageUpload from "@/components/ImageUpload";
@@ -34,6 +36,7 @@ export default function PersonDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const api = useApi();
+  const { token } = useAuth();
   const { trees: allTrees } = useTree();
   const readOnly = api.isSharedTree;
   const t = useTranslations("personDetail");
@@ -60,6 +63,13 @@ export default function PersonDetailPage() {
   // Inline pedigree editing for parent/sibling cards
   const [editingPedigreeId, setEditingPedigreeId] = useState<string | null>(null);
 
+  // PDF export: life events options
+  const [includeLifeEvents, setIncludeLifeEvents] = useState(false);
+  const [lifeEventsMode, setLifeEventsMode] = useState<"summary" | "full">("summary");
+  const [printEvents, setPrintEvents] = useState<LifeEvent[]>([]);
+  const [printImageBlobs, setPrintImageBlobs] = useState<Record<string, string>>({});
+  const [eventsLoading, setEventsLoading] = useState(false);
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -80,6 +90,38 @@ export default function PersonDetailPage() {
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Fetch events when the "Include Life Events" checkbox is enabled
+  useEffect(() => {
+    if (!includeLifeEvents) { setPrintEvents([]); setPrintImageBlobs({}); return; }
+    setEventsLoading(true);
+    listLifeEvents(id)
+      .then((evts) => setPrintEvents(sortedEvents(evts)))
+      .finally(() => setEventsLoading(false));
+  }, [includeLifeEvents, id]);
+
+  // Pre-fetch source_image blob URLs for full-detail mode
+  useEffect(() => {
+    if (lifeEventsMode !== "full" || !token || printEvents.length === 0) { setPrintImageBlobs({}); return; }
+    let cancelled = false;
+    const blobUrls: Record<string, string> = {};
+    const eventsWithImages = printEvents.filter((e) => e.source_image);
+    Promise.all(
+      eventsWithImages.map(async (e) => {
+        try {
+          const url = e.source_image!.endsWith("/thumbnail") ? e.source_image! : `${e.source_image}/thumbnail`;
+          const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+          if (!res.ok) return;
+          const blob = await res.blob();
+          blobUrls[rawEventId(e.id)] = URL.createObjectURL(blob);
+        } catch { /* skip failed images */ }
+      })
+    ).then(() => { if (!cancelled) setPrintImageBlobs(blobUrls); });
+    return () => {
+      cancelled = true;
+      Object.values(blobUrls).forEach((u) => URL.revokeObjectURL(u));
+    };
+  }, [lifeEventsMode, printEvents, token]);
 
   function startEditSpouse(spouse: SpouseInfo) {
     setEditingSpouseId(spouse.id);
@@ -398,7 +440,46 @@ export default function PersonDetailPage() {
 
       {tab === "lifestory" && (
         <div className="max-w-3xl space-y-4">
-          <div className="flex justify-end">
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            {/* Life events include options */}
+            <div className="flex flex-wrap items-center gap-3 text-xs text-stone-600">
+              <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={includeLifeEvents}
+                  onChange={(e) => setIncludeLifeEvents(e.target.checked)}
+                  className="rounded border-stone-300 text-emerald-600"
+                />
+                Include Life Events
+                {eventsLoading && <span className="text-stone-400 animate-pulse">…</span>}
+              </label>
+              {includeLifeEvents && (
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="lifeEventsMode"
+                      value="summary"
+                      checked={lifeEventsMode === "summary"}
+                      onChange={() => setLifeEventsMode("summary")}
+                      className="text-emerald-600"
+                    />
+                    Summary
+                  </label>
+                  <label className="flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="lifeEventsMode"
+                      value="full"
+                      checked={lifeEventsMode === "full"}
+                      onChange={() => setLifeEventsMode("full")}
+                      className="text-emerald-600"
+                    />
+                    Full (with stories)
+                  </label>
+                </div>
+              )}
+            </div>
             <button
               onClick={() => {
                 const prev = document.title;
@@ -501,6 +582,9 @@ export default function PersonDetailPage() {
       <LifeStoryPrintView
         person={person}
         lifeImageUrl={person.life_image_path ? api.personLifeImageUrl(id) : null}
+        lifeEvents={includeLifeEvents ? printEvents : undefined}
+        lifeEventsMode={lifeEventsMode}
+        imageBlobUrls={printImageBlobs}
       />
     </div>
   );
