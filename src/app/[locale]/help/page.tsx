@@ -43,6 +43,7 @@ export default async function HelpPage() {
         { title: t("relationships.adoptionScenario1Title"), body: t("relationships.adoptionScenario1Body") },
         { title: t("relationships.adoptionScenario2Title"), body: t("relationships.adoptionScenario2Body") },
         { title: t("relationships.adoptionVisualTitle"), body: t("relationships.adoptionVisualBody") },
+        { title: t("relationships.inheritNewPersonTitle"), body: t("relationships.inheritNewPersonBody") },
       ],
     },
     {
@@ -92,6 +93,7 @@ export default async function HelpPage() {
         { title: t("lifeEvents.viewingTitle"), body: t("lifeEvents.viewingBody") },
         { title: t("lifeEvents.editingTitle"), body: t("lifeEvents.editingBody") },
         { title: t("lifeEvents.sourcesTitle"), body: t("lifeEvents.sourcesBody") },
+        { title: t("lifeEvents.exportPdfTitle"), body: t("lifeEvents.exportPdfBody") },
       ],
     },
     {
