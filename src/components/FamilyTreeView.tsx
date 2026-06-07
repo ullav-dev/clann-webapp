@@ -33,7 +33,7 @@ type NodeData = {
   name: string;
   sex: string;
   role: Role;
-  /** Pedigree qualifier — only meaningful when role === "sibling" */
+  /** Pedigree qualifier — set on sibling, father, and mother nodes for non-birth relationships */
   pedigree?: "birth" | "adopted" | "step" | "foster" | null;
   dob?: string;
   placeOfBirth?: string | null;
@@ -68,13 +68,14 @@ function PersonNode({ data }: NodeProps) {
   const hasTooltip = !!(d.dob || d.placeOfBirth || d.biography);
 
   const isRoot = d.role === "root";
-  const sibPedigree = d.role === "sibling" ? (d.pedigree ?? "birth") : null;
-  const sibBadge: Record<string, { label: string; cls: string }> = {
+  const showsPedigree = d.role === "sibling" || d.role === "father" || d.role === "mother";
+  const pedigreeValue = showsPedigree ? (d.pedigree ?? "birth") : null;
+  const pedigreeBadge: Record<string, { label: string; cls: string }> = {
     step:    { label: "S",      cls: "bg-orange-400 text-white" },
     adopted: { label: "A",      cls: "bg-sky-500 text-white"    },
     foster:  { label: "foster", cls: "bg-purple-500 text-white" },
   };
-  const badge = sibPedigree && sibPedigree !== "birth" ? sibBadge[sibPedigree] : null;
+  const badge = pedigreeValue && pedigreeValue !== "birth" ? pedigreeBadge[pedigreeValue] : null;
 
   return (
     <div className="group relative">
@@ -189,6 +190,7 @@ function buildGraph(
       name: [node.first_name, node.family_name].join(" "),
       sex: node.sex ?? "Male",
       role,
+      pedigree: node.pedigree ?? null,
       dob: node.date_of_birth ?? undefined,
       placeOfBirth: node.place_of_birth ?? null,
       biography: node.biography ?? null,
