@@ -17,12 +17,9 @@
   /* Show the print container */
   .life-story-print {
     display: block !important;
-    position: fixed;
-    inset: 0;
     padding: 2cm 2.5cm;
     background: white;
     color: black;
-    overflow: visible;
   }
   /* Life events start on a new page */
   .life-events-section {
