@@ -74,17 +74,11 @@ export default function NewPersonPage() {
         if (linkedSiblingIds.has(childRawId)) continue;
         linkedSiblingIds.add(childRawId);
         const siblingType = child.sex === "Female" ? "Sister" : "Brother";
-        // Derive the pedigree of the sibling relationship from the child's own
-        // pedigree relative to the shared parent. A birth child of the same parent
-        // is a birth sibling; step/adopted/foster children become step siblings.
-        const childPed = child.pedigree ?? "birth";
-        const sibPedigree = childPed === "birth" ? "birth" : "step";
         await apiHook.addRelationship(personRawId, {
           type: "Sibling",
           related_id: child.id,
           sibling_type: siblingType,
-          pedigree: sibPedigree,
-          via_parent_id: sibPedigree !== "birth" ? parentId : undefined,
+          pedigree: "birth",
         });
       }
     }
