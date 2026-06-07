@@ -372,7 +372,7 @@
       "step2Title": "Your family tree is ready",
       "step2Body": "On your first login, Clann automatically creates a family tree named after your surname and adds you as the first family member using the details you provided at registration. You can find your tree in the navigation bar dropdown and edit your entry at any time.",
       "step3Title": "Add more people",
-      "step3Body": "Your own entry is already in the tree. Click Add Person in the navigation bar to add other family members. Fill in the first name, family name, and sex (required). Optionally add birth and death dates and places, a biography, and a photo.",
+      "step3Body": "Your own entry is already in the tree. Click Add Person in the navigation bar to add other family members. Fill in the first name, family name, and sex (required). Optionally add birth and death dates and places, a biography, and a photo. You can also select a Father and/or Mother right in the form — if you do, an 'Inherit siblings automatically' checkbox appears and is ticked by default. Clann will link the new person as a sibling to any existing children of those parents as soon as you save.",
       "step4Title": "Build relationships",
       "step4Body": "Open a person's profile and go to the Relationships tab. Click + Add Relationship to link them as Father, Mother, Sibling, or Spouse of another person in your tree.",
       "step5Title": "Use Setup Family to get started quickly",
@@ -394,7 +394,7 @@
       "siblingTitle": "Siblings and parents",
       "siblingBody": "When you add siblings you can select multiple people at once — hold the list open and tap each name. Clann automatically assigns the same Father and Mother to every new sibling, so you only need to record parents once.",
       "parentTitle": "Setting a parent builds your tree automatically",
-      "parentBody": "When you set a Father or Mother for a person, Clann looks up that parent's other children and automatically links them as siblings. This is a powerful way to build a comprehensive family tree quickly — add a shared parent once and the sibling network fills in for you.",
+      "parentBody": "When you set a Father or Mother for a person, Clann looks up that parent's other children and automatically links them as siblings. This is a powerful way to build a comprehensive family tree quickly — add a shared parent once and the sibling network fills in for you. Step, adopted, and foster children of the parent are inherited as step siblings, so the correct pedigree is preserved without any extra steps.",
       "filterTitle": "Smart person filtering",
       "filterBody": "The person picker filters by sex to show only relevant matches: Father shows males, Mother shows females, Brother shows males, and Sister shows females. This makes it faster to find the right person in large families.",
       "spouseTitle": "Spouse dates",
@@ -410,7 +410,9 @@
       "adoptionScenario2Title": "Step-child",
       "adoptionScenario2Body": "Record the biological parents as Biological. Then add the step-parent using type Step. The step-parent is usually already in the tree as the spouse of the biological parent — select that existing person rather than creating a new one.",
       "adoptionVisualTitle": "How it looks in the tree",
-      "adoptionVisualBody": "Parent edges are drawn differently depending on the relationship nature: a solid line for biological, a dashed line for adopted, a dotted line for step, and a faint long-dash line for foster. When your tree contains any non-biological parent connections, a line-style legend appears in the tree toolbar."
+      "adoptionVisualBody": "Parent edges are drawn differently depending on the relationship nature: a solid line for biological, a dashed line for adopted, a dotted line for step, and a faint long-dash line for foster. Parent nodes in the family tree also display a small badge — 'Bio', 'Adopted', 'Step', or 'Foster' — so the relationship nature is visible at a glance without hovering. When your tree contains any non-biological parent connections, a line-style legend appears in the tree toolbar.",
+      "inheritNewPersonTitle": "Inheriting siblings when adding a new person",
+      "inheritNewPersonBody": "When you add a new person via the Add Person form, you can assign a Father and/or Mother directly in that form. An 'Inherit siblings automatically' checkbox (ticked by default) then appears. When saved, Clann fetches each parent's existing children and links them as siblings of the new person automatically. Children who are step, adopted, or foster relatives of the parent are linked as step siblings of the new person — the pedigree is set correctly without any extra steps."
     },
     "familyTree": {
       "title": "Family Tree",
@@ -447,7 +449,7 @@
       "lifeImageTitle": "Life story image",
       "lifeImageBody": "A larger portrait or scene image can be added to the Life Story tab. Open a person's profile, go to the Life Story tab, and click '+ Add Life Story Image' (or hover over the existing image and click Change). Drag and drop a JPEG, PNG, GIF, or WebP image (up to 10 MB) into the upload area. The image appears at the top left of the Life Story panel with the biography flowing to its right.",
       "exportPdfTitle": "Exporting as PDF",
-      "exportPdfBody": "Click the 'Export as PDF' button at the top of the Life Story tab to open your browser's print dialog. Choose 'Save as PDF' (or the equivalent in your browser) to download a formatted PDF. The file is named after the person. The PDF includes their name, birth details, life story image, and full biography.",
+      "exportPdfBody": "Click the 'Export as PDF' button at the top of the Life Story tab to open your browser's print dialog. Choose 'Save as PDF' (or the equivalent in your browser) to download a formatted PDF. The file is named after the person. The PDF includes their name, birth details, life story image, and full biography. Before clicking export, tick 'Include Life Events' to append a second page of the person's life events, sorted chronologically. Choose 'Summary' for a compact table (date, event name, type, description), or 'Full (with stories)' to include the full narrative, source links, and any source images for each event.",
       "mediaLibraryTitle": "Inserting images from the media library",
       "mediaLibraryBody": "While editing a biography, click 'Browse media library' below the editor to open an inline media picker. Click any image to insert it at your current cursor position, or drag it from the picker onto the drop zone below the editor. Images are inserted as thumbnails. A green confirmation message appears briefly to confirm the insertion."
     },
@@ -464,7 +466,9 @@
       "editingTitle": "Editing and deleting",
       "editingBody": "Hover over any event card and click the pencil icon to open the inline edit panel. Update the name, date, type, and short description, or write a longer narrative in the Story field (markdown is supported, with media library image insertion). Click 'Save Changes' to apply. The delete button removes the event permanently. Edit and delete are only available to the person's owner and admins.",
       "sourcesTitle": "Sources and verification",
-      "sourcesBody": "Each event can have an external source URL, a source image, and a source document — all linked from your media library. Tick the Verified checkbox once you have confirmed the event against a reliable source. These fields help document the evidence behind your family history."
+      "sourcesBody": "Each event can have an external source URL, a source image, and a source document — all linked from your media library. Tick the Verified checkbox once you have confirmed the event against a reliable source. These fields help document the evidence behind your family history.",
+      "exportPdfTitle": "Exporting life events as PDF",
+      "exportPdfBody": "Life events can be included in the Life Story PDF export. Go to the Life Story tab, tick 'Include Life Events', then choose a mode: 'Summary' produces a compact chronological table with date, event name, type, and description; 'Full (with stories)' adds the full narrative, source link, and any source image for each event on a dedicated page. Events are always sorted with Birth first, then chronologically by date."
     },
     "research": {
       "title": "Research",
