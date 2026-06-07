@@ -4,6 +4,7 @@ import type {
   UpdatePerson,
   RelationshipsResponse,
   AddRelationshipRequest,
+  UpdateRelationshipRequest,
   UpdateSpouseDatesRequest,
   FamilyTreeNode,
   FamilyTree,
@@ -170,6 +171,18 @@ export const deleteRelationship = (
 ): Promise<void> =>
   request(withCreatedBy(`/api/persons/${rawId(id)}/relationships/${relType}/${relatedId}`, createdBy), {
     method: "DELETE",
+  });
+
+export const updateRelationshipPedigree = (
+  id: string,
+  relType: string,
+  relatedId: string,
+  body: UpdateRelationshipRequest,
+  createdBy?: string,
+): Promise<void> =>
+  request(withCreatedBy(`/api/persons/${rawId(id)}/relationships/${relType}/${encodeURIComponent(relatedId)}`, createdBy), {
+    method: "PATCH",
+    body: JSON.stringify(body),
   });
 
 // Spouse dates

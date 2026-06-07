@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import type { ParentInfo, Person, Pedigree, RelationshipType, SiblingType } from "@/lib/types";
+import type { ParentInfo, Person, Pedigree, RelationshipType, SiblingInfo, SiblingType } from "@/lib/types";
 import { useApi } from "@/hooks/useApi";
 import { fullName, personIcon } from "./PersonCard";
 
@@ -27,11 +27,17 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // For non-birth siblings: root's known parents to offer as "via parent" picker
+  const [rootParents, setRootParents] = useState<ParentInfo[]>([]);
+  const [viaParentId, setViaParentId] = useState<string | null>(null);
 
   useEffect(() => {
     api.listPersons().then((all) =>
       setPersons(all.filter((p) => api.rawId(p.id) !== personId))
     );
+    api.getRelationships(personId).then((rels) => {
+      setRootParents([...rels.father, ...rels.mother]);
+    }).catch(() => {});
   }, [personId]);
 
   useEffect(() => {
@@ -89,19 +95,21 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
             related_id: sibId,
             sibling_type: siblingType,
             pedigree: siblingPedigree,
+            // Record which parent connects this step/adopted/foster relationship
+            via_parent_id: siblingPedigree !== "birth" ? (viaParentId ?? undefined) : undefined,
           });
 
-          const siblingRels = await api.getRelationships(sibId);
+          const siblingRels = await api.getRelationships(api.rawId(sibId));
 
           const inheritParent = async (
             type: "Father" | "Mother",
-            rootParents: ParentInfo[],
-            siblingParents: ParentInfo[],
+            parents: ParentInfo[],
+            siblingParents: SiblingInfo[],
           ) => {
             const siblingParentIds = new Set(siblingParents.map((p) => p.id));
-            for (const parent of rootParents) {
+            for (const parent of parents) {
               if (!siblingParentIds.has(parent.id)) {
-                await api.addRelationship(sibId, { type, related_id: parent.id, pedigree: parent.pedigree });
+                await api.addRelationship(api.rawId(sibId), { type, related_id: parent.id, pedigree: parent.pedigree });
               }
             }
           };
@@ -126,6 +134,8 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
         // When adding a Father or Mother, find the parent's other children and
         // link them as siblings of the current person. Use `step` pedigree when
         // the parent link itself is step/adopted/foster so the relationship is honest.
+        // Pass the parent being added as via_parent_id so step-sibling families are
+        // correctly distinguished in the tree view.
         if (relType === "Father" || relType === "Mother") {
           const [parentTree, myRels] = await Promise.all([
             api.getFamilyTree(selectedId),
@@ -136,12 +146,14 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
           for (const child of parentTree.children ?? []) {
             if (api.rawId(child.id) === personId) continue;
             if (existingSiblingIds.has(api.rawId(child.id))) continue;
-            const siblingType: SiblingType = child.sex === "Female" ? "Sister" : "Brother";
+            const childSiblingType: SiblingType = child.sex === "Female" ? "Sister" : "Brother";
             await api.addRelationship(personId, {
               type: "Sibling",
               related_id: child.id,
-              sibling_type: siblingType,
+              sibling_type: childSiblingType,
               pedigree: derivedSibPedigree,
+              // via_parent_id = the parent we're currently adding
+              via_parent_id: derivedSibPedigree !== "birth" ? selectedId : undefined,
             });
           }
         }
@@ -227,7 +239,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
                   <button
                     key={p}
                     type="button"
-                    onClick={() => setSiblingPedigree(p)}
+                    onClick={() => { setSiblingPedigree(p); if (p === "birth") setViaParentId(null); }}
                     className={`py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${
                       siblingPedigree === p
                         ? "bg-emerald-700 text-white border-emerald-700"
@@ -238,6 +250,25 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Via parent picker — shown for non-birth siblings when root has known parents */}
+          {relType === "Sibling" && siblingPedigree !== "birth" && rootParents.length > 0 && (
+            <div>
+              <label className="text-sm font-medium text-stone-700 block mb-2">{t("viaParent")}</label>
+              <select
+                value={viaParentId ?? ""}
+                onChange={(e) => setViaParentId(e.target.value || null)}
+                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 bg-white"
+              >
+                <option value="">{t("viaParentNone")}</option>
+                {rootParents.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {[p.first_name, p.family_name].filter(Boolean).join(" ")}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 

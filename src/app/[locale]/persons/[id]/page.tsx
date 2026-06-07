@@ -11,7 +11,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { rawId } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
 import { useTree } from "@/contexts/TreeContext";
-import type { Person, ParentInfo, SiblingInfo, SpouseInfo, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
+import type { Person, ParentInfo, Pedigree, SiblingInfo, SpouseInfo, RelationshipsResponse, FamilyTreeNode } from "@/lib/types";
 import { fullName } from "@/components/PersonCard";
 import PersonAvatar from "@/components/PersonAvatar";
 import ImageUpload from "@/components/ImageUpload";
@@ -57,6 +57,8 @@ export default function PersonDetailPage() {
   const [spouseFromEdit, setSpouseFromEdit] = useState("");
   const [spouseToEdit, setSpouseToEdit] = useState("");
   const [savingSpouse, setSavingSpouse] = useState(false);
+  // Inline pedigree editing for parent/sibling cards
+  const [editingPedigreeId, setEditingPedigreeId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -113,6 +115,16 @@ export default function PersonDetailPage() {
   async function handleDeleteRel(group: "father" | "mother" | "siblings" | "spouse", related: Person | ParentInfo | SpouseInfo) {
     if (!(await confirm(t("removeConfirm", { name: fullName(related), group }), { variant: "destructive" }))) return;
     await api.deleteRelationship(id, REL_TYPE_MAP[group], related.id);
+    load();
+  }
+
+  async function handleChangePedigree(
+    group: "father" | "mother" | "siblings",
+    related: ParentInfo | SiblingInfo,
+    newPedigree: Pedigree,
+  ) {
+    await api.updateRelationshipPedigree(id, REL_TYPE_MAP[group], related.id, { pedigree: newPedigree });
+    setEditingPedigreeId(null);
     load();
   }
 
@@ -241,21 +253,54 @@ export default function PersonDetailPage() {
                       const pedigree = (group === "father" || group === "mother")
                         ? (p as ParentInfo).pedigree
                         : group === "siblings" ? (p as SiblingInfo).pedigree : undefined;
+                      const isEditingPedigree = editingPedigreeId === p.id;
                       return (
-                        <div key={p.id} className="flex items-center gap-3 bg-white rounded-xl border border-stone-200 px-4 py-3 shadow-sm">
-                          <Link href={`/persons/${rawId(p.id)}`} className="flex items-center gap-3 flex-1 min-w-0 group">
-                            <PersonAvatar person={p} size={36} />
-                            <div className="min-w-0">
-                              <p className="font-medium text-sm text-stone-800 group-hover:text-emerald-700 truncate">{fullName(p)}</p>
-                              {p.date_of_birth && <p className="text-xs text-stone-400">{t("bornPrefix", { date: p.date_of_birth })}</p>}
-                              {pedigree && pedigree !== "birth" && (
-                                <span className="inline-block text-xs font-medium px-1.5 py-0.5 rounded mt-0.5 bg-amber-100 text-amber-700 border border-amber-200">
-                                  {t(`pedigree_${pedigree}` as "pedigree_adopted")}
-                                </span>
-                              )}
+                        <div key={p.id} className="bg-white rounded-xl border border-stone-200 px-4 py-3 shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <Link href={`/persons/${rawId(p.id)}`} className="flex items-center gap-3 flex-1 min-w-0 group">
+                              <PersonAvatar person={p} size={36} />
+                              <div className="min-w-0">
+                                <p className="font-medium text-sm text-stone-800 group-hover:text-emerald-700 truncate">{fullName(p)}</p>
+                                {p.date_of_birth && <p className="text-xs text-stone-400">{t("bornPrefix", { date: p.date_of_birth })}</p>}
+                                {pedigree && pedigree !== "birth" && (
+                                  <span className="inline-block text-xs font-medium px-1.5 py-0.5 rounded mt-0.5 bg-amber-100 text-amber-700 border border-amber-200">
+                                    {t(`pedigree_${pedigree}` as "pedigree_adopted")}
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
+                            {!readOnly && (
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <button
+                                  onClick={() => setEditingPedigreeId(isEditingPedigree ? null : p.id)}
+                                  title={t("editPedigree")}
+                                  className="text-stone-300 hover:text-emerald-600 transition-colors text-xs px-1"
+                                >✏️</button>
+                                <button onClick={() => handleDeleteRel(group, p)} className="text-stone-300 hover:text-red-500 transition-colors text-lg ml-1" title={t("removeRelationship")}>×</button>
+                              </div>
+                            )}
+                          </div>
+                          {isEditingPedigree && (
+                            <div className="mt-2 pt-2 border-t border-stone-100">
+                              <p className="text-xs text-stone-500 mb-1.5">{t("editPedigree")}</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {(["birth", "adopted", "step", "foster"] as Pedigree[]).map((pg) => (
+                                  <button
+                                    key={pg}
+                                    type="button"
+                                    onClick={() => handleChangePedigree(group, p as ParentInfo | SiblingInfo, pg)}
+                                    className={`px-2 py-1 rounded text-xs font-medium transition-colors border ${
+                                      pedigree === pg
+                                        ? "bg-emerald-700 text-white border-emerald-700"
+                                        : "border-stone-300 text-stone-600 hover:border-emerald-400"
+                                    }`}
+                                  >
+                                    {t(`pedigree_${pg}` as "pedigree_adopted")}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                          </Link>
-                          {!readOnly && <button onClick={() => handleDeleteRel(group, p)} className="text-stone-300 hover:text-red-500 transition-colors text-lg ml-2 flex-shrink-0" title={t("removeRelationship")}>×</button>}
+                          )}
                         </div>
                       );
                     })}

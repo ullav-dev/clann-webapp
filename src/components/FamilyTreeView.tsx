@@ -104,6 +104,8 @@ function PersonNode({ data }: NodeProps) {
         {/* Spouse-axis handles (perpendicular) */}
         <Handle id="sp-s" type="source" position={isH ? Position.Bottom : Position.Right} className={style.handle} />
         <Handle id="sp-t" type="target" position={isH ? Position.Top    : Position.Left}  className={style.handle} />
+        {/* Step-sibling handle — source at Top (vertical) so arcs sweep upward to root */}
+        <Handle id="sib-s" type="source" position={isH ? Position.Bottom : Position.Top} className={style.handle} />
 
         <div className="flex justify-center mb-2">
           {showImage ? (
@@ -428,14 +430,13 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
     buildGraph(tree, 0, 0, nodes, edges, orientation, "root", visited, photoVersions);
 
     if (showSiblings) {
-      (tree.siblings ?? []).forEach((sib, i) => {
-        if (visited.has(sib.id)) return;
-        visited.add(sib.id);
+      const allSibs = tree.siblings ?? [];
+      const birthSibs   = allSibs.filter(s => (s.pedigree ?? "birth") === "birth");
+      const nonBirthSibs = allSibs.filter(s => (s.pedigree ?? "birth") !== "birth");
+      const nBirthSibs  = birthSibs.length;
+      const nChildren   = (tree.children ?? []).length;
 
-        // All siblings sit at the same level as root, to the left (vertical) or above (horizontal)
-        const px = orientation === "vertical" ? -(i + 1) * X_GAP : 0;
-        const py = orientation === "vertical" ? 0 : -(i + 1) * Y_GAP;
-
+      function addSibNode(sib: typeof allSibs[0], px: number, py: number) {
         nodes.push({
           id: sib.id,
           type: "person",
@@ -456,22 +457,90 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
             orientation,
           } satisfies NodeData,
         });
+      }
 
-        const edgeColor = "#5eead4"; // teal-300
-        const sibPed = sib.pedigree ?? "birth";
-        const sibStyle =
-          sibPed === "step"    ? { strokeDasharray: "2 4" } :
-          sibPed === "adopted" ? { strokeDasharray: "6 3" } :
-          sibPed === "foster"  ? { strokeDasharray: "8 4", opacity: 0.6 } :
-          {};
+      // Birth siblings — same row as root, to the left (vertical) or above (horizontal).
+      // Clean straight horizontal/vertical sp-s→sp-t edges.
+      birthSibs.forEach((sib, i) => {
+        if (visited.has(sib.id)) return;
+        visited.add(sib.id);
+        const px = orientation === "vertical" ? -(i + 1) * X_GAP : 0;
+        const py = orientation === "vertical" ? 0 : -(i + 1) * Y_GAP;
+        addSibNode(sib, px, py);
         edges.push({
           id: `${tree.id}~sib~${sib.id}`,
           source: sib.id,  sourceHandle: "sp-s",
           target: tree.id, targetHandle: "sp-t",
           type: "straight",
-          style: { stroke: edgeColor, strokeWidth: 2, ...sibStyle },
+          style: { stroke: "#5eead4", strokeWidth: 2 },
         });
       });
+
+      // Non-birth siblings (step / adopted / foster) — placed in a separate row.
+      // Grouped by via_parent_id so step-siblings from different families are
+      // visually separated. Each group is a distinct cluster with extra gap between groups.
+      if (nonBirthSibs.length > 0) {
+        const stepBase = orientation === "vertical"
+          ? -(Math.max(nBirthSibs, Math.ceil(nChildren / 2)) + 2) * X_GAP
+          : 0;
+
+        // Group by via_parent_id. Siblings with no via_parent_id share one "unlinked" bucket.
+        const groups = new Map<string, typeof nonBirthSibs>();
+        for (const sib of nonBirthSibs) {
+          const key = sib.via_parent_id ?? "unlinked";
+          if (!groups.has(key)) groups.set(key, []);
+          groups.get(key)!.push(sib);
+        }
+
+        if (orientation === "vertical") {
+          // Each group is a horizontal cluster at y=2*Y_GAP, separated by an extra gap slot.
+          let xCursor = stepBase;
+          for (const [, groupSibs] of groups) {
+            groupSibs.forEach((sib, j) => {
+              if (visited.has(sib.id)) return;
+              visited.add(sib.id);
+              addSibNode(sib, xCursor - j * X_GAP, 2 * Y_GAP);
+              const sibPed = sib.pedigree ?? "birth";
+              const sibStyle =
+                sibPed === "step"    ? { strokeDasharray: "2 4" } :
+                sibPed === "adopted" ? { strokeDasharray: "6 3" } :
+                sibPed === "foster"  ? { strokeDasharray: "8 4", opacity: 0.6 } : {};
+              edges.push({
+                id: `${tree.id}~sib~${sib.id}`,
+                source: sib.id,  sourceHandle: "sib-s",
+                target: tree.id, targetHandle: "sp-t",
+                type: "default",
+                style: { stroke: "#5eead4", strokeWidth: 2, ...sibStyle },
+              });
+            });
+            // Advance cursor: group width + 1 extra gap slot between groups
+            xCursor -= (groupSibs.length + 1) * X_GAP;
+          }
+        } else {
+          // Horizontal orientation: stack groups vertically above root, beyond birth siblings
+          let yOffset = nBirthSibs + 2;
+          for (const [, groupSibs] of groups) {
+            groupSibs.forEach((sib, j) => {
+              if (visited.has(sib.id)) return;
+              visited.add(sib.id);
+              addSibNode(sib, 0, -(yOffset + j) * Y_GAP);
+              const sibPed = sib.pedigree ?? "birth";
+              const sibStyle =
+                sibPed === "step"    ? { strokeDasharray: "2 4" } :
+                sibPed === "adopted" ? { strokeDasharray: "6 3" } :
+                sibPed === "foster"  ? { strokeDasharray: "8 4", opacity: 0.6 } : {};
+              edges.push({
+                id: `${tree.id}~sib~${sib.id}`,
+                source: sib.id,  sourceHandle: "sp-s",
+                target: tree.id, targetHandle: "sp-t",
+                type: "straight",
+                style: { stroke: "#5eead4", strokeWidth: 2, ...sibStyle },
+              });
+            });
+            yOffset += groupSibs.length + 1;
+          }
+        }
+      }
     }
 
     return { nodes, edges };
