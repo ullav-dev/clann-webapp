@@ -7,6 +7,7 @@ import type {
   CreatePerson,
   UpdatePerson,
   AddRelationshipRequest,
+  UpdateRelationshipRequest,
   UpdateSpouseDatesRequest,
   CreateResearchNote,
   UpdateResearchNote,
@@ -50,6 +51,8 @@ export function useApi() {
       api.addRelationship(id, body, createdBy),
     deleteRelationship: (id: string, relType: string, relatedId: string) =>
       api.deleteRelationship(id, relType, relatedId, createdBy),
+    updateRelationshipPedigree: (id: string, relType: string, relatedId: string, body: UpdateRelationshipRequest) =>
+      api.updateRelationshipPedigree(id, relType, relatedId, body, createdBy),
     updateSpouseDates: (id: string, relatedId: string, body: UpdateSpouseDatesRequest) =>
       api.updateSpouseDates(id, relatedId, body, createdBy),
     getFamilyTree: (id: string) => api.getFamilyTree(id, readOwner),

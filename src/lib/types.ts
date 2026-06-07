@@ -144,6 +144,8 @@ export interface ParentInfo extends Person {
 /** A sibling with the pedigree qualifier from the edge. */
 export interface SiblingInfo extends Person {
   pedigree: Pedigree;
+  /** The parent through whom this step/adopted/foster relationship is formed. Full record ID. */
+  via_parent_id?: string | null;
 }
 
 export interface RelationshipsResponse {
@@ -161,6 +163,14 @@ export interface AddRelationshipRequest {
   spouse_to?: string | null;
   /** Nature of the parent–child relationship. Only meaningful for Father / Mother. Defaults to "birth". */
   pedigree?: Pedigree | null;
+  /** For non-birth siblings: the parent whose family connection creates this relationship. Full record ID. */
+  via_parent_id?: string | null;
+}
+
+export interface UpdateRelationshipRequest {
+  pedigree: Pedigree;
+  /** For sibling edges: the parent through whom the step/adopted/foster relationship is formed. */
+  via_parent_id?: string | null;
 }
 
 export interface UpdateSpouseDatesRequest {
@@ -178,8 +188,10 @@ export interface FamilyTreeNode {
   biography?: string | null;
   image_path?: string | null;
   sibling_type?: SiblingType | null;
-  /** Pedigree of this node relative to its child. Set on nodes in father/mother arrays. */
+  /** Pedigree of this node relative to its child. Set on nodes in father/mother/siblings arrays. */
   pedigree?: Pedigree | null;
+  /** For sibling nodes: the parent through whom the step/adopted/foster relationship is formed. */
+  via_parent_id?: string | null;
   father?: FamilyTreeNode[];
   mother?: FamilyTreeNode[];
   children?: FamilyTreeNode[];
