@@ -66,6 +66,7 @@ export default function PersonForm({ initial, onSubmit, submitLabel, onCancel, s
   const [fatherId, setFatherId] = useState<string>("");
   const [motherId, setMotherId] = useState<string>("");
   const [parentSearch, setParentSearch] = useState<{ father: string; mother: string }>({ father: "", mother: "" });
+  const [inheritSiblings, setInheritSiblings] = useState(true);
 
   useEffect(() => {
     if (!showParentSelectors) return;
@@ -145,6 +146,7 @@ export default function PersonForm({ initial, onSubmit, submitLabel, onCancel, s
         biography: optional(values.biography),
         _fatherId: fatherId || undefined,
         _motherId: motherId || undefined,
+        _inheritSiblings: inheritSiblings,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : t("unknownError"));
@@ -241,6 +243,20 @@ export default function PersonForm({ initial, onSubmit, submitLabel, onCancel, s
               </div>
             );
           })}
+          {(fatherId || motherId) && (
+            <label className="flex items-start gap-3 cursor-pointer select-none pt-1">
+              <input
+                type="checkbox"
+                checked={inheritSiblings}
+                onChange={(e) => setInheritSiblings(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+              />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-sm font-medium text-stone-700">{t("inheritSiblingsLabel")}</span>
+                <span className="text-xs text-stone-400">{t("inheritSiblingsHint")}</span>
+              </span>
+            </label>
+          )}
         </fieldset>
       )}
 

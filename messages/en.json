@@ -271,7 +271,9 @@
     "motherLabel": "Mother",
     "fatherPlaceholder": "Search for father…",
     "motherPlaceholder": "Search for mother…",
-    "noParentFound": "No matching person found"
+    "noParentFound": "No matching person found",
+    "inheritSiblingsLabel": "Inherit siblings from selected parents",
+    "inheritSiblingsHint": "Automatically links this person as a sibling of each existing child of the selected parent(s)"
   },
   "addRelationship": {
     "title": "Add Relationship",
