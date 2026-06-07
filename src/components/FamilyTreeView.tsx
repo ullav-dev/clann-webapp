@@ -20,7 +20,6 @@ import { rawId, personImageUrl, listPersons, getRelationships } from "@/lib/api"
 import { exportToGedcom } from "@/lib/gedcom-export";
 import { useTree } from "@/contexts/TreeContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useApi } from "@/hooks/useApi";
 import { personIcon } from "@/components/PersonCard";
 import { useRouter } from "next/navigation";
 
@@ -71,9 +70,9 @@ function PersonNode({ data }: NodeProps) {
   const isRoot = d.role === "root";
   const sibPedigree = d.role === "sibling" ? (d.pedigree ?? "birth") : null;
   const sibBadge: Record<string, { label: string; cls: string }> = {
-    step:    { label: "step",    cls: "bg-orange-400 text-white" },
-    adopted: { label: "adopted", cls: "bg-sky-500 text-white"    },
-    foster:  { label: "foster",  cls: "bg-purple-500 text-white" },
+    step:    { label: "S",      cls: "bg-orange-400 text-white" },
+    adopted: { label: "A",      cls: "bg-sky-500 text-white"    },
+    foster:  { label: "foster", cls: "bg-purple-500 text-white" },
   };
   const badge = sibPedigree && sibPedigree !== "birth" ? sibBadge[sibPedigree] : null;
 
@@ -402,14 +401,9 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
   const locale = useLocale();
   const { activeTree } = useTree();
   const { user, token, roles } = useAuth();
-  const api = useApi();
-  const apiRef = useRef(api);
-  apiRef.current = api;
   const canUseDam = hasDamAccess(token);
   const [orientation, setOrientation] = useState<Orientation>("vertical");
   const [showSiblings, setShowSiblings] = useState(false);
-  // Map of parentId → siblings in that group; "birth" key for full siblings
-  const [siblingGroups, setSiblingGroups] = useState<Map<string, FamilyTreeNode[]> | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportingJson, setExportingJson] = useState(false);
   const [exportingGedcom, setExportingGedcom] = useState(false);
@@ -427,133 +421,21 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showExportMenu]);
 
-  // When siblings are toggled on, bucket them by shared parent using parent tree lookups.
-  useEffect(() => {
-    if (!showSiblings) {
-      setSiblingGroups(null);
-      return;
-    }
-    const siblings = tree.siblings ?? [];
-    const fathers = tree.father ?? [];
-    const mothers = tree.mother ?? [];
-
-    if (siblings.length === 0) {
-      setSiblingGroups(new Map([["birth", []]]));
-      return;
-    }
-
-    const rootFatherIds = new Set(fathers.map(f => f.id));
-    const rootMotherIds = new Set(mothers.map(m => m.id));
-
-    let cancelled = false;
-    async function computeGroups() {
-      // Fetch parent IDs for all non-birth siblings in parallel
-      const sibParentMap = new Map<string, string[]>();
-      const nonBirthSibs = siblings.filter(s => (s.pedigree ?? "birth") !== "birth");
-      await Promise.allSettled(
-        nonBirthSibs.map(async (sib) => {
-          try {
-            const r = await apiRef.current.getRelationships(rawId(sib.id));
-            sibParentMap.set(sib.id, [
-              ...r.father.map(f => f.id),
-              ...r.mother.map(m => m.id),
-            ]);
-          } catch {
-            sibParentMap.set(sib.id, []);
-          }
-        })
-      );
-
-      if (cancelled) return;
-
-      const groups = new Map<string, FamilyTreeNode[]>();
-      groups.set("birth", []);
-      for (const f of fathers) groups.set(f.id, []);
-      for (const m of mothers) groups.set(m.id, []);
-
-      // First pass: assign each non-birth sibling to a matching root-parent group
-      const unplaced: FamilyTreeNode[] = [];
-      for (const sib of siblings) {
-        const sibPedigree = sib.pedigree ?? "birth";
-        if (sibPedigree === "birth") {
-          groups.get("birth")!.push(sib);
-          continue;
-        }
-        const sibParents = sibParentMap.get(sib.id) ?? [];
-        let placed = false;
-        for (const pid of sibParents) {
-          if (rootFatherIds.has(pid) || rootMotherIds.has(pid)) {
-            if (!groups.has(pid)) groups.set(pid, []);
-            groups.get(pid)!.push(sib);
-            placed = true;
-            break;
-          }
-        }
-        if (!placed) unplaced.push(sib);
-      }
-
-      // Second pass: group unmatched non-birth siblings by their OWN shared
-      // parents.  This handles the common case where step-siblings were added
-      // directly (not through the "add parent" flow) and therefore have no
-      // parent edge pointing to root's parents.  Two step-siblings who share a
-      // Manning father will be clustered together even if that father is not in
-      // root's immediate tree.  Siblings with no parent data at all are
-      // collected in a single fallback group so they stay together rather than
-      // being artificially scattered.
-      const extraGroups: FamilyTreeNode[][] = [];
-      const noParentGroup: FamilyTreeNode[] = [];
-      for (const sib of unplaced) {
-        const sibParents = sibParentMap.get(sib.id) ?? [];
-        if (sibParents.length === 0) {
-          noParentGroup.push(sib);
-          continue;
-        }
-        const sibParentSet = new Set(sibParents);
-        let placed = false;
-        for (const group of extraGroups) {
-          const groupParents = new Set(group.flatMap(g => sibParentMap.get(g.id) ?? []));
-          if ([...sibParentSet].some(p => groupParents.has(p))) {
-            group.push(sib);
-            placed = true;
-            break;
-          }
-        }
-        if (!placed) extraGroups.push([sib]);
-      }
-      if (noParentGroup.length > 0) extraGroups.push(noParentGroup);
-
-      extraGroups.forEach((group, i) => groups.set(`extra:${i}`, group));
-
-      if (cancelled) return;
-
-      // Remove empty parent groups (birth group always kept)
-      for (const [key, arr] of groups) {
-        if (key !== "birth" && arr.length === 0) groups.delete(key);
-      }
-
-      setSiblingGroups(groups);
-    }
-
-    computeGroups().catch(() => {
-      if (!cancelled) setSiblingGroups(new Map([["birth", siblings]]));
-    });
-    return () => { cancelled = true; };
-  }, [showSiblings, tree]);
-
   const { nodes, edges } = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
     const visited = new Set<string>();
     buildGraph(tree, 0, 0, nodes, edges, orientation, "root", visited, photoVersions);
 
-    if (showSiblings && siblingGroups) {
-      // Build parent position lookup from already-placed nodes
-      const parentPositions = new Map<string, { x: number; y: number }>();
-      for (const n of nodes) parentPositions.set(n.id, n.position);
-
-      function addSiblingNode(sib: FamilyTreeNode, px: number, py: number) {
+    if (showSiblings) {
+      (tree.siblings ?? []).forEach((sib, i) => {
         if (visited.has(sib.id)) return;
         visited.add(sib.id);
+
+        // All siblings sit at the same level as root, to the left (vertical) or above (horizontal)
+        const px = orientation === "vertical" ? -(i + 1) * X_GAP : 0;
+        const py = orientation === "vertical" ? 0 : -(i + 1) * Y_GAP;
+
         nodes.push({
           id: sib.id,
           type: "person",
@@ -574,6 +456,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
             orientation,
           } satisfies NodeData,
         });
+
         const edgeColor = "#5eead4"; // teal-300
         const sibPed = sib.pedigree ?? "birth";
         const sibStyle =
@@ -583,66 +466,16 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
           {};
         edges.push({
           id: `${tree.id}~sib~${sib.id}`,
-          source: sib.id,
-          target: tree.id,
-          type: "smoothstep",
+          source: sib.id,  sourceHandle: "sp-s",
+          target: tree.id, targetHandle: "sp-t",
+          type: "straight",
           style: { stroke: edgeColor, strokeWidth: 2, ...sibStyle },
         });
-      }
-
-      // Birth siblings: same row as root (y=0), to the left / above
-      const birthSibs = siblingGroups.get("birth") ?? [];
-      birthSibs.forEach((sib, i) => {
-        const px = orientation === "vertical" ? -(i + 1) * X_GAP : 0;
-        const py = orientation === "vertical" ? 0 : -(i + 1) * Y_GAP;
-        addSiblingNode(sib, px, py);
       });
-
-      // Non-birth siblings: rendered in a separate row at the midpoint between
-      // the parent generation (y = -Y_GAP) and root (y = 0).  Each parent's
-      // group extends outward from that parent's side — clearly separated both
-      // from birth siblings (different row) and from siblings via the other
-      // parent (different horizontal region).
-      //
-      // Fallback for unresolvable groups (parent not in rendered graph): place
-      // them further left in the midpoint row, past the birth siblings.
-      let fallbackSlot = birthSibs.length + 1;
-
-      for (const [parentId, sibs] of siblingGroups) {
-        if (parentId === "birth" || sibs.length === 0) continue;
-        const parentPos = parentPositions.get(parentId);
-
-        sibs.forEach((sib, j) => {
-          let px: number, py: number;
-          if (parentPos) {
-            if (orientation === "vertical") {
-              // Midpoint Y; extend outward (left for left-side parent, right for right)
-              const dir = parentPos.x <= 0 ? -1 : 1;
-              px = parentPos.x + dir * (j + 1) * X_GAP;
-              py = parentPos.y / 2;
-            } else {
-              const dir = parentPos.y <= 0 ? -1 : 1;
-              px = parentPos.x / 2;
-              py = parentPos.y + dir * (j + 1) * Y_GAP;
-            }
-          } else {
-            // Parent not rendered — use generic midpoint row, left side
-            if (orientation === "vertical") {
-              px = -(fallbackSlot + j) * X_GAP;
-              py = -Y_GAP / 2;
-            } else {
-              px = -X_GAP / 2;
-              py = -(fallbackSlot + j) * Y_GAP;
-            }
-          }
-          addSiblingNode(sib, px, py);
-        });
-        if (!parentPos) fallbackSlot += sibs.length + 1;
-      }
     }
 
     return { nodes, edges };
-  }, [tree, orientation, showSiblings, siblingGroups, photoVersions]);
+  }, [tree, orientation, showSiblings, photoVersions]);
 
   const hasNonBirth = useMemo(() => {
     function check(node: FamilyTreeNode): boolean {
