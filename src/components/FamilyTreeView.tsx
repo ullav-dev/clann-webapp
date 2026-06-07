@@ -437,62 +437,96 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
     const fathers = tree.father ?? [];
     const mothers = tree.mother ?? [];
 
-    if (siblings.length === 0 || (fathers.length === 0 && mothers.length === 0)) {
-      setSiblingGroups(new Map([["birth", siblings]]));
+    if (siblings.length === 0) {
+      setSiblingGroups(new Map([["birth", []]]));
       return;
     }
 
-    // Build sets of root's parent IDs for fast lookup
     const rootFatherIds = new Set(fathers.map(f => f.id));
     const rootMotherIds = new Set(mothers.map(m => m.id));
 
     let cancelled = false;
     async function computeGroups() {
+      // Fetch parent IDs for all non-birth siblings in parallel
+      const sibParentMap = new Map<string, string[]>();
+      const nonBirthSibs = siblings.filter(s => (s.pedigree ?? "birth") !== "birth");
+      await Promise.allSettled(
+        nonBirthSibs.map(async (sib) => {
+          try {
+            const r = await apiRef.current.getRelationships(rawId(sib.id));
+            sibParentMap.set(sib.id, [
+              ...r.father.map(f => f.id),
+              ...r.mother.map(m => m.id),
+            ]);
+          } catch {
+            sibParentMap.set(sib.id, []);
+          }
+        })
+      );
+
+      if (cancelled) return;
+
       const groups = new Map<string, FamilyTreeNode[]>();
       groups.set("birth", []);
       for (const f of fathers) groups.set(f.id, []);
       for (const m of mothers) groups.set(m.id, []);
 
+      // First pass: assign each non-birth sibling to a matching root-parent group
+      const unplaced: FamilyTreeNode[] = [];
       for (const sib of siblings) {
         const sibPedigree = sib.pedigree ?? "birth";
-
         if (sibPedigree === "birth") {
           groups.get("birth")!.push(sib);
           continue;
         }
-
-        // For non-birth siblings, fetch their own relationships to find which
-        // of root's parents they share. Step-siblings are linked by a sibling
-        // edge only — we cannot infer the shared parent from root's parent trees.
+        const sibParents = sibParentMap.get(sib.id) ?? [];
         let placed = false;
-        try {
-          const sibRels = await apiRef.current.getRelationships(rawId(sib.id));
-          for (const sibFather of sibRels.father) {
-            if (rootFatherIds.has(sibFather.id)) {
-              groups.get(sibFather.id)!.push(sib);
-              placed = true;
-              break;
-            }
+        for (const pid of sibParents) {
+          if (rootFatherIds.has(pid) || rootMotherIds.has(pid)) {
+            if (!groups.has(pid)) groups.set(pid, []);
+            groups.get(pid)!.push(sib);
+            placed = true;
+            break;
           }
-          if (!placed) {
-            for (const sibMother of sibRels.mother) {
-              if (rootMotherIds.has(sibMother.id)) {
-                groups.get(sibMother.id)!.push(sib);
-                placed = true;
-                break;
-              }
-            }
-          }
-        } catch { /* fall through */ }
-
-        if (!placed) {
-          groups.get("birth")!.push(sib);
         }
+        if (!placed) unplaced.push(sib);
       }
+
+      // Second pass: group unmatched non-birth siblings by their OWN shared
+      // parents.  This handles the common case where step-siblings were added
+      // directly (not through the "add parent" flow) and therefore have no
+      // parent edge pointing to root's parents.  Two step-siblings who share a
+      // Manning father will be clustered together even if that father is not in
+      // root's immediate tree.  Siblings with no parent data at all are
+      // collected in a single fallback group so they stay together rather than
+      // being artificially scattered.
+      const extraGroups: FamilyTreeNode[][] = [];
+      const noParentGroup: FamilyTreeNode[] = [];
+      for (const sib of unplaced) {
+        const sibParents = sibParentMap.get(sib.id) ?? [];
+        if (sibParents.length === 0) {
+          noParentGroup.push(sib);
+          continue;
+        }
+        const sibParentSet = new Set(sibParents);
+        let placed = false;
+        for (const group of extraGroups) {
+          const groupParents = new Set(group.flatMap(g => sibParentMap.get(g.id) ?? []));
+          if ([...sibParentSet].some(p => groupParents.has(p))) {
+            group.push(sib);
+            placed = true;
+            break;
+          }
+        }
+        if (!placed) extraGroups.push([sib]);
+      }
+      if (noParentGroup.length > 0) extraGroups.push(noParentGroup);
+
+      extraGroups.forEach((group, i) => groups.set(`extra:${i}`, group));
 
       if (cancelled) return;
 
-      // Remove empty step-parent groups (birth group always kept)
+      // Remove empty parent groups (birth group always kept)
       for (const [key, arr] of groups) {
         if (key !== "birth" && arr.length === 0) groups.delete(key);
       }
