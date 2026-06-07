@@ -271,7 +271,9 @@
     "motherLabel": "Máthair",
     "fatherPlaceholder": "Cuardaigh athair…",
     "motherPlaceholder": "Cuardaigh máthair…",
-    "noParentFound": "Níor aimsíodh aon duine"
+    "noParentFound": "Níor aimsíodh aon duine",
+    "inheritSiblingsLabel": "Deartháireacha/deirfiúracha ó thuismitheoirí roghnaithe a fháil",
+    "inheritSiblingsHint": "Nascann an duine seo go huathoibríoch mar dheartháir/deirfiúr le gach leanbh atá ann cheana de na tuismitheoirí roghnaithe"
   },
   "addRelationship": {
     "title": "Caidreamh a Chur Leis",

@@ -33,8 +33,8 @@ export default function NewPersonPage() {
       .catch(() => setMemberCount(null));
   }, [user, activeTree]);
 
-  async function handleSubmit(values: CreatePerson & { _fatherId?: string; _motherId?: string }) {
-    const { _fatherId, _motherId, ...personValues } = values;
+  async function handleSubmit(values: CreatePerson & { _fatherId?: string; _motherId?: string; _inheritSiblings?: boolean }) {
+    const { _fatherId, _motherId, _inheritSiblings, ...personValues } = values;
     const person = await apiHook.createPerson(personValues);
     const personRawId = apiHook.rawId(person.id);
     const createdBy = user?.username ?? null;
@@ -61,12 +61,35 @@ export default function NewPersonPage() {
     }
     await Promise.all(eventPromises);
 
-    // Link parent relationships if selected
+    // Link parent relationships and optionally inherit siblings from each parent.
+    // linkedSiblingIds tracks siblings already added so duplicates (children of
+    // both parents) are linked only once.
+    const linkedSiblingIds = new Set<string>();
+
+    async function inheritFromParent(parentId: string) {
+      const parentTree = await apiHook.getFamilyTree(parentId);
+      for (const child of parentTree.children ?? []) {
+        const childRawId = apiHook.rawId(child.id);
+        if (childRawId === personRawId) continue;
+        if (linkedSiblingIds.has(childRawId)) continue;
+        linkedSiblingIds.add(childRawId);
+        const siblingType = child.sex === "Female" ? "Sister" : "Brother";
+        await apiHook.addRelationship(personRawId, {
+          type: "Sibling",
+          related_id: child.id,
+          sibling_type: siblingType,
+          pedigree: "birth",
+        });
+      }
+    }
+
     if (_fatherId) {
       await apiHook.addRelationship(personRawId, { type: "Father", related_id: _fatherId });
+      if (_inheritSiblings) await inheritFromParent(_fatherId);
     }
     if (_motherId) {
       await apiHook.addRelationship(personRawId, { type: "Mother", related_id: _motherId });
+      if (_inheritSiblings) await inheritFromParent(_motherId);
     }
 
     router.push(`/persons/${personRawId}`);

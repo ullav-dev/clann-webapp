@@ -271,7 +271,9 @@
     "motherLabel": "Mutter",
     "fatherPlaceholder": "Vater suchen…",
     "motherPlaceholder": "Mutter suchen…",
-    "noParentFound": "Keine passende Person gefunden"
+    "noParentFound": "Keine passende Person gefunden",
+    "inheritSiblingsLabel": "Geschwister von ausgewählten Elternteilen übernehmen",
+    "inheritSiblingsHint": "Verknüpft diese Person automatisch als Geschwister aller vorhandenen Kinder der ausgewählten Elternteile"
   },
   "addRelationship": {
     "title": "Beziehung hinzufügen",
