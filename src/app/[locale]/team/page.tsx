@@ -227,6 +227,7 @@ export default function TeamPage() {
           teamId={team.id}
           trees={linkedTrees}
           isOwner={isOwner}
+          team={team}
           onChanged={() => loadTeam(team.id)}
         />
       )}

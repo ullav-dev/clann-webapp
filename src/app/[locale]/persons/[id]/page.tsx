@@ -38,7 +38,7 @@ export default function PersonDetailPage() {
   const api = useApi();
   const { token } = useAuth();
   const { trees: allTrees } = useTree();
-  const readOnly = api.isSharedTree;
+  const readOnly = api.isReadOnly;
   const t = useTranslations("personDetail");
   const tEvents = useTranslations("lifeEvents");
   const { confirm, alert } = useConfirm();

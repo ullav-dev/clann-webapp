@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
+import { useTeam } from "@/contexts/TeamContext";
 import * as api from "@/lib/api";
 import type {
   CreatePerson,
@@ -28,11 +29,14 @@ import type {
 export function useApi() {
   const { user } = useAuth();
   const { activeTree } = useTree();
+  const { isEditorOf } = useTeam();
   const createdBy = user?.username;
   const tree = activeTree?.name;
 
   // True when the active tree is owned by someone else (a shared team tree).
   const isSharedTree = !!activeTree && !!user && activeTree.owner !== user.username;
+  // Editors of a shared tree have full write access; plain viewers are read-only.
+  const isReadOnly = isSharedTree && !isEditorOf(activeTree?.name ?? "");
   // For reads on a shared tree, omit created_by so the backend uses JWT auth.
   const readOwner = isSharedTree ? undefined : createdBy;
 
@@ -40,6 +44,7 @@ export function useApi() {
 
   return {
     isSharedTree,
+    isReadOnly,
     listPersons: () => api.listPersons(readOwner, tree),
     createPerson: (body: CreatePerson) =>
       api.createPersonWithBirthEvent({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),

@@ -7,7 +7,7 @@ import {
   useState,
   useCallback,
 } from "react";
-import type { FamilyTree, Team, TeamSummary } from "@/lib/types";
+import type { FamilyTree, Team, TeamSummary, TreeAccessRole } from "@/lib/types";
 import {
   getMyTeams,
   getTeam,
@@ -17,7 +17,7 @@ import {
   type CreateTeamPayload,
   type UpdateTeamPayload,
 } from "@/lib/teams-api";
-import { listTeamTrees, setTreeTeam } from "@/lib/api";
+import { getMyTreeAccess, listTeamTrees, setTreeTeam } from "@/lib/api";
 import { useAuth } from "./AuthContext";
 
 interface TeamState {
@@ -43,6 +43,10 @@ interface TeamState {
   isTeamTree: (treeName: string) => boolean;
   /** Find which team a tree belongs to, if any. */
   treeTeamName: (treeName: string) => string | undefined;
+  /** The caller's access role for a shared tree: "owner" | "editor" | "viewer". */
+  myTreeRole: (treeName: string) => TreeAccessRole;
+  /** Returns true when the caller has editor (or owner) write access to a shared tree. */
+  isEditorOf: (treeName: string) => boolean;
 }
 
 const TeamContext = createContext<TeamState>({
@@ -57,12 +61,16 @@ const TeamContext = createContext<TeamState>({
   setTreeTeam: async () => { throw new Error("TeamProvider not mounted"); },
   isTeamTree: () => false,
   treeTeamName: () => undefined,
+  myTreeRole: () => "viewer",
+  isEditorOf: () => false,
 });
 
 export function TeamProvider({ children }: { children: React.ReactNode }) {
   const { token, user } = useAuth();
   const [teams, setTeams] = useState<TeamSummary[]>([]);
   const [teamTrees, setTeamTrees] = useState<FamilyTree[]>([]);
+  // treeName → access role for shared trees
+  const [treeRoles, setTreeRoles] = useState<Record<string, TreeAccessRole>>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const reload = useCallback(async () => {
@@ -77,7 +85,18 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
       const treeArrays = await Promise.all(
         memberTeams.map((t) => listTeamTrees(t.id).catch(() => [] as FamilyTree[]))
       );
-      setTeamTrees(treeArrays.flat());
+      const flat = treeArrays.flat();
+      setTeamTrees(flat);
+
+      // Fetch per-tree access role for each shared tree.
+      const roles = await Promise.all(
+        flat.map((t) =>
+          getMyTreeAccess(t.name)
+            .then((r) => [t.name, r.role] as [string, TreeAccessRole])
+            .catch(() => [t.name, "viewer"] as [string, TreeAccessRole])
+        )
+      );
+      setTreeRoles(Object.fromEntries(roles));
     } finally {
       setIsLoading(false);
     }
@@ -89,6 +108,7 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
     } else {
       setTeams([]);
       setTeamTrees([]);
+      setTreeRoles({});
     }
   }, [token, user, reload]);
 
@@ -149,6 +169,19 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
     [teamTrees, teams]
   );
 
+  const myTreeRole = useCallback(
+    (treeName: string): TreeAccessRole => treeRoles[treeName] ?? "viewer",
+    [treeRoles]
+  );
+
+  const isEditorOf = useCallback(
+    (treeName: string): boolean => {
+      const role = treeRoles[treeName];
+      return role === "editor" || role === "owner";
+    },
+    [treeRoles]
+  );
+
   return (
     <TeamContext.Provider
       value={{
@@ -163,6 +196,8 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
         setTreeTeam: handleSetTreeTeam,
         isTeamTree,
         treeTeamName,
+        myTreeRole,
+        isEditorOf,
       }}
     >
       {children}
