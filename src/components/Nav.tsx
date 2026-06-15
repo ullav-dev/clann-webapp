@@ -168,9 +168,6 @@ export default function Nav() {
                 </>
               ) : !isLoading ? (
                 <>
-                  <Link href="/pricing" className={activeLink("/pricing")}>
-                    {t("pricing")}
-                  </Link>
                   <Link href="/help" className={activeLink("/help")}>
                     {t("help")}
                   </Link>
@@ -278,9 +275,6 @@ export default function Nav() {
               </div>
             ) : !isLoading ? (
               <div className="py-2">
-                <Link href="/pricing" onClick={closeMobileMenu} className={mobileLink("/pricing")}>
-                  {t("pricing")}
-                </Link>
                 <div className="px-4 py-2">
                   <Link
                     href="/login"
