@@ -22,7 +22,7 @@ type Tab = "purpose" | "members" | "trees";
 
 export default function TeamPage() {
   const { token, user } = useAuth();
-  const { teams, getTeamDetail, updateTeam, deleteTeam, reload } = useTeam();
+  const { teams, activeTeam, getTeamDetail, updateTeam, deleteTeam, reload } = useTeam();
   const t = useTranslations("team");
   const { confirm } = useConfirm();
 
@@ -54,9 +54,12 @@ export default function TeamPage() {
     }
   }, [getTeamDetail]);
 
-  // Load first available team on mount or when teams list changes
+  // Load the active team first; fall back to the owned team or first member team.
   useEffect(() => {
-    const first = ownedTeam ?? memberTeams[0];
+    const preferred = activeTeam
+      ? teams.find((t) => t.id === activeTeam.id)
+      : null;
+    const first = preferred ?? ownedTeam ?? memberTeams[0];
     if (first) {
       loadTeam(first.id);
     } else {
@@ -140,6 +143,26 @@ export default function TeamPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      {/* Multi-team picker — only shown when the user belongs to more than one team */}
+      {teams.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {teams.map((ts) => (
+            <button
+              key={ts.id}
+              onClick={() => loadTeam(ts.id)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                team?.id === ts.id
+                  ? "border-violet-400 bg-violet-50 text-violet-800"
+                  : "border-stone-200 text-stone-600 hover:bg-stone-50"
+              }`}
+            >
+              <TeamAvatar team={ts} size="xs" />
+              <span className="max-w-[10rem] truncate">{ts.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start gap-4">
         <TeamAvatar team={team} size="lg" />

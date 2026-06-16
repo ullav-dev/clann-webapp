@@ -17,7 +17,13 @@
     "settings": "Einstellungen",
     "about": "Über Clann",
     "activeTree": "Aktiver Baum",
+    "workspace": "Arbeitsbereich",
     "team": "Team"
+  },
+  "teamSelector": {
+    "personal": "Persönlich",
+    "workspace": "Arbeitsbereich",
+    "switchTeam": "Arbeitsbereich wechseln"
   },
   "about": {
     "tagline": "Familiengeschichte & Genealogie",

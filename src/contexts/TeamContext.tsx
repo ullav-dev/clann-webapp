@@ -20,11 +20,17 @@ import {
 import { getMyTreeAccess, listTeamTrees, setTreeTeam } from "@/lib/api";
 import { useAuth } from "./AuthContext";
 
+const ACTIVE_TEAM_KEY = "clann_active_team_id";
+
 interface TeamState {
   /** All teams the user belongs to (owner or member). */
   teams: TeamSummary[];
   /** Trees shared with the user via team membership (not owned by the user). */
   teamTrees: FamilyTree[];
+  /** The currently selected team workspace (null = Personal). */
+  activeTeam: TeamSummary | null;
+  /** Switch the active team context (null = Personal). */
+  setActiveTeam: (team: TeamSummary | null) => void;
   /** true while the initial teams load is in flight. */
   isLoading: boolean;
   /** Reload teams + team trees from the server. */
@@ -52,6 +58,8 @@ interface TeamState {
 const TeamContext = createContext<TeamState>({
   teams: [],
   teamTrees: [],
+  activeTeam: null,
+  setActiveTeam: () => {},
   isLoading: false,
   reload: async () => {},
   createTeam: async () => { throw new Error("TeamProvider not mounted"); },
@@ -69,9 +77,21 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
   const { token, user } = useAuth();
   const [teams, setTeams] = useState<TeamSummary[]>([]);
   const [teamTrees, setTeamTrees] = useState<FamilyTree[]>([]);
+  const [activeTeam, setActiveTeamState] = useState<TeamSummary | null>(null);
   // treeName → access role for shared trees
   const [treeRoles, setTreeRoles] = useState<Record<string, TreeAccessRole>>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const setActiveTeam = useCallback((team: TeamSummary | null) => {
+    setActiveTeamState(team);
+    try {
+      if (team) {
+        localStorage.setItem(ACTIVE_TEAM_KEY, team.id);
+      } else {
+        localStorage.removeItem(ACTIVE_TEAM_KEY);
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   const reload = useCallback(async () => {
     if (!token || !user) return;
@@ -79,6 +99,16 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
     try {
       const myTeams = await getMyTeams(token);
       setTeams(myTeams);
+
+      // Restore persisted active team, validating it's still in the teams list.
+      try {
+        const savedId = localStorage.getItem(ACTIVE_TEAM_KEY);
+        if (savedId) {
+          const match = myTeams.find((t) => t.id === savedId);
+          setActiveTeamState(match ?? null);
+          if (!match) localStorage.removeItem(ACTIVE_TEAM_KEY);
+        }
+      } catch { /* ignore */ }
 
       // Fetch trees for teams where the user is a member (not the owner).
       const memberTeams = myTeams.filter((t) => t.owner.username !== user.username);
@@ -109,6 +139,7 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
       setTeams([]);
       setTeamTrees([]);
       setTreeRoles({});
+      setActiveTeamState(null);
     }
   }, [token, user, reload]);
 
@@ -187,6 +218,8 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
       value={{
         teams,
         teamTrees,
+        activeTeam,
+        setActiveTeam,
         isLoading,
         reload,
         createTeam,

@@ -4,10 +4,11 @@ import type { TeamSummary, Team } from "@/lib/types";
 
 interface Props {
   team: Pick<Team | TeamSummary, "name" | "avatar_url">;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
 }
 
 const SIZE = {
+  xs: "w-5 h-5 text-[10px]",
   sm: "w-8 h-8 text-xs",
   md: "w-12 h-12 text-sm",
   lg: "w-16 h-16 text-lg",

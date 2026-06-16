@@ -9,6 +9,7 @@ import { useTeam } from "@/contexts/TeamContext";
 import { useTree } from "@/contexts/TreeContext";
 import { canCreateTeam } from "@/lib/auth-api";
 import LocaleSwitcher from "./LocaleSwitcher";
+import TeamSelector from "./TeamSelector";
 import TreeSelector from "./TreeSelector";
 import AboutModal from "./AboutModal";
 import UserAvatar, { userDisplayName } from "./UserAvatar";
@@ -107,6 +108,7 @@ export default function Nav() {
                       {t("team")}
                     </Link>
                   )}
+                  <TeamSelector />
                   <TreeSelector />
                   {readOnly ? (
                     <span
@@ -222,9 +224,15 @@ export default function Nav() {
                     {t("team")}
                   </Link>
                 )}
-                <div className="px-4 py-3 border-t border-stone-100">
-                  <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-2">{t("activeTree")}</p>
-                  <TreeSelector />
+                <div className="px-4 py-3 border-t border-stone-100 space-y-3">
+                  <div>
+                    <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-2">{t("workspace")}</p>
+                    <TeamSelector />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-2">{t("activeTree")}</p>
+                    <TreeSelector />
+                  </div>
                 </div>
                 <div className="px-4 py-2 border-t border-stone-100">
                   {readOnly ? (

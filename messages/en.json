@@ -17,7 +17,13 @@
     "settings": "Settings",
     "about": "About Clann",
     "activeTree": "Active Tree",
+    "workspace": "Workspace",
     "team": "Team"
+  },
+  "teamSelector": {
+    "personal": "Personal",
+    "workspace": "Workspace",
+    "switchTeam": "Switch workspace"
   },
   "about": {
     "tagline": "Family History & Genealogy",

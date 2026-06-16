@@ -14,7 +14,7 @@ import { useConfirm } from "@/contexts/ConfirmContext";
 
 export default function TreeSelector() {
   const { trees, activeTree, isLoading, setActiveTree, createTree, renameTree, deleteTree, setPrimaryTree } = useTree();
-  const { teamTrees, teams } = useTeam();
+  const { teamTrees, teams, activeTeam } = useTeam();
   const { atTreeLimit, maxTrees } = useSubscription();
   const tLimits = useTranslations("limits");
   const t = useTranslations("trees");
@@ -111,6 +111,15 @@ export default function TreeSelector() {
     }
   }
 
+  // When a team workspace is active, scope the visible trees to that team.
+  // Own trees linked to another team are hidden to keep the workspace focused.
+  const visibleOwnTrees = activeTeam
+    ? trees.filter((t) => t.team_id === activeTeam.id)
+    : trees;
+  const visibleTeamTrees = activeTeam
+    ? teamTrees.filter((t) => t.team_id === activeTeam.id)
+    : teamTrees;
+
   if (isLoading) {
     return <span className="text-sm text-stone-400">{t("loading")}</span>;
   }
@@ -138,16 +147,16 @@ export default function TreeSelector() {
 
       {open && (
         <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-xl border border-stone-200 shadow-lg z-50">
-          {trees.length === 0 && teamTrees.length === 0 ? (
+          {visibleOwnTrees.length === 0 && visibleTeamTrees.length === 0 ? (
             <p className="px-3 py-3 text-sm text-stone-400 text-center">{t("noTreesYet")}</p>
           ) : (
             <ul className="py-1 max-h-60 overflow-y-auto divide-y divide-stone-50">
-              {trees.length > 0 && (
+              {visibleOwnTrees.length > 0 && (
                 <li className="px-3 pt-2 pb-1">
                   <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">{t("myTrees")}</span>
                 </li>
               )}
-              {trees.map((tree) => (
+              {visibleOwnTrees.map((tree) => (
                 <li key={tree.name} className="flex items-center gap-1 px-2 py-1.5 hover:bg-stone-50 group">
                   <button
                     onClick={() => { setActiveTree(tree); setOpen(false); router.push(`/${locale}/family`); }}
@@ -210,12 +219,12 @@ export default function TreeSelector() {
                   )}
                 </li>
               ))}
-              {teamTrees.length > 0 && (
+              {visibleTeamTrees.length > 0 && (
                 <>
                   <li className="px-3 pt-3 pb-1 border-t border-stone-100 mt-1">
                     <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">{t("sharedWithMe")}</span>
                   </li>
-                  {teamTrees.map((tree) => {
+                  {visibleTeamTrees.map((tree) => {
                     const teamName = teams.find((t) => t.id === tree.team_id)?.name;
                     return (
                       <li key={tree.name} className="flex items-center gap-1 px-2 py-1.5 hover:bg-stone-50">
