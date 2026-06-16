@@ -17,13 +17,13 @@
     "settings": "Socruithe",
     "about": "Faoi Clann",
     "activeTree": "Crann Gníomhach",
-    "workspace": "Spás Oibre",
     "team": "Foireann"
   },
   "teamSelector": {
-    "personal": "Pearsanta",
-    "workspace": "Spás Oibre",
-    "switchTeam": "Athraigh spás oibre"
+    "selectTeam": "Roghnaigh foireann",
+    "switchTeam": "Athraigh foireann",
+    "tree": "crann",
+    "trees": "crainn"
   },
   "about": {
     "tagline": "Stair Teaghlaigh & Gineolaíocht",

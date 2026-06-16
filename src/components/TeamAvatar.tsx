@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { TeamSummary, Team } from "@/lib/types";
 
 interface Props {
@@ -15,27 +16,31 @@ const SIZE = {
 };
 
 export default function TeamAvatar({ team, size = "md" }: Props) {
+  const [imgError, setImgError] = useState(false);
+
   const initials = team.name
     .split(/[\s-]+/)
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? "")
     .join("");
 
-  if (team.avatar_url) {
+  const showInitials =
+    <div
+      className={`${SIZE[size]} rounded-full bg-violet-100 text-violet-700 font-semibold flex items-center justify-center shrink-0 select-none`}
+    >
+      {initials || "T"}
+    </div>;
+
+  if (team.avatar_url && !imgError) {
     return (
       <img
         src={team.avatar_url}
         alt={team.name}
         className={`${SIZE[size]} rounded-full object-cover shrink-0`}
+        onError={() => setImgError(true)}
       />
     );
   }
 
-  return (
-    <div
-      className={`${SIZE[size]} rounded-full bg-violet-100 text-violet-700 font-semibold flex items-center justify-center shrink-0 select-none`}
-    >
-      {initials || "T"}
-    </div>
-  );
+  return showInitials;
 }

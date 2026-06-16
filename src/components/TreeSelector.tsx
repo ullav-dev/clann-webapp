@@ -14,7 +14,7 @@ import { useConfirm } from "@/contexts/ConfirmContext";
 
 export default function TreeSelector() {
   const { trees, activeTree, isLoading, setActiveTree, createTree, renameTree, deleteTree, setPrimaryTree } = useTree();
-  const { teamTrees, teams, activeTeam } = useTeam();
+  const { teamTrees, teams, activeTeam, getTreesForTeam } = useTeam();
   const { atTreeLimit, maxTrees } = useSubscription();
   const tLimits = useTranslations("limits");
   const t = useTranslations("trees");
@@ -111,13 +111,15 @@ export default function TreeSelector() {
     }
   }
 
-  // When a team workspace is active, scope the visible trees to that team.
-  // Own trees linked to another team are hidden to keep the workspace focused.
-  const visibleOwnTrees = activeTeam
-    ? trees.filter((t) => t.team_id === activeTeam.id)
-    : trees;
+  // Own trees are always shown regardless of active team.
+  const visibleOwnTrees = trees;
+  // Shared trees: when a team is active, show that team's trees minus any the
+  // user already owns (those appear in "My Trees" above).
+  // getTreesForTeam uses the fetched teamTreeMap — no reliance on tree.team_id.
+  // When no team is active, show all shared member trees.
+  const ownNames = new Set(trees.map((t) => t.name));
   const visibleTeamTrees = activeTeam
-    ? teamTrees.filter((t) => t.team_id === activeTeam.id)
+    ? getTreesForTeam(activeTeam.id).filter((t) => !ownNames.has(t.name))
     : teamTrees;
 
   if (isLoading) {

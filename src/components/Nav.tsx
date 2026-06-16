@@ -21,6 +21,7 @@ export default function Nav() {
   const { teams, isTeamTree } = useTeam();
   const { activeTree } = useTree();
   const hasTeam = teams.length > 0;
+  const hasMultipleTeams = teams.length > 1;
   const showTeam = canCreateTeam(token) || roles.includes("admin");
   const readOnly = !!activeTree && isTeamTree(activeTree.name);
   const t = useTranslations("nav");
@@ -225,10 +226,12 @@ export default function Nav() {
                   </Link>
                 )}
                 <div className="px-4 py-3 border-t border-stone-100 space-y-3">
-                  <div>
-                    <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-2">{t("workspace")}</p>
-                    <TeamSelector />
-                  </div>
+                  {hasMultipleTeams && (
+                    <div>
+                      <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-2">{t("team")}</p>
+                      <TeamSelector />
+                    </div>
+                  )}
                   <div>
                     <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-2">{t("activeTree")}</p>
                     <TreeSelector />
