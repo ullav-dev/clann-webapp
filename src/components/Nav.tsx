@@ -9,6 +9,7 @@ import { useTeam } from "@/contexts/TeamContext";
 import { useTree } from "@/contexts/TreeContext";
 import { canCreateTeam } from "@/lib/auth-api";
 import LocaleSwitcher from "./LocaleSwitcher";
+import TeamSelector from "./TeamSelector";
 import TreeSelector from "./TreeSelector";
 import AboutModal from "./AboutModal";
 import UserAvatar, { userDisplayName } from "./UserAvatar";
@@ -20,6 +21,7 @@ export default function Nav() {
   const { teams, isTeamTree } = useTeam();
   const { activeTree } = useTree();
   const hasTeam = teams.length > 0;
+  const hasMultipleTeams = teams.length > 1;
   const showTeam = canCreateTeam(token) || roles.includes("admin");
   const readOnly = !!activeTree && isTeamTree(activeTree.name);
   const t = useTranslations("nav");
@@ -107,6 +109,7 @@ export default function Nav() {
                       {t("team")}
                     </Link>
                   )}
+                  <TeamSelector />
                   <TreeSelector />
                   {readOnly ? (
                     <span
@@ -168,9 +171,6 @@ export default function Nav() {
                 </>
               ) : !isLoading ? (
                 <>
-                  <Link href="/pricing" className={activeLink("/pricing")}>
-                    {t("pricing")}
-                  </Link>
                   <Link href="/help" className={activeLink("/help")}>
                     {t("help")}
                   </Link>
@@ -225,9 +225,17 @@ export default function Nav() {
                     {t("team")}
                   </Link>
                 )}
-                <div className="px-4 py-3 border-t border-stone-100">
-                  <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-2">{t("activeTree")}</p>
-                  <TreeSelector />
+                <div className="px-4 py-3 border-t border-stone-100 space-y-3">
+                  {hasMultipleTeams && (
+                    <div>
+                      <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-2">{t("team")}</p>
+                      <TeamSelector />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-2">{t("activeTree")}</p>
+                    <TreeSelector />
+                  </div>
                 </div>
                 <div className="px-4 py-2 border-t border-stone-100">
                   {readOnly ? (
@@ -278,9 +286,6 @@ export default function Nav() {
               </div>
             ) : !isLoading ? (
               <div className="py-2">
-                <Link href="/pricing" onClick={closeMobileMenu} className={mobileLink("/pricing")}>
-                  {t("pricing")}
-                </Link>
                 <div className="px-4 py-2">
                   <Link
                     href="/login"

@@ -22,7 +22,7 @@ type Tab = "purpose" | "members" | "trees";
 
 export default function TeamPage() {
   const { token, user } = useAuth();
-  const { teams, getTeamDetail, updateTeam, deleteTeam, reload } = useTeam();
+  const { teams, activeTeam, getTeamDetail, updateTeam, deleteTeam, reload } = useTeam();
   const t = useTranslations("team");
   const { confirm } = useConfirm();
 
@@ -47,18 +47,21 @@ export default function TeamPage() {
     try {
       const detail = await getTeamDetail(id);
       setTeam(detail);
-      const trees = await listTeamTrees(id);
+      const trees = await listTeamTrees(id).catch(() => [] as FamilyTree[]);
       setLinkedTrees(trees);
     } finally {
       setLoading(false);
     }
   }, [getTeamDetail]);
 
-  // Load first available team on mount or when teams list changes
+  // Load the active team first; fall back to the owned team or first member team.
   useEffect(() => {
-    const first = ownedTeam ?? memberTeams[0];
+    const preferred = activeTeam
+      ? teams.find((t) => t.id === activeTeam.id)
+      : null;
+    const first = preferred ?? ownedTeam ?? memberTeams[0];
     if (first) {
-      loadTeam(first.id);
+      loadTeam(first.id).catch((err) => console.error("[TeamPage] loadTeam failed:", err));
     } else {
       setLoading(false);
     }
@@ -140,6 +143,22 @@ export default function TeamPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      {/* Multi-team picker — only shown when the user belongs to more than one team */}
+      {teams.length > 1 && (
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-medium text-stone-400 shrink-0">{t("viewingTeam")}</label>
+          <select
+            value={team?.id ?? ""}
+            onChange={(e) => { const t = teams.find((x) => x.id === e.target.value); if (t) loadTeam(t.id).catch(console.error); }}
+            className="flex-1 text-sm border border-stone-200 rounded-lg px-2.5 py-1.5 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 bg-white text-stone-700"
+          >
+            {teams.map((ts) => (
+              <option key={ts.id} value={ts.id}>{ts.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start gap-4">
         <TeamAvatar team={team} size="lg" />
@@ -227,6 +246,7 @@ export default function TeamPage() {
           teamId={team.id}
           trees={linkedTrees}
           isOwner={isOwner}
+          team={team}
           onChanged={() => loadTeam(team.id)}
         />
       )}

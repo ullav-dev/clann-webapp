@@ -9,6 +9,8 @@ import type {
   FamilyTreeNode,
   FamilyTree,
   CreateFamilyTree,
+  TreeEditor,
+  TreeAccessRole,
   LifeEvent,
   CreateLifeEvent,
   UpdateLifeEvent,
@@ -108,6 +110,23 @@ export const setTreeTeam = (name: string, teamId: string | null): Promise<Family
   request(`/api/trees/${encodeURIComponent(name)}/team`, {
     method: "PATCH",
     body: JSON.stringify({ team_id: teamId }),
+  });
+
+export const getMyTreeAccess = (name: string): Promise<{ role: TreeAccessRole }> =>
+  request(`/api/trees/${encodeURIComponent(name)}/my-access`);
+
+export const listTreeEditors = (name: string): Promise<TreeEditor[]> =>
+  request(`/api/trees/${encodeURIComponent(name)}/editors`);
+
+export const addTreeEditor = (name: string, userId: string): Promise<TreeEditor> =>
+  request(`/api/trees/${encodeURIComponent(name)}/editors`, {
+    method: "POST",
+    body: JSON.stringify({ user_id: userId }),
+  });
+
+export const removeTreeEditor = (name: string, userId: string): Promise<void> =>
+  request(`/api/trees/${encodeURIComponent(name)}/editors/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
   });
 
 export async function uploadTreeImage(name: string, file: File): Promise<void> {

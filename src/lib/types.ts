@@ -13,6 +13,16 @@ export interface FamilyTree {
   image_path?: string | null; // tree avatar filename (e.g. coat of arms)
 }
 
+export type TreeAccessRole = "owner" | "editor" | "viewer";
+
+export interface TreeEditor {
+  id: string;
+  tree_name: string;
+  user_id: string; // UUID (JWT sub) of the editor
+  granted_by_user_id: string;
+  granted_at: string;
+}
+
 // ── Team types (ullav-user-management) ────────────────────────────────────────
 
 export interface TeamUserRef {

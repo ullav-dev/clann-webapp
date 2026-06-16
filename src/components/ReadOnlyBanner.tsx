@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 
 export default function ReadOnlyBanner() {
   const { activeTree } = useTree();
-  const { isTeamTree, treeTeamName } = useTeam();
+  const { isTeamTree, treeTeamName, isEditorOf } = useTeam();
   const { user } = useAuth();
   const t = useTranslations("team");
 
@@ -15,6 +15,20 @@ export default function ReadOnlyBanner() {
   if (!activeTree || activeTree.owner === user?.username || !isTeamTree(activeTree.name)) return null;
 
   const teamName = treeTeamName(activeTree.name);
+  const isEditor = isEditorOf(activeTree.name);
+
+  if (isEditor) {
+    return (
+      <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-800">
+        <span>✏️</span>
+        <span>
+          {teamName
+            ? t("editorBannerWithTeam", { team: teamName })
+            : t("editorBanner")}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-4 flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm text-violet-800">

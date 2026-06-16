@@ -19,6 +19,12 @@
     "activeTree": "Crann Gníomhach",
     "team": "Foireann"
   },
+  "teamSelector": {
+    "selectTeam": "Roghnaigh foireann",
+    "switchTeam": "Athraigh foireann",
+    "tree": "crann",
+    "trees": "crainn"
+  },
   "about": {
     "tagline": "Stair Teaghlaigh & Gineolaíocht",
     "version": "Leagan",
@@ -320,6 +326,7 @@
     "noTreesYet": "Níl aon chrann fós",
     "myTrees": "Mo Chrainn",
     "sharedWithMe": "Roinnte liom",
+    "teamTrees": "Crainn Foirne",
     "primary": "Príomha",
     "setPrimaryTitle": "Socraigh mar phríomhchrann",
     "setPrimaryFailed": "Theip ar shocrú an phríomhchrainn",
@@ -1031,6 +1038,14 @@
     "unlinking": "Á dínascadh…",
     "unlinkConfirm": "An crann seo a dínascadh ón bhfoireann?",
     "noLinkedTrees": "Níl aon chrainn nasctha fós.",
+    "manageEditors": "Eagarthóirí",
+    "hideEditors": "Dún",
+    "treeEditors": "Rochtain eagarthóra",
+    "grantEditor": "Tabhair rochtain",
+    "editorGranted": "Eagarthóir ✓",
+    "noMembersToGrant": "Níl baill ghníomhacha ar fáil.",
+    "editorsLoadError": "Níorbh fhéidir liosta eagarthóirí a luchtú.",
+    "editorsToggleError": "Níorbh fhéidir rochtain eagarthóra a nuashonrú.",
     "noTreesToLink": "Tá gach crann agat nasctha cheana féin.",
     "linkFailed": "Níorbh fhéidir an crann a nascadh.",
     "view": "Féach",
@@ -1054,9 +1069,12 @@
     "goHome": "Go dtí Baile Teaghlaigh",
     "readOnlyBanner": "Tá tú ag féachaint ar chrann roinnte — ní cheadaítear athruithe.",
     "readOnlyBannerWithTeam": "Tá tú ag féachaint ar chrann roinnte ag foireann {team} — ní cheadaítear athruithe.",
+    "editorBanner": "Tá rochtain eagarthóra agat ar an gcrann roinnte seo.",
+    "editorBannerWithTeam": "Tá rochtain eagarthóra agat ar an gcrann roinnte ag foireann {team}.",
     "myTrees": "Mo Chrainn",
     "sharedWithMe": "Roinnte liom",
-    "readOnlyTreeHint": "Roinntear an crann seo leat — is féidir leat féachaint air ach ní féidir leat é a chur in eagar"
+    "readOnlyTreeHint": "Roinntear an crann seo leat — is féidir leat féachaint air ach ní féidir leat é a chur in eagar",
+    "viewingTeam": "Féachaint ar:"
   },
   "usageWidget": {
     "title": "Úsáid",
