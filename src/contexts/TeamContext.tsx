@@ -156,7 +156,7 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (token && user) {
-      reload();
+      reload().catch((err) => console.error("[TeamContext] reload failed:", err));
     } else {
       setTeams([]);
       setTeamTrees([]);

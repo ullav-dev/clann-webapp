@@ -120,6 +120,10 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
         setActiveTreeState(selected);
         if (selected) localStorage.setItem(STORAGE_KEY, selected.name);
       })
+      .catch((err) => {
+        console.error("[TreeContext] listTrees failed:", err);
+        setInitError(err instanceof Error ? err.message : "Failed to load trees");
+      })
       .finally(() => setIsLoading(false));
   }, [user]);
 

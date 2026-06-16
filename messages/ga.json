@@ -326,6 +326,7 @@
     "noTreesYet": "Níl aon chrann fós",
     "myTrees": "Mo Chrainn",
     "sharedWithMe": "Roinnte liom",
+    "teamTrees": "Crainn Foirne",
     "primary": "Príomha",
     "setPrimaryTitle": "Socraigh mar phríomhchrann",
     "setPrimaryFailed": "Theip ar shocrú an phríomhchrainn",
@@ -1072,7 +1073,8 @@
     "editorBannerWithTeam": "Tá rochtain eagarthóra agat ar an gcrann roinnte ag foireann {team}.",
     "myTrees": "Mo Chrainn",
     "sharedWithMe": "Roinnte liom",
-    "readOnlyTreeHint": "Roinntear an crann seo leat — is féidir leat féachaint air ach ní féidir leat é a chur in eagar"
+    "readOnlyTreeHint": "Roinntear an crann seo leat — is féidir leat féachaint air ach ní féidir leat é a chur in eagar",
+    "viewingTeam": "Féachaint ar:"
   },
   "usageWidget": {
     "title": "Úsáid",

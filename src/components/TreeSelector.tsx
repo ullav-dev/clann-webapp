@@ -14,7 +14,7 @@ import { useConfirm } from "@/contexts/ConfirmContext";
 
 export default function TreeSelector() {
   const { trees, activeTree, isLoading, setActiveTree, createTree, renameTree, deleteTree, setPrimaryTree } = useTree();
-  const { teamTrees, teams, activeTeam, getTreesForTeam } = useTeam();
+  const { teamTrees, teams, activeTeam, getTreesForTeam, treeTeamName } = useTeam();
   const { atTreeLimit, maxTrees } = useSubscription();
   const tLimits = useTranslations("limits");
   const t = useTranslations("trees");
@@ -113,14 +113,11 @@ export default function TreeSelector() {
 
   // Own trees are always shown regardless of active team.
   const visibleOwnTrees = trees;
-  // Shared trees: when a team is active, show that team's trees minus any the
-  // user already owns (those appear in "My Trees" above).
-  // getTreesForTeam uses the fetched teamTreeMap — no reliance on tree.team_id.
-  // When no team is active, show all shared member trees.
-  const ownNames = new Set(trees.map((t) => t.name));
-  const visibleTeamTrees = activeTeam
-    ? getTreesForTeam(activeTeam.id).filter((t) => !ownNames.has(t.name))
-    : teamTrees;
+  // When a team is active, show ALL trees linked to that team in a dedicated
+  // section (may overlap with "My Trees" if user owns some — that's intentional).
+  // When no team is active, fall back to the flat "shared with me" list (member trees).
+  const activeTeamTrees = activeTeam ? getTreesForTeam(activeTeam.id) : null;
+  const visibleTeamTrees = activeTeamTrees ?? teamTrees;
 
   if (isLoading) {
     return <span className="text-sm text-stone-400">{t("loading")}</span>;
@@ -224,10 +221,12 @@ export default function TreeSelector() {
               {visibleTeamTrees.length > 0 && (
                 <>
                   <li className="px-3 pt-3 pb-1 border-t border-stone-100 mt-1">
-                    <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">{t("sharedWithMe")}</span>
+                    <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">
+                      {activeTeamTrees ? t("teamTrees") : t("sharedWithMe")}
+                    </span>
                   </li>
                   {visibleTeamTrees.map((tree) => {
-                    const teamName = teams.find((t) => t.id === tree.team_id)?.name;
+                    const teamName = activeTeamTrees ? null : treeTeamName(tree.name);
                     return (
                       <li key={tree.name} className="flex items-center gap-1 px-2 py-1.5 hover:bg-stone-50">
                         <button

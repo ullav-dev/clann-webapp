@@ -47,7 +47,7 @@ export default function TeamPage() {
     try {
       const detail = await getTeamDetail(id);
       setTeam(detail);
-      const trees = await listTeamTrees(id);
+      const trees = await listTeamTrees(id).catch(() => [] as FamilyTree[]);
       setLinkedTrees(trees);
     } finally {
       setLoading(false);
@@ -61,7 +61,7 @@ export default function TeamPage() {
       : null;
     const first = preferred ?? ownedTeam ?? memberTeams[0];
     if (first) {
-      loadTeam(first.id);
+      loadTeam(first.id).catch((err) => console.error("[TeamPage] loadTeam failed:", err));
     } else {
       setLoading(false);
     }
@@ -145,21 +145,17 @@ export default function TeamPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Multi-team picker — only shown when the user belongs to more than one team */}
       {teams.length > 1 && (
-        <div className="flex flex-wrap gap-2">
-          {teams.map((ts) => (
-            <button
-              key={ts.id}
-              onClick={() => loadTeam(ts.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                team?.id === ts.id
-                  ? "border-violet-400 bg-violet-50 text-violet-800"
-                  : "border-stone-200 text-stone-600 hover:bg-stone-50"
-              }`}
-            >
-              <TeamAvatar team={ts} size="xs" />
-              <span className="max-w-[10rem] truncate">{ts.name}</span>
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-medium text-stone-400 shrink-0">{t("viewingTeam")}</label>
+          <select
+            value={team?.id ?? ""}
+            onChange={(e) => { const t = teams.find((x) => x.id === e.target.value); if (t) loadTeam(t.id).catch(console.error); }}
+            className="flex-1 text-sm border border-stone-200 rounded-lg px-2.5 py-1.5 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 bg-white text-stone-700"
+          >
+            {teams.map((ts) => (
+              <option key={ts.id} value={ts.id}>{ts.name}</option>
+            ))}
+          </select>
         </div>
       )}
 

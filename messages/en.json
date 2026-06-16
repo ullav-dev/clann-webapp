@@ -326,6 +326,7 @@
     "noTreesYet": "No trees yet",
     "myTrees": "My Trees",
     "sharedWithMe": "Shared with me",
+    "teamTrees": "Team Trees",
     "primary": "Primary",
     "setPrimaryTitle": "Set as primary tree",
     "setPrimaryFailed": "Failed to set primary tree",
@@ -1072,7 +1073,8 @@
     "editorBannerWithTeam": "You have editor access to the tree shared by team {team}.",
     "myTrees": "My Trees",
     "sharedWithMe": "Shared with me",
-    "readOnlyTreeHint": "This tree is shared with you — you can view but not edit it"
+    "readOnlyTreeHint": "This tree is shared with you — you can view but not edit it",
+    "viewingTeam": "Viewing:"
   },
   "usageWidget": {
     "title": "Usage",
