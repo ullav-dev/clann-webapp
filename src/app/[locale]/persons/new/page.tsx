@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import PersonForm from "@/components/PersonForm";
 import { useApi } from "@/hooks/useApi";
-import type { CreatePerson } from "@/lib/types";
+import type { CreatePerson, Pedigree } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -66,19 +66,32 @@ export default function NewPersonPage() {
     // both parents) are linked only once.
     const linkedSiblingIds = new Set<string>();
 
-    async function inheritFromParent(parentId: string) {
+    async function inheritFromParent(parentId: string, parentType: "Father" | "Mother") {
       const parentTree = await apiHook.getFamilyTree(parentId);
+      const otherParentId = parentType === "Father" ? _motherId : _fatherId;
+
       for (const child of parentTree.children ?? []) {
         const childRawId = apiHook.rawId(child.id);
         if (childRawId === personRawId) continue;
         if (linkedSiblingIds.has(childRawId)) continue;
         linkedSiblingIds.add(childRawId);
         const siblingType = child.sex === "Female" ? "Sister" : "Brother";
-        // Derive the pedigree of the sibling relationship from the child's own
-        // pedigree relative to the shared parent. A birth child of the same parent
-        // is a birth sibling; step/adopted/foster children become step siblings.
         const childPed = child.pedigree ?? "birth";
-        const sibPedigree = childPed === "birth" ? "birth" : "step";
+
+        let sibPedigree: Pedigree;
+        if (childPed === "adopted") {
+          sibPedigree = "adopted";
+        } else if (otherParentId) {
+          const childRels = await apiHook.getRelationships(childRawId);
+          const childOtherParents = parentType === "Father" ? childRels.mother : childRels.father;
+          const sharesOtherParent = childOtherParents.some(
+            (p) => apiHook.rawId(p.id) === apiHook.rawId(otherParentId)
+          );
+          sibPedigree = sharesOtherParent ? "birth" : "half";
+        } else {
+          sibPedigree = "half";
+        }
+
         await apiHook.addRelationship(personRawId, {
           type: "Sibling",
           related_id: child.id,
@@ -91,11 +104,11 @@ export default function NewPersonPage() {
 
     if (_fatherId) {
       await apiHook.addRelationship(personRawId, { type: "Father", related_id: _fatherId });
-      if (_inheritSiblings) await inheritFromParent(_fatherId);
+      if (_inheritSiblings) await inheritFromParent(_fatherId, "Father");
     }
     if (_motherId) {
       await apiHook.addRelationship(personRawId, { type: "Mother", related_id: _motherId });
-      if (_inheritSiblings) await inheritFromParent(_motherId);
+      if (_inheritSiblings) await inheritFromParent(_motherId, "Mother");
     }
 
     router.push(`/persons/${personRawId}`);

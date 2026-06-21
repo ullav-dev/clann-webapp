@@ -34,7 +34,7 @@ type NodeData = {
   sex: string;
   role: Role;
   /** Pedigree qualifier — set on sibling, father, and mother nodes for non-birth relationships */
-  pedigree?: "birth" | "adopted" | "step" | "foster" | null;
+  pedigree?: "birth" | "adopted" | "half" | null;
   dob?: string;
   placeOfBirth?: string | null;
   biography?: string | null;
@@ -71,9 +71,8 @@ function PersonNode({ data }: NodeProps) {
   const showsPedigree = d.role === "sibling" || d.role === "father" || d.role === "mother";
   const pedigreeValue = showsPedigree ? (d.pedigree ?? "birth") : null;
   const pedigreeBadge: Record<string, { label: string; cls: string }> = {
-    step:    { label: "S",      cls: "bg-orange-400 text-white" },
+    half:    { label: "½",      cls: "bg-orange-400 text-white" },
     adopted: { label: "A",      cls: "bg-sky-500 text-white"    },
-    foster:  { label: "foster", cls: "bg-purple-500 text-white" },
   };
   const badge = pedigreeValue && pedigreeValue !== "birth" ? pedigreeBadge[pedigreeValue] : null;
 
@@ -85,7 +84,7 @@ function PersonNode({ data }: NodeProps) {
           ★
         </div>
       )}
-      {/* Pedigree badge for step / adopted / foster siblings */}
+      {/* Pedigree badge for half / adopted siblings and parents */}
       {badge && (
         <div className={`absolute -bottom-2.5 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 rounded-full text-[10px] font-semibold border-2 border-white shadow-md leading-none select-none whitespace-nowrap ${badge.cls}`}>
           {badge.label}
@@ -105,7 +104,7 @@ function PersonNode({ data }: NodeProps) {
         {/* Spouse-axis handles (perpendicular) */}
         <Handle id="sp-s" type="source" position={isH ? Position.Bottom : Position.Right} className={style.handle} />
         <Handle id="sp-t" type="target" position={isH ? Position.Top    : Position.Left}  className={style.handle} />
-        {/* Step-sibling handle — source at Top (vertical) so arcs sweep upward to root */}
+        {/* Half-sibling handle — source at Top (vertical) so arcs sweep upward to root */}
         <Handle id="sib-s" type="source" position={isH ? Position.Bottom : Position.Top} className={style.handle} />
 
         <div className="flex justify-center mb-2">
@@ -229,8 +228,7 @@ function buildGraph(
     const pedigree = p.pedigree ?? "birth";
     const pedigreeStyle =
       pedigree === "adopted" ? { strokeDasharray: "6 3" } :
-      pedigree === "step"    ? { strokeDasharray: "2 4" } :
-      pedigree === "foster"  ? { strokeDasharray: "8 4", opacity: 0.6 } :
+      pedigree === "half"    ? { strokeDasharray: "2 4" } :
       {};
     edges.push({
       id: `${p.id}->${node.id}`,
@@ -263,8 +261,7 @@ function buildGraph(
     const childPed = child.pedigree ?? "birth";
     const childStyle =
       childPed === "adopted" ? { strokeDasharray: "6 3" } :
-      childPed === "step"    ? { strokeDasharray: "2 4" } :
-      childPed === "foster"  ? { strokeDasharray: "8 4", opacity: 0.6 } :
+      childPed === "half"    ? { strokeDasharray: "2 4" } :
       {};
     edges.push({
       id: `${node.id}->${child.id}`,
@@ -362,11 +359,7 @@ function Legend({ t, hasNonBirth }: { t: TranslateFn; hasNonBirth: boolean }) {
           </span>
           <span className="flex items-center gap-1.5">
             <PedigreeLineSwatch dasharray="2 4" />
-            {t("legendStep")}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <PedigreeLineSwatch dasharray="8 4" opacity={0.6} />
-            {t("legendFoster")}
+            {t("legendHalf")}
           </span>
         </>
       )}
@@ -478,8 +471,8 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
         });
       });
 
-      // Non-birth siblings (step / adopted / foster) — placed in a separate row.
-      // Grouped by via_parent_id so step-siblings from different families are
+      // Non-birth siblings (half / adopted) — placed in a separate row.
+      // Grouped by via_parent_id so half-siblings from different families are
       // visually separated. Each group is a distinct cluster with extra gap between groups.
       if (nonBirthSibs.length > 0) {
         const stepBase = orientation === "vertical"
@@ -504,9 +497,8 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
               addSibNode(sib, xCursor - j * X_GAP, 2 * Y_GAP);
               const sibPed = sib.pedigree ?? "birth";
               const sibStyle =
-                sibPed === "step"    ? { strokeDasharray: "2 4" } :
-                sibPed === "adopted" ? { strokeDasharray: "6 3" } :
-                sibPed === "foster"  ? { strokeDasharray: "8 4", opacity: 0.6 } : {};
+                sibPed === "half"    ? { strokeDasharray: "2 4" } :
+                sibPed === "adopted" ? { strokeDasharray: "6 3" } : {};
               edges.push({
                 id: `${tree.id}~sib~${sib.id}`,
                 source: sib.id,  sourceHandle: "sib-s",
@@ -528,9 +520,8 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
               addSibNode(sib, 0, -(yOffset + j) * Y_GAP);
               const sibPed = sib.pedigree ?? "birth";
               const sibStyle =
-                sibPed === "step"    ? { strokeDasharray: "2 4" } :
-                sibPed === "adopted" ? { strokeDasharray: "6 3" } :
-                sibPed === "foster"  ? { strokeDasharray: "8 4", opacity: 0.6 } : {};
+                sibPed === "half"    ? { strokeDasharray: "2 4" } :
+                sibPed === "adopted" ? { strokeDasharray: "6 3" } : {};
               edges.push({
                 id: `${tree.id}~sib~${sib.id}`,
                 source: sib.id,  sourceHandle: "sp-s",

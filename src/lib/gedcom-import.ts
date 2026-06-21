@@ -231,7 +231,7 @@ export function parseGedcomFile(content: string): ParsedImport {
           if (rec.lines[j].level <= 1) break;
           if (rec.lines[j].tag === "PEDI") {
             const v = rec.lines[j].value.toLowerCase() as Pedigree;
-            if (["birth", "adopted", "step", "foster"].includes(v)) {
+            if (["birth", "adopted"].includes(v)) {
               famcPedigreeMap.set(`${famRef}:${rec.xref}`, v);
             }
             break;

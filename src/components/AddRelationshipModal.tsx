@@ -95,7 +95,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
             related_id: sibId,
             sibling_type: siblingType,
             pedigree: siblingPedigree,
-            // Record which parent connects this step/adopted/foster relationship
+            // Record which parent connects this half/adopted relationship
             via_parent_id: siblingPedigree !== "birth" ? (viaParentId ?? undefined) : undefined,
           });
 
@@ -115,7 +115,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
           };
 
           // Only inherit both parents for full birth siblings.
-          // Step/adopted/foster siblings share at most one parent — skip
+          // Half/adopted siblings share at most one parent — skip
           // auto-inheritance so we don't assign the wrong parent.
           if (siblingPedigree === "birth") {
             await inheritParent("Father", rootRels.father, siblingRels.father);
@@ -132,27 +132,42 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
         });
 
         // When adding a Father or Mother, find the parent's other children and
-        // link them as siblings of the current person. Use `step` pedigree when
-        // the parent link itself is step/adopted/foster so the relationship is honest.
-        // Pass the parent being added as via_parent_id so step-sibling families are
-        // correctly distinguished in the tree view.
+        // link them as siblings of the current person. For birth parents, check
+        // whether each child also shares the same other parent (full sibling) or
+        // only this one parent (half sibling). For adopted parents, all derived
+        // siblings are adopted.
         if (relType === "Father" || relType === "Mother") {
           const [parentTree, myRels] = await Promise.all([
             api.getFamilyTree(selectedId),
             api.getRelationships(personId),
           ]);
           const existingSiblingIds = new Set(myRels.siblings.map((s) => api.rawId(s.id)));
-          const derivedSibPedigree: Pedigree = pedigree !== "birth" ? "step" : "birth";
+          const myOtherParents = relType === "Father"
+            ? new Set(myRels.mother.map((m: ParentInfo) => m.id))
+            : new Set(myRels.father.map((f: ParentInfo) => f.id));
+
           for (const child of parentTree.children ?? []) {
             if (api.rawId(child.id) === personId) continue;
             if (existingSiblingIds.has(api.rawId(child.id))) continue;
             const childSiblingType: SiblingType = child.sex === "Female" ? "Sister" : "Brother";
+
+            let derivedSibPedigree: Pedigree;
+            if (pedigree === "adopted") {
+              derivedSibPedigree = "adopted";
+            } else {
+              const childRels = await api.getRelationships(api.rawId(child.id));
+              const childOtherParents = relType === "Father"
+                ? new Set(childRels.mother.map((m: ParentInfo) => m.id))
+                : new Set(childRels.father.map((f: ParentInfo) => f.id));
+              const sharesOtherParent = [...myOtherParents].some(id => childOtherParents.has(id));
+              derivedSibPedigree = sharesOtherParent ? "birth" : "half";
+            }
+
             await api.addRelationship(personId, {
               type: "Sibling",
               related_id: child.id,
               sibling_type: childSiblingType,
               pedigree: derivedSibPedigree,
-              // via_parent_id = the parent we're currently adding
               via_parent_id: derivedSibPedigree !== "birth" ? selectedId : undefined,
             });
           }
@@ -235,7 +250,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
             <div>
               <label className="text-sm font-medium text-stone-700 block mb-2">{t("pedigree")}</label>
               <div className="grid grid-cols-2 gap-2">
-                {(["birth", "adopted", "step", "foster"] as Pedigree[]).map((p) => (
+                {(["birth", "half", "adopted"] as Pedigree[]).map((p) => (
                   <button
                     key={p}
                     type="button"
@@ -277,7 +292,7 @@ export default function AddRelationshipModal({ personId, onDone, onClose }: Prop
             <div>
               <label className="text-sm font-medium text-stone-700 block mb-2">{t("pedigree")}</label>
               <div className="grid grid-cols-2 gap-2">
-                {(["birth", "adopted", "step", "foster"] as Pedigree[]).map((p) => (
+                {(["birth", "adopted"] as Pedigree[]).map((p) => (
                   <button
                     key={p}
                     type="button"
