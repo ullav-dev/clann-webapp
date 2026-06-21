@@ -232,7 +232,7 @@ export interface FamilyTreeNode {
   sibling_type?: SiblingType | null;
   /** Pedigree of this node relative to its child. Set on nodes in father/mother/siblings arrays. */
   pedigree?: Pedigree | null;
-  /** For sibling nodes: the parent through whom the step/adopted/foster relationship is formed. */
+  /** For sibling nodes: the parent through whom the half/adopted relationship is formed. */
   via_parent_id?: string | null;
   father?: FamilyTreeNode[];
   mother?: FamilyTreeNode[];
