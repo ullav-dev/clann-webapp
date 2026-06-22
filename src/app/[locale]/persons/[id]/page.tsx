@@ -22,6 +22,7 @@ import SetupFamilyModal from "@/components/SetupFamilyModal";
 import LifeStoryPrintView from "@/components/LifeStoryPrintView";
 import LifeTimeline from "@/components/LifeTimeline";
 import ReadOnlyBanner from "@/components/ReadOnlyBanner";
+import DuplicateFinderTab from "@/components/DuplicateFinderTab";
 
 const FamilyTreeView = dynamic(() => import("@/components/FamilyTreeView"), { ssr: false });
 
@@ -55,7 +56,7 @@ export default function PersonDetailPage() {
   const [photoVersions, setPhotoVersions] = useState<Record<string, number>>({});
   const [showLifeUpload, setShowLifeUpload] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [tab, setTab] = useState<"tree" | "relationships" | "lifestory" | "lifeevents">("tree");
+  const [tab, setTab] = useState<"tree" | "relationships" | "lifestory" | "lifeevents" | "duplicates">("tree");
   const [editingSpouseId, setEditingSpouseId] = useState<string | null>(null);
   const [spouseFromEdit, setSpouseFromEdit] = useState("");
   const [spouseToEdit, setSpouseToEdit] = useState("");
@@ -258,10 +259,14 @@ export default function PersonDetailPage() {
       )}
 
       <div className="flex gap-1 mb-6 border-b border-stone-200 overflow-x-auto">
-        {(["tree", "relationships", "lifestory", "lifeevents"] as const).map((tabKey) => (
+        {(["tree", "relationships", "lifestory", "lifeevents", "duplicates"] as const).map((tabKey) => (
           <button key={tabKey} onClick={() => setTab(tabKey)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px whitespace-nowrap ${tab === tabKey ? "border-emerald-600 text-emerald-700" : "border-transparent text-stone-500 hover:text-stone-700"}`}>
-            {tabKey === "tree" ? t("tabFamilyTree") : tabKey === "relationships" ? t("tabRelationships") : tabKey === "lifestory" ? t("tabLifeStory") : tEvents("tabLabel")}
+            {tabKey === "tree" ? t("tabFamilyTree")
+              : tabKey === "relationships" ? t("tabRelationships")
+              : tabKey === "lifestory" ? t("tabLifeStory")
+              : tabKey === "lifeevents" ? tEvents("tabLabel")
+              : t("tabDuplicates")}
           </button>
         ))}
       </div>
@@ -567,6 +572,10 @@ export default function PersonDetailPage() {
 
       {tab === "lifeevents" && (
         <LifeTimeline personId={id} personCreatedBy={person.created_by} />
+      )}
+
+      {tab === "duplicates" && (
+        <DuplicateFinderTab person={person} />
       )}
 
       {!readOnly && showAddRel && (<AddRelationshipModal personId={id} onDone={() => { setShowAddRel(false); load(); }} onClose={() => setShowAddRel(false)} />)}

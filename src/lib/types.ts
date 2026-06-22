@@ -305,6 +305,31 @@ export interface CreateNoteReply {
   trees?: string[];
 }
 
+// ─── Contact Requests ────────────────────────────────────────────────────────
+
+export interface ContactMessage {
+  from_user: string;
+  text: string;
+  sent_at: string;
+}
+
+export interface MergeContactRequest {
+  id: string; // "merge_contact_request:<ulid>"
+  from_proxy_id: string; // "person_proxy:<ulid>"
+  from_user: string;
+  to_user: string;
+  initial_message: string | null;
+  status: "pending" | "accepted" | "ignored";
+  messages: ContactMessage[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DuplicateSearchResult {
+  count: number;
+  owners: string[];
+}
+
 // Chat Sessions
 export interface ChatSession {
   id: string; // "chat_session:<ulid>"

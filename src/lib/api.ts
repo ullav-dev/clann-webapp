@@ -20,6 +20,8 @@ import type {
   ChatSession,
   CreateChatSession,
   ChatMessage,
+  MergeContactRequest,
+  DuplicateSearchResult,
 } from "./types";
 
 // In the browser, use relative paths so Next.js proxies to the backend (avoids CORS).
@@ -377,4 +379,40 @@ export const appendSessionMessage = (
   request(`/api/chat/sessions/${rawSessionId(sessionId)}/messages`, {
     method: "POST",
     body: JSON.stringify({ role, content }),
+  });
+
+// ─── Duplicate Search & Contact Requests ─────────────────────────────────────
+
+export const findDuplicates = (personProxyRawId: string): Promise<DuplicateSearchResult> =>
+  request(`/api/persons/${personProxyRawId}/find-duplicates`);
+
+export const rawContactRequestId = (id: string): string =>
+  id.startsWith("merge_contact_request:") ? id.slice(22) : id;
+
+export const createContactRequests = (
+  fromProxyId: string,
+  toUsers: string[],
+  message?: string,
+): Promise<MergeContactRequest[]> =>
+  request("/api/contact-requests", {
+    method: "POST",
+    body: JSON.stringify({ from_proxy_id: fromProxyId, to_users: toUsers, message }),
+  });
+
+export const listContactRequests = (role?: "sent" | "received"): Promise<MergeContactRequest[]> =>
+  request(`/api/contact-requests${role ? `?role=${role}` : ""}`);
+
+export const getPendingContactCount = (): Promise<{ count: number }> =>
+  request("/api/contact-requests/pending-count");
+
+export const acceptContactRequest = (id: string): Promise<MergeContactRequest> =>
+  request(`/api/contact-requests/${rawContactRequestId(id)}/accept`, { method: "PATCH" });
+
+export const ignoreContactRequest = (id: string): Promise<MergeContactRequest> =>
+  request(`/api/contact-requests/${rawContactRequestId(id)}/ignore`, { method: "PATCH" });
+
+export const appendContactMessage = (id: string, text: string): Promise<MergeContactRequest> =>
+  request(`/api/contact-requests/${rawContactRequestId(id)}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ text }),
   });
