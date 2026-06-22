@@ -138,7 +138,7 @@ export default function ImportTreeModal({ onClose }: Props) {
           biography: person.biography,
           verified: person.verified,
           created_by: user.username,
-          trees: [tree.name],
+          tree: tree.name,
         });
         idMap.set(person.originalId, created.id);
         prog.personsDone += 1;

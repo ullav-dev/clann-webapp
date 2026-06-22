@@ -75,7 +75,9 @@ export interface CreateFamilyTree {
 }
 
 export interface Person {
-  id: string; // e.g. "person:01jd4a8xyz"
+  id: string; // "person_proxy:<ulid>" — the proxy record ID used in all API routes
+  person_id?: string; // "person:<ulid>" — the canonical record ID
+  tree?: string; // tree this proxy belongs to
   family_name: string;
   first_name: string;
   sex: Sex;
@@ -92,7 +94,12 @@ export interface Person {
   verified?: boolean;
   biography?: string | null;
   created_by?: string | null;
+  /** @deprecated use `tree` (singular). Present on old-format responses; absent on proxy responses. */
   trees?: string[];
+  is_private?: boolean;
+  preferred_family_name?: string | null;
+  preferred_first_name?: string | null;
+  preferred_middle_name?: string | null;
 }
 
 export interface CreatePerson {
@@ -110,7 +117,9 @@ export interface CreatePerson {
   verified?: boolean;
   biography?: string | null;
   created_by?: string | null;
-  /** Tree names (slugs). Required by the API; injected automatically by useApi. */
+  /** Tree slug. Required by the API; injected automatically by useApi. */
+  tree?: string;
+  /** @deprecated use `tree` (singular). */
   trees?: string[];
 }
 

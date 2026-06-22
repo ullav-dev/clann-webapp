@@ -138,8 +138,13 @@ export const createPerson = (body: CreatePerson): Promise<Person> =>
 export const getPerson = (id: string, createdBy?: string): Promise<Person> =>
   request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy));
 
+/** Update proxy-level display overrides (nickname, biography, preferred names, privacy). */
 export const updatePerson = (id: string, body: UpdatePerson, createdBy?: string): Promise<Person> =>
   request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy), { method: "PUT", body: JSON.stringify(body) });
+
+/** Update canonical identity facts (name, sex, vital dates, birth cert). */
+export const updateCanonical = (id: string, body: Partial<UpdatePerson>): Promise<Person> =>
+  request(`/api/persons/${rawId(id)}/canonical`, { method: "PATCH", body: JSON.stringify(body) });
 
 export const deletePerson = (id: string, createdBy?: string): Promise<void> =>
   request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy), { method: "DELETE" });
@@ -246,9 +251,11 @@ export function personLifeImageUrl(id: string): string {
   return `/api/persons/${rawId(id)}/life-image`;
 }
 
-/** Strip the "person:" prefix the API stores, returning just the ULID part. */
+/** Strip the record-table prefix, returning just the ULID part. */
 export function rawId(id: string): string {
-  return id.startsWith("person:") ? id.slice(7) : id;
+  if (id.startsWith("person_proxy:")) return id.slice(13);
+  if (id.startsWith("person:")) return id.slice(7);
+  return id;
 }
 
 /** Strip the "life_event:" prefix, returning just the ULID part. */

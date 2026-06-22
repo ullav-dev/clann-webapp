@@ -414,8 +414,9 @@ export default function PersonDetailPage() {
         <div className="mt-6">
           <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-3">{t("sectionTrees")}</h2>
           <div className="flex flex-wrap gap-2">
-            {(person.trees ?? []).map((treeName) => {
-              const isOnly = (person.trees ?? []).length === 1;
+            {(person.trees ?? (person.tree ? [person.tree] : [])).map((treeName) => {
+              const personTrees = person.trees ?? (person.tree ? [person.tree] : []);
+              const isOnly = personTrees.length === 1;
               return (
                 <div key={treeName} className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5">
                   <span className="text-sm text-emerald-800 font-medium">{treeName}</span>
@@ -429,7 +430,7 @@ export default function PersonDetailPage() {
               );
             })}
             {allTrees
-              .filter((tr) => !(person.trees ?? []).includes(tr.name))
+              .filter((tr) => !(person.trees ?? (person.tree ? [person.tree] : [])).includes(tr.name))
               .map((tr) => (
                 <button
                   key={tr.name}
