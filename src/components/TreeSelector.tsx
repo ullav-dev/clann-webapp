@@ -6,7 +6,6 @@ import { useTeam } from "@/contexts/TeamContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
 import ImportTreeModal from "./ImportTreeModal";
 import TreeSettingsModal from "./TreeSettingsModal";
 import { treeImageUrl } from "@/lib/api";
@@ -254,13 +253,6 @@ export default function TreeSelector() {
                   <p className="text-xs text-amber-600">
                     {tLimits("treeLimitMessage", { max: maxTrees })}
                   </p>
-                  <Link
-                    href="/pricing"
-                    onClick={() => setOpen(false)}
-                    className="block text-xs font-medium text-amber-900 underline hover:text-amber-700 transition-colors"
-                  >
-                    {tLimits("upgradeLink")} →
-                  </Link>
                   <button
                     type="button"
                     onClick={() => { setShowCreate(false); setError(null); }}

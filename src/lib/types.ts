@@ -334,9 +334,29 @@ export interface MergeContactRequest {
   updated_at: string;
 }
 
+export interface DuplicateMatch {
+  proxy_id: string;
+  canonical_id: string;
+  tree: string;
+  owner: string;
+  family_name: string;
+  first_name: string;
+  sex?: string | null;
+  date_of_birth?: string | null;
+  place_of_birth?: string | null;
+  /** Confidence score: sex(+3) + dob_year(+2) + place(+2) = max 7 */
+  score: number;
+  /** "strong" | "likely" | "possible" */
+  confidence: string;
+  /** True when owner matches the current user — no contact request needed */
+  is_own: boolean;
+}
+
 export interface DuplicateSearchResult {
   count: number;
+  /** Distinct owner usernames (kept for backward compat) */
   owners: string[];
+  matches: DuplicateMatch[];
 }
 
 // Chat Sessions

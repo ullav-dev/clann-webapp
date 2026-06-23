@@ -12,7 +12,6 @@
     "logout": "Logáil Amach",
     "login": "Logáil Isteach",
     "help": "Cabhair",
-    "pricing": "Praghsanna",
     "account": "Cuntas",
     "settings": "Socruithe",
     "about": "Faoi Clann",
@@ -133,8 +132,7 @@
     "treeLimitTitle": "Teorainn crann bainte amach",
     "treeLimitMessage": "Ceadaíonn do phlean suas le {max} crann teaghlaigh. Uasghrádaigh chun tuilleadh a chruthú.",
     "memberLimitTitle": "Teorainn ball bainte amach",
-    "memberLimitMessage": "Shroich tú an uaslíon ball teaghlaigh do do phlean. Uasghrádaigh chun tuilleadh a chur leis.",
-    "upgradeLink": "Féach ar phleananna"
+    "memberLimitMessage": "Shroich tú an uaslíon ball teaghlaigh do do phlean. Uasghrádaigh chun tuilleadh a chur leis."
   },
   "family": {
     "title": "Baill Teaghlaigh",
@@ -602,87 +600,6 @@
     "openDam": "Leabharlann Meán",
     "bornPrefix": "r. {date}"
   },
-  "pricing": {
-    "heading": "Roghnaigh do phlean Clann",
-    "subheading": "Tosaigh saor in aisce agus uasghrádaigh de réir mar a fhásann do theaghlach. Triail 7 lá san áireamh le pleananna íoctha.",
-    "perMonth": "/ mí",
-    "familyPriceNote": "",
-    "professionalPriceNote": "in aghaidh duine / mí",
-    "comingSoon": "Ag teacht go luath",
-    "trialNote": "Áirítear triail 7 lá saor in aisce le pleananna Teaghlaigh agus Gairmiúil.",
-    "learnMore": "Foghlaim tuilleadh",
-    "checkoutTitle": "Liostáil",
-    "checkoutError": "Níorbh fhéidir an t-íocaíocht a thosú. Bain triail eile as.",
-    "seatCount": "Líon suíochán",
-    "seatHint": "2 ar a laghad, 10 ar a mhéid.",
-    "paymentProvider": "Íoc le",
-    "proceedToPayment": "Lean ar aghaidh chuig Íocaíocht →",
-    "redirecting": "Ag atreorú…",
-    "cancel": "Cealaigh",
-    "plans": {
-      "individual": {
-        "name": "Aonair",
-        "price": "Saor",
-        "description": "Foirfe chun tosú le stair do theaghlaigh.",
-        "cta": "Tosaigh",
-        "features": [
-          "1 suíochán úsáideora",
-          "2 chrann teaghlaigh",
-          "Suas le 100 ball teaghlaigh",
-          "100 MB stórála meáin",
-          "100 sócmhainn meáin",
-          "Iompórtáil & easpórtáil GEDCOM",
-          "Graf crann teaghlaigh idirghníomhach"
-        ]
-      },
-      "family": {
-        "name": "Teaghlach / Foireann",
-        "price": "€6",
-        "description": "Do theaghlaigh ag tógáil a staire le chéile.",
-        "cta": "Ag teacht go luath",
-        "features": [
-          "Uasmhéid foirne: 5 bhall",
-          "10 crann teaghlaigh",
-          "Suas le 1,000 ball teaghlaigh",
-          "5 GB stórála meáin",
-          "1,000 sócmhainn meáin",
-          "Íomhánna i leabharlann na meán",
-          "Triail saor 7 lá"
-        ]
-      },
-      "professional": {
-        "name": "Gairmiúil",
-        "price": "€15",
-        "description": "Do thaighdeoirí dáiríre agus geineolaeoirí gairmiúla.",
-        "cta": "Ag teacht go luath",
-        "features": [
-          "Suas le 50 ball foirne",
-          "Crainn teaghlaigh gan teorainn",
-          "Baill teaghlaigh gan teorainn",
-          "50 GB stórála meáin",
-          "10,000 sócmhainn meáin",
-          "Leabharlann mheáin iomlán",
-          "Uirlisí taighde stairiúil",
-          "Triail saor 7 lá"
-        ]
-      },
-      "enterprise": {
-        "name": "Fiontar",
-        "price": "Saincheaptha",
-        "description": "Curtha in oiriúint d'institiúidí agus eagraíochtaí móra.",
-        "cta": "Déan Teagmháil",
-        "features": [
-          "Gach rud gan teorainn",
-          "Gach cineál sócmhainne lena n-áirítear RAW",
-          "Uirlisí taighde stairiúil",
-          "Comhtháthú SSO",
-          "Imscaradh ar shuíomh / hibrideach",
-          "Tacaíocht de réir comhaontú",
-          "Onbordú saincheaptha"
-        ]
-      }
-    }
-  },
   "subscriptionSuccess": {
     "heading": "Tá tú réidh!",
     "message": "Tá do liostáil á ghníomhachtú. De ghnáth ní thógann sé ach nóiméad. Seiceáil do leathanach cuntais le haghaidh an stádas nuashonraithe.",
@@ -1113,8 +1030,7 @@
     "researchNotes": "Nótaí Taighde",
     "membersShort": "Baill",
     "notesShort": "Nótaí",
-    "unlimited": "Gan teorainn",
-    "upgrade": "Féach ar phleananna"
+    "unlimited": "Gan teorainn"
   },
   "treeSettings": {
     "title": "Socruithe Crainn",

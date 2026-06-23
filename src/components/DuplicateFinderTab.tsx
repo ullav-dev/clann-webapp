@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import * as api from "@/lib/api";
-import type { Person, MergeContactRequest, DuplicateSearchResult } from "@/lib/types";
+import type { Person, MergeContactRequest, DuplicateSearchResult, DuplicateMatch } from "@/lib/types";
 import { useLocale } from "next-intl";
 
 interface Props {
@@ -32,6 +32,106 @@ function StatusBadge({ status }: { status: MergeContactRequest["status"] }) {
   );
 }
 
+function ConfidenceBadge({ confidence }: { confidence: string }) {
+  const cls =
+    confidence === "strong"
+      ? "bg-red-100 text-red-800"
+      : confidence === "likely"
+      ? "bg-amber-100 text-amber-800"
+      : "bg-stone-100 text-stone-600";
+  const label =
+    confidence === "strong" ? "Strong match" : confidence === "likely" ? "Likely match" : "Possible match";
+  return (
+    <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${cls}`}>
+      {label}
+    </span>
+  );
+}
+
+function MatchCard({
+  match,
+  alreadySent,
+  isExpanded,
+  onExpand,
+  onSend,
+  sending,
+  sendError,
+}: {
+  match: DuplicateMatch;
+  alreadySent: boolean;
+  isExpanded: boolean;
+  onExpand: () => void;
+  onSend: (msg: string) => void;
+  sending: boolean;
+  sendError: string | null;
+}) {
+  const [message, setMessage] = useState("");
+
+  return (
+    <div className="rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 space-y-2">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-semibold text-stone-800">
+              {match.first_name} {match.family_name}
+            </span>
+            <ConfidenceBadge confidence={match.confidence} />
+            {match.is_own && (
+              <span className="text-xs text-stone-500 bg-stone-200 px-2 py-0.5 rounded-full">Your tree</span>
+            )}
+          </div>
+          <div className="text-xs text-stone-500 flex flex-wrap gap-x-3 gap-y-0.5">
+            <span>Tree: <span className="font-medium text-stone-700">{match.tree}</span></span>
+            {!match.is_own && (
+              <span>Owner: <span className="font-medium text-stone-700">@{match.owner}</span></span>
+            )}
+            {match.sex && <span>{match.sex}</span>}
+            {match.date_of_birth && <span>b. {match.date_of_birth}</span>}
+            {match.place_of_birth && <span>{match.place_of_birth}</span>}
+          </div>
+        </div>
+
+        <div className="shrink-0">
+          {match.is_own ? (
+            <span className="text-xs text-stone-500 italic">Same owner</span>
+          ) : alreadySent ? (
+            <span className="text-xs text-emerald-700 font-medium">✓ Sent</span>
+          ) : (
+            <button
+              onClick={onExpand}
+              className="text-sm font-medium text-emerald-700 hover:text-emerald-900 transition-colors"
+            >
+              {isExpanded ? "Cancel" : "Contact"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {isExpanded && !match.is_own && !alreadySent && (
+        <div className="flex flex-col gap-2">
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Add a message (optional)…"
+            rows={2}
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+          />
+          {sendError && <p className="text-xs text-red-600">{sendError}</p>}
+          <div className="flex gap-2">
+            <button
+              onClick={() => onSend(message)}
+              disabled={sending}
+              className="bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+            >
+              {sending ? "Sending…" : "Send request"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DuplicateFinderTab({ person }: Props) {
   const t = useTranslations("duplicateFinder");
   const { user } = useAuth();
@@ -41,14 +141,11 @@ export default function DuplicateFinderTab({ person }: Props) {
   const [result, setResult] = useState<DuplicateSearchResult | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  // Contact request flow
-  const [requestingFor, setRequestingFor] = useState<string | null>(null); // username
-  const [message, setMessage] = useState("");
+  const [expandedProxy, setExpandedProxy] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [sentTo, setSentTo] = useState<Set<string>>(new Set());
-  const [sendError, setSendError] = useState<string | null>(null);
+  const [sendErrors, setSendErrors] = useState<Record<string, string>>({});
 
-  // Existing sent requests for this person
   const [sentRequests, setSentRequests] = useState<MergeContactRequest[]>([]);
 
   const rawProxyId = api.rawId(person.id);
@@ -74,19 +171,17 @@ export default function DuplicateFinderTab({ person }: Props) {
     }
   }
 
-  async function handleSendRequest(targetUser: string) {
+  async function handleSend(match: DuplicateMatch, message: string) {
     setSending(true);
-    setSendError(null);
+    setSendErrors((prev) => { const n = { ...prev }; delete n[match.proxy_id]; return n; });
     try {
-      await api.createContactRequests(person.id, [targetUser], message || undefined);
-      setSentTo((prev) => new Set([...prev, targetUser]));
-      setRequestingFor(null);
-      setMessage("");
-      // Refresh sent requests
+      await api.createContactRequests(person.id, [match.owner], message || undefined);
+      setSentTo((prev) => new Set([...prev, match.owner]));
+      setExpandedProxy(null);
       const all = await api.listContactRequests("sent");
       setSentRequests(all.filter((r) => r.from_proxy_id === person.id || r.from_proxy_id === `person_proxy:${rawProxyId}`));
     } catch (e) {
-      setSendError(e instanceof Error ? e.message : "Failed to send request");
+      setSendErrors((prev) => ({ ...prev, [match.proxy_id]: e instanceof Error ? e.message : "Failed" }));
     } finally {
       setSending(false);
     }
@@ -104,7 +199,6 @@ export default function DuplicateFinderTab({ person }: Props) {
 
   return (
     <div className="space-y-6 py-4 px-2">
-      {/* Search section */}
       <div className="rounded-xl border border-stone-200 p-5 bg-white space-y-4">
         <div>
           <h3 className="font-semibold text-stone-800 text-base">{t("searchHeading")}</h3>
@@ -140,68 +234,27 @@ export default function DuplicateFinderTab({ person }: Props) {
                   {t("matchesFound", { count: result.count })}
                 </p>
                 <div className="space-y-3">
-                  {result.owners.map((owner) => {
-                    const alreadySent = sentTo.has(owner) || sentRequests.some((r) => r.to_user === owner);
+                  {result.matches.map((match) => {
+                    const alreadySent = sentTo.has(match.owner) || sentRequests.some((r) => r.to_user === match.owner);
                     return (
-                      <div key={owner} className="flex items-center justify-between bg-stone-50 rounded-lg px-4 py-3 border border-stone-200">
-                        <span className="text-sm font-medium text-stone-800">@{owner}</span>
-                        {alreadySent ? (
-                          <span className="text-xs text-emerald-700 font-medium">✓ {t("requestSent", { username: owner })}</span>
-                        ) : requestingFor === owner ? (
-                          <div className="flex flex-col gap-2 w-full ml-4">
-                            <textarea
-                              value={message}
-                              onChange={(e) => setMessage(e.target.value)}
-                              placeholder={t("messagePlaceholder")}
-                              rows={2}
-                              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
-                            />
-                            {sendError && <p className="text-xs text-red-600">{sendError}</p>}
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleSendRequest(owner)}
-                                disabled={sending}
-                                className="bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
-                              >
-                                {sending ? t("sending") : t("sendRequest")}
-                              </button>
-                              <button
-                                onClick={() => { setRequestingFor(null); setMessage(""); setSendError(null); }}
-                                className="text-xs text-stone-600 hover:text-stone-800 px-3 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-50 transition-colors"
-                              >
-                                {t("cancelRequest")}
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setRequestingFor(owner)}
-                            className="text-sm font-medium text-emerald-700 hover:text-emerald-900 transition-colors"
-                          >
-                            {t("requestContact")}
-                          </button>
-                        )}
-                      </div>
+                      <MatchCard
+                        key={match.proxy_id}
+                        match={match}
+                        alreadySent={alreadySent}
+                        isExpanded={expandedProxy === match.proxy_id}
+                        onExpand={() => setExpandedProxy(expandedProxy === match.proxy_id ? null : match.proxy_id)}
+                        onSend={(msg) => handleSend(match, msg)}
+                        sending={sending && expandedProxy === match.proxy_id}
+                        sendError={sendErrors[match.proxy_id] ?? null}
+                      />
                     );
                   })}
                 </div>
-
-                {result.owners.length > 1 && !result.owners.every((o) => sentTo.has(o) || sentRequests.some((r) => r.to_user === o)) && !requestingFor && (
-                  <button
-                    onClick={() => {
-                      const unsent = result.owners.filter((o) => !sentTo.has(o) && !sentRequests.some((r) => r.to_user === o));
-                      setRequestingFor(`__all__${unsent.join(",")}`);
-                    }}
-                    className="text-sm text-stone-600 hover:text-stone-800 underline underline-offset-2"
-                  >
-                    {t("requestContactAll")}
-                  </button>
-                )}
               </>
             )}
 
             <button
-              onClick={() => { setResult(null); }}
+              onClick={() => { setResult(null); setExpandedProxy(null); }}
               className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
             >
               ↺ {t("searchAgain")}
@@ -210,7 +263,6 @@ export default function DuplicateFinderTab({ person }: Props) {
         )}
       </div>
 
-      {/* Sent requests for this person */}
       {sentRequests.length > 0 && (
         <div className="space-y-3">
           <h3 className="font-semibold text-stone-700 text-sm uppercase tracking-wide">{t("sentRequests")}</h3>

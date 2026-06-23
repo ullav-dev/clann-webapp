@@ -12,7 +12,6 @@
     "logout": "Sign Out",
     "login": "Sign In",
     "help": "Help",
-    "pricing": "Pricing",
     "account": "Account",
     "settings": "Settings",
     "about": "About Clann",
@@ -133,8 +132,7 @@
     "treeLimitTitle": "Tree limit reached",
     "treeLimitMessage": "Your plan allows up to {max} family trees. Upgrade to create more.",
     "memberLimitTitle": "Member limit reached",
-    "memberLimitMessage": "You have reached the maximum number of family members for your plan. Upgrade to add more.",
-    "upgradeLink": "View plans"
+    "memberLimitMessage": "You have reached the maximum number of family members for your plan. Upgrade to add more."
   },
   "family": {
     "title": "Family Members",
@@ -602,87 +600,6 @@
     "openDam": "Media Library",
     "bornPrefix": "b. {date}"
   },
-  "pricing": {
-    "heading": "Choose your Clann plan",
-    "subheading": "Start free and upgrade when your family grows. 7-day trial included on paid plans.",
-    "perMonth": "/ mo",
-    "familyPriceNote": "",
-    "professionalPriceNote": "per person / month",
-    "comingSoon": "Coming Soon",
-    "trialNote": "Family and Professional plans include a 7-day free trial — no charge until the trial ends.",
-    "learnMore": "Learn more",
-    "checkoutTitle": "Subscribe",
-    "checkoutError": "Could not start checkout. Please try again.",
-    "seatCount": "Number of seats",
-    "seatHint": "Minimum 2, maximum 10. Each seat is one family member account.",
-    "paymentProvider": "Pay with",
-    "proceedToPayment": "Proceed to Payment →",
-    "redirecting": "Redirecting…",
-    "cancel": "Cancel",
-    "plans": {
-      "individual": {
-        "name": "Individual",
-        "price": "Free",
-        "description": "Perfect for getting started with your family history.",
-        "cta": "Get Started",
-        "features": [
-          "1 user seat",
-          "2 family trees",
-          "Up to 100 family members",
-          "100 MB media storage",
-          "100 media assets",
-          "GEDCOM import & export",
-          "Interactive family tree graph"
-        ]
-      },
-      "family": {
-        "name": "Family / Team",
-        "price": "€6",
-        "description": "For families building their history together.",
-        "cta": "Coming Soon",
-        "features": [
-          "Maximum Team Size 5 members",
-          "10 family trees",
-          "Up to 1,000 family members",
-          "5 GB media storage",
-          "1,000 media assets",
-          "Images in media library",
-          "7-day free trial"
-        ]
-      },
-      "professional": {
-        "name": "Professional",
-        "price": "€15",
-        "description": "For serious researchers and professional genealogists.",
-        "cta": "Coming Soon",
-        "features": [
-          "Up to 50 Team members",
-          "Unlimited family trees",
-          "Unlimited family members",
-          "50 GB media storage",
-          "10,000 media assets",
-          "Full media library (all types)",
-          "Historical research tools",
-          "7-day free trial"
-        ]
-      },
-      "enterprise": {
-        "name": "Enterprise",
-        "price": "Custom",
-        "description": "Tailored for institutions and large organisations.",
-        "cta": "Contact Us",
-        "features": [
-          "Unlimited everything",
-          "All asset types including RAW",
-          "Historical research tools",
-          "SSO integration",
-          "On-site / hybrid deployment",
-          "By agreement support",
-          "Custom onboarding"
-        ]
-      }
-    }
-  },
   "subscriptionSuccess": {
     "heading": "You are all set!",
     "message": "Your subscription is being activated. This usually takes just a moment. Check your account page for the updated status.",
@@ -1113,8 +1030,7 @@
     "researchNotes": "Research Notes",
     "membersShort": "Members",
     "notesShort": "Notes",
-    "unlimited": "Unlimited",
-    "upgrade": "View plans"
+    "unlimited": "Unlimited"
   },
   "treeSettings": {
     "title": "Tree Settings",
