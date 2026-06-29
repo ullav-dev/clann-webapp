@@ -85,7 +85,9 @@ export interface CreateFamilyTree {
 }
 
 export interface Person {
-  id: string; // e.g. "person:01jd4a8xyz"
+  id: string; // "person_proxy:<ulid>" — the proxy record ID used in all API routes
+  person_id?: string; // "person:<ulid>" — the canonical record ID
+  tree?: string; // tree this proxy belongs to
   family_name: string;
   first_name: string;
   sex: Sex;
@@ -102,7 +104,12 @@ export interface Person {
   verified?: boolean;
   biography?: string | null;
   created_by?: string | null;
+  /** @deprecated use `tree` (singular). Present on old-format responses; absent on proxy responses. */
   trees?: string[];
+  is_private?: boolean;
+  preferred_family_name?: string | null;
+  preferred_first_name?: string | null;
+  preferred_middle_name?: string | null;
 }
 
 export interface CreatePerson {
@@ -120,7 +127,9 @@ export interface CreatePerson {
   verified?: boolean;
   biography?: string | null;
   created_by?: string | null;
-  /** Tree names (slugs). Required by the API; injected automatically by useApi. */
+  /** Tree slug. Required by the API; injected automatically by useApi. */
+  tree?: string;
+  /** @deprecated use `tree` (singular). */
   trees?: string[];
 }
 
@@ -313,6 +322,51 @@ export interface CreateNoteReply {
   body: string;
   created_by?: string | null;
   trees?: string[];
+}
+
+// ─── Contact Requests ────────────────────────────────────────────────────────
+
+export interface ContactMessage {
+  from_user: string;
+  text: string;
+  sent_at: string;
+}
+
+export interface MergeContactRequest {
+  id: string; // "merge_contact_request:<ulid>"
+  from_proxy_id: string; // "person_proxy:<ulid>"
+  from_user: string;
+  to_user: string;
+  initial_message: string | null;
+  status: "pending" | "accepted" | "ignored";
+  messages: ContactMessage[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DuplicateMatch {
+  proxy_id: string;
+  canonical_id: string;
+  tree: string;
+  owner: string;
+  family_name: string;
+  first_name: string;
+  sex?: string | null;
+  date_of_birth?: string | null;
+  place_of_birth?: string | null;
+  /** Confidence score: sex(+3) + dob_year(+2) + place(+2) = max 7 */
+  score: number;
+  /** "strong" | "likely" | "possible" */
+  confidence: string;
+  /** True when owner matches the current user — no contact request needed */
+  is_own: boolean;
+}
+
+export interface DuplicateSearchResult {
+  count: number;
+  /** Distinct owner usernames (kept for backward compat) */
+  owners: string[];
+  matches: DuplicateMatch[];
 }
 
 // Chat Sessions

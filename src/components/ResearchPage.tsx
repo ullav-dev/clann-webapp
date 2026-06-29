@@ -19,6 +19,7 @@ import IrishGenealogySearch from "@/components/IrishGenealogySearch";
 import AiChat from "@/components/AiChat";
 import AuthorChip from "@/components/AuthorChip";
 import NoteThread from "@/components/NoteThread";
+import ContactRequestsPanel from "@/components/ContactRequestsPanel";
 import { useConfirm } from "@/contexts/ConfirmContext";
 
 const MarkdownEditor = dynamic(() => import("@/components/MarkdownEditor"), { ssr: false });
@@ -283,6 +284,20 @@ export default function ResearchPage() {
 
   // The effective person ID to use for pre-filling search forms.
   const prefillPersonId = aiPersonId ?? localPersonId;
+
+  const [activePanel, setActivePanel] = useState<"notes" | "requests">(
+    searchParams.get("panel") === "requests" ? "requests" : "notes"
+  );
+  const [pendingContactCount, setPendingContactCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    const poll = () => api.getPendingContactCount().then((r) => setPendingContactCount(r.count)).catch(() => {});
+    poll();
+    const id = setInterval(poll, 60_000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.username]);
 
   const [notes, setNotes] = useState<ResearchNote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -733,6 +748,32 @@ export default function ResearchPage() {
 
   return (
     <div>
+      {/* Top-level panel switcher: Notes | Contact Requests */}
+      <div className="flex gap-1 border-b border-stone-200 mb-6">
+        {(["notes", "requests"] as const).map((panel) => (
+          <button
+            key={panel}
+            onClick={() => setActivePanel(panel)}
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px flex items-center gap-1.5 ${
+              activePanel === panel
+                ? "border-emerald-600 text-emerald-700"
+                : "border-transparent text-stone-500 hover:text-stone-700"
+            }`}
+          >
+            {panel === "notes" ? `📝 ${t("panelNotes")}` : `📬 ${t("panelRequests")}`}
+            {panel === "requests" && pendingContactCount > 0 && (
+              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] font-bold">
+                {pendingContactCount}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {activePanel === "requests" && <ContactRequestsPanel />}
+
+      {activePanel === "notes" && <>
+
       {/* Back-to-tree breadcrumb — shown whenever we have a person context (URL param or last-viewed) */}
       {prefillPersonId && irishGenealogyPrefill && (
         <div className="mb-4">
@@ -1077,6 +1118,7 @@ export default function ResearchPage() {
           {rightPanel()}
         </div>
       </div>
+      </>}
     </div>
   );
 }

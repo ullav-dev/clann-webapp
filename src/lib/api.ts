@@ -22,6 +22,8 @@ import type {
   ChatSession,
   CreateChatSession,
   ChatMessage,
+  MergeContactRequest,
+  DuplicateSearchResult,
 } from "./types";
 
 // In the browser, use relative paths so Next.js proxies to the backend (avoids CORS).
@@ -155,8 +157,13 @@ export const createPerson = (body: CreatePerson): Promise<Person> =>
 export const getPerson = (id: string, createdBy?: string): Promise<Person> =>
   request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy));
 
+/** Update proxy-level display overrides (nickname, biography, preferred names, privacy). */
 export const updatePerson = (id: string, body: UpdatePerson, createdBy?: string): Promise<Person> =>
   request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy), { method: "PUT", body: JSON.stringify(body) });
+
+/** Update canonical identity facts (name, sex, vital dates, birth cert). */
+export const updateCanonical = (id: string, body: Partial<UpdatePerson>): Promise<Person> =>
+  request(`/api/persons/${rawId(id)}/canonical`, { method: "PATCH", body: JSON.stringify(body) });
 
 export const deletePerson = (id: string, createdBy?: string): Promise<void> =>
   request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy), { method: "DELETE" });
@@ -263,9 +270,11 @@ export function personLifeImageUrl(id: string): string {
   return `/api/persons/${rawId(id)}/life-image`;
 }
 
-/** Strip the "person:" prefix the API stores, returning just the ULID part. */
+/** Strip the record-table prefix, returning just the ULID part. */
 export function rawId(id: string): string {
-  return id.startsWith("person:") ? id.slice(7) : id;
+  if (id.startsWith("person_proxy:")) return id.slice(13);
+  if (id.startsWith("person:")) return id.slice(7);
+  return id;
 }
 
 /** Strip the "life_event:" prefix, returning just the ULID part. */
@@ -396,4 +405,40 @@ export const appendSessionMessage = (
   request(`/api/chat/sessions/${rawSessionId(sessionId)}/messages`, {
     method: "POST",
     body: JSON.stringify({ role, content }),
+  });
+
+// ─── Duplicate Search & Contact Requests ─────────────────────────────────────
+
+export const findDuplicates = (personProxyRawId: string): Promise<DuplicateSearchResult> =>
+  request(`/api/persons/${personProxyRawId}/find-duplicates`);
+
+export const rawContactRequestId = (id: string): string =>
+  id.startsWith("merge_contact_request:") ? id.slice(22) : id;
+
+export const createContactRequests = (
+  fromProxyId: string,
+  toUsers: string[],
+  message?: string,
+): Promise<MergeContactRequest[]> =>
+  request("/api/contact-requests", {
+    method: "POST",
+    body: JSON.stringify({ from_proxy_id: fromProxyId, to_users: toUsers, message }),
+  });
+
+export const listContactRequests = (role?: "sent" | "received"): Promise<MergeContactRequest[]> =>
+  request(`/api/contact-requests${role ? `?role=${role}` : ""}`);
+
+export const getPendingContactCount = (): Promise<{ count: number }> =>
+  request("/api/contact-requests/pending-count");
+
+export const acceptContactRequest = (id: string): Promise<MergeContactRequest> =>
+  request(`/api/contact-requests/${rawContactRequestId(id)}/accept`, { method: "PATCH" });
+
+export const ignoreContactRequest = (id: string): Promise<MergeContactRequest> =>
+  request(`/api/contact-requests/${rawContactRequestId(id)}/ignore`, { method: "PATCH" });
+
+export const appendContactMessage = (id: string, text: string): Promise<MergeContactRequest> =>
+  request(`/api/contact-requests/${rawContactRequestId(id)}/messages`, {
+    method: "POST",
+    body: JSON.stringify({ text }),
   });

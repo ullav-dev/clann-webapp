@@ -12,7 +12,6 @@
     "logout": "Sign Out",
     "login": "Sign In",
     "help": "Help",
-    "pricing": "Pricing",
     "account": "Account",
     "settings": "Settings",
     "about": "About Clann",
@@ -139,8 +138,7 @@
     "treeLimitTitle": "Tree limit reached",
     "treeLimitMessage": "Your plan allows up to {max} family trees. Upgrade to create more.",
     "memberLimitTitle": "Member limit reached",
-    "memberLimitMessage": "You have reached the maximum number of family members for your plan. Upgrade to add more.",
-    "upgradeLink": "View plans"
+    "memberLimitMessage": "You have reached the maximum number of family members for your plan. Upgrade to add more."
   },
   "family": {
     "title": "Family Members",
@@ -198,6 +196,7 @@
     "tabFamilyTree": "🌳 Family Tree",
     "tabRelationships": "👥 Relationships",
     "tabLifeStory": "📖 Life Story",
+    "tabDuplicates": "🔍 Find Duplicates",
     "lifeStoryEmpty": "No life story has been written yet.",
     "lifeStoryEmptyEdit": "Add one in Edit.",
     "exportPdf": "Export as PDF",
@@ -608,87 +607,6 @@
     "openDam": "Media Library",
     "bornPrefix": "b. {date}"
   },
-  "pricing": {
-    "heading": "Choose your Clann plan",
-    "subheading": "Start free and upgrade when your family grows. 7-day trial included on paid plans.",
-    "perMonth": "/ mo",
-    "familyPriceNote": "",
-    "professionalPriceNote": "per person / month",
-    "comingSoon": "Coming Soon",
-    "trialNote": "Family and Professional plans include a 7-day free trial — no charge until the trial ends.",
-    "learnMore": "Learn more",
-    "checkoutTitle": "Subscribe",
-    "checkoutError": "Could not start checkout. Please try again.",
-    "seatCount": "Number of seats",
-    "seatHint": "Minimum 2, maximum 10. Each seat is one family member account.",
-    "paymentProvider": "Pay with",
-    "proceedToPayment": "Proceed to Payment →",
-    "redirecting": "Redirecting…",
-    "cancel": "Cancel",
-    "plans": {
-      "individual": {
-        "name": "Individual",
-        "price": "Free",
-        "description": "Perfect for getting started with your family history.",
-        "cta": "Get Started",
-        "features": [
-          "1 user seat",
-          "2 family trees",
-          "Up to 100 family members",
-          "100 MB media storage",
-          "100 media assets",
-          "GEDCOM import & export",
-          "Interactive family tree graph"
-        ]
-      },
-      "family": {
-        "name": "Family / Team",
-        "price": "€6",
-        "description": "For families building their history together.",
-        "cta": "Coming Soon",
-        "features": [
-          "Maximum Team Size 5 members",
-          "10 family trees",
-          "Up to 1,000 family members",
-          "5 GB media storage",
-          "1,000 media assets",
-          "Images in media library",
-          "7-day free trial"
-        ]
-      },
-      "professional": {
-        "name": "Professional",
-        "price": "€15",
-        "description": "For serious researchers and professional genealogists.",
-        "cta": "Coming Soon",
-        "features": [
-          "Up to 50 Team members",
-          "Unlimited family trees",
-          "Unlimited family members",
-          "50 GB media storage",
-          "10,000 media assets",
-          "Full media library (all types)",
-          "Historical research tools",
-          "7-day free trial"
-        ]
-      },
-      "enterprise": {
-        "name": "Enterprise",
-        "price": "Custom",
-        "description": "Tailored for institutions and large organisations.",
-        "cta": "Contact Us",
-        "features": [
-          "Unlimited everything",
-          "All asset types including RAW",
-          "Historical research tools",
-          "SSO integration",
-          "On-site / hybrid deployment",
-          "By agreement support",
-          "Custom onboarding"
-        ]
-      }
-    }
-  },
   "subscriptionSuccess": {
     "heading": "You are all set!",
     "message": "Your subscription is being activated. This usually takes just a moment. Check your account page for the updated status.",
@@ -712,8 +630,6 @@
     "redirecting": "Redirecting…",
     "loadError": "Could not load subscription details.",
     "portalError": "Could not open billing portal. Please try again.",
-    "helpText": "Questions about billing?",
-    "helpLink": "View help",
     "profileHeading": "Profile",
     "avatarUrl": "Avatar URL",
     "useGravatar": "Use Gravatar",
@@ -724,7 +640,17 @@
     "profileSave": "Save Changes",
     "profileSaving": "Saving…",
     "profileSaved": "Saved",
-    "profileSaveError": "Could not save profile. Please try again."
+    "profileSaveError": "Could not save profile. Please try again.",
+    "changePasswordHeading": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "changePasswordBtn": "Change Password",
+    "changingPassword": "Changing…",
+    "passwordChanged": "Password changed",
+    "passwordChangeFailed": "Could not change password. Please try again.",
+    "passwordsMustMatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters"
   },
   "lifeEvents": {
     "tabLabel": "📅 Life Events",
@@ -839,7 +765,55 @@
     "createFolderFailed": "Failed to create folder",
     "renameFolderFailed": "Failed to rename folder",
     "deleteFolderFailed": "Failed to delete folder",
-    "moveFailed": "Failed to move note"
+    "moveFailed": "Failed to move note",
+    "panelNotes": "Notes",
+    "panelRequests": "Contact Requests"
+  },
+  "duplicateFinder": {
+    "searchHeading": "Search for Duplicate Records",
+    "searchHint": "Searches all trees across the platform. Results show a count and owner usernames only — no personal data is shared.",
+    "searchButton": "Search for Duplicates",
+    "searching": "Searching…",
+    "noMatches": "No potential duplicates found in other trees.",
+    "matchesFound": "{count, plural, =1 {1 potential duplicate found} other {# potential duplicates found}}",
+    "requestContact": "Request contact",
+    "requestContactAll": "Request contact from all owners",
+    "messagePlaceholder": "Introduce yourself and explain why you think these records may match… (optional)",
+    "sendRequest": "Send Request",
+    "sending": "Sending…",
+    "cancelRequest": "Cancel",
+    "requestSent": "Request sent to @{username}",
+    "sentRequests": "Previously sent requests for this person",
+    "noSentRequests": "No contact requests sent for this person yet.",
+    "viewConversation": "View conversation",
+    "searchAgain": "Search again",
+    "statusPending": "Pending",
+    "statusAccepted": "Accepted",
+    "statusIgnored": "Ignored"
+  },
+  "contactRequests": {
+    "title": "Contact Requests",
+    "loading": "Loading…",
+    "loadFailed": "Could not load contact requests.",
+    "tabReceived": "Received",
+    "tabSent": "Sent",
+    "noReceived": "No contact requests received yet.",
+    "noSent": "No contact requests sent yet.",
+    "statusPending": "Pending",
+    "statusAccepted": "Accepted",
+    "statusIgnored": "Ignored",
+    "receivedFrom": "From @{username}",
+    "sentTo": "To @{username}",
+    "accept": "Accept",
+    "accepting": "Accepting…",
+    "ignore": "Ignore",
+    "ignoring": "Ignoring…",
+    "viewConversation": "View conversation",
+    "hideConversation": "Hide conversation",
+    "messagePlaceholder": "Type a message…",
+    "sendMessage": "Send",
+    "noMessages": "No messages yet. Send the first message.",
+    "initialMessage": "Initial message"
   },
   "aiChat": {
     "toggle": "AI Assistant",
@@ -1082,8 +1056,7 @@
     "researchNotes": "Research Notes",
     "membersShort": "Members",
     "notesShort": "Notes",
-    "unlimited": "Unlimited",
-    "upgrade": "View plans"
+    "unlimited": "Unlimited"
   },
   "treeSettings": {
     "title": "Tree Settings",

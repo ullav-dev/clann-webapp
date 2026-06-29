@@ -47,7 +47,7 @@ export function useApi() {
     isReadOnly,
     listPersons: () => api.listPersons(readOwner, tree),
     createPerson: (body: CreatePerson) =>
-      api.createPersonWithBirthEvent({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),
+      api.createPersonWithBirthEvent({ ...body, created_by: createdBy, tree: tree ?? "" }),
     getPerson: (id: string) => api.getPerson(id, readOwner),
     updatePerson: (id: string, body: UpdatePerson) => api.updatePerson(id, body, createdBy),
     deletePerson: (id: string) => api.deletePerson(id, createdBy),

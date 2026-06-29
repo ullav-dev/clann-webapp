@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -81,7 +80,6 @@ export default function ClannUsageWidget({ inline = false }: Props) {
       .catch(() => {});
   }, [user]);
 
-  const hasLimits = maxMembers !== Infinity || maxNotes !== Infinity;
   const unlimited = t("unlimited");
 
   if (inline) {
@@ -126,16 +124,6 @@ export default function ClannUsageWidget({ inline = false }: Props) {
           />
         </div>
       </div>
-      {hasLimits && (
-        <div className="px-6 py-4">
-          <Link
-            href="/pricing"
-            className="text-xs text-emerald-700 hover:text-emerald-800 hover:underline transition-colors"
-          >
-            {t("upgrade")} →
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

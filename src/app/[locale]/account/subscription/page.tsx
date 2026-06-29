@@ -9,9 +9,11 @@ import {
   getSubscription,
   updateProfile,
   gravatarUrl,
+  changePassword,
   type SubscriptionInfo,
 } from "@/lib/auth-api";
 import ClannUsageWidget from "@/components/ClannUsageWidget";
+import PasswordInput from "@/components/PasswordInput";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -68,7 +70,6 @@ export default function SubscriptionPage() {
   const router = useRouter();
 
   const [sub, setSub] = useState<SubscriptionInfo | null>(null);
-  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Profile editing state
   const [firstName, setFirstName] = useState("");
@@ -78,6 +79,14 @@ export default function SubscriptionPage() {
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSaved, setProfileSaved] = useState(false);
+
+  // Change password state
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSaved, setPasswordSaved] = useState(false);
 
   // Redirect to login if not authenticated.
   useEffect(() => {
@@ -93,13 +102,11 @@ export default function SubscriptionPage() {
     }
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch current subscription once the token is available.
+  // Fetch current subscription once the token is available (failure is silent).
   useEffect(() => {
     if (!token) return;
-    getSubscription("clann", token)
-      .then(setSub)
-      .catch((err) => setFetchError(err instanceof Error ? err.message : t("loadError")));
-  }, [token, t]);
+    getSubscription("clann", token).then(setSub).catch(() => {});
+  }, [token]);
 
   async function handleProfileSave(e: React.FormEvent) {
     e.preventDefault();
@@ -132,6 +139,33 @@ export default function SubscriptionPage() {
       setAvatarUrl(url);
     } finally {
       setGravatarLoading(false);
+    }
+  }
+
+  async function handlePasswordChange(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token || !user) return;
+    setPasswordError(null);
+    if (newPassword !== confirmPassword) {
+      setPasswordError(t("passwordsMustMatch"));
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordError(t("passwordTooShort"));
+      return;
+    }
+    setPasswordSaving(true);
+    try {
+      await changePassword(user.id, newPassword, currentPassword, token);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordSaved(true);
+      setTimeout(() => setPasswordSaved(false), 3000);
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : t("passwordChangeFailed"));
+    } finally {
+      setPasswordSaving(false);
     }
   }
 
@@ -232,15 +266,57 @@ export default function SubscriptionPage() {
         </form>
       </div>
 
+      {/* Change password section */}
+      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm mb-6">
+        <div className="px-6 py-5 border-b border-stone-100">
+          <p className="text-xs text-stone-400 font-medium uppercase tracking-wide">{t("changePasswordHeading")}</p>
+        </div>
+        <form onSubmit={handlePasswordChange} className="px-6 py-5 space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-stone-500 mb-1">{t("currentPassword")}</label>
+            <PasswordInput
+              id="current-password"
+              value={currentPassword}
+              onChange={setCurrentPassword}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-stone-500 mb-1">{t("newPassword")}</label>
+            <PasswordInput
+              id="new-password"
+              value={newPassword}
+              onChange={setNewPassword}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-stone-500 mb-1">{t("confirmNewPassword")}</label>
+            <PasswordInput
+              id="confirm-new-password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={passwordSaving || !currentPassword || !newPassword || !confirmPassword}
+              className="inline-flex items-center justify-center bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              {passwordSaving ? t("changingPassword") : t("changePasswordBtn")}
+            </button>
+            {passwordSaved && (
+              <span className="text-sm text-emerald-600 font-medium">{t("passwordChanged")}</span>
+            )}
+            {passwordError && (
+              <span className="text-sm text-red-600">{passwordError}</span>
+            )}
+          </div>
+        </form>
+      </div>
+
       <div className="mb-6">
         <ClannUsageWidget />
       </div>
-
-      {fetchError && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm mt-6 mb-0">
-          {fetchError}
-        </div>
-      )}
 
       {sub && (
         <div className="bg-white rounded-2xl border border-stone-200 shadow-sm divide-y divide-stone-100">
@@ -271,12 +347,6 @@ export default function SubscriptionPage() {
         </div>
       )}
 
-      <p className="mt-8 text-xs text-stone-400 text-center">
-        {t("helpText")}{" "}
-        <Link href="/help" className="underline hover:text-stone-600 transition-colors">
-          {t("helpLink")}
-        </Link>
-      </p>
     </div>
   );
 }

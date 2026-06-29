@@ -12,7 +12,6 @@
     "logout": "Logáil Amach",
     "login": "Logáil Isteach",
     "help": "Cabhair",
-    "pricing": "Praghsanna",
     "account": "Cuntas",
     "settings": "Socruithe",
     "about": "Faoi Clann",
@@ -139,8 +138,7 @@
     "treeLimitTitle": "Teorainn crann bainte amach",
     "treeLimitMessage": "Ceadaíonn do phlean suas le {max} crann teaghlaigh. Uasghrádaigh chun tuilleadh a chruthú.",
     "memberLimitTitle": "Teorainn ball bainte amach",
-    "memberLimitMessage": "Shroich tú an uaslíon ball teaghlaigh do do phlean. Uasghrádaigh chun tuilleadh a chur leis.",
-    "upgradeLink": "Féach ar phleananna"
+    "memberLimitMessage": "Shroich tú an uaslíon ball teaghlaigh do do phlean. Uasghrádaigh chun tuilleadh a chur leis."
   },
   "family": {
     "title": "Baill Teaghlaigh",
@@ -198,6 +196,7 @@
     "tabFamilyTree": "🌳 Crann Teaghlaigh",
     "tabRelationships": "👥 Caidrimh",
     "tabLifeStory": "📖 Scéal Beatha",
+    "tabDuplicates": "🔍 Dúblaigh a Aimsiú",
     "lifeStoryEmpty": "Níl aon scéal beatha scríofa go fóill.",
     "lifeStoryEmptyEdit": "Cuir ceann leis in Eagar.",
     "exportPdf": "Easpórtáil mar PDF",
@@ -608,87 +607,6 @@
     "openDam": "Leabharlann Meán",
     "bornPrefix": "r. {date}"
   },
-  "pricing": {
-    "heading": "Roghnaigh do phlean Clann",
-    "subheading": "Tosaigh saor in aisce agus uasghrádaigh de réir mar a fhásann do theaghlach. Triail 7 lá san áireamh le pleananna íoctha.",
-    "perMonth": "/ mí",
-    "familyPriceNote": "",
-    "professionalPriceNote": "in aghaidh duine / mí",
-    "comingSoon": "Ag teacht go luath",
-    "trialNote": "Áirítear triail 7 lá saor in aisce le pleananna Teaghlaigh agus Gairmiúil.",
-    "learnMore": "Foghlaim tuilleadh",
-    "checkoutTitle": "Liostáil",
-    "checkoutError": "Níorbh fhéidir an t-íocaíocht a thosú. Bain triail eile as.",
-    "seatCount": "Líon suíochán",
-    "seatHint": "2 ar a laghad, 10 ar a mhéid.",
-    "paymentProvider": "Íoc le",
-    "proceedToPayment": "Lean ar aghaidh chuig Íocaíocht →",
-    "redirecting": "Ag atreorú…",
-    "cancel": "Cealaigh",
-    "plans": {
-      "individual": {
-        "name": "Aonair",
-        "price": "Saor",
-        "description": "Foirfe chun tosú le stair do theaghlaigh.",
-        "cta": "Tosaigh",
-        "features": [
-          "1 suíochán úsáideora",
-          "2 chrann teaghlaigh",
-          "Suas le 100 ball teaghlaigh",
-          "100 MB stórála meáin",
-          "100 sócmhainn meáin",
-          "Iompórtáil & easpórtáil GEDCOM",
-          "Graf crann teaghlaigh idirghníomhach"
-        ]
-      },
-      "family": {
-        "name": "Teaghlach / Foireann",
-        "price": "€6",
-        "description": "Do theaghlaigh ag tógáil a staire le chéile.",
-        "cta": "Ag teacht go luath",
-        "features": [
-          "Uasmhéid foirne: 5 bhall",
-          "10 crann teaghlaigh",
-          "Suas le 1,000 ball teaghlaigh",
-          "5 GB stórála meáin",
-          "1,000 sócmhainn meáin",
-          "Íomhánna i leabharlann na meán",
-          "Triail saor 7 lá"
-        ]
-      },
-      "professional": {
-        "name": "Gairmiúil",
-        "price": "€15",
-        "description": "Do thaighdeoirí dáiríre agus geineolaeoirí gairmiúla.",
-        "cta": "Ag teacht go luath",
-        "features": [
-          "Suas le 50 ball foirne",
-          "Crainn teaghlaigh gan teorainn",
-          "Baill teaghlaigh gan teorainn",
-          "50 GB stórála meáin",
-          "10,000 sócmhainn meáin",
-          "Leabharlann mheáin iomlán",
-          "Uirlisí taighde stairiúil",
-          "Triail saor 7 lá"
-        ]
-      },
-      "enterprise": {
-        "name": "Fiontar",
-        "price": "Saincheaptha",
-        "description": "Curtha in oiriúint d'institiúidí agus eagraíochtaí móra.",
-        "cta": "Déan Teagmháil",
-        "features": [
-          "Gach rud gan teorainn",
-          "Gach cineál sócmhainne lena n-áirítear RAW",
-          "Uirlisí taighde stairiúil",
-          "Comhtháthú SSO",
-          "Imscaradh ar shuíomh / hibrideach",
-          "Tacaíocht de réir comhaontú",
-          "Onbordú saincheaptha"
-        ]
-      }
-    }
-  },
   "subscriptionSuccess": {
     "heading": "Tá tú réidh!",
     "message": "Tá do liostáil á ghníomhachtú. De ghnáth ní thógann sé ach nóiméad. Seiceáil do leathanach cuntais le haghaidh an stádas nuashonraithe.",
@@ -712,8 +630,6 @@
     "redirecting": "Ag atreorú…",
     "loadError": "Níorbh fhéidir sonraí liostála a luchtú.",
     "portalError": "Níorbh fhéidir an tairseach billeála a oscailt.",
-    "helpText": "Ceisteanna faoin mbilleáil?",
-    "helpLink": "Féach ar chabhrú",
     "profileHeading": "Próifíl",
     "avatarUrl": "URL Avatar",
     "useGravatar": "Úsáid Gravatar",
@@ -724,7 +640,17 @@
     "profileSave": "Sábháil Athruithe",
     "profileSaving": "Ag sábháil…",
     "profileSaved": "Sábháilte",
-    "profileSaveError": "Níorbh fhéidir an phróifíl a shábháil. Bain triail eile as."
+    "profileSaveError": "Níorbh fhéidir an phróifíl a shábháil. Bain triail eile as.",
+    "changePasswordHeading": "Athraigh Pasfhocal",
+    "currentPassword": "Pasfhocal Reatha",
+    "newPassword": "Pasfhocal Nua",
+    "confirmNewPassword": "Deimhnigh Pasfhocal Nua",
+    "changePasswordBtn": "Athraigh Pasfhocal",
+    "changingPassword": "Ag athrú…",
+    "passwordChanged": "Pasfhocal athraithe",
+    "passwordChangeFailed": "Níorbh fhéidir an pasfhocal a athrú. Bain triail eile as.",
+    "passwordsMustMatch": "Ní mheaitseálann na pasfhocail",
+    "passwordTooShort": "Caithfidh an pasfhocal a bheith ar a laghad 8 carachtar"
   },
   "lifeEvents": {
     "tabLabel": "📅 Imeachtaí Saoil",
@@ -839,7 +765,55 @@
     "createFolderFailed": "Theip ar chruthú fillteáin",
     "renameFolderFailed": "Theip ar athainmniú fillteáin",
     "deleteFolderFailed": "Theip ar scriosadh fillteáin",
-    "moveFailed": "Theip ar bhogadh nóta"
+    "moveFailed": "Theip ar bhogadh nóta",
+    "panelNotes": "Nótaí",
+    "panelRequests": "Iarratais Teagmhála"
+  },
+  "duplicateFinder": {
+    "searchHeading": "Taifid Dhúblacha a Chuardach",
+    "searchHint": "Cuardaíonn sé seo gach crann ar an ardán. Ní thaispeántar ach líon agus ainmneacha úsáideoirí – ní roinntear sonraí pearsanta.",
+    "searchButton": "Dúblaigh a Chuardach",
+    "searching": "Ag cuardach…",
+    "noMatches": "Níor aimsíodh dúblaigh féideartha i gcrannaí eile.",
+    "matchesFound": "{count, plural, =1 {1 dúblach féideartha aimsithe} other {# dúblach féideartha aimsithe}}",
+    "requestContact": "Iarratas teagmhála",
+    "requestContactAll": "Iarratas ó gach úinéir",
+    "messagePlaceholder": "Cuir tú féin in aithne agus mínigh cén fáth a gceapann tú go bhféadfadh na taifid seo meaitseáil… (roghnach)",
+    "sendRequest": "Iarratas a Sheoladh",
+    "sending": "Ag seoladh…",
+    "cancelRequest": "Cealaigh",
+    "requestSent": "Iarratas seolta chuig @{username}",
+    "sentRequests": "Iarratais a seoladh cheana don duine seo",
+    "noSentRequests": "Níor seoladh iarratais teagmhála don duine seo go fóill.",
+    "viewConversation": "Comhrá a fheiceáil",
+    "searchAgain": "Cuardaigh arís",
+    "statusPending": "Ar feitheamh",
+    "statusAccepted": "Glactha",
+    "statusIgnored": "Neamhaird"
+  },
+  "contactRequests": {
+    "title": "Iarratais Teagmhála",
+    "loading": "Ag luchtú…",
+    "loadFailed": "Níorbh fhéidir iarratais teagmhála a luchtú.",
+    "tabReceived": "Faighte",
+    "tabSent": "Seolta",
+    "noReceived": "Níor faigheadh iarratais teagmhála go fóill.",
+    "noSent": "Níor seoladh iarratais teagmhála go fóill.",
+    "statusPending": "Ar feitheamh",
+    "statusAccepted": "Glactha",
+    "statusIgnored": "Neamhaird",
+    "receivedFrom": "Ó @{username}",
+    "sentTo": "Chuig @{username}",
+    "accept": "Glac",
+    "accepting": "Ag glacadh…",
+    "ignore": "Neamhaird",
+    "ignoring": "Ag cur neamhaird…",
+    "viewConversation": "Comhrá a fheiceáil",
+    "hideConversation": "Comhrá a cheilt",
+    "messagePlaceholder": "Clóscríobh teachtaireacht…",
+    "sendMessage": "Seol",
+    "noMessages": "Gan teachtaireachtaí go fóill. Seol an chéad teachtaireacht.",
+    "initialMessage": "Teachtaireacht tosaigh"
   },
   "aiChat": {
     "toggle": "Cúntóir AI",
@@ -1082,8 +1056,7 @@
     "researchNotes": "Nótaí Taighde",
     "membersShort": "Baill",
     "notesShort": "Nótaí",
-    "unlimited": "Gan teorainn",
-    "upgrade": "Féach ar phleananna"
+    "unlimited": "Gan teorainn"
   },
   "treeSettings": {
     "title": "Socruithe Crainn",

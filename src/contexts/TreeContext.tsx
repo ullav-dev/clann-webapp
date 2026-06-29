@@ -98,7 +98,7 @@ export function TreeProvider({ children }: { children: React.ReactNode }) {
                 username: user.username,
                 email: pending?.email || user.email,
                 created_by: user.username,
-                trees: [tree.name],
+                tree: tree.name,
               });
             }
 

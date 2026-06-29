@@ -228,12 +228,9 @@ export default function FamilyPage() {
                 <span>+</span> {t("addPerson")}
               </span>
             ) : atMemberLimit(persons.length) ? (
-              <Link
-                href="/pricing"
-                className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
-              >
-                ⚡ {t("memberLimitCta")}
-              </Link>
+              <span className="inline-flex items-center gap-2 bg-stone-300 text-stone-500 text-sm font-medium px-4 py-2 rounded-lg cursor-not-allowed select-none">
+                <span>+</span> {t("addPerson")}
+              </span>
             ) : (
               <Link href="/persons/new" className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                 <span>+</span> {t("addPerson")}

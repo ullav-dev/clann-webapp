@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTeam } from "@/contexts/TeamContext";
 import { useTree } from "@/contexts/TreeContext";
 import { canCreateTeam } from "@/lib/auth-api";
+import { getPendingContactCount } from "@/lib/api";
 import LocaleSwitcher from "./LocaleSwitcher";
 import TeamSelector from "./TeamSelector";
 import TreeSelector from "./TreeSelector";
@@ -31,6 +32,7 @@ export default function Nav() {
   const [showAbout, setShowAbout] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [lastPerson, setLastPerson] = useState<{ id: string; name: string } | null>(null);
+  const [pendingRequests, setPendingRequests] = useState(0);
 
   // Read the last-viewed person from localStorage so we can show a quick "back to tree" link.
   useEffect(() => {
@@ -39,6 +41,15 @@ export default function Nav() {
       if (raw) setLastPerson(JSON.parse(raw));
     } catch { /* ignore */ }
   }, [pathname]); // refresh whenever navigation happens
+
+  // Poll for pending contact requests to show notification badge
+  useEffect(() => {
+    if (!user) return;
+    const poll = () => getPendingContactCount().then((r) => setPendingRequests(r.count)).catch(() => {});
+    poll();
+    const id = setInterval(poll, 60_000);
+    return () => clearInterval(id);
+  }, [user]);
 
   useEffect(() => {
     if (!dropdownOpen) return;
@@ -101,8 +112,13 @@ export default function Nav() {
                       🌳 <span className="truncate">{lastPerson.name}</span>
                     </Link>
                   )}
-                  <Link href="/research" className={activeLink("/research")}>
+                  <Link href="/research" className={`${activeLink("/research")} relative`}>
                     {t("research")}
+                    {pendingRequests > 0 && (
+                      <span className="absolute -top-1 -right-2.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] font-bold">
+                        {pendingRequests > 9 ? "9+" : pendingRequests}
+                      </span>
+                    )}
                   </Link>
                   {showTeam && (
                     <Link href="/team" className={activeLink("/team")}>
@@ -217,8 +233,13 @@ export default function Nav() {
                 <Link href="/family" onClick={closeMobileMenu} className={mobileLink("/family")}>
                   {t("myFamily")}
                 </Link>
-                <Link href="/research" onClick={closeMobileMenu} className={mobileLink("/research")}>
-                  {t("research")}
+                <Link href="/research" onClick={closeMobileMenu} className={`${mobileLink("/research")} flex items-center justify-between`}>
+                  <span>{t("research")}</span>
+                  {pendingRequests > 0 && (
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white text-xs font-bold">
+                      {pendingRequests > 9 ? "9+" : pendingRequests}
+                    </span>
+                  )}
                 </Link>
                 {hasTeam && (
                   <Link href="/team" onClick={closeMobileMenu} className={mobileLink("/team")}>

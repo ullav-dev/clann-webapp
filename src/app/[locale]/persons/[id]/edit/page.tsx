@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useApi } from "@/hooks/useApi";
+import { updateCanonical } from "@/lib/api";
 import type { Person, UpdatePerson } from "@/lib/types";
 import PersonForm from "@/components/PersonForm";
 import { fullName } from "@/components/PersonCard";
@@ -22,7 +23,15 @@ export default function EditPersonPage() {
   }, [id]);
 
   async function handleSubmit(values: UpdatePerson) {
-    await api.updatePerson(id, values);
+    // Canonical facts (name, sex, dates) go to PATCH /canonical;
+    // proxy overrides (nickname, biography, etc.) go to PUT /{id}.
+    const { family_name, first_name, middle_name, sex, date_of_birth, date_of_death,
+      place_of_birth, place_of_death, ...proxyFields } = values;
+    await Promise.all([
+      updateCanonical(id, { family_name, first_name, middle_name, sex,
+        date_of_birth, date_of_death, place_of_birth, place_of_death }),
+      api.updatePerson(id, proxyFields),
+    ]);
     router.push(`/persons/${id}`);
   }
 
