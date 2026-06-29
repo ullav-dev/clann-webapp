@@ -1,7 +1,7 @@
 export type Sex = "Male" | "Female";
 export type RelationshipType = "Father" | "Mother" | "Sibling" | "Spouse";
 export type SiblingType = "Brother" | "Sister";
-export type Pedigree = "birth" | "adopted" | "half";
+export type Pedigree = "birth" | "adopted" | "half" | "step";
 
 export interface FamilyTree {
   id: string; // "family_tree:<ulid>"
