@@ -1,7 +1,7 @@
 export type Sex = "Male" | "Female";
 export type RelationshipType = "Father" | "Mother" | "Sibling" | "Spouse";
 export type SiblingType = "Brother" | "Sister";
-export type Pedigree = "birth" | "adopted" | "step" | "foster";
+export type Pedigree = "birth" | "adopted" | "half";
 
 export interface FamilyTree {
   id: string; // "family_tree:<ulid>"
@@ -90,12 +90,14 @@ export interface Person {
   tree?: string; // tree this proxy belongs to
   family_name: string;
   first_name: string;
-  sex: Sex;
   middle_name?: string | null;
+  sex: Sex;
   date_of_birth?: string | null;
-  date_of_death?: string | null;
   place_of_birth?: string | null;
+  date_of_death?: string | null;
   place_of_death?: string | null;
+  birth_cert_authority?: string | null;
+  birth_cert_number?: string | null;
   image_path?: string | null;
   life_image_path?: string | null;
   nickname?: string | null;
@@ -103,10 +105,11 @@ export interface Person {
   email?: string | null;
   verified?: boolean;
   biography?: string | null;
+  is_private?: boolean;
   created_by?: string | null;
+  created_at?: string | null;
   /** @deprecated use `tree` (singular). Present on old-format responses; absent on proxy responses. */
   trees?: string[];
-  is_private?: boolean;
   preferred_family_name?: string | null;
   preferred_first_name?: string | null;
   preferred_middle_name?: string | null;
@@ -117,15 +120,24 @@ export interface CreatePerson {
   first_name: string;
   sex: Sex;
   middle_name?: string | null;
+  // Canonical vital stats
   date_of_birth?: string | null;
   date_of_death?: string | null;
   place_of_birth?: string | null;
   place_of_death?: string | null;
+  birth_cert_authority?: string | null;
+  birth_cert_number?: string | null;
+  // Proxy display overrides
+  preferred_family_name?: string | null;
+  preferred_first_name?: string | null;
+  preferred_middle_name?: string | null;
+  // Tree-local enrichment
   nickname?: string | null;
   username?: string | null;
   email?: string | null;
   verified?: boolean;
   biography?: string | null;
+  is_private?: boolean;
   created_by?: string | null;
   /** Tree slug. Required by the API; injected automatically by useApi. */
   tree?: string;
@@ -133,20 +145,31 @@ export interface CreatePerson {
   trees?: string[];
 }
 
+/** Update proxy fields only (preferred names, enrichment). Use updateCanonical for vital stats. */
 export interface UpdatePerson {
-  family_name?: string | null;
-  first_name?: string | null;
-  sex?: Sex | null;
-  middle_name?: string | null;
-  date_of_birth?: string | null;
-  date_of_death?: string | null;
-  place_of_birth?: string | null;
-  place_of_death?: string | null;
+  preferred_family_name?: string | null;
+  preferred_first_name?: string | null;
+  preferred_middle_name?: string | null;
   nickname?: string | null;
   username?: string | null;
   email?: string | null;
   verified?: boolean | null;
   biography?: string | null;
+  is_private?: boolean | null;
+}
+
+/** Update canonical (birth-certificate) fields only — these are shared across all trees. */
+export interface UpdateCanonicalPerson {
+  family_name?: string | null;
+  first_name?: string | null;
+  middle_name?: string | null;
+  sex?: Sex | null;
+  date_of_birth?: string | null;
+  place_of_birth?: string | null;
+  date_of_death?: string | null;
+  place_of_death?: string | null;
+  birth_cert_authority?: string | null;
+  birth_cert_number?: string | null;
 }
 
 /** A Person with spouse-relationship date attributes from the edge. */
@@ -163,7 +186,7 @@ export interface ParentInfo extends Person {
 /** A sibling with the pedigree qualifier from the edge. */
 export interface SiblingInfo extends Person {
   pedigree: Pedigree;
-  /** The parent through whom this step/adopted/foster relationship is formed. Full record ID. */
+  /** The parent through whom this half/adopted relationship is formed. Full record ID. */
   via_parent_id?: string | null;
 }
 
@@ -176,7 +199,7 @@ export interface RelationshipsResponse {
 
 export interface AddRelationshipRequest {
   type: RelationshipType;
-  related_id: string; // full record ID e.g. "person:01jd4a8xyz"
+  related_id: string; // full record ID e.g. "person_proxy:01jd4a8xyz"
   sibling_type?: SiblingType | null;
   spouse_from?: string | null;
   spouse_to?: string | null;
@@ -188,7 +211,7 @@ export interface AddRelationshipRequest {
 
 export interface UpdateRelationshipRequest {
   pedigree: Pedigree;
-  /** For sibling edges: the parent through whom the step/adopted/foster relationship is formed. */
+  /** For sibling edges: the parent through whom the half/adopted relationship is formed. */
   via_parent_id?: string | null;
 }
 
@@ -209,7 +232,7 @@ export interface FamilyTreeNode {
   sibling_type?: SiblingType | null;
   /** Pedigree of this node relative to its child. Set on nodes in father/mother/siblings arrays. */
   pedigree?: Pedigree | null;
-  /** For sibling nodes: the parent through whom the step/adopted/foster relationship is formed. */
+  /** For sibling nodes: the parent through whom the half/adopted relationship is formed. */
   via_parent_id?: string | null;
   father?: FamilyTreeNode[];
   mother?: FamilyTreeNode[];
@@ -238,7 +261,9 @@ export type EventType =
 
 export interface LifeEvent {
   id: string; // "life_event:<ulid>"
-  person_id: string; // "person:<ulid>"
+  person_proxy_id: string; // "person_proxy:<ulid>"
+  is_canonical?: boolean;
+  contributed_by_tree?: string | null;
   name: string;
   date?: string | null;
   event_type: EventType;

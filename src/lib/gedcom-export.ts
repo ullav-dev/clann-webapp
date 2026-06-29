@@ -21,7 +21,7 @@ export interface GedcomRelationship {
   related_id: string;
   spouse_from?: string | null;
   spouse_to?: string | null;
-  pedigree?: string | null; // "birth" | "adopted" | "step" | "foster"
+  pedigree?: string | null; // "birth" | "adopted" | "half"
 }
 
 interface FamRecord {
@@ -222,7 +222,9 @@ export function exportToGedcom(
     for (const famId of famcOf.get(p.id) ?? []) {
       lines.push(`1 FAMC ${famId}`);
       const ped = famcPedigree.get(`${famId}:${p.id}`);
-      if (ped && ped !== "birth") lines.push(`2 PEDI ${ped}`);
+      // "half" has no GEDCOM 5.5 PEDI equivalent — the FAM structure already implies it.
+      // Only export "adopted" as a PEDI tag.
+      if (ped && ped === "adopted") lines.push(`2 PEDI ${ped}`);
     }
 
     // NOTE (biography)
