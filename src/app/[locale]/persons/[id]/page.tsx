@@ -297,9 +297,19 @@ export default function PersonDetailPage() {
                 {people.length === 0 ? (<p className="text-stone-400 text-sm italic">{t("noneRecorded")}</p>) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {people.map((p) => {
-                      const pedigree = (group === "father" || group === "mother")
+                      const isParentGroup = group === "father" || group === "mother";
+                      const rawPedigree = isParentGroup
                         ? (p as ParentInfo).pedigree
                         : group === "siblings" ? (p as SiblingInfo).pedigree : undefined;
+                      // Normalise for display: foster→birth (removed), step stays step for parents,
+                      // step→half for siblings.
+                      const displayPedigree = isParentGroup
+                        ? (rawPedigree === "foster" ? "birth" : (rawPedigree ?? "birth"))
+                        : (rawPedigree === "step" || rawPedigree === "half" ? "half"
+                           : rawPedigree === "adopted" ? "adopted" : "birth");
+                      const pickerOptions: Pedigree[] = isParentGroup
+                        ? ["birth", "adopted", "step"]
+                        : ["birth", "adopted", "half"];
                       const isEditingPedigree = editingPedigreeId === p.id;
                       return (
                         <div key={p.id} className="bg-white rounded-xl border border-stone-200 px-4 py-3 shadow-sm">
@@ -309,9 +319,9 @@ export default function PersonDetailPage() {
                               <div className="min-w-0">
                                 <p className="font-medium text-sm text-stone-800 group-hover:text-emerald-700 truncate">{fullName(p)}</p>
                                 {p.date_of_birth && <p className="text-xs text-stone-400">{t("bornPrefix", { date: p.date_of_birth })}</p>}
-                                {pedigree && pedigree !== "birth" && (
+                                {displayPedigree && displayPedigree !== "birth" && (
                                   <span className="inline-block text-xs font-medium px-1.5 py-0.5 rounded mt-0.5 bg-amber-100 text-amber-700 border border-amber-200">
-                                    {t(`pedigree_${pedigree}` as "pedigree_adopted")}
+                                    {t(`pedigree_${displayPedigree}` as "pedigree_adopted")}
                                   </span>
                                 )}
                               </div>
@@ -331,13 +341,13 @@ export default function PersonDetailPage() {
                             <div className="mt-2 pt-2 border-t border-stone-100">
                               <p className="text-xs text-stone-500 mb-1.5">{t("editPedigree")}</p>
                               <div className="flex flex-wrap gap-1.5">
-                                {(["birth", "adopted", "half"] as Pedigree[]).map((pg) => (
+                                {pickerOptions.map((pg) => (
                                   <button
                                     key={pg}
                                     type="button"
                                     onClick={() => handleChangePedigree(group, p as ParentInfo | SiblingInfo, pg)}
                                     className={`px-2 py-1 rounded text-xs font-medium transition-colors border ${
-                                      (pedigree === pg || (pg === "half" && pedigree === "step") || (pg === "adopted" && pedigree === "foster"))
+                                      displayPedigree === pg
                                         ? "bg-emerald-700 text-white border-emerald-700"
                                         : "border-stone-300 text-stone-600 hover:border-emerald-400"
                                     }`}
