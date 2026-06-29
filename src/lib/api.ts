@@ -2,6 +2,7 @@ import type {
   Person,
   CreatePerson,
   UpdatePerson,
+  UpdateCanonicalPerson,
   RelationshipsResponse,
   AddRelationshipRequest,
   UpdateRelationshipRequest,
@@ -162,7 +163,7 @@ export const updatePerson = (id: string, body: UpdatePerson, createdBy?: string)
   request(withCreatedBy(`/api/persons/${rawId(id)}`, createdBy), { method: "PUT", body: JSON.stringify(body) });
 
 /** Update canonical identity facts (name, sex, vital dates, birth cert). */
-export const updateCanonical = (id: string, body: Partial<UpdatePerson>): Promise<Person> =>
+export const updateCanonical = (id: string, body: UpdateCanonicalPerson): Promise<Person> =>
   request(`/api/persons/${rawId(id)}/canonical`, { method: "PATCH", body: JSON.stringify(body) });
 
 export const deletePerson = (id: string, createdBy?: string): Promise<void> =>
