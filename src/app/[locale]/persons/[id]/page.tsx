@@ -301,10 +301,9 @@ export default function PersonDetailPage() {
                       const rawPedigree = isParentGroup
                         ? (p as ParentInfo).pedigree
                         : group === "siblings" ? (p as SiblingInfo).pedigree : undefined;
-                      // Normalise for display: foster→birth (removed), step stays step for parents,
-                      // step→half for siblings.
+                      // Normalise for display: step stays step for parents; step→half for siblings.
                       const displayPedigree = isParentGroup
-                        ? (rawPedigree === "foster" ? "birth" : (rawPedigree ?? "birth"))
+                        ? (rawPedigree ?? "birth")
                         : (rawPedigree === "step" || rawPedigree === "half" ? "half"
                            : rawPedigree === "adopted" ? "adopted" : "birth");
                       const pickerOptions: Pedigree[] = isParentGroup
