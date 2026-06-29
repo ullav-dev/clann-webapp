@@ -623,8 +623,6 @@
     "redirecting": "Ag atreorú…",
     "loadError": "Níorbh fhéidir sonraí liostála a luchtú.",
     "portalError": "Níorbh fhéidir an tairseach billeála a oscailt.",
-    "helpText": "Ceisteanna faoin mbilleáil?",
-    "helpLink": "Féach ar chabhrú",
     "profileHeading": "Próifíl",
     "avatarUrl": "URL Avatar",
     "useGravatar": "Úsáid Gravatar",
@@ -635,7 +633,17 @@
     "profileSave": "Sábháil Athruithe",
     "profileSaving": "Ag sábháil…",
     "profileSaved": "Sábháilte",
-    "profileSaveError": "Níorbh fhéidir an phróifíl a shábháil. Bain triail eile as."
+    "profileSaveError": "Níorbh fhéidir an phróifíl a shábháil. Bain triail eile as.",
+    "changePasswordHeading": "Athraigh Pasfhocal",
+    "currentPassword": "Pasfhocal Reatha",
+    "newPassword": "Pasfhocal Nua",
+    "confirmNewPassword": "Deimhnigh Pasfhocal Nua",
+    "changePasswordBtn": "Athraigh Pasfhocal",
+    "changingPassword": "Ag athrú…",
+    "passwordChanged": "Pasfhocal athraithe",
+    "passwordChangeFailed": "Níorbh fhéidir an pasfhocal a athrú. Bain triail eile as.",
+    "passwordsMustMatch": "Ní mheaitseálann na pasfhocail",
+    "passwordTooShort": "Caithfidh an pasfhocal a bheith ar a laghad 8 carachtar"
   },
   "lifeEvents": {
     "tabLabel": "📅 Imeachtaí Saoil",

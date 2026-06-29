@@ -623,8 +623,6 @@
     "redirecting": "Redirecting…",
     "loadError": "Could not load subscription details.",
     "portalError": "Could not open billing portal. Please try again.",
-    "helpText": "Questions about billing?",
-    "helpLink": "View help",
     "profileHeading": "Profile",
     "avatarUrl": "Avatar URL",
     "useGravatar": "Use Gravatar",
@@ -635,7 +633,17 @@
     "profileSave": "Save Changes",
     "profileSaving": "Saving…",
     "profileSaved": "Saved",
-    "profileSaveError": "Could not save profile. Please try again."
+    "profileSaveError": "Could not save profile. Please try again.",
+    "changePasswordHeading": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "changePasswordBtn": "Change Password",
+    "changingPassword": "Changing…",
+    "passwordChanged": "Password changed",
+    "passwordChangeFailed": "Could not change password. Please try again.",
+    "passwordsMustMatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters"
   },
   "lifeEvents": {
     "tabLabel": "📅 Life Events",
