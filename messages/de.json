@@ -212,6 +212,8 @@
     "noneRecorded": "Nicht erfasst",
     "pedigree_adopted": "adoptiert",
     "pedigree_half": "Halb",
+    "pedigree_step": "Halb",
+    "pedigree_foster": "adoptiert",
     "removeRelationship": "Beziehung entfernen",
     "editPedigree": "Beziehungstyp ändern",
     "pedigree_birth": "Biologisch",

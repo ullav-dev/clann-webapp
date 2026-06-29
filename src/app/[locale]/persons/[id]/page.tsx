@@ -331,13 +331,13 @@ export default function PersonDetailPage() {
                             <div className="mt-2 pt-2 border-t border-stone-100">
                               <p className="text-xs text-stone-500 mb-1.5">{t("editPedigree")}</p>
                               <div className="flex flex-wrap gap-1.5">
-                                {(["birth", "adopted", "step", "foster"] as Pedigree[]).map((pg) => (
+                                {(["birth", "adopted", "half"] as Pedigree[]).map((pg) => (
                                   <button
                                     key={pg}
                                     type="button"
                                     onClick={() => handleChangePedigree(group, p as ParentInfo | SiblingInfo, pg)}
                                     className={`px-2 py-1 rounded text-xs font-medium transition-colors border ${
-                                      pedigree === pg
+                                      (pedigree === pg || (pg === "half" && pedigree === "step") || (pg === "adopted" && pedigree === "foster"))
                                         ? "bg-emerald-700 text-white border-emerald-700"
                                         : "border-stone-300 text-stone-600 hover:border-emerald-400"
                                     }`}

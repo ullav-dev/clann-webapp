@@ -212,6 +212,8 @@
     "noneRecorded": "Gan taifead",
     "pedigree_adopted": "uchtaithe",
     "pedigree_half": "Leath",
+    "pedigree_step": "Leath",
+    "pedigree_foster": "uchtaithe",
     "removeRelationship": "Bain caidreamh",
     "editPedigree": "Athraigh cineál caidrimh",
     "pedigree_birth": "Bitheolaíoch",

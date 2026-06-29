@@ -34,7 +34,7 @@ type NodeData = {
   sex: string;
   role: Role;
   /** Pedigree qualifier — set on sibling, father, and mother nodes for non-birth relationships */
-  pedigree?: "birth" | "adopted" | "half" | null;
+  pedigree?: "birth" | "adopted" | "half" | "step" | "foster" | null;
   dob?: string;
   placeOfBirth?: string | null;
   biography?: string | null;
@@ -53,6 +53,16 @@ const ROLE_STYLES: Record<Role, { border: string; bg: string; text: string; hand
   sibling: { border: "border-teal-400",    bg: "bg-teal-50",     text: "text-teal-800",    handle: "!bg-teal-400"    },
 };
 
+// Map legacy pedigree values from pre-PR#101 database rows to their display equivalents.
+// "step" → "half", "foster" → "adopted". New rows already use the correct values.
+function normalisePedigree(p: string | null | undefined): "birth" | "adopted" | "half" {
+  if (p === "step")   return "half";
+  if (p === "foster") return "adopted";
+  if (p === "adopted") return "adopted";
+  if (p === "half")    return "half";
+  return "birth";
+}
+
 // ── Custom person node ───────────────────────────────────────────────────────
 
 function PersonNode({ data }: NodeProps) {
@@ -69,7 +79,7 @@ function PersonNode({ data }: NodeProps) {
 
   const isRoot = d.role === "root";
   const showsPedigree = d.role === "sibling" || d.role === "father" || d.role === "mother";
-  const pedigreeValue = showsPedigree ? (d.pedigree ?? "birth") : null;
+  const pedigreeValue = showsPedigree ? normalisePedigree(d.pedigree) : null;
   const pedigreeBadge: Record<string, { label: string; cls: string }> = {
     half:    { label: "½",      cls: "bg-orange-400 text-white" },
     adopted: { label: "A",      cls: "bg-sky-500 text-white"    },
@@ -189,7 +199,7 @@ function buildGraph(
       name: [node.first_name, node.family_name].join(" "),
       sex: node.sex ?? "Male",
       role,
-      pedigree: node.pedigree ?? null,
+      pedigree: normalisePedigree(node.pedigree),
       dob: node.date_of_birth ?? undefined,
       placeOfBirth: node.place_of_birth ?? null,
       biography: node.biography ?? null,
@@ -225,7 +235,7 @@ function buildGraph(
     buildGraph(p, px, py, nodes, edges, orientation, parentRole, visited, photoVersions);
 
     const edgeColor = parentRole === "father" ? "#93c5fd" : "#fda4af"; // blue-300 / rose-300
-    const pedigree = p.pedigree ?? "birth";
+    const pedigree = normalisePedigree(p.pedigree);
     const pedigreeStyle =
       pedigree === "adopted" ? { strokeDasharray: "6 3" } :
       pedigree === "half"    ? { strokeDasharray: "2 4" } :
@@ -258,7 +268,7 @@ function buildGraph(
     buildGraph(child, px, py, nodes, edges, orientation, "child", visited, photoVersions);
 
     const edgeColor = "#fcd34d"; // amber-300
-    const childPed = child.pedigree ?? "birth";
+    const childPed = normalisePedigree(child.pedigree);
     const childStyle =
       childPed === "adopted" ? { strokeDasharray: "6 3" } :
       childPed === "half"    ? { strokeDasharray: "2 4" } :
@@ -426,8 +436,8 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
 
     if (showSiblings) {
       const allSibs = tree.siblings ?? [];
-      const birthSibs   = allSibs.filter(s => (s.pedigree ?? "birth") === "birth");
-      const nonBirthSibs = allSibs.filter(s => (s.pedigree ?? "birth") !== "birth");
+      const birthSibs   = allSibs.filter(s => normalisePedigree(s.pedigree) === "birth");
+      const nonBirthSibs = allSibs.filter(s => normalisePedigree(s.pedigree) !== "birth");
       const nBirthSibs  = birthSibs.length;
       const nChildren   = (tree.children ?? []).length;
 
@@ -443,7 +453,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
             name: [sib.first_name, sib.family_name].join(" "),
             sex: sib.sex ?? "Male",
             role: "sibling" as Role,
-            pedigree: sib.pedigree ?? "birth",
+            pedigree: normalisePedigree(sib.pedigree),
             dob: sib.date_of_birth ?? undefined,
             placeOfBirth: sib.place_of_birth ?? null,
             biography: sib.biography ?? null,
@@ -495,7 +505,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
               if (visited.has(sib.id)) return;
               visited.add(sib.id);
               addSibNode(sib, xCursor - j * X_GAP, 2 * Y_GAP);
-              const sibPed = sib.pedigree ?? "birth";
+              const sibPed = normalisePedigree(sib.pedigree);
               const sibStyle =
                 sibPed === "half"    ? { strokeDasharray: "2 4" } :
                 sibPed === "adopted" ? { strokeDasharray: "6 3" } : {};
@@ -518,7 +528,7 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
               if (visited.has(sib.id)) return;
               visited.add(sib.id);
               addSibNode(sib, 0, -(yOffset + j) * Y_GAP);
-              const sibPed = sib.pedigree ?? "birth";
+              const sibPed = normalisePedigree(sib.pedigree);
               const sibStyle =
                 sibPed === "half"    ? { strokeDasharray: "2 4" } :
                 sibPed === "adopted" ? { strokeDasharray: "6 3" } : {};
@@ -542,14 +552,14 @@ export default function FamilyTreeView({ tree, photoVersions }: Props) {
   const hasNonBirth = useMemo(() => {
     function check(node: FamilyTreeNode): boolean {
       for (const p of [...(node.father ?? []), ...(node.mother ?? [])]) {
-        if (p.pedigree && p.pedigree !== "birth") return true;
+        if (normalisePedigree(p.pedigree) !== "birth") return true;
         if (check(p)) return true;
       }
       for (const c of node.children ?? []) {
-        if (c.pedigree && c.pedigree !== "birth") return true;
+        if (normalisePedigree(c.pedigree) !== "birth") return true;
       }
       for (const s of node.siblings ?? []) {
-        if (s.pedigree && s.pedigree !== "birth") return true;
+        if (normalisePedigree(s.pedigree) !== "birth") return true;
       }
       return false;
     }

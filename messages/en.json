@@ -212,6 +212,8 @@
     "noneRecorded": "None recorded",
     "pedigree_adopted": "adopted",
     "pedigree_half": "half",
+    "pedigree_step": "half",
+    "pedigree_foster": "adopted",
     "removeRelationship": "Remove relationship",
     "editPedigree": "Change relationship type",
     "pedigree_birth": "Biological",
