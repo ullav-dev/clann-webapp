@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useApi } from "@/hooks/useApi";
 import { updateCanonical } from "@/lib/api";
-import type { Person, UpdatePerson } from "@/lib/types";
+import type { Person, UpdatePerson, UpdateCanonicalPerson } from "@/lib/types";
 import PersonForm from "@/components/PersonForm";
 import { fullName } from "@/components/PersonCard";
 
@@ -22,7 +22,7 @@ export default function EditPersonPage() {
     api.getPerson(id).then(setPerson).finally(() => setLoading(false));
   }, [id]);
 
-  async function handleSubmit(values: UpdatePerson) {
+  async function handleSubmit(values: UpdateCanonicalPerson & UpdatePerson) {
     // Canonical facts (name, sex, dates) go to PATCH /canonical;
     // proxy overrides (nickname, biography, etc.) go to PUT /{id}.
     const { family_name, first_name, middle_name, sex, date_of_birth, date_of_death,
