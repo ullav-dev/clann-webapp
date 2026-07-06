@@ -23,6 +23,13 @@ export interface AssetWithCategories extends Asset {
   categories: Category[];
 }
 
+interface AssetPage {
+  items: Asset[];
+  total: number;
+  page: number;
+  per_page: number;
+}
+
 export interface Category {
   id: string;
   name: string;
@@ -62,7 +69,22 @@ export function createDamClient(base: string, token: string) {
   }
 
   return {
-    listAssets: (): Promise<Asset[]> => get("/assets"),
+    // GET /assets is server-paginated (max 200 per page). This component still
+    // does its own client-side search/sort/category filtering over the full
+    // set, so page through the backend here and flatten back to a plain array
+    // to keep that contract.
+    listAssets: async (): Promise<Asset[]> => {
+      const perPage = 200;
+      let page = 1;
+      const all: Asset[] = [];
+      for (;;) {
+        const { items, total }: AssetPage = await get(`/assets?page=${page}&per_page=${perPage}`);
+        all.push(...items);
+        if (all.length >= total || items.length === 0) break;
+        page += 1;
+      }
+      return all;
+    },
     listCategories: (): Promise<Category[]> => get("/categories"),
     getAsset: (id: string): Promise<AssetWithCategories> => get(`/assets/${id}`),
     thumbnailUrl: (id: string): string => `${base}/assets/${id}/thumbnail`,
