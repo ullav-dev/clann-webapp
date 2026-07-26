@@ -50,7 +50,7 @@ A responsive, localised family tree management application built with Next.js, b
 npm install
 
 # Create environment file
-printf "API_URL=http://localhost:3000\nAUTH_URL=http://localhost:8081\nDAM_URL=http://localhost:8080\n" > .env.local
+printf "API_URL=http://localhost:3000\nAUTH_URL=http://localhost:8081\nDAM_URL=http://localhost:8080\nDAM_BROWSER_URL=http://localhost:3002\n" > .env.local
 
 # Start the development server (port 3001)
 npm run dev
@@ -81,9 +81,10 @@ Copy `.env.prod` and fill in the internal Docker service addresses:
 API_URL=http://clann-server:3001
 AUTH_URL=http://ullav-auth:8081
 DAM_URL=http://ullav-dam-server:8080
+DAM_BROWSER_URL=http://ullav-dam-browser:3002
 ```
 
-> **Note:** Use plain `API_URL` / `AUTH_URL` / `DAM_URL`, **not** `NEXT_PUBLIC_*` variants — plain env vars cannot be set at runtime. The defaults already point to the correct Docker service names, so these vars are only needed if your service names differ. `NEXT_PUBLIC_IDLE_TIMEOUT_MS` is the exception: it **is** a `NEXT_PUBLIC_*` var and must be set at build time if you want a non-default timeout.
+> **Note:** Use plain `API_URL` / `AUTH_URL` / `DAM_URL` / `DAM_BROWSER_URL`, **not** `NEXT_PUBLIC_*` variants — plain env vars cannot be set at runtime. The defaults already point to the correct Docker service names, so these vars are only needed if your service names differ. `DAM_BROWSER_URL` has no default of its own — the app falls back to `https://comad.ullav.com` when it is unset. `NEXT_PUBLIC_IDLE_TIMEOUT_MS` is the exception: it **is** a `NEXT_PUBLIC_*` var and must be set at build time if you want a non-default timeout.
 >
 > **`SETTINGS_ENCRYPTION_KEY`** — required for the AI Research Assistant. Set to a random 32-character string in production. The default (`clann-dev-key-change-in-production!!`) is intentionally weak — always override in `.env.prod`.
 
