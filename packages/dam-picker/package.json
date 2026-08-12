@@ -1,6 +1,6 @@
 {
   "name": "@ullav-dev/dam-picker",
-  "version": "0.1.0",
+  "version": "26.2.0",
   "description": "Embeddable read-only DAM asset picker for Next.js apps",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
