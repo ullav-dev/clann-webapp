@@ -2,7 +2,6 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package*.json .npmrc ./
-COPY packages/ ./packages/
 RUN --mount=type=secret,id=npm_token \
     NODE_AUTH_TOKEN=$(cat /run/secrets/npm_token) npm ci
 
