@@ -21,7 +21,7 @@
     "@ai-sdk/react": "^3.0.170",
     "@tailwindcss/typography": "^0.5.19",
     "@uiw/react-md-editor": "^4.1.1",
-    "@ullav/dam-picker": "file:./packages/dam-picker",
+    "@ullav-dev/dam-picker": "*",
     "@xyflow/react": "^12.10.1",
     "ai": "^6.0.168",
     "html-to-image": "^1.11.13",
