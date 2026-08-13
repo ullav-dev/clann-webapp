@@ -6,8 +6,8 @@ import type { CreatePerson, UpdatePerson, Sex, Person } from "@/lib/types";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApi } from "@/hooks/useApi";
-import { DamPicker } from "@ullav/dam-picker";
-import type { PickedAsset } from "@ullav/dam-picker";
+import { DamPicker } from "@ullav-dev/dam-picker";
+import type { PickedAsset } from "@ullav-dev/dam-picker";
 import { fullName, personIcon } from "@/components/PersonCard";
 
 type FormValues = {

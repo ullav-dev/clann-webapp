@@ -7,9 +7,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { DamPicker } from "@ullav/dam-picker";
-import type { PickedAsset } from "@ullav/dam-picker";
-import type { Asset } from "@ullav/dam-picker";
+import { DamPicker } from "@ullav-dev/dam-picker";
+import type { PickedAsset } from "@ullav-dev/dam-picker";
+import type { Asset } from "@ullav-dev/dam-picker";
 
 interface Props {
   token: string;
