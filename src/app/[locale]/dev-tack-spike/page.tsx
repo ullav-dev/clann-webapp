@@ -4,10 +4,9 @@
 // (/Users/colin/.claude/plans/linked-roaming-rabbit.md, "Frontend
 // integration" -- "confirmed with a small throwaway integration spike in
 // Phase 0, not asserted from the doc alone"). Not linked from any nav; not
-// i18n'd (translator below is a hardcoded stub, not next-intl -- the real
-// audit is Task #14); not meant to survive past Phase 0 sign-off. Delete
-// this route once `TackNotesPanel`'s extension points are confirmed
-// sufficient and Task #13 is checked off.
+// meant to survive past Phase 0 sign-off. Delete this route once
+// `TackNotesPanel`'s extension points are confirmed sufficient and Tasks
+// #13/#14 are checked off.
 //
 // Purpose: typecheck + render `TackNotesPanel` against
 // `createClannTackNotesApi` (src/lib/tack-notes-adapter.ts) with the actual
@@ -17,48 +16,44 @@
 // `shared-by-me`/`shared-by-others` `filterChips` reproducing
 // `ResearchPage.tsx`'s old virtual smart-folders. Proves no new package
 // capability is needed, per the plan.
+//
+// `t` below is the real `next-intl` `notes` namespace (messages/{en,de,ga}.
+// json), not a stub -- this doubles as the live check for Task #14's i18n
+// audit: every key `TackNotesPanel`/`TackNoteThread` call is now a real,
+// translated string in all three locales, seeded from togra's own
+// `NotesPanel` catalogue (the closest existing production consumer of this
+// exact component), not re-derived from scratch.
+//
+// `currentUserId={user.username}` (not `user.id`) -- see
+// tack-notes-adapter.ts's own "IDENTITY" doc comment: `research_note.
+// created_by` holds a username today, not a UUID, and TackNoteThread's
+// ownership check compares `note.created_by === currentUserId` directly, so
+// both this prop and the adapter's own `currentUsername` param must agree
+// with what `toNote` actually put in `created_by`.
+//
+// `listMode="team"` (not the default "entity") -- required for
+// `filterChips` to route through `api.listNotes`'s `filterKey`, which is
+// what the adapter's shared-by-me/shared-by-others logic actually
+// implements. The default "entity" mode filters client-side via each
+// chip's own `predicate` instead (unset below), which would make every
+// chip here a silent no-op.
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
 import { createClannTackNotesApi } from "@/lib/tack-notes-adapter";
 import { NoteEventsProvider, TackNotesPanel, type FilterChip, type Note } from "@ullav-dev/tack-notes";
 
-// Minimal stub translator covering the key superset TackNotesPanel/
-// TackNoteThread actually call (see @ullav-dev/tack-notes's own README) --
-// not the real per-locale catalogue, see this file's own doc comment.
-const STUB_STRINGS: Record<string, string> = {
-  addNote: "Add note", backToList: "Back", cancel: "Cancel", close: "Close",
-  createVersion: "Create version", delete: "Delete", deleteCancel: "Cancel",
-  deleteConfirm: "Delete", deleteFolder: "Delete folder", deleteNote: "Delete note",
-  deleteNoteConfirmBody: "This can't be undone.", deleteNoteConfirmTitle: "Delete this note?",
-  deleteVersionConfirm: "Delete version", edit: "Edit", editedBy: "Edited by {name}",
-  editedSinceSave: "Edited since you started", exportHtml: "Export HTML",
-  exportMarkdown: "Export Markdown", exportOldVersionConfirm: "Export anyway",
-  exportOldVersionConfirmBody: "You're viewing an old version.", exportOldVersionConfirmTitle: "Export old version?",
-  exportPdf: "Export PDF", folderFilterAll: "All", folderFilterMine: "Mine",
-  folderFilterShared: "Shared", folderUnfiled: "Unfiled", history: "History",
-  loading: "Loading…", newFolder: "New folder", newFolderName: "Folder name",
-  newNote: "New note", noNotes: "No notes yet", nothingToPreview: "Nothing to preview",
-  olderReplies: "Older replies", preview: "Preview", renameFolder: "Rename folder",
-  reply: "Reply", replyPlaceholder: "Write a reply…", save: "Save", saving: "Saving…",
-  selectNote: "Select a note", showLatest: "Show latest", titlePlaceholder: "Title",
-  unread: "Unread", untitled: "Untitled", untitledNote: "Untitled note",
-  version: "Version", versionCreated: "Version created", versionHistory: "Version history",
-  viewThisVersion: "View this version", viewingOldVersion: "Viewing an old version",
-  write: "Write", "visibility.organization": "Organization", "visibility.private": "Private",
-  "visibility.team": "Team",
-};
-const stubT = (key: string) => STUB_STRINGS[key] ?? key;
-
 export default function DevTackSpikePage() {
+  const t = useTranslations("notes");
   const { user, token } = useAuth();
   const { activeTree } = useTree();
   const [description, setDescription] = useState("");
 
   const api = useMemo(() => {
     if (!token || !user || !activeTree) return null;
-    return createClannTackNotesApi(token, activeTree.team_id ?? null, user.id, activeTree.name);
+    return createClannTackNotesApi(token, activeTree.team_id ?? null, user.username, activeTree.name);
   }, [token, user, activeTree]);
 
   const filterChips: FilterChip[] = [
@@ -83,7 +78,7 @@ export default function DevTackSpikePage() {
           entityType="tree"
           entityId={activeTree.name}
           teamId={activeTree.team_id ?? ""}
-          currentUserId={user.id}
+          currentUserId={user.username}
           // NEVER Clann's tack-admin concept -- see the plan's explicit
           // warning that this must never be tack's own `is_admin` (a hard
           // ACL bypass on tack-server's side). Hardcoded false in this
@@ -91,8 +86,9 @@ export default function DevTackSpikePage() {
           // check here, still never tack's.
           isAdmin={false}
           resolveAuthor={(userId) => userId}
-          t={stubT}
+          t={t}
           folderScope="team"
+          listMode="team"
           filterChips={filterChips}
           renderComposerExtra={(_mode, note: Note | undefined) => (
             <div className="mt-2">

@@ -18,6 +18,13 @@
 // and `GET /api/notes?tree=` actually key on today), not yet the resolved
 // `family_tree` UUID the plan's data-model mapping calls for post-backfill
 // -- that switch happens once Phase 3's frontend cutover lands for real.
+// DECIDED: the canonical `content_attachments.entity_id` the Phase 1
+// backfill writes is the `family_tree` UUID, not the name slug, even though
+// the slug is itself uniquely indexed and would also work as a key -- a
+// slug is renameable (`renameTree`) and a UUID isn't, and the backfill
+// writing one while the frontend reads the other would be a silent
+// zero-results bug at Phase 3, so this must be pinned before Phase B writes
+// a single attachment, not discovered after.
 //
 // This is a *hybrid* adapter, not a plain `createTackNotesApi` pointed at
 // clann-server's base URL, for the same two reasons the plan's
@@ -44,6 +51,24 @@
 // below reproduce that scoping client-side, same reasoning as
 // `ullav-collection-browser/src/lib/tack-notes-adapter.ts`'s own doc
 // comment on this exact point.
+//
+// IDENTITY: `research_note.created_by`/`research_folder.created_by` hold the
+// UUM *username* (verified directly -- `ResearchPage.tsx` sends `user.
+// username`, and `research_note.rs`'s handlers write whatever string the
+// client sends with no server-side override; `ClannAuth.username` is the
+// same JWT-claim value). tack's own `Note.created_by` is a UUID. This
+// adapter's `currentUsername` param and every `created_by` comparison/write
+// below is therefore a *username*, not the UUID `currentUserId` prop the
+// host page also passes to `TackNotesPanel` for the same reason (ownership
+// checks compare `note.created_by === currentUserId` inside the package) --
+// see dev-tack-spike/page.tsx, which passes `user.username` to both places,
+// not `user.id`. This is a real, interim mismatch against tack's actual
+// schema, not a stylistic choice: Phase 1's backfill needs a
+// username -> UUM-UUID resolution map (`GET /admin/users?search=`, filtered
+// to an exact case-insensitive match -- `username` is UNIQUE) before a
+// single note can be written to tack-server for real. Once clann-server's
+// own handlers are repointed at tack-server (Phase 2/3), this adapter's
+// wire contract goes back to a real UUID and this whole comment goes away.
 
 import {
   createFolder as apiCreateFolder,
@@ -124,7 +149,7 @@ function paginate<T>(items: T[], limit?: number, offset?: number): { items: T[];
   return { items: page, total, has_more: o + page.length < total };
 }
 
-/** `token`/`teamId`/`currentUserId`/`treeId` are captured at creation time,
+/** `token`/`teamId`/`currentUsername`/`treeId` are captured at creation time,
  *  matching `createTackNotesApi`'s own shape -- callers rebuild this per
  *  token/team/user/tree change (e.g. in a `useMemo`), same as every other
  *  app's NotesPanel wrapper does for its own API client.
@@ -137,7 +162,7 @@ function paginate<T>(items: T[], limit?: number, offset?: number): { items: T[];
 export function createClannTackNotesApi(
   token: string,
   teamId: string | null,
-  currentUserId: string,
+  currentUsername: string,
   treeId: string
 ): TackNotesApi {
   // Pure-tack features clann-server has no reason to wrap -- see this
@@ -151,13 +176,13 @@ export function createClannTackNotesApi(
       const all = await apiListResearchNotes(treeId);
       let filtered: ResearchNote[];
       if (opts?.filterKey === ("shared-by-me" satisfies ClannFilterKey)) {
-        filtered = all.filter((n) => n.is_shared && n.created_by === currentUserId);
+        filtered = all.filter((n) => n.is_shared && n.created_by === currentUsername);
       } else if (opts?.filterKey === ("shared-by-others" satisfies ClannFilterKey)) {
-        filtered = all.filter((n) => n.is_shared && n.created_by !== currentUserId);
+        filtered = all.filter((n) => n.is_shared && n.created_by !== currentUsername);
       } else if (opts?.unfiled) {
-        filtered = all.filter((n) => !n.folder_id && n.created_by === currentUserId);
+        filtered = all.filter((n) => !n.folder_id && n.created_by === currentUsername);
       } else if (opts?.folderId) {
-        filtered = all.filter((n) => n.folder_id === opts.folderId && n.created_by === currentUserId);
+        filtered = all.filter((n) => n.folder_id === opts.folderId && n.created_by === currentUsername);
       } else {
         filtered = all;
       }
@@ -178,7 +203,7 @@ export function createClannTackNotesApi(
         body: payload.body_markdown,
         trees: [treeId],
         folder_id: payload.folder_id ?? null,
-        created_by: currentUserId,
+        created_by: currentUsername,
         is_shared: payload.visibility !== "private",
       });
       return toNote(created, teamId);
@@ -216,20 +241,20 @@ export function createClannTackNotesApi(
     async createReply(id, bodyMarkdown) {
       const reply = await apiCreateNoteReply(id, {
         body: bodyMarkdown,
-        created_by: currentUserId,
+        created_by: currentUsername,
         trees: [treeId],
       });
       return toNote(reply, teamId);
     },
 
     async listNoteFolders(_teamId, opts) {
-      const [folders, notes] = await Promise.all([apiListFolders(currentUserId), apiListResearchNotes(treeId)]);
+      const [folders, notes] = await Promise.all([apiListFolders(currentUsername), apiListResearchNotes(treeId)]);
       const counts = new Map<string, number>();
       for (const n of notes) {
         // Real folders are a personal organizing tool here (see this
         // file's own doc comment) -- a folder's count is always scoped to
         // its own owner, same as `listNotes` above.
-        if (n.folder_id && n.created_by === currentUserId) counts.set(n.folder_id, (counts.get(n.folder_id) ?? 0) + 1);
+        if (n.folder_id && n.created_by === currentUsername) counts.set(n.folder_id, (counts.get(n.folder_id) ?? 0) + 1);
       }
       const { items, total } = paginate(folders, opts?.limit, opts?.offset);
       const page: NoteFoldersPage = {
@@ -240,7 +265,7 @@ export function createClannTackNotesApi(
     },
 
     async createNoteFolder(payload) {
-      const created = await apiCreateFolder(payload.name, currentUserId);
+      const created = await apiCreateFolder(payload.name, currentUsername);
       return toNoteFolder(created, teamId, 0);
     },
 
