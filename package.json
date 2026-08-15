@@ -22,6 +22,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@uiw/react-md-editor": "^4.1.1",
     "@ullav-dev/dam-picker": "*",
+    "@ullav-dev/tack-notes": "*",
     "@xyflow/react": "^12.10.1",
     "ai": "^6.0.168",
     "html-to-image": "^1.11.13",
