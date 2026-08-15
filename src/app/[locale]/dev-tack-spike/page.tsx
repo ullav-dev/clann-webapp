@@ -4,10 +4,9 @@
 // (/Users/colin/.claude/plans/linked-roaming-rabbit.md, "Frontend
 // integration" -- "confirmed with a small throwaway integration spike in
 // Phase 0, not asserted from the doc alone"). Not linked from any nav; not
-// i18n'd (translator below is a hardcoded stub, not next-intl -- the real
-// audit is Task #14); not meant to survive past Phase 0 sign-off. Delete
-// this route once `TackNotesPanel`'s extension points are confirmed
-// sufficient and Task #13 is checked off.
+// meant to survive past Phase 0 sign-off. Delete this route once
+// `TackNotesPanel`'s extension points are confirmed sufficient and Tasks
+// #13/#14 are checked off.
 //
 // Purpose: typecheck + render `TackNotesPanel` against
 // `createClannTackNotesApi` (src/lib/tack-notes-adapter.ts) with the actual
@@ -17,41 +16,23 @@
 // `shared-by-me`/`shared-by-others` `filterChips` reproducing
 // `ResearchPage.tsx`'s old virtual smart-folders. Proves no new package
 // capability is needed, per the plan.
+//
+// `t` below is the real `next-intl` `notes` namespace (messages/{en,de,ga}.
+// json), not a stub -- this doubles as the live check for Task #14's i18n
+// audit: every key `TackNotesPanel`/`TackNoteThread` call is now a real,
+// translated string in all three locales, seeded from togra's own
+// `NotesPanel` catalogue (the closest existing production consumer of this
+// exact component), not re-derived from scratch.
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTree } from "@/contexts/TreeContext";
 import { createClannTackNotesApi } from "@/lib/tack-notes-adapter";
 import { NoteEventsProvider, TackNotesPanel, type FilterChip, type Note } from "@ullav-dev/tack-notes";
 
-// Minimal stub translator covering the key superset TackNotesPanel/
-// TackNoteThread actually call (see @ullav-dev/tack-notes's own README) --
-// not the real per-locale catalogue, see this file's own doc comment.
-const STUB_STRINGS: Record<string, string> = {
-  addNote: "Add note", backToList: "Back", cancel: "Cancel", close: "Close",
-  createVersion: "Create version", delete: "Delete", deleteCancel: "Cancel",
-  deleteConfirm: "Delete", deleteFolder: "Delete folder", deleteNote: "Delete note",
-  deleteNoteConfirmBody: "This can't be undone.", deleteNoteConfirmTitle: "Delete this note?",
-  deleteVersionConfirm: "Delete version", edit: "Edit", editedBy: "Edited by {name}",
-  editedSinceSave: "Edited since you started", exportHtml: "Export HTML",
-  exportMarkdown: "Export Markdown", exportOldVersionConfirm: "Export anyway",
-  exportOldVersionConfirmBody: "You're viewing an old version.", exportOldVersionConfirmTitle: "Export old version?",
-  exportPdf: "Export PDF", folderFilterAll: "All", folderFilterMine: "Mine",
-  folderFilterShared: "Shared", folderUnfiled: "Unfiled", history: "History",
-  loading: "Loading…", newFolder: "New folder", newFolderName: "Folder name",
-  newNote: "New note", noNotes: "No notes yet", nothingToPreview: "Nothing to preview",
-  olderReplies: "Older replies", preview: "Preview", renameFolder: "Rename folder",
-  reply: "Reply", replyPlaceholder: "Write a reply…", save: "Save", saving: "Saving…",
-  selectNote: "Select a note", showLatest: "Show latest", titlePlaceholder: "Title",
-  unread: "Unread", untitled: "Untitled", untitledNote: "Untitled note",
-  version: "Version", versionCreated: "Version created", versionHistory: "Version history",
-  viewThisVersion: "View this version", viewingOldVersion: "Viewing an old version",
-  write: "Write", "visibility.organization": "Organization", "visibility.private": "Private",
-  "visibility.team": "Team",
-};
-const stubT = (key: string) => STUB_STRINGS[key] ?? key;
-
 export default function DevTackSpikePage() {
+  const t = useTranslations("notes");
   const { user, token } = useAuth();
   const { activeTree } = useTree();
   const [description, setDescription] = useState("");
@@ -91,7 +72,7 @@ export default function DevTackSpikePage() {
           // check here, still never tack's.
           isAdmin={false}
           resolveAuthor={(userId) => userId}
-          t={stubT}
+          t={t}
           folderScope="team"
           filterChips={filterChips}
           renderComposerExtra={(_mode, note: Note | undefined) => (
