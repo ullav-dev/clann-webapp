@@ -32,6 +32,21 @@ function route(request: NextRequest): NextResponse {
     return NextResponse.next();
   }
 
+  // Proxy /api/tack/* → tack-server (strips /api/tack prefix). Must come
+  // before the general /api/* → clann-server rule below. Same "direct to
+  // tack-server, plain passthrough of the caller's own tack JWT" pattern
+  // as togra's/cunav's own /api/tack/* rule -- used only for the small set
+  // of purely tack-native features (revisions, unread, system principals)
+  // src/lib/tack-notes-adapter.ts delegates straight through; everything
+  // else routes via clann-server's own /api/* (see that adapter's own doc
+  // comment for why).
+  if (pathname.startsWith("/api/tack/")) {
+    const tackUrl = process.env.TACK_URL ?? "http://localhost:8087";
+    return NextResponse.rewrite(
+      new URL(pathname.slice("/api/tack".length) + search, tackUrl)
+    );
+  }
+
   // Proxy /api/* → clann-server (keeps /api prefix).
   // API_URL is read at request time so it can be set via runtime env vars.
   if (pathname.startsWith("/api/")) {
