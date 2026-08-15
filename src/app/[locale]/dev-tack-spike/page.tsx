@@ -23,6 +23,20 @@
 // translated string in all three locales, seeded from togra's own
 // `NotesPanel` catalogue (the closest existing production consumer of this
 // exact component), not re-derived from scratch.
+//
+// `currentUserId={user.username}` (not `user.id`) -- see
+// tack-notes-adapter.ts's own "IDENTITY" doc comment: `research_note.
+// created_by` holds a username today, not a UUID, and TackNoteThread's
+// ownership check compares `note.created_by === currentUserId` directly, so
+// both this prop and the adapter's own `currentUsername` param must agree
+// with what `toNote` actually put in `created_by`.
+//
+// `listMode="team"` (not the default "entity") -- required for
+// `filterChips` to route through `api.listNotes`'s `filterKey`, which is
+// what the adapter's shared-by-me/shared-by-others logic actually
+// implements. The default "entity" mode filters client-side via each
+// chip's own `predicate` instead (unset below), which would make every
+// chip here a silent no-op.
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -39,7 +53,7 @@ export default function DevTackSpikePage() {
 
   const api = useMemo(() => {
     if (!token || !user || !activeTree) return null;
-    return createClannTackNotesApi(token, activeTree.team_id ?? null, user.id, activeTree.name);
+    return createClannTackNotesApi(token, activeTree.team_id ?? null, user.username, activeTree.name);
   }, [token, user, activeTree]);
 
   const filterChips: FilterChip[] = [
@@ -64,7 +78,7 @@ export default function DevTackSpikePage() {
           entityType="tree"
           entityId={activeTree.name}
           teamId={activeTree.team_id ?? ""}
-          currentUserId={user.id}
+          currentUserId={user.username}
           // NEVER Clann's tack-admin concept -- see the plan's explicit
           // warning that this must never be tack's own `is_admin` (a hard
           // ACL bypass on tack-server's side). Hardcoded false in this
@@ -74,6 +88,7 @@ export default function DevTackSpikePage() {
           resolveAuthor={(userId) => userId}
           t={t}
           folderScope="team"
+          listMode="team"
           filterChips={filterChips}
           renderComposerExtra={(_mode, note: Note | undefined) => (
             <div className="mt-2">
