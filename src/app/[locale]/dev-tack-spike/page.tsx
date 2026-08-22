@@ -31,6 +31,22 @@
 // both this prop and the adapter's own `currentUsername` param must agree
 // with what `toNote` actually put in `created_by`.
 //
+// *** PHASE 3 CUTOVER TRAP (verified directly against TackNoteThread.tsx:172,
+// 253 -- `currentUserId === note.created_by`/`reply.created_by`, plain string
+// equality): once clann-server's handlers are repointed at tack-server, notes
+// come back with a real UUM UUID in `created_by` (the backfill resolved every
+// author to one), not a username. Both are `string`, so tsc/eslint/build/the
+// test suite all pass either way -- the failure is silent: every user stops
+// being recognized as the author of their own note, and every edit/delete
+// affordance disappears for everyone. `currentUserId` here and the adapter's
+// `currentUsername` param MUST flip to `user.id` in the exact same PR that
+// repoints the data source -- not before (breaks the still-live SurrealDB
+// path), not after (breaks ownership silently). `resolveAuthor={(userId) =>
+// userId}` below has the same trap in reverse: it echoes a username today,
+// but would echo a raw UUID into the UI post-cutover -- needs a real
+// roster/UUM lookup added at that same moment, not left as an identity
+// passthrough. ***
+//
 // `listMode="team"` (not the default "entity") -- required for
 // `filterChips` to route through `api.listNotes`'s `filterKey`, which is
 // what the adapter's shared-by-me/shared-by-others logic actually

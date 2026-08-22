@@ -69,6 +69,16 @@
 // single note can be written to tack-server for real. Once clann-server's
 // own handlers are repointed at tack-server (Phase 2/3), this adapter's
 // wire contract goes back to a real UUID and this whole comment goes away.
+//
+// *** PHASE 3 CUTOVER TRAP: this file's `currentUsername` param and every
+// `created_by` comparison/write in it must flip from username to `user.id`
+// (a real UUM UUID) in the SAME PR that repoints clann-server's handlers at
+// tack-server -- not a follow-up. TackNoteThread.tsx does plain string
+// equality (`note.created_by === currentUserId`); a username never matches
+// a UUID, both are `string` so nothing here catches it at build time, and
+// the failure is silent per-user loss of edit/delete affordances on their
+// own notes. See dev-tack-spike/page.tsx's matching warning at its
+// `currentUserId`/`resolveAuthor` props -- both call sites move together. ***
 
 import {
   createFolder as apiCreateFolder,
