@@ -316,43 +316,36 @@ export const updateLifeEvent = (eventId: string, body: UpdateLifeEvent): Promise
 export const deleteLifeEvent = (eventId: string): Promise<void> =>
   request(`/api/life-events/${rawEventId(eventId)}`, { method: "DELETE" });
 
-/** Strip the "research_note:" prefix, returning just the ULID part. */
-export function rawNoteId(id: string): string {
-  return id.startsWith("research_note:") ? id.slice(14) : id;
-}
-
-// Research Notes
-export const listResearchNotes = (tree?: string, createdBy?: string): Promise<ResearchNote[]> => {
-  const params = new URLSearchParams();
-  if (tree) params.set("tree", tree);
-  if (createdBy) params.set("created_by", createdBy);
-  const qs = params.toString();
-  return request(`/api/notes${qs ? `?${qs}` : ""}`);
-};
+// Research Notes — backed by tack-server via clann-server's `/api/notes/*`
+// (Phase 3 of the notes migration). `noteId` is a real tack note UUID now,
+// never prefixed — the old `rawNoteId` "research_note:"-stripping helper
+// this file used to export is gone, since there's nothing left to strip.
+export const listResearchNotes = (tree: string): Promise<ResearchNote[]> =>
+  request(`/api/notes?${new URLSearchParams({ tree }).toString()}`);
 
 export const createResearchNote = (body: CreateResearchNote): Promise<ResearchNote> =>
   request("/api/notes", { method: "POST", body: JSON.stringify(body) });
 
 export const getResearchNote = (noteId: string): Promise<ResearchNote> =>
-  request(`/api/notes/${rawNoteId(noteId)}`);
+  request(`/api/notes/${noteId}`);
 
 export const updateResearchNote = (noteId: string, body: UpdateResearchNote): Promise<ResearchNote> =>
-  request(`/api/notes/${rawNoteId(noteId)}`, { method: "PUT", body: JSON.stringify(body) });
+  request(`/api/notes/${noteId}`, { method: "PUT", body: JSON.stringify(body) });
 
 export const deleteResearchNote = (noteId: string): Promise<void> =>
-  request(`/api/notes/${rawNoteId(noteId)}`, { method: "DELETE" });
+  request(`/api/notes/${noteId}`, { method: "DELETE" });
 
 export const listNoteReplies = (noteId: string): Promise<ResearchNote[]> =>
-  request(`/api/notes/${rawNoteId(noteId)}/replies`);
+  request(`/api/notes/${noteId}/replies`);
 
 export const createNoteReply = (noteId: string, body: CreateNoteReply): Promise<ResearchNote> =>
-  request(`/api/notes/${rawNoteId(noteId)}/replies`, {
+  request(`/api/notes/${noteId}/replies`, {
     method: "POST",
     body: JSON.stringify(body),
   });
 
 export const setNoteFolder = (noteId: string, folderId: string | null): Promise<ResearchNote> =>
-  request(`/api/notes/${rawNoteId(noteId)}/folder`, {
+  request(`/api/notes/${noteId}/folder`, {
     method: "PATCH",
     body: JSON.stringify({ folder_id: folderId }),
   });
@@ -367,8 +360,11 @@ export const listFolders = (createdBy?: string): Promise<ResearchFolder[]> => {
   return request(`/api/folders${qs}`);
 };
 
-export const createFolder = (name: string, createdBy: string): Promise<ResearchFolder> =>
-  request("/api/folders", { method: "POST", body: JSON.stringify({ name, created_by: createdBy }) });
+// `createdBy` is no longer sent — clann-server always attributes a new
+// folder to the authenticated caller now (`ClannAuth::username`), the same
+// hardening applied to notes; a client-supplied value would be ignored.
+export const createFolder = (name: string): Promise<ResearchFolder> =>
+  request("/api/folders", { method: "POST", body: JSON.stringify({ name }) });
 
 export const renameFolder = (folderId: string, name: string): Promise<ResearchFolder> =>
   request(`/api/folders/${rawFolderId(folderId)}`, { method: "PATCH", body: JSON.stringify({ name }) });

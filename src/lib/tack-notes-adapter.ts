@@ -4,81 +4,68 @@
 // other app in the tack-server notes migration
 // (/Users/colin/.claude/plans/linked-roaming-rabbit.md).
 //
-// PHASE 0 STATUS: this is the Phase 0 "throwaway integration spike" the
-// plan calls for -- it exists to prove `TackNotesPanel`'s extension points
-// (`extra`, `filterChips`, `folderScope`, `renderComposerExtra`) are
-// sufficient for Clann's needs, typechecked against the real package, not
-// to be the final production wiring. It currently calls clann-server's
-// *existing* SurrealDB-backed `/api/notes`/`/api/folders` handlers
-// (research_note.rs), which are untouched so far -- Phase 2/3 of the plan
-// repoints clann-server's own handlers at tack-server via `tack_client.rs`
-// (already added, see clann-server PR #56) without needing any change to
-// this file's wire contract towards the frontend. `entityId`/`treeId`
-// below is therefore a tree's `name` slug (what `research_note.trees[]`
-// and `GET /api/notes?tree=` actually key on today), not yet the resolved
-// `family_tree` UUID the plan's data-model mapping calls for post-backfill
-// -- that switch happens once Phase 3's frontend cutover lands for real.
-// DECIDED: the canonical `content_attachments.entity_id` the Phase 1
-// backfill writes is the `family_tree` UUID, not the name slug, even though
-// the slug is itself uniquely indexed and would also work as a key -- a
-// slug is renameable (`renameTree`) and a UUID isn't, and the backfill
-// writing one while the frontend reads the other would be a silent
-// zero-results bug at Phase 3, so this must be pinned before Phase B writes
-// a single attachment, not discovered after.
+// PHASE 3 STATUS: this is the real, production wiring — clann-server's own
+// `/api/notes`/`/api/folders` handlers now call tack-server via
+// `tack_client.rs` (research_note.rs/research_folder.rs, "Design B": they
+// return tack-shaped JSON directly, a near-passthrough of tack's own
+// `Note` plus `description`), so this adapter is a thin reshape, not a
+// client-side ACL/filter layer the way the old Phase 0 spike version was.
+// `entityId`/`treeId` below is a tree's `name` slug — clann-server's real
+// `GET /api/notes?tree=` and `POST /api/notes`'s `tree` field both key on
+// the name, not the resolved `family_tree` UUID (confirmed directly
+// against `handlers::research_note::resolve_tree`).
 //
-// This is a *hybrid* adapter, not a plain `createTackNotesApi` pointed at
-// clann-server's base URL, for the same two reasons the plan's
-// "Architecture decision" section gives:
-// - `description` has no column in tack's `Note` schema -- carried here via
-//   the `extra` passthrough, exactly like Cartlann's own adapter does for
-//   its own `description`/`object_ids` extras.
-// - Clann's real visibility model is per-tree grants (owner/editor/viewer),
-//   not team membership -- `is_shared` maps to `visibility="team"` as a
-//   first approximation only; the per-tree ACL post-filter clann-server's
-//   own backend applies is the actual source of truth, not tack's ACL.
+// This is still a *hybrid* adapter, not a plain `createTackNotesApi`
+// pointed at clann-server's base URL, for one remaining reason:
+// `description` has no column in tack's own `Note` schema — carried here
+// via the `extra` passthrough (`ResearchNotesPanel`'s own
+// `renderComposerExtra`/`onBeforeSave`), same as Cartlann's adapter does
+// for its own `description`/`object_ids` extras. clann-server's own
+// `tack_note_meta` sidecar is what actually persists it server-side; this
+// file just carries it across the wire.
+//
+// Per-tree visibility, which the old Phase 0 spike's own doc comment
+// called out as a real ACL gap, is now enforced server-side
+// (`handlers::research_note::resolve_team_for_tree`, forwarding the
+// caller's own JWT — never an admin token, see `tack_client.rs`'s own doc
+// comment) — this adapter does no client-side filtering of its own.
 //
 // Pure-tack features with no Clann-specific meaning at all (revisions,
 // unread tracking, system principals) delegate straight to a real
 // `createTackNotesApi` bound to the same-origin `/api/tack/*` proxy (see
-// proxy.ts) -- these won't do anything useful until Phase 2/3 land, since
-// today's notes don't exist in tack-server at all, but they typecheck and
-// wire correctly now.
+// proxy.ts).
 //
-// Per-user folder scoping: `research_folder` is `created_by`+`name` UNIQUE
-// with no tree/entity reference of its own (verified directly against
-// clann-server's schema.surql) -- a personal organizing tool, same as
-// Cartlann's model, not a tree-shared one. `listNoteFolders`/`listNotes`
-// below reproduce that scoping client-side, same reasoning as
-// `ullav-collection-browser/src/lib/tack-notes-adapter.ts`'s own doc
-// comment on this exact point.
+// Folders: `research_folder` stays in SurrealDB as a personal-per-user name
+// registry (`created_by`+`name` UNIQUE, no tree/team column at all — see
+// clann-server's `models/research_folder.rs` doc comment) — a folder
+// resolves to a real tack folder only when a team note actually gets filed
+// into it, entirely server-side (`resolve_or_create_tack_folder`). This
+// adapter surfaces that personal registry via `folderScope="entity"`'s
+// `listNoteFoldersByAttachment`/`createNoteFolder`/etc. (owningService/
+// entityType/entityId args ignored — Clann's folders were never per-tree
+// scoped, even before this migration: `ResearchPage.tsx`'s old folder
+// sidebar listed the same personal set regardless of which tree was
+// active). **Known, deliberate regression** (flagged in the same PR as the
+// backend change that causes it, not discovered later): a personal
+// (team-less) note can never be filed into a folder — tack's own
+// `POST`/`PATCH /notes` reject it outright. Checked directly against the
+// last production dry-run: 5 of 6 real migrated notes are personal, so the
+// folder picker is a dead control for almost every real note today, until
+// a genuine per-user filing concept exists for tack.
 //
-// IDENTITY: `research_note.created_by`/`research_folder.created_by` hold the
-// UUM *username* (verified directly -- `ResearchPage.tsx` sends `user.
-// username`, and `research_note.rs`'s handlers write whatever string the
-// client sends with no server-side override; `ClannAuth.username` is the
-// same JWT-claim value). tack's own `Note.created_by` is a UUID. This
-// adapter's `currentUsername` param and every `created_by` comparison/write
-// below is therefore a *username*, not the UUID `currentUserId` prop the
-// host page also passes to `TackNotesPanel` for the same reason (ownership
-// checks compare `note.created_by === currentUserId` inside the package) --
-// see dev-tack-spike/page.tsx, which passes `user.username` to both places,
-// not `user.id`. This is a real, interim mismatch against tack's actual
-// schema, not a stylistic choice: Phase 1's backfill needs a
-// username -> UUM-UUID resolution map (`GET /admin/users?search=`, filtered
-// to an exact case-insensitive match -- `username` is UNIQUE) before a
-// single note can be written to tack-server for real. Once clann-server's
-// own handlers are repointed at tack-server (Phase 2/3), this adapter's
-// wire contract goes back to a real UUID and this whole comment goes away.
+// Folders stay username-keyed (`ClannAuth::username`, unrelated to tack's
+// UUID-keyed user identity) — `research_folder.created_by` was never part
+// of the identity flip below, since folders never round-trip through tack.
 //
-// *** PHASE 3 CUTOVER TRAP: this file's `currentUsername` param and every
-// `created_by` comparison/write in it must flip from username to `user.id`
-// (a real UUM UUID) in the SAME PR that repoints clann-server's handlers at
-// tack-server -- not a follow-up. TackNoteThread.tsx does plain string
-// equality (`note.created_by === currentUserId`); a username never matches
-// a UUID, both are `string` so nothing here catches it at build time, and
-// the failure is silent per-user loss of edit/delete affordances on their
-// own notes. See dev-tack-spike/page.tsx's matching warning at its
-// `currentUserId`/`resolveAuthor` props -- both call sites move together. ***
+// IDENTITY: `createNote`/`updateNote`/`createReply` below round-trip
+// through tack-server now, so `note.created_by` is a real UUM user UUID
+// (`ClannAuth::user_id`, enforced server-side — never client-supplied,
+// see `models/research_note.rs`'s own doc comment on this hardening).
+// This is the flip the old adapter's own "PHASE 3 CUTOVER TRAP" comment
+// pinned: `currentUserId` here (and every call site passing it in, see
+// `ResearchNotesPanel.tsx`) is `user.id`, not `user.username` — that flip
+// has now landed, in the same change as the handler repoint it was pinned
+// against.
 
 import {
   createFolder as apiCreateFolder,
@@ -99,40 +86,32 @@ import {
   createTackNotesApi,
   type Note,
   type NoteFolder,
-  type NoteFoldersPage,
-  type NotesPage,
   type TackNotesApi,
-  type Visibility,
 } from "@ullav-dev/tack-notes";
 
-/** `Note`, widened with the Clann-specific fields `@ullav-dev/tack-notes`
- * itself has no concept of -- same pattern as Cartlann's own `CartlannNote`.
- * Every note this adapter returns is actually one of these. */
+/** `Note`, widened with `description` — the one Clann-specific field
+ * `@ullav-dev/tack-notes` itself has no concept of. Every note this
+ * adapter returns is actually one of these. */
 export interface ClannNote extends Note {
   description: string | null;
-  trees: string[];
 }
 
-/** Mirrors `ResearchPage.tsx`'s old virtual smart-folders exactly. */
-export type ClannFilterKey = "shared-by-me" | "shared-by-others";
-
-function toNote(rn: ResearchNote, teamId: string | null): ClannNote {
+function toNote(rn: ResearchNote): ClannNote {
   return {
     id: rn.id,
     organization_id: "", // unused by any tack-notes component; clann-server's own API doesn't expose it
-    team_id: teamId,
-    parent_id: rn.parent_id ?? null,
-    folder_id: rn.folder_id ?? null,
-    visibility: (rn.is_shared ? "team" : "private") as Visibility,
+    team_id: rn.team_id,
+    parent_id: rn.parent_id,
+    folder_id: rn.folder_id,
+    visibility: rn.visibility,
     title: rn.title,
-    body_markdown: rn.body ?? "",
-    created_by: rn.created_by ?? "",
-    created_at: rn.created_at ?? "",
-    updated_at: rn.updated_at ?? rn.created_at ?? "",
-    reply_count: rn.reply_count ?? 0,
+    body_markdown: rn.body_markdown,
+    created_by: rn.created_by,
+    created_at: rn.created_at,
+    updated_at: rn.updated_at,
+    reply_count: rn.reply_count,
     in_reply_to_version: null,
-    description: rn.description ?? null,
-    trees: rn.trees,
+    description: rn.description,
   };
 }
 
@@ -151,58 +130,36 @@ function toNoteFolder(rf: ResearchFolder, teamId: string | null, noteCount: numb
   };
 }
 
-function paginate<T>(items: T[], limit?: number, offset?: number): { items: T[]; total: number; has_more: boolean } {
-  const total = items.length;
-  const o = offset ?? 0;
-  const l = limit ?? 25;
-  const page = items.slice(o, o + l);
-  return { items: page, total, has_more: o + page.length < total };
-}
-
-/** `token`/`teamId`/`currentUsername`/`treeId` are captured at creation time,
- *  matching `createTackNotesApi`'s own shape -- callers rebuild this per
- *  token/team/user/tree change (e.g. in a `useMemo`), same as every other
- *  app's NotesPanel wrapper does for its own API client.
+/** `token`/`currentUsername`/`treeName` are captured at creation time,
+ *  matching `createTackNotesApi`'s own shape — callers rebuild this per
+ *  token/user/tree change (e.g. in a `useMemo`).
  *
- *  `teamId` is the resolved `family_tree.team_id` (nullable -- a tree
- *  needn't belong to a team) purely for the `team_id` field on returned
- *  `Note`/`NoteFolder` objects; it plays no role in scoping requests today
- *  since clann-server's existing endpoints scope by tree, not by team (see
- *  this file's own doc comment on `treeId`/`entityId`). */
+ *  `currentUsername` is the caller's own UUM *username* — used only for
+ *  the personal-folder registry (`listFolders`/`createFolder`), which
+ *  stays username-keyed; it plays no role in note authorship, which the
+ *  server always derives from the caller's own JWT now (see this file's
+ *  own "IDENTITY" doc comment). */
 export function createClannTackNotesApi(
   token: string,
-  teamId: string | null,
   currentUsername: string,
-  treeId: string
+  treeName: string
 ): TackNotesApi {
-  // Pure-tack features clann-server has no reason to wrap -- see this
-  // file's own doc comment. `token` is unused here today (createTackNotesApi
-  // takes it directly) but kept as a parameter for signature parity with
-  // every other app's hybrid adapter.
+  // Pure-tack features clann-server has no reason to wrap — see this
+  // file's own doc comment.
   const direct = createTackNotesApi("/api/tack", token);
 
   return {
-    async listNotes(_teamId, opts) {
-      const all = await apiListResearchNotes(treeId);
-      let filtered: ResearchNote[];
-      if (opts?.filterKey === ("shared-by-me" satisfies ClannFilterKey)) {
-        filtered = all.filter((n) => n.is_shared && n.created_by === currentUsername);
-      } else if (opts?.filterKey === ("shared-by-others" satisfies ClannFilterKey)) {
-        filtered = all.filter((n) => n.is_shared && n.created_by !== currentUsername);
-      } else if (opts?.unfiled) {
-        filtered = all.filter((n) => !n.folder_id && n.created_by === currentUsername);
-      } else if (opts?.folderId) {
-        filtered = all.filter((n) => n.folder_id === opts.folderId && n.created_by === currentUsername);
-      } else {
-        filtered = all;
-      }
-      const { items, total, has_more } = paginate(filtered, opts?.limit, opts?.offset);
-      const page: NotesPage = { notes: items.map((n) => toNote(n, teamId)), total, has_more };
-      return page;
+    async listNotes() {
+      // clann-server's `/api/notes` is always tree-scoped (`?tree=`), never
+      // team-scoped the way tack's own `GET /notes` is — `ResearchNotesPanel`
+      // uses `listMode="entity"` (the default), so this is never actually
+      // called; kept only for `TackNotesApi` interface completeness.
+      const notes = await apiListResearchNotes(treeName);
+      return { notes: notes.map(toNote), total: notes.length, has_more: false };
     },
 
     async getNote(id) {
-      return toNote(await apiGetResearchNote(id), teamId);
+      return toNote(await apiGetResearchNote(id));
     },
 
     async createNote(payload) {
@@ -211,18 +168,17 @@ export function createClannTackNotesApi(
         title: payload.title,
         description: extra?.description ?? null,
         body: payload.body_markdown,
-        trees: [treeId],
+        tree: treeName,
         folder_id: payload.folder_id ?? null,
-        created_by: currentUsername,
-        is_shared: payload.visibility !== "private",
+        visibility: payload.visibility,
       });
-      return toNote(created, teamId);
+      return toNote(created);
     },
 
     async listNotesByAttachment(owningService, entityType, entityId) {
       if (owningService !== "clann" || entityType !== "tree") return [];
       const notes = await apiListResearchNotes(entityId);
-      return notes.filter((n) => !n.parent_id).map((n) => toNote(n, teamId));
+      return notes.filter((n) => !n.parent_id).map(toNote);
     },
 
     async updateNote(id, payload) {
@@ -230,13 +186,13 @@ export function createClannTackNotesApi(
       let updated = await apiUpdateResearchNote(id, {
         title: payload.title,
         body: payload.body_markdown,
-        is_shared: payload.visibility !== undefined ? payload.visibility !== "private" : undefined,
+        visibility: payload.visibility,
         ...(extra && "description" in extra ? { description: extra.description } : {}),
       });
       if (payload.folder_id !== undefined) {
-        updated = await apiSetNoteFolder(id, payload.folder_id);
+        updated = await apiSetNoteFolder(id, payload.folder_id ?? null);
       }
-      return toNote(updated, teamId);
+      return toNote(updated);
     },
 
     async deleteNote(id) {
@@ -245,43 +201,27 @@ export function createClannTackNotesApi(
 
     async listReplies(id) {
       const replies = await apiListNoteReplies(id);
-      return replies.map((n) => toNote(n, teamId));
+      return replies.map(toNote);
     },
 
     async createReply(id, bodyMarkdown) {
-      const reply = await apiCreateNoteReply(id, {
-        body: bodyMarkdown,
-        created_by: currentUsername,
-        trees: [treeId],
-      });
-      return toNote(reply, teamId);
+      const reply = await apiCreateNoteReply(id, { body: bodyMarkdown });
+      return toNote(reply);
     },
 
-    async listNoteFolders(_teamId, opts) {
-      const [folders, notes] = await Promise.all([apiListFolders(currentUsername), apiListResearchNotes(treeId)]);
-      const counts = new Map<string, number>();
-      for (const n of notes) {
-        // Real folders are a personal organizing tool here (see this
-        // file's own doc comment) -- a folder's count is always scoped to
-        // its own owner, same as `listNotes` above.
-        if (n.folder_id && n.created_by === currentUsername) counts.set(n.folder_id, (counts.get(n.folder_id) ?? 0) + 1);
-      }
-      const { items, total } = paginate(folders, opts?.limit, opts?.offset);
-      const page: NoteFoldersPage = {
-        folders: items.map((f) => toNoteFolder(f, teamId, counts.get(f.id) ?? 0)),
-        total,
-      };
-      return page;
+    async listNoteFolders() {
+      const folders = await apiListFolders(currentUsername);
+      return { folders: folders.map((f) => toNoteFolder(f, null, 0)), total: folders.length };
     },
 
     async createNoteFolder(payload) {
-      const created = await apiCreateFolder(payload.name, currentUsername);
-      return toNoteFolder(created, teamId, 0);
+      const created = await apiCreateFolder(payload.name);
+      return toNoteFolder(created, null, 0);
     },
 
     async renameNoteFolder(id, name) {
       const renamed = await apiRenameFolder(id, name);
-      return toNoteFolder(renamed, teamId, 0);
+      return toNoteFolder(renamed, null, 0);
     },
 
     async deleteNoteFolder(id) {
@@ -289,9 +229,11 @@ export function createClannTackNotesApi(
     },
 
     async listNoteFoldersByAttachment() {
-      // Clann has no entity-scoped folders (folderScope="team" only) --
-      // same as Cartlann's model, see this file's own doc comment.
-      return [];
+      // Clann's folders were never entity/tree-scoped, even pre-migration
+      // (see this file's own doc comment) — the same personal registry,
+      // regardless of which tree is active.
+      const folders = await apiListFolders(currentUsername);
+      return folders.map((f) => toNoteFolder(f, null, 0));
     },
 
     listRevisions: (id) => direct.listRevisions(id),
@@ -303,4 +245,4 @@ export function createClannTackNotesApi(
   };
 }
 
-export type { Note as TackNote, Visibility as TackVisibility };
+export type { Note as TackNote, Visibility as TackVisibility } from "@ullav-dev/tack-notes";

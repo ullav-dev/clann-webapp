@@ -10,8 +10,6 @@ import type {
   AddRelationshipRequest,
   UpdateRelationshipRequest,
   UpdateSpouseDatesRequest,
-  CreateResearchNote,
-  UpdateResearchNote,
 } from "@/lib/types";
 
 /**
@@ -22,9 +20,10 @@ import type {
  * For shared team trees (where activeTree.owner !== the logged-in user),
  * person read operations omit `created_by` so the backend uses JWT-based team
  * access instead of the ownership filter (which would return 404).
- * Note reads always include `created_by`; the backend query returns notes
- * owned by the caller OR shared by others (is_shared = true).
  * Write operations keep the logged-in user's username and are blocked in UI.
+ *
+ * Notes/folders are NOT part of this hook — see the comment at their
+ * omission point below.
  */
 export function useApi() {
   const { user } = useAuth();
@@ -39,8 +38,6 @@ export function useApi() {
   const isReadOnly = isSharedTree && !isEditorOf(activeTree?.name ?? "");
   // For reads on a shared tree, omit created_by so the backend uses JWT auth.
   const readOwner = isSharedTree ? undefined : createdBy;
-
-  const isTeamLinkedTree = !!activeTree?.team_id;
 
   return {
     isSharedTree,
@@ -68,21 +65,11 @@ export function useApi() {
     rawId: api.rawId,
     personImageUrl: api.personImageUrl,
     personLifeImageUrl: api.personLifeImageUrl,
-    isTeamLinkedTree,
-    listResearchNotes: () => api.listResearchNotes(tree, createdBy),
-    createResearchNote: (body: CreateResearchNote) =>
-      api.createResearchNote({ ...body, created_by: createdBy, trees: tree ? [tree] : [] }),
-    updateResearchNote: (id: string, body: UpdateResearchNote) => api.updateResearchNote(id, body),
-    deleteResearchNote: (id: string) => api.deleteResearchNote(id),
-    listNoteReplies: (noteId: string) => api.listNoteReplies(noteId),
-    createNoteReply: (noteId: string, body: string) =>
-      api.createNoteReply(noteId, { body, created_by: createdBy, trees: tree ? [tree] : [] }),
-    setNoteFolder: (noteId: string, folderId: string | null) => api.setNoteFolder(noteId, folderId),
-    rawNoteId: api.rawNoteId,
-    listFolders: () => api.listFolders(createdBy),
-    createFolder: (name: string) => api.createFolder(name, createdBy ?? ""),
-    renameFolder: (folderId: string, name: string) => api.renameFolder(folderId, name),
-    deleteFolder: (folderId: string) => api.deleteFolder(folderId),
+    // Notes/folders are NOT wrapped here — `ResearchNotesPanel`/
+    // `tack-notes-adapter.ts` call `@/lib/api`'s note/folder functions
+    // directly (same pattern the adapter already used pre-cutover), since
+    // `TackNotesApi`'s own shape doesn't match this hook's per-call
+    // created_by/tree-injection convention.
     listChatSessions: () => api.listChatSessions(createdBy, tree ?? undefined),
     createChatSession: (title: string) =>
       api.createChatSession({ title, created_by: createdBy ?? "", tree: tree ?? null }),
