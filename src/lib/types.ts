@@ -301,52 +301,57 @@ export interface UpdateLifeEvent {
   source_doc?: string | null;
 }
 
-// Research Folders
+// Research Folders — personal-per-user name registry, still SurrealDB-
+// backed, unaffected by the tack-server notes cutover (see
+// clann-server's models/research_folder.rs doc comment: no team/tree
+// column, so it has no 1:1 tack equivalent). `id` is a bare key now, not
+// the old "research_folder:<ulid>"-prefixed form.
 export interface ResearchFolder {
-  id: string; // "research_folder:<ulid>"
+  id: string;
   name: string;
-  created_by: string;
+  created_by: string; // UUM username — folders stay username-keyed, never unified with tack's UUID-keyed note identity below
   created_at?: string | null;
 }
 
-// Research Notes
+// Research Notes — backed by tack-server via clann-server's `/api/notes/*`
+// (Phase 3 of /Users/colin/.claude/plans/linked-roaming-rabbit.md), a
+// near-passthrough of tack's own `Note` shape plus `description` (carried
+// in clann-server's own `tack_note_meta` sidecar). `id`/`created_by` are
+// real UUIDs (tack note id / UUM user id) — NOT the old SurrealDB record
+// id / username pair.
 export interface ResearchNote {
-  id: string; // "research_note:<ulid>"
+  id: string;
+  team_id: string | null;
+  parent_id: string | null;    // set on replies; null for top-level notes
+  folder_id: string | null;    // a *Clann* folder id (research_folder's own registry), not a tack folder UUID
+  visibility: "private" | "team" | "organization";
   title: string;
-  description?: string | null;
-  body?: string | null;
-  trees: string[];
-  folder_id?: string | null;
-  created_by?: string | null;
-  created_at?: string | null;
-  updated_at?: string | null;
-  is_shared?: boolean;        // when true, visible to all team members with tree access
-  parent_id?: string | null;  // set on replies; null/absent for top-level notes
-  reply_count?: number;       // derived by the list endpoint; absent on replies
+  body_markdown: string;
+  description: string | null;
+  created_by: string;          // UUM user UUID
+  created_at: string;
+  updated_at: string;
+  reply_count: number;
 }
 
 export interface CreateResearchNote {
   title: string;
   description?: string | null;
-  body?: string | null;
-  trees: string[];
-  folder_id?: string | null;
-  created_by?: string | null;
-  is_shared?: boolean;
+  body: string;
+  tree: string;                // the tree this note belongs to, by name — exactly one, not a list (see server model's own doc comment)
+  folder_id?: string | null;   // a Clann folder id; only valid on a team-linked tree
+  visibility: "private" | "team" | "organization";
 }
 
 export interface UpdateResearchNote {
-  title?: string | null;
+  title?: string;
   description?: string | null;
-  body?: string | null;
-  trees?: string[] | null;
-  is_shared?: boolean | null;
+  body?: string;
+  visibility?: "private" | "team" | "organization";
 }
 
 export interface CreateNoteReply {
   body: string;
-  created_by?: string | null;
-  trees?: string[];
 }
 
 // ─── Contact Requests ────────────────────────────────────────────────────────

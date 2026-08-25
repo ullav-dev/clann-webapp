@@ -1127,6 +1127,8 @@
     "deleteNoteConfirmBody": "Dadurch werden die Notiz, alle gespeicherten Versionen und alle Antworten gelöscht. Dies kann nicht rückgängig gemacht werden.",
     "deleteNoteConfirmTitle": "Diese Notiz löschen?",
     "deleteVersionConfirm": "Diese Version löschen? Ihre Antworten sind dann im Verlauf nicht mehr erreichbar.",
+    "descriptionLabel": "Beschreibung",
+    "digDeeper": "Mit KI vertiefen",
     "edit": "Bearbeiten",
     "editedBy": "von {name}",
     "editedSinceSave": "seit dieser Version bearbeitet",

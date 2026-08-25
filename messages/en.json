@@ -1127,6 +1127,8 @@
     "deleteNoteConfirmBody": "This deletes the note, all its saved versions, and all its replies. This can't be undone.",
     "deleteNoteConfirmTitle": "Delete this note?",
     "deleteVersionConfirm": "Delete this version? Its replies will no longer be reachable from history.",
+    "descriptionLabel": "Description",
+    "digDeeper": "Dig deeper with AI",
     "edit": "Edit",
     "editedBy": "by {name}",
     "editedSinceSave": "edited since this version",

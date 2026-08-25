@@ -1127,6 +1127,8 @@
     "deleteNoteConfirmBody": "Scriosfaidh sé seo an nóta, gach leagan sábháilte, agus gach freagra. Ní féidir é seo a chur ar ceal.",
     "deleteNoteConfirmTitle": "An nóta seo a scriosadh?",
     "deleteVersionConfirm": "An leagan seo a scriosadh? Ní bheidh a fhreagraí inrochtana ón stair a thuilleadh.",
+    "descriptionLabel": "Cur síos",
+    "digDeeper": "Tochailt níos doimhne le AI",
     "edit": "Cuir in eagar",
     "editedBy": "ag {name}",
     "editedSinceSave": "curtha in eagar ón leagan seo",

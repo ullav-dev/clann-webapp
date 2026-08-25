@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { listPersons, listResearchNotes } from "@/lib/api";
+import { listPersons, listResearchNotes, listTrees } from "@/lib/api";
 
 function barColour(pct: number): string {
   if (pct >= 0.9) return "bg-red-500";
@@ -70,12 +70,27 @@ export default function ClannUsageWidget({ inline = false }: Props) {
     listPersons(user.username)
       .then((people) => setPersonCount(people.length))
       .catch(() => {});
-    listResearchNotes(undefined, user.username)
-      .then((notes) => {
-        const ownIds = new Set(notes.map((n) => n.id));
-        // Replies to another user's note don't count toward the quota.
-        const countable = notes.filter((n) => !n.parent_id || ownIds.has(n.parent_id));
-        setNoteCount(countable.length);
+    // clann-server's own `/api/notes` is always tree-scoped now (backed by
+    // tack-server, see the notes migration plan) — there's no cross-tree
+    // "all my notes" endpoint anymore, unlike the old SurrealDB-backed
+    // handler this widget originally called. Reconstructed here by summing
+    // per-tree counts across every tree the user owns (mirrors
+    // `TreeContext`'s own `listTrees(user.username)` — the same set the
+    // tree switcher offers). `GET /api/notes` only ever returns top-level,
+    // entity-attached notes (a reply is never itself attached to a tree —
+    // see `handlers::research_note::create_note_reply`), so there's no
+    // reply-vs-top-level distinction left to make here, unlike the old
+    // `is_shared`-era version of this effect. A team-linked tree the user
+    // has access to but doesn't own is not counted here, same gap as the
+    // person count above, which was already scoped to owned trees before
+    // this change.
+    listTrees(user.username)
+      .then((trees) => Promise.all(trees.map((tr) => listResearchNotes(tr.name).catch(() => []))))
+      .then((perTree) => {
+        const ownNoteIds = new Set(
+          perTree.flatMap((notes) => notes.filter((n) => n.created_by === user.id).map((n) => n.id))
+        );
+        setNoteCount(ownNoteIds.size);
       })
       .catch(() => {});
   }, [user]);
