@@ -45,13 +45,16 @@
 // entityType/entityId args ignored — Clann's folders were never per-tree
 // scoped, even before this migration: `ResearchPage.tsx`'s old folder
 // sidebar listed the same personal set regardless of which tree was
-// active). **Known, deliberate regression** (flagged in the same PR as the
-// backend change that causes it, not discovered later): a personal
-// (team-less) note can never be filed into a folder — tack's own
-// `POST`/`PATCH /notes` reject it outright. Checked directly against the
-// last production dry-run: 5 of 6 real migrated notes are personal, so the
-// folder picker is a dead control for almost every real note today, until
-// a genuine per-user filing concept exists for tack.
+// active). A personal (team-less) note CAN be filed too (clann-server PR
+// #63) — it just never resolves to a real tack folder (tack's own
+// `note_folders` are always `team_id`-scoped); the filing is recorded as
+// clann-server-side metadata only (`tack_note_meta.legacy_folder_id`),
+// which is sound because a personal note is always private and only ever
+// visible to its own creator, so filing it into one of that creator's own
+// personal folders raises no ACL question a team folder would. An earlier
+// version of this migration rejected this outright, on the mistaken
+// assumption that "needs a real tack folder" and "can be filed at all"
+// were the same constraint.
 //
 // Folders stay username-keyed (`ClannAuth::username`, unrelated to tack's
 // UUID-keyed user identity) — `research_folder.created_by` was never part
