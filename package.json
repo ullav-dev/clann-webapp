@@ -47,5 +47,6 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18"
-  }
+  },
+  "license": "GPL-3.0-or-later"
 }
