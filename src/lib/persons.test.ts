@@ -44,6 +44,22 @@ describe("sortPersons", () => {
     ]);
   });
 
+  it("sorts date_of_birth as fuzzy dates, nulls last in both directions", () => {
+    // 2020-11-02 must come after 2020-03-15 (the old day-regex/lexical bug got
+    // this wrong); ranges/approximations use their earliest bound.
+    const people = [
+      p("1", "A", "A", { date_of_birth: "2020-11-02" }),
+      p("2", "B", "B", { date_of_birth: "circa 2013" }),
+      p("3", "C", "C", { date_of_birth: null }),
+      p("4", "D", "D", { date_of_birth: "2018-2019" }),
+      p("5", "E", "E", { date_of_birth: "2020-03-15" }),
+    ];
+    expect(sortPersons(people, "date_of_birth", "asc").map((x) => x.id))
+      .toEqual(["2", "4", "5", "1", "3"]);
+    expect(sortPersons(people, "date_of_birth", "desc").map((x) => x.id))
+      .toEqual(["1", "5", "4", "2", "3"]);
+  });
+
   it("pushes null/empty values to the end regardless of direction", () => {
     const mixed = [
       p("1", "A", "Smith", { place_of_birth: null }),
