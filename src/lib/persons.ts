@@ -1,4 +1,5 @@
 import type { Person } from "./types";
+import { compareFuzzyDates } from "./fuzzy-date";
 
 export type SortField = "family_name" | "date_of_birth" | "place_of_birth";
 export type SortDir = "asc" | "desc";
@@ -6,6 +7,11 @@ export type SortDir = "asc" | "desc";
 /** Sort a list of persons by a field; empty/null values always sort last. */
 export function sortPersons(people: Person[], field: SortField, dir: SortDir): Person[] {
   return [...people].sort((a, b) => {
+    // Date fields are free-text fuzzy dates ("circa 2013", "2018-2019",
+    // "15/06/1985") and must be compared chronologically, never lexically.
+    if (field === "date_of_birth") {
+      return compareFuzzyDates(a.date_of_birth, b.date_of_birth, dir);
+    }
     const av = (a[field] ?? "") as string;
     const bv = (b[field] ?? "") as string;
     if (!av && bv) return 1;

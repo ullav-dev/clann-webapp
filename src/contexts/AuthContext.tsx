@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { AuthUser, ClannSubscription, LoginResponse } from "@/lib/auth-api";
 import { login as apiLogin, decodeClannSubscription } from "@/lib/auth-api";
 import { setApiToken } from "@/lib/api";
+import { resolveIdleMs } from "@/lib/idle-timeout";
 
 interface AuthState {
   user: AuthUser | null;
@@ -38,10 +39,20 @@ const AuthContext = createContext<AuthState>({
 
 const STORAGE_KEY = "clann_auth";
 
-// Idle timeout — configurable via NEXT_PUBLIC_IDLE_TIMEOUT_MS (milliseconds).
-// Defaults to 1 hour. The warning banner appears 60 s before logout.
-const IDLE_MS = Number(process.env.NEXT_PUBLIC_IDLE_TIMEOUT_MS ?? 3_600_000);
+// Idle timeout (milliseconds). Resolved at runtime so it can be set via the
+// plain `IDLE_TIMEOUT_MS` env var (injected into window.__ENV__ by the server
+// layout) and changed with just a container restart — no rebuild. Falls back to
+// the legacy build-time NEXT_PUBLIC_IDLE_TIMEOUT_MS, then a 1-hour default.
+// The warning banner appears 60 s before logout.
 const WARN_BEFORE_MS = 60_000;
+
+function getIdleMs(): number {
+  const runtime =
+    typeof window !== "undefined"
+      ? (window as { __ENV__?: { IDLE_TIMEOUT_MS?: string | number } }).__ENV__?.IDLE_TIMEOUT_MS
+      : undefined;
+  return resolveIdleMs(runtime ?? process.env.NEXT_PUBLIC_IDLE_TIMEOUT_MS);
+}
 
 const ACTIVITY_EVENTS = [
   "mousemove",
@@ -198,18 +209,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     idleWarningRef.current = false;
     setIdleWarning(false);
 
-    if (IDLE_MS > WARN_BEFORE_MS) {
+    const idleMs = getIdleMs();
+
+    if (idleMs > WARN_BEFORE_MS) {
       warnTimerRef.current = setTimeout(() => {
         idleWarningRef.current = true;
         setIdleWarning(true);
-      }, IDLE_MS - WARN_BEFORE_MS);
+      }, idleMs - WARN_BEFORE_MS);
     }
 
     logoutTimerRef.current = setTimeout(() => {
       idleWarningRef.current = false;
       setIdleWarning(false);
       logout();
-    }, IDLE_MS);
+    }, idleMs);
   }, [logout]);
 
   // Activity handler ignores events while the warning modal is open so the

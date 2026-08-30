@@ -1,4 +1,5 @@
 import type { LifeEvent, EventType } from "@/lib/types";
+import { fuzzyDateSortKey } from "@/lib/fuzzy-date";
 
 export interface EventStyle {
   icon: string;
@@ -44,24 +45,24 @@ export function styleFor(eventType: string): EventStyle {
   return EVENT_STYLES[eventType] ?? DEFAULT_STYLE;
 }
 
+/**
+ * Chronological sort key for a life-event date. Undated events sort last.
+ * Delegates to the shared fuzzy-date parser (handles ISO, slash, month-name,
+ * ranges and approximations) rather than a hand-rolled regex.
+ */
 export function dateSortKey(date: string | null | undefined): number {
-  if (!date) return Infinity;
-  const yearMatch = date.match(/\d{4}/);
-  if (!yearMatch) return Infinity;
-  const year = parseInt(yearMatch[0]);
-  const months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
-  const lower = date.toLowerCase();
-  const monthIdx = months.findIndex((m) => lower.includes(m));
-  const month = monthIdx >= 0 ? monthIdx + 1 : 0;
-  const dayMatch = date.match(/\b([1-9]|[12]\d|3[01])\b/);
-  const day = dayMatch ? parseInt(dayMatch[1]) : 0;
-  return year * 10000 + month * 100 + day;
+  const k = fuzzyDateSortKey(date);
+  return k === null ? Infinity : k;
 }
 
 export function sortedEvents(events: LifeEvent[]): LifeEvent[] {
   return [...events].sort((a, b) => {
     if (a.event_type === "Birth" && b.event_type !== "Birth") return -1;
     if (b.event_type === "Birth" && a.event_type !== "Birth") return 1;
-    return dateSortKey(a.date) - dateSortKey(b.date);
+    const ka = dateSortKey(a.date);
+    const kb = dateSortKey(b.date);
+    // Both undated (Infinity − Infinity = NaN) → treat as equal.
+    if (ka === kb) return 0;
+    return ka - kb;
   });
 }

@@ -47,7 +47,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `window.__ENV__=${JSON.stringify({ DAM_BROWSER_URL: process.env.DAM_BROWSER_URL ?? "https://comad.ullav.com" })}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `window.__ENV__=${JSON.stringify({ DAM_BROWSER_URL: process.env.DAM_BROWSER_URL ?? "https://comad.ullav.com", IDLE_TIMEOUT_MS: process.env.IDLE_TIMEOUT_MS ?? null })}` }} />
       </head>
       <body className={`${geist.className} bg-stone-50 text-stone-900 min-h-screen`}>
         <NextIntlClientProvider messages={messages}>
