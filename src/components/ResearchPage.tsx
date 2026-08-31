@@ -15,6 +15,13 @@ import ContactRequestsPanel from "@/components/ContactRequestsPanel";
 
 // ─── main component ───────────────────────────────────────────────────────────
 
+// All Research tabs are peers: AI Assistant · Wikipedia · Explore · Notes ·
+// Contact Requests. Shared tab-button styling.
+const tabCls = (active: boolean) =>
+  `px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px flex items-center gap-1.5 ${
+    active ? "border-emerald-600 text-emerald-700" : "border-transparent text-stone-500 hover:text-stone-700"
+  }`;
+
 export default function ResearchPage() {
   const t = useTranslations("research");
   const tCensus = useTranslations("census");
@@ -42,8 +49,14 @@ export default function ResearchPage() {
   // The effective person ID to use for pre-filling search forms.
   const prefillPersonId = aiPersonId ?? localPersonId;
 
-  const [activePanel, setActivePanel] = useState<"notes" | "requests">(
-    searchParams.get("panel") === "requests" ? "requests" : "notes"
+  const [activePanel, setActivePanel] = useState<
+    "ai" | "wikipedia" | "census" | "irishGenealogy" | "notes" | "requests"
+  >(
+    searchParams.get("panel") === "requests"
+      ? "requests"
+      : searchParams.get("panel") === "ai"
+        ? "ai"
+        : "notes"
   );
   const [pendingContactCount, setPendingContactCount] = useState(0);
 
@@ -56,7 +69,6 @@ export default function ResearchPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.username]);
 
-  const [mode, setMode] = useState<"wikipedia" | "census" | "irishGenealogy" | "ai" | null>(null);
   const [exploreOpen, setExploreOpen] = useState(false);
   const exploreRef = useRef<HTMLDivElement>(null);
   // Pre-fill state for "Save as Note" from the AI Advisor / Wikipedia / Irish Genealogy panels
@@ -72,10 +84,11 @@ export default function ResearchPage() {
 
   const isAdmin = roles.includes("admin");
 
-  // Auto-open AI panel when arriving from a person's detail page.
-  useEffect(() => {
-    if (aiPersonId) setMode("ai");
-  }, [aiPersonId]);
+  // NOTE: Research opens on the notes navigator by default. It used to
+  // auto-open the AI panel whenever a personId was present (the nav link
+  // carries the last-viewed person), which hid the notes panel entirely — the
+  // AI Assistant is now opt-in via its own button. The person context is still
+  // captured (below) to pre-fill the AI/Census/Irish forms when opened.
 
   // Pre-fill Census and Irish Genealogy forms from the effective person ID (URL param or last-viewed).
   // Must pass created_by so the backend ownership filter can find the person (same as useApi.getPerson).
@@ -112,12 +125,12 @@ export default function ResearchPage() {
 
   function handleSaveAsNote(title: string, description: string, body: string) {
     setPrefill({ title, description, body });
-    setMode(null);
+    setActivePanel("notes"); // the composer lives in the Notes tab
   }
 
   function handleDigDeeper(title: string, body: string) {
     setAiNoteContext({ title, body });
-    setMode("ai");
+    setActivePanel("ai"); // AI Assistant is its own tab now
   }
 
   if (treeLoading || !user) return null;
@@ -132,25 +145,79 @@ export default function ResearchPage() {
     );
   }
 
-  const rightPanel = () => {
-    if (mode === "ai") {
-      return (
-        <div className="bg-white rounded-xl border border-stone-200 p-6 h-full">
+  return (
+    <div>
+      {/* Research tabs — all peers: AI Assistant · Wikipedia · Explore ·
+          Notes · Contact Requests. Notes/Contact Requests sit BESIDE the
+          research tools, not under them; Save-as-Note from any tool lands in
+          the Notes tab, which lists every note for the tree regardless of
+          source. */}
+      <div className="flex gap-1 border-b border-stone-200 mb-6 items-center flex-wrap">
+        <button onClick={() => setActivePanel("ai")} className={tabCls(activePanel === "ai")}>
+          🤖 {tAi("toggle")}
+        </button>
+        <button onClick={() => setActivePanel("wikipedia")} className={tabCls(activePanel === "wikipedia")}>
+          🌐 {t("wikiToggle")}
+        </button>
+        <div ref={exploreRef} className="relative">
+          <button
+            onClick={() => setExploreOpen((o) => !o)}
+            title={t("exploreTooltip")}
+            className={tabCls(activePanel === "census" || activePanel === "irishGenealogy")}
+          >
+            🗂️ {t("exploreToggle")}
+            <svg className={`w-3.5 h-3.5 transition-transform ${exploreOpen ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+            </svg>
+          </button>
+          {exploreOpen && (
+            <div className="absolute left-0 mt-1.5 w-52 bg-white border border-stone-200 rounded-xl shadow-lg z-20 py-1 overflow-hidden">
+              <button
+                onClick={() => { setActivePanel("census"); setExploreOpen(false); }}
+                className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${activePanel === "census" ? "bg-emerald-50 text-emerald-800 font-medium" : "text-stone-700 hover:bg-stone-50"}`}
+              >
+                <span>📜</span>
+                <span>{tCensus("toggle")}</span>
+                {activePanel === "census" && <span className="ml-auto text-emerald-600 text-xs">✓</span>}
+              </button>
+              <button
+                onClick={() => { setActivePanel("irishGenealogy"); setExploreOpen(false); }}
+                className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${activePanel === "irishGenealogy" ? "bg-emerald-50 text-emerald-800 font-medium" : "text-stone-700 hover:bg-stone-50"}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="https://www.irishgenealogy.ie/app/uploads/2022/01/cropped-IrishGenealogy-logo-32x32.png" alt="" className="w-4 h-4 object-contain" />
+                <span>{tIrishGenealogy("toggle")}</span>
+                {activePanel === "irishGenealogy" && <span className="ml-auto text-emerald-600 text-xs">✓</span>}
+              </button>
+            </div>
+          )}
+        </div>
+        <button onClick={() => setActivePanel("notes")} className={tabCls(activePanel === "notes")}>
+          📝 {t("panelNotes")}
+        </button>
+        <button onClick={() => setActivePanel("requests")} className={tabCls(activePanel === "requests")}>
+          📬 {t("panelRequests")}
+          {pendingContactCount > 0 && (
+            <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] font-bold">
+              {pendingContactCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {activePanel === "ai" && (
+        <div className="h-[calc(100vh-9rem)] min-h-[600px] bg-white rounded-xl border border-stone-200 p-6 overflow-hidden">
           <AiChat onSaveAsNote={handleSaveAsNote} personId={aiPersonId} noteContext={aiNoteContext} />
         </div>
-      );
-    }
+      )}
 
-    if (mode === "wikipedia") {
-      return (
+      {activePanel === "wikipedia" && (
         <div className="bg-white rounded-xl border border-stone-200 p-6">
           <WikipediaSearch onSaveAsNote={handleSaveAsNote} />
         </div>
-      );
-    }
+      )}
 
-    if (mode === "census") {
-      return (
+      {activePanel === "census" && (
         <div className="bg-white rounded-xl border border-stone-200 p-6 flex flex-col gap-4">
           <h2 className="text-base font-semibold text-stone-800">{tCensus("title")}</h2>
           <CensusSearch
@@ -159,11 +226,9 @@ export default function ResearchPage() {
             initialSurname={censusPersonName?.surname ?? ""}
           />
         </div>
-      );
-    }
+      )}
 
-    if (mode === "irishGenealogy") {
-      return (
+      {activePanel === "irishGenealogy" && (
         <div className="bg-white rounded-xl border border-stone-200 p-6 flex flex-col gap-4">
           <h2 className="text-base font-semibold text-stone-800">{tIrishGenealogy("title")}</h2>
           <IrishGenealogySearch
@@ -176,141 +241,37 @@ export default function ResearchPage() {
             onSaveAsNote={handleSaveAsNote}
           />
         </div>
-      );
-    }
-
-    return null; // mode === null: the Notes panel itself, rendered below
-  };
-
-  return (
-    <div>
-      {/* Top-level panel switcher: Notes | Contact Requests */}
-      <div className="flex gap-1 border-b border-stone-200 mb-6">
-        {(["notes", "requests"] as const).map((panel) => (
-          <button
-            key={panel}
-            onClick={() => setActivePanel(panel)}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px flex items-center gap-1.5 ${
-              activePanel === panel
-                ? "border-emerald-600 text-emerald-700"
-                : "border-transparent text-stone-500 hover:text-stone-700"
-            }`}
-          >
-            {panel === "notes" ? `📝 ${t("panelNotes")}` : `📬 ${t("panelRequests")}`}
-            {panel === "requests" && pendingContactCount > 0 && (
-              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] font-bold">
-                {pendingContactCount}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      )}
 
       {activePanel === "requests" && <ContactRequestsPanel />}
 
-      {activePanel === "notes" && <>
-
-      {/* Back-to-tree breadcrumb — shown whenever we have a person context (URL param or last-viewed) */}
-      {prefillPersonId && irishGenealogyPrefill && (
-        <div className="mb-4">
-          <a
-            href={`/${locale}/persons/${prefillPersonId}`}
-            className="inline-flex items-center gap-1.5 text-sm text-emerald-700 hover:text-emerald-900 font-medium transition-colors"
-          >
-            ← 🌳 {irishGenealogyPrefill.forename} {irishGenealogyPrefill.surname}
-          </a>
-        </div>
-      )}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-stone-800">{t("title")}</h1>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap justify-end">
-          <button
-            onClick={() => {
-              if (mode === "ai") { setMode(null); setAiNoteContext(null); }
-              else setMode("ai");
-            }}
-            title={tAi("toggleTooltip")}
-            className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
-              mode === "ai"
-                ? "bg-violet-600 text-white border-violet-600 hover:bg-violet-700"
-                : "bg-white text-stone-700 border-stone-300 hover:bg-stone-50"
-            }`}
-          >
-            🤖 {tAi("toggle")}
-          </button>
-          <button
-            onClick={() => setMode(mode === "wikipedia" ? null : "wikipedia")}
-            className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
-              mode === "wikipedia"
-                ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
-                : "bg-white text-stone-700 border-stone-300 hover:bg-stone-50"
-            }`}
-          >
-            🌐 {t("wikiToggle")}
-          </button>
-          {/* Explore dropdown */}
-          <div ref={exploreRef} className="relative">
-            <button
-              onClick={() => setExploreOpen((o) => !o)}
-              title={t("exploreTooltip")}
-              className={`inline-flex items-center gap-1.5 font-medium px-4 py-2.5 rounded-lg transition-colors text-sm border ${
-                mode === "census" || mode === "irishGenealogy"
-                  ? "bg-emerald-700 text-white border-emerald-700 hover:bg-emerald-800"
-                  : "bg-white text-stone-700 border-stone-300 hover:bg-stone-50"
-              }`}
-            >
-              🗂️ {t("exploreToggle")}
-              <svg className={`w-3.5 h-3.5 transition-transform ${exploreOpen ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-              </svg>
-            </button>
-            {exploreOpen && (
-              <div className="absolute right-0 mt-1.5 w-52 bg-white border border-stone-200 rounded-xl shadow-lg z-20 py-1 overflow-hidden">
-                <button
-                  onClick={() => { setMode(mode === "census" ? null : "census"); setExploreOpen(false); }}
-                  className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
-                    mode === "census"
-                      ? "bg-emerald-50 text-emerald-800 font-medium"
-                      : "text-stone-700 hover:bg-stone-50"
-                  }`}
-                >
-                  <span>📜</span>
-                  <span>{tCensus("toggle")}</span>
-                  {mode === "census" && <span className="ml-auto text-emerald-600 text-xs">✓</span>}
-                </button>
-                <button
-                  onClick={() => { setMode(mode === "irishGenealogy" ? null : "irishGenealogy"); setExploreOpen(false); }}
-                  className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${
-                    mode === "irishGenealogy"
-                      ? "bg-emerald-50 text-emerald-800 font-medium"
-                      : "text-stone-700 hover:bg-stone-50"
-                  }`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="https://www.irishgenealogy.ie/app/uploads/2022/01/cropped-IrishGenealogy-logo-32x32.png" alt="" className="w-4 h-4 object-contain" />
-                  <span>{tIrishGenealogy("toggle")}</span>
-                  {mode === "irishGenealogy" && <span className="ml-auto text-emerald-600 text-xs">✓</span>}
-                </button>
-              </div>
-            )}
+      {activePanel === "notes" && (
+        // Full-height flex column so the notes panel fills the viewport
+        // (navigator left / editor right). `main` isn't height-bounded, so bound
+        // it here. No page header — the tab is the heading; Notes is only notes,
+        // listing every note for the tree regardless of which tool produced it.
+        <div className="flex flex-col h-[calc(100vh-9rem)] min-h-[600px]">
+          {prefillPersonId && irishGenealogyPrefill && (
+            <div className="mb-4 shrink-0">
+              <a
+                href={`/${locale}/persons/${prefillPersonId}`}
+                className="inline-flex items-center gap-1.5 text-sm text-emerald-700 hover:text-emerald-900 font-medium transition-colors"
+              >
+                ← 🌳 {irishGenealogyPrefill.forename} {irishGenealogyPrefill.surname}
+              </a>
+            </div>
+          )}
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <ResearchNotesPanel
+              activeTree={activeTree}
+              isAdmin={isAdmin}
+              initialDraft={prefill}
+              onInitialDraftConsumed={() => setPrefill(null)}
+              onDigDeeper={handleDigDeeper}
+            />
           </div>
         </div>
-      </div>
-
-      {mode ? (
-        rightPanel()
-      ) : (
-        <ResearchNotesPanel
-          activeTree={activeTree}
-          isAdmin={isAdmin}
-          initialDraft={prefill}
-          onInitialDraftConsumed={() => setPrefill(null)}
-          onDigDeeper={handleDigDeeper}
-        />
       )}
-      </>}
     </div>
   );
 }
