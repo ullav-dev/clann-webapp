@@ -302,13 +302,20 @@ export default function ResearchPage() {
       {mode ? (
         rightPanel()
       ) : (
-        <ResearchNotesPanel
-          activeTree={activeTree}
-          isAdmin={isAdmin}
-          initialDraft={prefill}
-          onInitialDraftConsumed={() => setPrefill(null)}
-          onDigDeeper={handleDigDeeper}
-        />
+        // TackNotesPanel is `flex flex-col h-full min-h-0`; its inner
+        // note-list / detail panes are `flex-1 min-h-0 overflow-y-auto` and
+        // only scroll (instead of growing unboundedly) when an ancestor has a
+        // bounded height. `main` is `py-8` with no height, so give the panel an
+        // explicit viewport-relative height here.
+        <div className="h-[calc(100vh-15rem)] min-h-[520px]">
+          <ResearchNotesPanel
+            activeTree={activeTree}
+            isAdmin={isAdmin}
+            initialDraft={prefill}
+            onInitialDraftConsumed={() => setPrefill(null)}
+            onDigDeeper={handleDigDeeper}
+          />
+        </div>
       )}
       </>}
     </div>

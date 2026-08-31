@@ -1,6 +1,22 @@
 @import "tailwindcss";
 @source "../../node_modules/@ullav-dev/dam-picker/src";
+/* tack-notes ships raw .tsx with Tailwind utility classes; Tailwind v4 does not
+   scan node_modules by default, so without this line none of TackNotesPanel's
+   `flex`/`rounded`/`px-*` utilities are generated and the Notes panel renders
+   as unstyled DOM. Mirrors the dam-picker line above. */
+@source "../../node_modules/@ullav-dev/tack-notes/src";
 @plugin "@tailwindcss/typography";
+
+/* tack-notes accent tokens — the package falls back to rose (#be123c …) when
+   these are undefined, which clashes with Clann's emerald/stone theme. Map them
+   onto the emerald palette the rest of the app uses. */
+:root {
+  --tnotes-50: #ecfdf5;
+  --tnotes-300: #6ee7b7;
+  --tnotes-400: #34d399;
+  --tnotes-700: #047857;
+  --tnotes-800: #065f46;
+}
 
 /* React Flow */
 @import "@xyflow/react/dist/style.css";
